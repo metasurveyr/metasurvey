@@ -37,7 +37,7 @@ load_survey <- function(
   ) {
     stop(
       message(
-        'Se debe indicar la ruta del archivo o una encuesta con su respectiva edición'
+        'Se debe indicar la ruta del archivo o una encuesta con su respectiva edicion'
       )
     )
   }
