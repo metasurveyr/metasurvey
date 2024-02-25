@@ -38,7 +38,8 @@ Imports:
     httr,
     lifecycle,
     R6,
-    emoji
+    emoji,
+    visNetwork
 Suggests: 
     roxygen2 (>= 7.1.2),
     testthat (>= 3.0.0),
