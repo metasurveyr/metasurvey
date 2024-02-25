@@ -42,7 +42,8 @@ new_svy = svy_example %>%
         B1_7_1 == 1 ~ 1,
         B1_8_1 == 1 ~ 1,
         B1_9_1 == 1 ~ 1,
-        .default = 0
+        .default = 0,
+        .copy = FALSE
     ) %>%
     step_recode(
         new_var = "sector",
