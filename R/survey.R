@@ -51,12 +51,16 @@ Survey <- R6Class("Survey",
     )
 )
 
-as.data.frame <- function(svy) {
+survey_to_data_frame <- function(svy) {
     data.frame(svy$get_data())
 }
 
-as.tibble <- function(svy) {
+survey_to_tibble <- function(svy) {
     tibble::as_tibble(svy$get_data())
+}
+
+survey_to_data.table <- function(svy) {
+  data.table::data.table(svy$get_data())
 }
 
 get_data <- function(svy) {
@@ -67,14 +71,22 @@ get_edition <- function(svy) {
     svy$get_edition()
 }
 
+get_weight <- function(svy) {
+    svy$weight
+}
+
 get_type <- function(svy) {
     svy$get_type()
 }
 
-set_data <- function(svy, data) {
-    clone = svy$clone()
-    clone$set_data(data)
-    return(clone)
+set_data <- function(svy, data,.copy = TRUE) {
+    if (.copy) {
+      clone = svy$clone()
+      clone$set_data(data)
+      return(clone)
+    } else {
+      svy$set_data(data)
+    }
 }
 
 set_edition <- function(svy, new_edition) {
@@ -149,3 +161,4 @@ get_metadata <- function(self) {
 get_steps <- function(svy) {
     svy$steps
 }
+
