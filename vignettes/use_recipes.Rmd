@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(metaSurvey)
 
-set_engine()
+set_engine(
+    "data.table"
+)
 
 svy_example = load_survey(
     svy_type = "eaii",
@@ -42,8 +44,7 @@ new_svy = svy_example %>%
         B1_7_1 == 1 ~ 1,
         B1_8_1 == 1 ~ 1,
         B1_9_1 == 1 ~ 1,
-        .default = 0,
-        .copy = FALSE
+        .default = 0
     ) %>%
     step_recode(
         new_var = "sector",
@@ -159,6 +160,35 @@ steps = get_steps(new_svy)
 
 ```
 
+
+```{r}
+eph2022_3 = load_survey(
+  path = load_survey_example("eph2022_3.csv"),
+  svy_type = "eph",
+  svy_edition = "2022_3",
+  svy_weight = "PONDERA"
+) %>% 
+  metaSurvey::step_recode(
+    "pea",
+    ESTADO %in% 1:2 ~ 1,
+    .default = 0
+  ) %>% 
+  metaSurvey::step_recode(
+    "pet",
+    ESTADO != 4 ~ 1,
+    .default = 0
+  ) %>% 
+  metaSurvey::step_recode(
+    "po",
+    ESTADO == 1 ~ 1,
+    .default = 0
+  ) %>% 
+  metaSurvey::step_recode(
+    "pd",
+    ESTADO == 2 ~ 1,
+    .default = 0
+  )
+```
 
 # Introduction
 
