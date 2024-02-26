@@ -191,8 +191,6 @@ get_type_step <- function(steps) {
 #' View graph
 #' @param svy Survey object
 #' @param init_step Initial step
-#' @return Graph
-#' @export
 #' @importFrom visNetwork visNetwork
 #' @importFrom visNetwork visGroups
 #' @importFrom visNetwork visEdges
@@ -200,6 +198,9 @@ get_type_step <- function(steps) {
 #' @importFrom visNetwork visLegend
 #' @importFrom visNetwork visOptions
 #' @importFrom visNetwork addFontAwesome
+#' @return Graph
+#' @export
+
 
 view_graph <- function(svy, init_step = "Load survey") {
     steps <- get_steps(svy)
