@@ -1,0 +1,17 @@
+.git/
+^\.github$
+^LICENSE\.md$
+^\docs$
+^latinR$
+^docs$
+^guru$
+^.*\.Rproj$
+^\.Rproj\.user$
+
+^.*\.json
+^.*\.lintr
+^doc$
+^Meta$
+^_pkgdown.yml
+^README.Rmd
+^doc
