@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 .git/
 ^\.github$
 ^LICENSE\.md$
@@ -15,3 +17,4 @@
 ^_pkgdown.yml
 ^README.Rmd
 ^doc
+^\.pre-commit-config\.yaml$

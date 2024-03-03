@@ -14,11 +14,11 @@ navbar:
   bg: primary
   structure:
     left:  [intro,articles, reference,tutorials, news]
-    right: [search, gitlab]
+    right: [search, github]
   components:
-    gitlab:
-      icon: fa-gitlab
-      href: https://gitlab.com/cognus/proyectos/anii/tidyeaii
+    github:
+      icon: fa-github
+      href: https://github.com/metaSurveyR/metasurvey
       aria-label: Gitlab
 
 

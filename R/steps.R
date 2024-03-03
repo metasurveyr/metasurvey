@@ -10,18 +10,18 @@ compute <- function(svy, ..., use_copy = use_copy_default()) {
     
     
 
-    .exprs <- substitute(
-        list(...)
-    )
-    .exprs <- eval(
-        .exprs, 
-        .data
-    )
+  .exprs <- substitute(
+    list(...)
+  )
+  .exprs <- eval(
+    .exprs,
+    .data
+  )
 
-    .data[
-        , 
-        (names(.exprs)) := .exprs
-    ]
+  .data[
+    ,
+    (names(.exprs)) := .exprs
+  ]
 
     if (!use_copy) {
         return(set_data(svy, .data))
@@ -43,8 +43,8 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
         .data <- copy(get_data(.clone))
     }
 
-    .exprs <- substitute(list(...))
-    .exprs <- eval(.exprs, .data, parent.frame())
+  .exprs <- substitute(list(...))
+  .exprs <- eval(.exprs, .data, parent.frame())
 
     .labels <- c(
         .default,
@@ -261,34 +261,34 @@ step_recode <- function(svy,new_var, ..., .default = NA_character_,.name_step = 
 #' Get formulas
 #' @param steps List of steps
 #' @return List of formulas
-#' @noRd 
+#' @noRd
 
 get_formulas <- function(steps) {
-    if (length(steps) > 0) {
-        sapply(
-            X = 1:length(steps),
-            FUN = function(x) {
-                step <- steps[[x]]
-                exprs <- step$exprs
-                if (step$type == "recode") {
-                    paste0(
-                        step$new_var,
-                        ": ",
-                        paste(
-                          deparse(
-                            step$exprs
-                          ),
-                          collapse = "\n"
-                        )
-                    )
-                } else {
-                    deparse(exprs)
-                }
-            }
-        )
-    } else {
-        NULL
-    }
+  if (length(steps) > 0) {
+    sapply(
+      X = 1:length(steps),
+      FUN = function(x) {
+        step <- steps[[x]]
+        exprs <- step$exprs
+        if (step$type == "recode") {
+          paste0(
+            step$new_var,
+            ": ",
+            paste(
+              deparse(
+                step$exprs
+              ),
+              collapse = "\n"
+            )
+          )
+        } else {
+          deparse(exprs)
+        }
+      }
+    )
+  } else {
+    NULL
+  }
 }
 
 #' Get type of step
@@ -297,17 +297,17 @@ get_formulas <- function(steps) {
 #' @noRd
 
 get_type_step <- function(steps) {
-    if (length(steps) > 0) {
-        sapply(
-            X = 1:length(steps),
-            FUN = function(x) {
-                step <- steps[[x]]
-                step$type
-            }
-        )
-    } else {
-        NULL
-    }
+  if (length(steps) > 0) {
+    sapply(
+      X = 1:length(steps),
+      FUN = function(x) {
+        step <- steps[[x]]
+        step$type
+      }
+    )
+  } else {
+    NULL
+  }
 }
 
 #' View graph
@@ -325,93 +325,91 @@ get_type_step <- function(steps) {
 
 
 view_graph <- function(svy, init_step = "Load survey") {
-    steps <- get_steps(svy)
-    steps_type <- get_type_step(steps)
-    formulas <- get_formulas(steps)
-    
-    if (init_step == "Load survey"){
-      init_step = glue::glue_col(
-        "
-        
-        
+  steps <- get_steps(svy)
+  steps_type <- get_type_step(steps)
+  formulas <- get_formulas(steps)
+
+  if (init_step == "Load survey") {
+    init_step <- glue::glue_col(
+      "
+
+
             Type: {type}
             Edition: {edition}
             Weight: {weight}
             ",
-        type = get_type(svy),
-        edition = get_edition(svy),
-        weight = get_weight(svy)
+      type = get_type(svy),
+      edition = get_edition(svy),
+      weight = get_weight(svy)
+    )
+  }
+
+  names_step <- c(
+    init_step,
+    names(steps)
+  )
+
+  nodes <- data.frame(
+    id = 1:length(names_step),
+    label = names_step,
+    title = c(init_step, formulas),
+    group = c(
+      "Load survey",
+      steps_type
+    )
+  )
+
+
+  edges <- data.frame(
+    from = 1:length(names_step),
+    to = c(
+      2:length(names_step),
+      rep(
+        NA,
+        length(init_step)
       )
-    }
-
-    names_step <- c(
-        init_step,
-        names(steps)
     )
+  )
 
-    nodes <- data.frame(
-        id = 1:length(names_step),
-        label = names_step,
-        title = c(init_step, formulas),
-        group = c(
-            "Load survey",
-            steps_type
-        )
-    )
-
-
-    edges <- data.frame(
-        from = 1:length(names_step),
-        to = c(
-            2:length(names_step),
-            rep(
-                NA,
-                length(init_step)
-            )
-        )
-    )
-
-    visNetwork(
-        nodes = nodes,
-        edges = edges,
-        height = "500px", width = "100%"
+  visNetwork(
+    nodes = nodes,
+    edges = edges,
+    height = "500px", width = "100%"
+  ) %>%
+    visGroups(
+      groupname = "Load survey",
+      shape = "icon",
+      icon = list(
+        code = "f1c0"
+      )
     ) %>%
-        visGroups(
-            groupname = "Load survey",
-            shape = "icon",
-            icon = list(
-                code = "f1c0"
-            )
-        ) %>%
-        visGroups(
-            groupname = "compute",
-            shape = "icon",
-            icon = list(
-                code = "f1ec"
-            )
-        ) %>%
-        visGroups(
-            groupname = "recode",
-            shape = "icon",
-            icon = list(
-                code = "f0e8"
-            )
-        ) %>%
-        addFontAwesome() %>%
-        visEdges(arrows = "to") %>%
-        visHierarchicalLayout(
-            direction = "LR", 
-            levelSeparation = 300
-        ) %>%
-        visNetwork::visOptions(
-            nodesIdSelection = TRUE
-        ) %>%
-        visLegend(
-            width = 0.2, 
-            position = "left", 
-            main = "Type", 
-            zoom = FALSE
-        )
+    visGroups(
+      groupname = "compute",
+      shape = "icon",
+      icon = list(
+        code = "f1ec"
+      )
+    ) %>%
+    visGroups(
+      groupname = "recode",
+      shape = "icon",
+      icon = list(
+        code = "f0e8"
+      )
+    ) %>%
+    addFontAwesome() %>%
+    visEdges(arrows = "to") %>%
+    visHierarchicalLayout(
+      direction = "LR",
+      levelSeparation = 300
+    ) %>%
+    visNetwork::visOptions(
+      nodesIdSelection = TRUE
+    ) %>%
+    visLegend(
+      width = 0.2,
+      position = "left",
+      main = "Type",
+      zoom = FALSE
+    )
 }
-
-
