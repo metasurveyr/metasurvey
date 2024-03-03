@@ -4,7 +4,7 @@
 \alias{step_compute}
 \title{Step compute}
 \usage{
-step_compute(svy, ..., use_copy = use_copy_default())
+step_compute(svy = NULL, ..., use_copy = use_copy_default())
 }
 \arguments{
 \item{svy}{Survey object}
