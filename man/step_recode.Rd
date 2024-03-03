@@ -4,7 +4,15 @@
 \alias{step_recode}
 \title{Step recode}
 \usage{
-step_recode(svy, new_var, ..., .default = NA_character_, .name_step = NULL)
+step_recode(
+  svy,
+  new_var,
+  ...,
+  .default = NA_character_,
+  .name_step = NULL,
+  ordered = FALSE,
+  use_copy = use_copy_default()
+)
 }
 \arguments{
 \item{svy}{Survey object}
@@ -16,6 +24,10 @@ step_recode(svy, new_var, ..., .default = NA_character_, .name_step = NULL)
 \item{.default}{Default value}
 
 \item{.name_step}{Name of the step}
+
+\item{ordered}{Ordered}
+
+\item{use_copy}{Use copy}
 }
 \value{
 Survey object
