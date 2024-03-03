@@ -95,6 +95,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' Step compute
 #' @param svy Survey object
 #' @param ... Expressions to compute
+#' @param use_copy Use copy
 #' @return Survey object
 #' @export
 
@@ -192,6 +193,8 @@ step_compute <- function(svy, ...,use_copy = use_copy_default()) {
 #' @param ... Expressions to recode
 #' @param .default Default value
 #' @param .name_step Name of the step
+#' @param ordered Ordered
+#' @param use_copy Use copy
 #' @return Survey object
 #' @export
 

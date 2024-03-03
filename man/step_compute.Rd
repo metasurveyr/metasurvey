@@ -4,12 +4,14 @@
 \alias{step_compute}
 \title{Step compute}
 \usage{
-step_compute(svy, ...)
+step_compute(svy, ..., use_copy = use_copy_default())
 }
 \arguments{
 \item{svy}{Survey object}
 
 \item{...}{Expressions to compute}
+
+\item{use_copy}{Use copy}
 }
 \value{
 Survey object
