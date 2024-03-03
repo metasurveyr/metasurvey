@@ -1,8 +1,14 @@
 #' @importFrom data.table copy
-compute <- function(svy, ...) {
+compute <- function(svy, ..., use_copy = use_copy_default()) {
+
+    if (!use_copy) {
+        .data <- get_data(svy)
+    } else {
+        .clone <- svy$clone()
+        .data <- copy(get_data(.clone))
+    }
     
-    .clone <- svy$clone()
-    .data <- copy(get_data(.clone))
+    
 
     .exprs <- substitute(
         list(...)
@@ -17,37 +23,73 @@ compute <- function(svy, ...) {
         (names(.exprs)) := .exprs
     ]
 
-    return(set_data(.clone, .data))
+    if (!use_copy) {
+        return(set_data(svy, .data))
+    } else {
+        return(set_data(.clone, .data))
+    }
 }
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_) {
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default()) {
     
-    .clone <- svy$clone()
-    .data <- copy(get_data(.clone))
+    
+
+    if (!use_copy) {
+        .data <- svy$get_data()
+    } else {
+        .clone <- svy$clone()
+        .data <- copy(get_data(.clone))
+    }
 
     .exprs <- substitute(list(...))
     .exprs <- eval(.exprs, .data, parent.frame())
 
-    .data[, (new_var) := .default]
+    .labels <- c(
+        .default,
+        unique(
+            sapply(
+                X = 1:length(.exprs),
+                FUN = function(x) {
+                    .exprs[[x]][[3]]
+                }
+            )
+        )
+    )
 
-    for (.expr in 1:length(.exprs)) {
+    .data[
+        , 
+        (new_var) := factor(
+            .default,
+            levels = .labels,
+            ordered = ordered
+        )
+    ]
 
-        .filter <- .exprs[[.expr]][[2]]
-        .label <- .exprs[[.expr]][[3]]
+    lapply(
+        FUN = function(.expr) {
+            .filter <- .exprs[[.expr]][[2]]
+            .label <- .exprs[[.expr]][[3]]
 
-        .data[
-            eval(
-                .filter, 
-                .data, 
-                parent.frame()
-            ), 
-            (new_var) := .label
-        ]
+            .data[
+                eval(
+                    .filter, 
+                    .data, 
+                    parent.frame()
+                ), 
+                (new_var) := .label
+            ]
+            invisible(NULL)
+        },
+        X = 1:length(.exprs)
+    )
+
+    if (!use_copy) {
+        return(set_data(svy, .data))
+    } else {
+        return(set_data(.clone, .data))
     }
-
-    return(set_data(.clone, .data))
 }
 
 #' Step compute
@@ -56,41 +98,92 @@ recode <- function(svy, new_var, ..., .default = NA_character_) {
 #' @return Survey object
 #' @export
 
-step_compute <- function(svy, ...) {
+step_compute <- function(svy, ...,use_copy = use_copy_default()) {
     
   
     .call = match.call()
-    .names_before = names(get_data(svy))
-    .svy_after = compute(svy, ...)
     
-    
-    
-    .names_after = names(get_data(.svy_after))
-    .name_step <- paste0(
-        "New variable: ", 
-        paste0(
-            .names_after[!.names_after %in% .names_before], 
-            collapse = ", "
-        )
-    )
-    
-    
-    
-    .svy_after$add_step(
-         list(
-             name = .name_step,
-             type = "compute",
-             new_var = paste0(
-               .names_after[!.names_after %in% .names_before], 
-               collapse = ", "
-            ),
-            exprs = substitute(list(...)),
-            call = .call,
-            svy_before = svy
-        )
-    )
+    .names_before = names(copy(get_data(svy$clone())))
 
-    return(.svy_after)
+    if (use_copy) {
+        .svy_after = compute(svy, ..., use_copy = use_copy)
+
+
+        .names_after = names(get_data(.svy_after))
+        .new_vars = .names_after[!.names_after %in% .names_before]
+
+        if (length(.new_vars) > 0) {
+            .name_step <- paste0(
+                "New variable: ",
+                paste0(
+                    .new_vars,
+                    collapse = ", "
+                )
+            )
+
+
+
+            .svy_after$add_step(
+                list(
+                    name = .name_step,
+                    type = "compute",
+                    new_var = paste0(
+                        .names_after[!.names_after %in% .names_before],
+                        collapse = ", "
+                    ),
+                    exprs = substitute(list(...)),
+                    call = .call,
+                    svy_before = NULL
+                )
+            )
+            return(.svy_after)
+        } else {
+            message("No news variable created: ", substitute(list(...)))
+            return(svy)
+        }
+        
+
+        
+    } else {
+        
+        compute(svy, ..., use_copy = use_copy)
+
+        .names_after = names(get_data(svy))
+
+        .new_vars <- .names_after[!.names_after %in% .names_before]
+
+        if (length(.new_vars) == 0) {
+            stop(message("No news variable created: ", substitute(list(...))))
+            
+        }
+
+        .name_step <- paste0(
+            "New variable: ",
+            paste0(
+                .new_vars,
+                collapse = ", "
+            )
+        )
+
+
+
+        svy$add_step(
+            list(
+                name = .name_step,
+                type = "compute",
+                new_var = paste0(
+                    .new_vars,
+                    collapse = ", "
+                ),
+                exprs = substitute(list(...)),
+                call = .call,
+                svy_before = NULL
+            )
+        )
+
+        invisible(svy)
+    }
+    
 }
 
 #' Step recode
@@ -102,9 +195,10 @@ step_compute <- function(svy, ...) {
 #' @return Survey object
 #' @export
 
-step_recode <- function(svy,new_var, ..., .default = NA_character_,.name_step = NULL) {
+step_recode <- function(svy,new_var, ..., .default = NA_character_,.name_step = NULL, ordered = FALSE, use_copy = use_copy_default()) {
 
     .call = match.call()
+
     if (is.null(.name_step)) {
         .name_step <- paste0(
             "New group: ", 
@@ -112,27 +206,55 @@ step_recode <- function(svy,new_var, ..., .default = NA_character_,.name_step = 
         )
     }
     
-    
-    .svy_after = recode(
-        svy = svy, 
-        new_var = new_var, 
-        ..., 
-        .default = .default
-    )
-   
-    
-    .svy_after$add_step(
-        list(
-            name = .name_step,
-            type = "recode",
+    if (use_copy) {
+        .svy_after = recode(
+            svy = svy,
             new_var = new_var,
-            exprs = list(...),
-            call = .call,
-            svy_before = svy
+            ...,
+            .default = .default,
+            use_copy = use_copy
         )
-    )
 
-    return(.svy_after)
+
+        .svy_after$add_step(
+            list(
+                name = .name_step,
+                type = "recode",
+                new_var = new_var,
+                exprs = list(...),
+                call = .call,
+                svy_before = svy
+            )
+        )
+
+        return(.svy_after)
+    } else {
+
+
+        recode(
+            svy = svy,
+            new_var = new_var,
+            ...,
+            .default = .default,
+            use_copy = use_copy
+        )
+
+        svy$add_step(
+            list(
+                name = .name_step,
+                type = "recode",
+                new_var = new_var,
+                exprs = list(...),
+                call = .call,
+                svy_before = NULL
+            )
+        )
+
+        invisible(svy)
+    }
+
+    
+    
 }
 
 
