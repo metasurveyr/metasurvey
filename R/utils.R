@@ -17,6 +17,10 @@ is_blank <- function(x) {
 
 
 validate_weight <- function(svy, weight) {
+  if (is.null(svy)) {
+    return(NULL)
+  }
+
   if (!is.character(weight)) {
     stop("Weight must be a character")
   }
