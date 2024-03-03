@@ -160,3 +160,20 @@ get_metadata <- function(self) {
 get_steps <- function(svy) {
   svy$steps
 }
+
+#' @title survey_empty
+#' @description Create an empty survey
+#' @export
+#' @return Survey object
+#' 
+
+
+survey_empty <- function() {
+  Survey$new(
+    data = NULL,
+    edition = NULL,
+    type = NULL,
+    weight = NULL,
+    engine = NULL
+  )
+}
