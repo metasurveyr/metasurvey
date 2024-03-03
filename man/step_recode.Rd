@@ -5,7 +5,7 @@
 \title{Step recode}
 \usage{
 step_recode(
-  svy,
+  svy = survey_empty(),
   new_var,
   ...,
   .default = NA_character_,
