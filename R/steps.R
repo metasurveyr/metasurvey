@@ -197,8 +197,6 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
     get_data(svy)
   )
 
-  print(check_svy)
-
   if (check_svy) {
     return(.call)
   }
@@ -225,7 +223,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
         name = .name_step,
         type = "recode",
         new_var = new_var,
-        exprs = ...,
+        exprs = list(...),
         call = .call,
         svy_before = svy
       )
