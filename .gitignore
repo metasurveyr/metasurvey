@@ -65,3 +65,6 @@ input/
 inst/doc
 /doc/
 /Meta/
+
+
+*.json
