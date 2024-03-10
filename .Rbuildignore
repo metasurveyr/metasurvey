@@ -18,3 +18,5 @@
 ^README.Rmd
 ^doc
 ^\.pre-commit-config\.yaml$
+^cran-comments\.md$
+^revdep$

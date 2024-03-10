@@ -6,15 +6,20 @@
 \alias{metaSurvey-package}
 \title{metaSurvey: Survey processing with metaprogramming}
 \description{
-What the package does (one paragraph).
+This package provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
 }
 \author{
 \strong{Maintainer}: Mauro Loprete \email{mloprete@cognus.cl}
 
 Authors:
 \itemize{
-  \item COGNUS [copyright holder, funder]
   \item Natalia da Silva
+}
+
+Other contributors:
+\itemize{
+  \item COGNUS [funder]
+  \item ANII [copyright holder]
 }
 
 }
