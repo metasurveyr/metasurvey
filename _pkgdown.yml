@@ -19,13 +19,13 @@ navbar:
     github:
       icon: fa-github
       href: https://github.com/metaSurveyR/metasurvey
-      aria-label: Gitlab
-
-
-
-
+      aria-label: GitHub
 
 authors:
   COGNUS:
     href: https://www.cognus.biz/
+  ANII:
+    href: https://www.anii.org.uy/
+  Natalia da Silva:
+    href: https://iesta.fcea.udelar.edu.uy/integrantes/natalia-da-silva/
 
