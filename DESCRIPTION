@@ -2,15 +2,7 @@ Package: metaSurvey
 Title: Survey processing with metaprogramming
 Version: 0.0.1
 Authors@R: 
-    c(
-        person(
-            "COGNUS", 
-            role = c(
-                "aut",
-                "cph", 
-                "fnd"
-            )
-        ),
+    c(  
         person(
             given = "Mauro",
             family = "Loprete",
@@ -26,9 +18,21 @@ Authors@R:
             role = c(
                 "aut"
             )
+        ),
+        person(
+            "COGNUS", 
+            role = c( 
+                "fnd"
+            )
+        ),
+        person(
+            "ANII",
+            role = c(
+                "cph"
+            )
         )
     )
-Description: What the package does (one paragraph).
+Description: This package provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
 License: MIT + file LICENSE
 Imports: 
     data.table (>= 1.14.2),
