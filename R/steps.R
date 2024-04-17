@@ -371,28 +371,35 @@ view_graph <- function(svy, init_step = "Load survey") {
   visNetwork(
     nodes = nodes,
     edges = edges,
-    height = "500px", width = "100%"
+    height = "1000px", 
+    width = "100%",
   ) %>%
     visGroups(
       groupname = "Load survey",
       shape = "icon",
       icon = list(
-        code = "f1c0"
-      )
+        code = "f1c0",
+        color = "#440154"
+      ),
+      shadow = list(enabled = TRUE)
     ) %>%
     visGroups(
       groupname = "compute",
       shape = "icon",
       icon = list(
-        code = "f1ec"
-      )
+        code = "f1ec",
+        color = "#3b528b"
+      ),
+      shadow = list(enabled = TRUE)
     ) %>%
     visGroups(
       groupname = "recode",
       shape = "icon",
       icon = list(
-        code = "f0e8"
-      )
+        code = "f0e8",
+        color = "#21918c"
+      ),
+      shadow = list(enabled = TRUE)
     ) %>%
     addFontAwesome() %>%
     visEdges(arrows = "to") %>%
@@ -401,7 +408,13 @@ view_graph <- function(svy, init_step = "Load survey") {
       levelSeparation = 300
     ) %>%
     visNetwork::visOptions(
-      nodesIdSelection = TRUE
+      nodesIdSelection = TRUE,
+      collapse = TRUE,
+      autoResize = TRUE,
+      width = "100%",
+      height = "100%",
+      highlightNearest = TRUE,
+      clickToUse = FALSE
     ) %>%
     visLegend(
       width = 0.2,
