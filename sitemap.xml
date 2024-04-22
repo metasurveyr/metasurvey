@@ -22,6 +22,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/news/index.html</loc>
+  </url>
+  <url>
     <loc>/reference/default_engine.html</loc>
   </url>
   <url>
@@ -52,6 +55,9 @@
     <loc>/reference/set_engine.html</loc>
   </url>
   <url>
+    <loc>/reference/set_use_copy.html</loc>
+  </url>
+  <url>
     <loc>/reference/show_engines.html</loc>
   </url>
   <url>
@@ -59,6 +65,9 @@
   </url>
   <url>
     <loc>/reference/step_recode.html</loc>
+  </url>
+  <url>
+    <loc>/reference/use_copy_default.html</loc>
   </url>
   <url>
     <loc>/reference/view_graph.html</loc>
