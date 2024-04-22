@@ -39,10 +39,10 @@ load_survey <- function(
     )
   }
 
-  .engine <- Sys.getenv("metaSurvey.engine")
+  .engine <- Sys.getenv("metasurvey.engine")
 
   .namespace <- ls(
-    envir = asNamespace("metaSurvey"),
+    envir = asNamespace("metasurvey"),
     pattern = "load_survey"
   )
 
