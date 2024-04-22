@@ -14,18 +14,18 @@ navbar:
   bg: primary
   structure:
     left:  [intro,articles, reference,tutorials, news]
-    right: [search, gitlab]
+    right: [search, github]
   components:
-    gitlab:
-      icon: fa-gitlab
-      href: https://gitlab.com/cognus/proyectos/anii/tidyeaii
-      aria-label: Gitlab
-
-
-
-
+    github:
+      icon: fa-github
+      href: https://github.com/metaSurveyR/metasurvey
+      aria-label: GitHub
 
 authors:
   COGNUS:
     href: https://www.cognus.biz/
+  ANII:
+    href: https://www.anii.org.uy/
+  Natalia da Silva:
+    href: https://iesta.fcea.udelar.edu.uy/integrantes/natalia-da-silva/
 

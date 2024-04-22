@@ -30,13 +30,13 @@ Survey object
 Load survey
 }
 \examples{
-set_engine('data.table')
-svy_example = load_survey(
-   svy_type = 'eaii',
-   svy_edition = '2019-2021',
-   svy_weight = 'w_trans',
-   input = load_survey_example('2019-2021.csv'),
-   dec = ','
+set_engine("data.table")
+svy_example <- load_survey(
+  svy_type = "eaii",
+  svy_edition = "2019-2021",
+  svy_weight = "w_trans",
+  input = load_survey_example("2019-2021.csv"),
+  dec = ","
 )
 svy_example
 }
