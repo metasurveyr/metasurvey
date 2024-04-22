@@ -79,7 +79,7 @@ get_engine <- function() {
 #' @title default_engine
 #' @description Set default engine
 #' @param .engine Character vector with the name of the engine
-#' @export 
+#' @export
 #' @keywords engine
 
 default_engine <- function(.engine = "data.table") {

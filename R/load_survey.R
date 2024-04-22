@@ -1,5 +1,5 @@
 #' Load survey
-#' 
+#'
 #' @param path Path to the survey file
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
@@ -7,26 +7,23 @@
 #' @param ... Additional arguments
 #' @return Survey object
 #' @keywords preprocessing
-#' @export 
-#' @examples 
-#' set_engine('data.table')
-#' svy_example = load_survey(
-#'    svy_type = 'eaii',
-#'    svy_edition = '2019-2021',
-#'    svy_weight = 'w_trans',
-#'    input = load_survey_example('2019-2021.csv'),
-#'    dec = ','
-#')
+#' @export
+#' @examples
+#' set_engine("data.table")
+#' svy_example <- load_survey(
+#'   svy_type = "eaii",
+#'   svy_edition = "2019-2021",
+#'   svy_weight = "w_trans",
+#'   input = load_survey_example("2019-2021.csv"),
+#'   dec = ","
+#' )
 #' svy_example
-
 load_survey <- function(
-  path = NULL,
-  svy_type = NULL,
-  svy_edition = NULL,
-  svy_weight = NULL,
-  ...
-) {
-  
+    path = NULL,
+    svy_type = NULL,
+    svy_edition = NULL,
+    svy_weight = NULL,
+    ...) {
   path_null <- missing(path)
 
   svy_args_null <- missing(svy_type) || missing(svy_edition) || missing(svy_weight)
@@ -37,16 +34,16 @@ load_survey <- function(
   ) {
     stop(
       message(
-        'Se debe indicar la ruta del archivo o una encuesta con su respectiva edicion'
+        "Se debe indicar la ruta del archivo o una encuesta con su respectiva edicion"
       )
     )
   }
 
-  .engine <- Sys.getenv('metaSurvey.engine')
+  .engine <- Sys.getenv("metaSurvey.engine")
 
   .namespace <- ls(
-    envir = asNamespace('metaSurvey'),
-    pattern = 'load_survey'
+    envir = asNamespace("metaSurvey"),
+    pattern = "load_survey"
   )
 
   .args <- list(
@@ -59,7 +56,7 @@ load_survey <- function(
   )
 
   .call_engine <- paste0(
-    'load_survey.',
+    "load_survey.",
     .engine
   )
 
@@ -76,11 +73,11 @@ load_survey <- function(
 #' @seealso data.table::fread
 #' @return Survey object
 #' @importFrom data.table fread
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 load_survey.data.table <- function(...) {
-  .engine_name <- 'data.table'
+  .engine_name <- "data.table"
 
   .args <- list(...)
 
@@ -110,7 +107,7 @@ load_survey.data.table <- function(...) {
 
 #' Config survey
 #' @inheritDotParams load_survey
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 config_survey <- function(...) {
