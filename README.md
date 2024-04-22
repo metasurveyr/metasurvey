@@ -46,22 +46,22 @@ eph2022_3 <- load_survey(
   svy_edition = "2022_3",
   svy_weight = "PONDERA"
 ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pea",
     ESTADO %in% 1:2 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pet",
     ESTADO != 4 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "po",
     ESTADO == 1 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pd",
     ESTADO == 2 ~ 1,
     .default = 0
