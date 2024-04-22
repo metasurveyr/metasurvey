@@ -340,7 +340,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(metaSurvey)</span>
+<div id="caso-de-uso" class="section level1">
+<h1>Caso de Uso</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(metasurvey)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">set_engine</span>(</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="st">&quot;data.table&quot;</span></span>
@@ -383,7 +385,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>    Division <span class="sc">==</span> <span class="st">&quot;C2&quot;</span> <span class="sc">~</span> <span class="st">&quot;Servicios&quot;</span>,</span>
 <span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>    Division <span class="sc">==</span> <span class="st">&quot;E1&quot;</span> <span class="sc">~</span> <span class="st">&quot;Servicios&quot;</span></span>
 <span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a>    <span class="at">new_var =</span> <span class="st">&quot;tipo_actividad&quot;</span>,</span>
 <span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a>    B1_1_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;I + D Interna&quot;</span>,</span>
 <span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>    B1_2_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;I + D Externa&quot;</span>,</span>
@@ -396,30 +398,30 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-54"><a href="#cb1-54" tabindex="-1"></a>    B1_9_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Gestión&quot;</span>,</span>
 <span id="cb1-55"><a href="#cb1-55" tabindex="-1"></a>    <span class="at">.default =</span> <span class="st">&quot;Otra&quot;</span></span>
 <span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb1-58"><a href="#cb1-58" tabindex="-1"></a>    <span class="at">new_var =</span> <span class="st">&quot;tipo_innovacion&quot;</span>,</span>
 <span id="cb1-59"><a href="#cb1-59" tabindex="-1"></a>    E1_1_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Producto&quot;</span>,</span>
 <span id="cb1-60"><a href="#cb1-60" tabindex="-1"></a>    E1_2_1 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Proceso&quot;</span>,</span>
 <span id="cb1-61"><a href="#cb1-61" tabindex="-1"></a>    <span class="at">.default =</span> <span class="st">&quot;Otra&quot;</span></span>
 <span id="cb1-62"><a href="#cb1-62" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-63"><a href="#cb1-63" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_compute</span>(</span>
+<span id="cb1-63"><a href="#cb1-63" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_compute</span>(</span>
 <span id="cb1-64"><a href="#cb1-64" tabindex="-1"></a>    <span class="at">subsector =</span> Division</span>
 <span id="cb1-65"><a href="#cb1-65" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-66"><a href="#cb1-66" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb1-66"><a href="#cb1-66" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb1-67"><a href="#cb1-67" tabindex="-1"></a>    <span class="at">new_var =</span> <span class="st">&quot;cant_traba_tramo&quot;</span>,</span>
 <span id="cb1-68"><a href="#cb1-68" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_4_1_3, <span class="dv">0</span>, <span class="dv">4</span>) <span class="sc">~</span> <span class="st">&quot;1&quot;</span>,</span>
 <span id="cb1-69"><a href="#cb1-69" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_4_1_3, <span class="dv">5</span>, <span class="dv">19</span>) <span class="sc">~</span> <span class="st">&quot;2&quot;</span>,</span>
 <span id="cb1-70"><a href="#cb1-70" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_4_1_3, <span class="dv">20</span>, <span class="dv">99</span>) <span class="sc">~</span> <span class="st">&quot;3&quot;</span>,</span>
 <span id="cb1-71"><a href="#cb1-71" tabindex="-1"></a>    IG_4_1_3 <span class="sc">&gt;</span> <span class="dv">99</span> <span class="sc">~</span> <span class="st">&quot;4&quot;</span></span>
 <span id="cb1-72"><a href="#cb1-72" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-73"><a href="#cb1-73" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb1-73"><a href="#cb1-73" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb1-74"><a href="#cb1-74" tabindex="-1"></a>    <span class="at">new_var =</span> <span class="st">&quot;ingreso_vta_pesos&quot;</span>,</span>
 <span id="cb1-75"><a href="#cb1-75" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_5_1_1_3, <span class="dv">0</span>, <span class="dv">9942787</span>) <span class="sc">~</span> <span class="st">&quot;1&quot;</span>,</span>
 <span id="cb1-76"><a href="#cb1-76" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_5_1_1_3, <span class="dv">9942788</span>, <span class="dv">49713934</span>) <span class="sc">~</span> <span class="st">&quot;2&quot;</span>, <span class="co"># nolint</span></span>
 <span id="cb1-77"><a href="#cb1-77" tabindex="-1"></a>    data.table<span class="sc">::</span><span class="fu">between</span>(IG_5_1_1_3, <span class="dv">49713935</span>, <span class="dv">372854507</span>) <span class="sc">~</span> <span class="st">&quot;3&quot;</span>, <span class="co"># nolint</span></span>
 <span id="cb1-78"><a href="#cb1-78" tabindex="-1"></a>    IG_5_1_1_3 <span class="sc">&gt;</span> <span class="dv">372854507</span> <span class="sc">~</span> <span class="st">&quot;4&quot;</span></span>
 <span id="cb1-79"><a href="#cb1-79" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-80"><a href="#cb1-80" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb1-80"><a href="#cb1-80" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb1-81"><a href="#cb1-81" tabindex="-1"></a>    <span class="at">new_var =</span> <span class="st">&quot;tamanio&quot;</span>,</span>
 <span id="cb1-82"><a href="#cb1-82" tabindex="-1"></a>    cant_traba_tramo <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">&amp;</span> ingreso_vta_pesos <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;Pequenias&quot;</span>,</span>
 <span id="cb1-83"><a href="#cb1-83" tabindex="-1"></a>    cant_traba_tramo <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">&amp;</span> ingreso_vta_pesos <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;Pequenias&quot;</span>,</span>
@@ -438,7 +440,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-96"><a href="#cb1-96" tabindex="-1"></a>    cant_traba_tramo <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">&amp;</span> ingreso_vta_pesos <span class="sc">==</span> <span class="st">&quot;4&quot;</span> <span class="sc">~</span> <span class="st">&quot;Grandes&quot;</span>,</span>
 <span id="cb1-97"><a href="#cb1-97" tabindex="-1"></a>    cant_traba_tramo <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">&amp;</span> ingreso_vta_pesos <span class="sc">==</span> <span class="st">&quot;4&quot;</span> <span class="sc">~</span> <span class="st">&quot;Grandes&quot;</span></span>
 <span id="cb1-98"><a href="#cb1-98" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-99"><a href="#cb1-99" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_compute</span>(</span>
+<span id="cb1-99"><a href="#cb1-99" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_compute</span>(</span>
 <span id="cb1-100"><a href="#cb1-100" tabindex="-1"></a>    <span class="at">subsector =</span> Division</span>
 <span id="cb1-101"><a href="#cb1-101" tabindex="-1"></a>  )</span>
 <span id="cb1-102"><a href="#cb1-102" tabindex="-1"></a><span class="co">#&gt; No news variable created: listDivision</span></span>
@@ -467,26 +469,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">svy_edition =</span> <span class="st">&quot;2022_3&quot;</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">svy_weight =</span> <span class="st">&quot;PONDERA&quot;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="st">&quot;pea&quot;</span>,</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>    ESTADO <span class="sc">%in%</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    <span class="at">.default =</span> <span class="dv">0</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>    <span class="st">&quot;pet&quot;</span>,</span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    ESTADO <span class="sc">!=</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>    <span class="at">.default =</span> <span class="dv">0</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="st">&quot;po&quot;</span>,</span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    ESTADO <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">.default =</span> <span class="dv">0</span></span>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  metaSurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  metasurvey<span class="sc">::</span><span class="fu">step_recode</span>(</span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    <span class="st">&quot;pd&quot;</span>,</span>
 <span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>    ESTADO <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>    <span class="at">.default =</span> <span class="dv">0</span></span>
 <span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 </div>

@@ -13,9 +13,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+ 
+# Caso de Uso
 
 ```{r setup}
-library(metaSurvey)
+library(metasurvey)
 
 set_engine(
   "data.table"
@@ -57,7 +59,7 @@ new_svy <- svy_example %>%
     Division == "C2" ~ "Servicios",
     Division == "E1" ~ "Servicios"
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     new_var = "tipo_actividad",
     B1_1_1 == 1 ~ "I + D Interna",
     B1_2_1 == 1 ~ "I + D Externa",
@@ -70,30 +72,30 @@ new_svy <- svy_example %>%
     B1_9_1 == 1 ~ "Gestión",
     .default = "Otra"
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     new_var = "tipo_innovacion",
     E1_1_1 == 1 ~ "Producto",
     E1_2_1 == 1 ~ "Proceso",
     .default = "Otra"
   ) %>%
-  metaSurvey::step_compute(
+  metasurvey::step_compute(
     subsector = Division
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     new_var = "cant_traba_tramo",
     data.table::between(IG_4_1_3, 0, 4) ~ "1",
     data.table::between(IG_4_1_3, 5, 19) ~ "2",
     data.table::between(IG_4_1_3, 20, 99) ~ "3",
     IG_4_1_3 > 99 ~ "4"
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     new_var = "ingreso_vta_pesos",
     data.table::between(IG_5_1_1_3, 0, 9942787) ~ "1",
     data.table::between(IG_5_1_1_3, 9942788, 49713934) ~ "2", # nolint
     data.table::between(IG_5_1_1_3, 49713935, 372854507) ~ "3", # nolint
     IG_5_1_1_3 > 372854507 ~ "4"
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     new_var = "tamanio",
     cant_traba_tramo == "1" & ingreso_vta_pesos == "1" ~ "Pequenias",
     cant_traba_tramo == "2" & ingreso_vta_pesos == "2" ~ "Pequenias",
@@ -112,7 +114,7 @@ new_svy <- svy_example %>%
     cant_traba_tramo == "2" & ingreso_vta_pesos == "4" ~ "Grandes",
     cant_traba_tramo == "3" & ingreso_vta_pesos == "4" ~ "Grandes"
   ) %>%
-  metaSurvey::step_compute(
+  metasurvey::step_compute(
     subsector = Division
   )
 
@@ -131,22 +133,22 @@ eph2022_3 <- load_survey(
   svy_edition = "2022_3",
   svy_weight = "PONDERA"
 ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pea",
     ESTADO %in% 1:2 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pet",
     ESTADO != 4 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "po",
     ESTADO == 1 ~ 1,
     .default = 0
   ) %>%
-  metaSurvey::step_recode(
+  metasurvey::step_recode(
     "pd",
     ESTADO == 2 ~ 1,
     .default = 0
