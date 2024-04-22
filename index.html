@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="This package provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.">
-<title>Survey processing with metaprogramming • metaSurvey</title>
+<title>Survey processing with metaprogramming • metasurvey</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Maven_Pro-0.4.9/font.css" rel="stylesheet">
@@ -26,7 +26,7 @@
 
     <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
     
-    <a class="navbar-brand me-2" href="index.html">metaSurvey</a>
+    <a class="navbar-brand me-2" href="index.html">metasurvey</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
 
@@ -103,22 +103,22 @@
 <span>  svy_edition <span class="op">=</span> <span class="st">"2022_3"</span>,</span>
 <span>  svy_weight <span class="op">=</span> <span class="st">"PONDERA"</span></span>
 <span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">metaSurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
 <span>    <span class="st">"pea"</span>,</span>
 <span>    <span class="va">ESTADO</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    .default <span class="op">=</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">metaSurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
 <span>    <span class="st">"pet"</span>,</span>
 <span>    <span class="va">ESTADO</span> <span class="op">!=</span> <span class="fl">4</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    .default <span class="op">=</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">metaSurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
 <span>    <span class="st">"po"</span>,</span>
 <span>    <span class="va">ESTADO</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    .default <span class="op">=</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">metaSurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
 <span>    <span class="st">"pd"</span>,</span>
 <span>    <span class="va">ESTADO</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    .default <span class="op">=</span> <span class="fl">0</span></span>
@@ -137,7 +137,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing metaSurvey</a></li>
+<li><a href="authors.html#citation">Citing metasurvey</a></li>
 </ul>
 </div>
 
