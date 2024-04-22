@@ -20,7 +20,7 @@ set_engine <- function(.engine = show_engines()) {
       .engine %in% .support_engine
     ) {
       Sys.setenv(
-        "metaSurvey.engine" = .engine
+        "metasurvey.engine" = .engine
       )
     } else {
       stop(
@@ -37,7 +37,7 @@ set_engine <- function(.engine = show_engines()) {
   message(
     glue_col(
       "{green Engine: {.engine}}",
-      .engine = Sys.getenv("metaSurvey.engine")
+      .engine = Sys.getenv("metasurvey.engine")
     )
   )
 
@@ -73,7 +73,7 @@ show_engines <- function() {
 #' @keywords engine
 
 get_engine <- function() {
-  Sys.getenv("metaSurvey.engine")
+  Sys.getenv("metasurvey.engine")
 }
 
 #' @title default_engine
@@ -86,6 +86,6 @@ default_engine <- function(.engine = "data.table") {
   engine_env <- get_engine()
 
   Sys.setenv(
-    "metaSurvey.engine" = engine_env %@% .engine
+    "metasurvey.engine" = engine_env %@% .engine
   )
 }
