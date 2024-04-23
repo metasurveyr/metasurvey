@@ -4,10 +4,9 @@ template:
     bg: "#F6FFFF"
     fg: "#000000"
     primary: "#40555D"
-    border-radius: 0.5rem
-    btn-border-radius: 0.25rem
-    base_font: {google: "Maven Pro"}
-    code_font: {google: "Source Code Pro"}
+    border-radius: 0.7rem
+    btn-border-radius: 0.75rem
+    code_font: {google: "Fira Code"}
 
 
 navbar:
