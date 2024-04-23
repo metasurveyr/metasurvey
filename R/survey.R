@@ -65,7 +65,6 @@ survey_to_data_frame <- function(svy) {
 #' @description Convert survey to tibble
 #' @param svy Survey object
 #' @export
-#' @importFrom tibble as_tibble
 #' @return tibble
 
 survey_to_tibble <- function(svy) {
