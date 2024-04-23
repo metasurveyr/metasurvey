@@ -352,6 +352,7 @@ view_graph <- function(svy, init_step = "Load survey") {
     names(steps)
   )
 
+
   nodes <- data.frame(
     id = 1:length(names_step),
     label = names_step,
@@ -378,37 +379,45 @@ view_graph <- function(svy, init_step = "Load survey") {
     nodes = nodes,
     edges = edges,
     height = "500px", width = "100%"
-  ) %>%
+  ) |>
     visGroups(
       groupname = "Load survey",
       shape = "icon",
       icon = list(
-        code = "f1c0"
-      )
-    ) %>%
+        code = "f1c0",
+        color = "#440154"
+      ),
+      shadow = list(enabled = TRUE)
+    ) |>
     visGroups(
       groupname = "compute",
       shape = "icon",
       icon = list(
-        code = "f1ec"
-      )
-    ) %>%
+        code = "f1ec",
+        color = "#31688e"
+      ),
+      shadow = list(enabled = TRUE)
+    ) |>
     visGroups(
       groupname = "recode",
       shape = "icon",
       icon = list(
-        code = "f0e8"
-      )
-    ) %>%
-    addFontAwesome() %>%
-    visEdges(arrows = "to") %>%
+        code = "f0e8",
+        color = "#21918c"
+      ),
+      shadow = list(enabled = TRUE)
+    ) |>
+    addFontAwesome() |>
+    visEdges(arrows = "to") |>
     visHierarchicalLayout(
       direction = "LR",
-      levelSeparation = 300
-    ) %>%
+      levelSeparation = 200
+    ) |>
     visNetwork::visOptions(
-      nodesIdSelection = TRUE
-    ) %>%
+      nodesIdSelection = TRUE,
+      clickToUse = TRUE,
+      manipulation = FALSE
+    ) |>
     visLegend(
       width = 0.2,
       position = "left",
