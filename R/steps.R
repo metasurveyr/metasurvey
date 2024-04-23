@@ -278,14 +278,14 @@ get_formulas <- function(steps) {
             step$new_var,
             ": ",
             paste(
-              deparse(
+              deparse1(
                 step$exprs
               ),
               collapse = "\n"
             )
           )
         } else {
-          deparse(exprs)
+          deparse1(exprs)
         }
       }
     )
@@ -355,7 +355,7 @@ view_graph <- function(svy, init_step = "Load survey") {
   nodes <- data.frame(
     id = 1:length(names_step),
     label = names_step,
-    title = c(init_step, formulas),
+    title = c(init_step, unlist(formulas)),
     group = c(
       "Load survey",
       steps_type
