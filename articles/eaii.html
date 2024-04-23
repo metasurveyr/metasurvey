@@ -156,14 +156,14 @@ ella, como recodificar variables, crear nuevas variables, aunque siempre
 se pueden obtener los datos en formato <code>data.table</code> o
 <code>tibble</code> para trabajar con ellos de forma más directa.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">survey_to_data_frame</span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/survey_to_data_frame.html">survey_to_data_frame</a></span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   ID_Estadistico Division IG_3_6</span></span>
 <span><span class="co">#&gt; 1              2       55      2</span></span>
 <span><span class="co">#&gt; 2              4       52      2</span></span>
 <span><span class="co">#&gt; 3              7       21      2</span></span>
 <span><span class="co">#&gt; 4              9       11      2</span></span>
 <span><span class="co">#&gt; 5             10       10      2</span></span>
-<span><span class="fu">survey_to_tibble</span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/survey_to_tibble.html">survey_to_tibble</a></span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
 <span><span class="co">#&gt;   ID_Estadistico Division IG_3_6</span></span>
 <span><span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
@@ -172,7 +172,7 @@ se pueden obtener los datos en formato <code>data.table</code> o
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>              7       21      2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>              9       11      2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>             10       10      2</span></span>
-<span><span class="fu">get_data</span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy_example</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    ID_Estadistico Division IG_3_6</span></span>
 <span><span class="co">#&gt;             &lt;int&gt;    &lt;int&gt;  &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1:              2       55      2</span></span>
