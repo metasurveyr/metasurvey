@@ -51,17 +51,45 @@ Survey <- R6Class("Survey",
   )
 )
 
+
+#' @title survey_to_data_frame
+#' @description Convert survey to data.frame
+#' @param svy Survey object
+#' @export
+#' @return data.frame
 survey_to_data_frame <- function(svy) {
   data.frame(svy$get_data())
 }
+
+#' @title survey_to_tibble
+#' @description Convert survey to tibble
+#' @param svy Survey object
+#' @export
+#' @importFrom tibble as_tibble
+#' @return tibble
 
 survey_to_tibble <- function(svy) {
   tibble::as_tibble(svy$get_data())
 }
 
+#' @title survey_to_data.table
+#' @description Convert survey to data.table
+#' @param svy Survey object
+#' @export
+#' @importFrom data.table data.table
+#' @return data.table
+#' 
+
 survey_to_data.table <- function(svy) {
   data.table::data.table(svy$get_data())
 }
+
+#' @title get_data
+#' @description Get data from survey
+#' @param svy Survey object
+#' @export
+#' @return Data
+#' 
 
 get_data <- function(svy) {
   svy$get_data()
