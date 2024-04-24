@@ -41,9 +41,9 @@ validate_weight <- function(svy, weight) {
 
 load_survey_example <- function(path = NULL) {
   if (is.null(path)) {
-    dir(system.file("extdata", package = "metaSurvey"))
+    dir(system.file("extdata", package = "metasurvey"))
   } else {
-    system.file("extdata", path, package = "metaSurvey", mustWork = TRUE)
+    system.file("extdata", path, package = "metasurvey", mustWork = TRUE)
   }
 }
 

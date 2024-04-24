@@ -1,4 +1,4 @@
-Package: metaSurvey
+Package: metasurvey
 Title: Survey processing with metaprogramming
 Version: 0.0.1
 Authors@R: 
@@ -52,7 +52,8 @@ Suggests:
     knitr,
     survey,
     foreign,
-    rmarkdown
+    rmarkdown,
+    tibble
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
