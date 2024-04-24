@@ -20,3 +20,5 @@
 ^\.pre-commit-config\.yaml$
 ^cran-comments\.md$
 ^revdep$
+clasificacion_ui
+test_recipes.R
