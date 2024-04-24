@@ -272,14 +272,14 @@ get_formulas <- function(steps) {
             step$new_var,
             ": ",
             paste(
-              deparse(
+              deparse1(
                 step$exprs
               ),
               collapse = "\n"
             )
           )
         } else {
-          deparse(exprs)
+          deparse1(exprs)
         }
       }
     )
@@ -346,10 +346,11 @@ view_graph <- function(svy, init_step = "Load survey") {
     names(steps)
   )
 
+
   nodes <- data.frame(
     id = 1:length(names_step),
     label = names_step,
-    title = c(init_step, formulas),
+    title = c(init_step, unlist(formulas)),
     group = c(
       "Load survey",
       steps_type
@@ -371,9 +372,8 @@ view_graph <- function(svy, init_step = "Load survey") {
   visNetwork(
     nodes = nodes,
     edges = edges,
-    height = "1000px", 
-    width = "100%",
-  ) %>%
+    height = "500px", width = "100%"
+  ) |>
     visGroups(
       groupname = "Load survey",
       shape = "icon",
@@ -382,16 +382,16 @@ view_graph <- function(svy, init_step = "Load survey") {
         color = "#440154"
       ),
       shadow = list(enabled = TRUE)
-    ) %>%
+    ) |>
     visGroups(
       groupname = "compute",
       shape = "icon",
       icon = list(
         code = "f1ec",
-        color = "#3b528b"
+        color = "#31688e"
       ),
       shadow = list(enabled = TRUE)
-    ) %>%
+    ) |>
     visGroups(
       groupname = "recode",
       shape = "icon",
@@ -400,22 +400,18 @@ view_graph <- function(svy, init_step = "Load survey") {
         color = "#21918c"
       ),
       shadow = list(enabled = TRUE)
-    ) %>%
-    addFontAwesome() %>%
-    visEdges(arrows = "to") %>%
+    ) |>
+    addFontAwesome() |>
+    visEdges(arrows = "to") |>
     visHierarchicalLayout(
       direction = "LR",
-      levelSeparation = 300
-    ) %>%
+      levelSeparation = 200
+    ) |>
     visNetwork::visOptions(
       nodesIdSelection = TRUE,
-      collapse = TRUE,
-      autoResize = TRUE,
-      width = "100%",
-      height = "100%",
-      highlightNearest = TRUE,
-      clickToUse = FALSE
-    ) %>%
+      clickToUse = TRUE,
+      manipulation = FALSE
+    ) |>
     visLegend(
       width = 0.2,
       position = "left",
