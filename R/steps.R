@@ -98,6 +98,14 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
   .call <- match.call()
 
+  check_svy <- is.null(
+    get_data(svy)
+  )
+
+  if (check_svy) {
+    return(.call)
+  }
+
   if (!is.null(svy)) {
     .names_before <- names(copy(get_data(svy$clone())))
 
@@ -117,20 +125,26 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
           )
         )
 
+        step = Step$new(
+          name = .name_step,
+          edition = get_edition(.svy_after),
+          survey_type = get_type(.svy_after),
+          type = "compute",
+          new_var = paste0(
+            .new_vars,
+            collapse = ", "
+          ),
+          exprs = substitute(list(...)),
+          call = .call,
+          svy_before = svy,
+          default_engine = get_engine(),
+          depends_on = list()
+        )
+
 
 
         .svy_after$add_step(
-          list(
-            name = .name_step,
-            type = "compute",
-            new_var = paste0(
-              .names_after[!.names_after %in% .names_before],
-              collapse = ", "
-            ),
-            exprs = substitute(list(...)),
-            call = .call,
-            svy_before = NULL
-          )
+          step
         )
         return(.svy_after)
       } else {
@@ -157,19 +171,23 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
       )
 
 
+      step = Step$new(
+        name = .name_step,
+        edition = get_edition(svy),
+        survey_type = get_type(svy),
+        type = "compute",
+        new_var = paste0(
+          .new_vars,
+          collapse = ", "
+        ),
+        exprs = substitute(list(...)),
+        call = .call,
+        svy_before = NULL,
+        default_engine = get_engine()
+      )
 
       svy$add_step(
-        list(
-          name = .name_step,
-          type = "compute",
-          new_var = paste0(
-            .new_vars,
-            collapse = ", "
-          ),
-          exprs = substitute(list(...)),
-          call = .call,
-          svy_before = NULL
-        )
+        step
       )
 
       invisible(svy)
@@ -217,16 +235,21 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       use_copy = use_copy
     )
 
+    step = Step$new(
+      name = .name_step,
+      edition = get_edition(.svy_after),
+      survey_type = get_type(.svy_after),
+      type = "recode",
+      new_var = new_var,
+      exprs = substitute(list(...)),
+      call = .call,
+      svy_before = svy,
+      default_engine = get_engine(),
+      depends_on = list()
+    )
 
     .svy_after$add_step(
-      list(
-        name = .name_step,
-        type = "recode",
-        new_var = new_var,
-        exprs = list(...),
-        call = .call,
-        svy_before = svy
-      )
+      step
     )
 
     return(.svy_after)
@@ -239,15 +262,21 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       use_copy = use_copy
     )
 
+    step = Step$new(
+      name = .name_step,
+      edition = get_edition(svy),
+      survey_type = get_type(svy),
+      type = "recode",
+      new_var = new_var,
+      exprs = substitute(list(...)),
+      call = .call,
+      svy_before = NULL,
+      default_engine = get_engine(),
+      depends_on = list()
+    )
+
     svy$add_step(
-      list(
-        name = .name_step,
-        type = "recode",
-        new_var = new_var,
-        exprs = ...,
-        call = .call,
-        svy_before = NULL
-      )
+      step
     )
 
     invisible(svy)
