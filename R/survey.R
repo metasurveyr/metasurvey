@@ -6,6 +6,8 @@ Survey <- R6Class("Survey",
     default_engine = NULL,
     weight = NULL,
     steps = list(),
+    recipes = list(),
+    workflows = list(),
     initialize = function(data, edition, type, engine, weight) {
       self$data <- data
       self$edition <- edition
@@ -190,17 +192,20 @@ get_steps <- function(svy) {
 
 #' @title survey_empty
 #' @description Create an empty survey
+#' @param edition Edition of survey
+#' @param type Type of survey
+#' @param weight Weight of survey
+#' @param engine Engine of survey
 #' @export
 #' @return Survey object
 #' 
 
-
-survey_empty <- function() {
+survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL) {
   Survey$new(
     data = NULL,
-    edition = NULL,
-    type = NULL,
-    weight = NULL,
-    engine = NULL
+    edition = edition,
+    type = type,
+    weight = weight,
+    engine = engine
   )
 }
