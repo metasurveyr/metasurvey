@@ -15,3 +15,4 @@ data.table
 \description{
 Convert survey to data.table
 }
+\keyword{Surveymethods}

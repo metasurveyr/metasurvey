@@ -6,6 +6,8 @@ Survey <- R6Class("Survey",
     default_engine = NULL,
     weight = NULL,
     steps = list(),
+    recipes = list(),
+    workflows = list(),
     initialize = function(data, edition, type, engine, weight) {
       self$data <- data
       self$edition <- edition
@@ -54,7 +56,9 @@ Survey <- R6Class("Survey",
 
 #' @title survey_to_data_frame
 #' @description Convert survey to data.frame
+#' @keywords Surveymethods
 #' @param svy Survey object
+
 #' @export
 #' @return data.frame
 survey_to_data_frame <- function(svy) {
@@ -62,19 +66,23 @@ survey_to_data_frame <- function(svy) {
 }
 
 #' @title survey_to_tibble
+#' @keywords Surveymethods
 #' @description Convert survey to tibble
 #' @param svy Survey object
 #' @export
 #' @return tibble
+
 
 survey_to_tibble <- function(svy) {
   tibble::as_tibble(svy$get_data())
 }
 
 #' @title survey_to_data.table
+#' @keywords Surveymethods
 #' @description Convert survey to data.table
 #' @param svy Survey object
 #' @export
+
 #' @importFrom data.table data.table
 #' @return data.table
 #' 
@@ -86,6 +94,7 @@ survey_to_data.table <- function(svy) {
 #' @title get_data
 #' @description Get data from survey
 #' @param svy Survey object
+#' @keywords Surveymethods
 #' @export
 #' @return Data
 #' 
@@ -136,6 +145,7 @@ set_weight <- function(svy, new_weight) {
 
 #' @title get_metadata
 #' @description Get metadata from survey
+#' @keywords Surveymethods
 #' @importFrom glue glue glue_col
 #' @importFrom emoji emoji
 #' @param self Object of class Survey
@@ -181,6 +191,8 @@ get_metadata <- function(self) {
 #' @title get_steps
 #' @description Get steps from survey
 #' @param svy Survey object
+#' @keywords Survey methods
+#' @keywords Steps
 #' @export
 #' @return List
 
@@ -190,17 +202,22 @@ get_steps <- function(svy) {
 
 #' @title survey_empty
 #' @description Create an empty survey
+#' @keywords Surveymethods
+#' @param edition Edition of survey
+#' @param type Type of survey
+#' @param weight Weight of survey
+#' @param engine Engine of survey
 #' @export
+
 #' @return Survey object
 #' 
 
-
-survey_empty <- function() {
+survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL) {
   Survey$new(
     data = NULL,
-    edition = NULL,
-    type = NULL,
-    weight = NULL,
-    engine = NULL
+    edition = edition,
+    type = type,
+    weight = weight,
+    engine = engine
   )
 }

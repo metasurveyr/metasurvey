@@ -15,3 +15,4 @@ tibble
 \description{
 Convert survey to tibble
 }
+\keyword{Surveymethods}
