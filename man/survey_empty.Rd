@@ -4,7 +4,16 @@
 \alias{survey_empty}
 \title{survey_empty}
 \usage{
-survey_empty()
+survey_empty(edition = NULL, type = NULL, weight = NULL, engine = NULL)
+}
+\arguments{
+\item{edition}{Edition of survey}
+
+\item{type}{Type of survey}
+
+\item{weight}{Weight of survey}
+
+\item{engine}{Engine of survey}
 }
 \value{
 Survey object
@@ -12,3 +21,4 @@ Survey object
 \description{
 Create an empty survey
 }
+\keyword{Surveymethods}

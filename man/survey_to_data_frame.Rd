@@ -15,3 +15,4 @@ data.frame
 \description{
 Convert survey to data.frame
 }
+\keyword{Surveymethods}

@@ -12,3 +12,4 @@ get_metadata(self)
 \description{
 Get metadata from survey
 }
+\keyword{Surveymethods}

@@ -15,3 +15,4 @@ Data
 \description{
 Get data from survey
 }
+\keyword{Surveymethods}

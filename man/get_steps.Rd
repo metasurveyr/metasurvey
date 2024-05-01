@@ -15,3 +15,6 @@ List
 \description{
 Get steps from survey
 }
+\keyword{Steps}
+\keyword{Survey}
+\keyword{methods}

@@ -1,4 +1,5 @@
 #' @title set_engine
+#' @keywords engine
 #' @description Set engine for load survey
 #' @param .engine Character vector with the name of the engine
 #' @importFrom glue glue glue_col identity_transformer
@@ -19,9 +20,7 @@ set_engine <- function(.engine = show_engines()) {
     if (
       .engine %in% .support_engine
     ) {
-      Sys.setenv(
-        "metasurvey.engine" = .engine
-      )
+      options(metasurvey.engine = .engine)
     } else {
       stop(
         message(
@@ -56,6 +55,7 @@ set_engine <- function(.engine = show_engines()) {
 #' @description Show engines available
 #' @importFrom glue glue glue_col
 #' @export
+#' @keywords engine
 #' @return Character vector
 
 show_engines <- function() {
@@ -73,7 +73,7 @@ show_engines <- function() {
 #' @keywords engine
 
 get_engine <- function() {
-  Sys.getenv("metasurvey.engine")
+  Sys.getenv("metasurvey.engine") %@% getOption("metasurvey.engine")
 }
 
 #' @title default_engine
@@ -85,7 +85,5 @@ get_engine <- function() {
 default_engine <- function(.engine = "data.table") {
   engine_env <- get_engine()
 
-  Sys.setenv(
-    "metasurvey.engine" = engine_env %@% .engine
-  )
+  options(metasurvey.engine = engine_env %||% .engine)
 }
