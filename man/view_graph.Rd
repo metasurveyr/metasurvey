@@ -17,3 +17,6 @@ Graph
 \description{
 View graph
 }
+\keyword{Steps}
+\keyword{Survey}
+\keyword{methods}
