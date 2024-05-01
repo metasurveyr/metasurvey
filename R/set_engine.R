@@ -1,4 +1,5 @@
 #' @title set_engine
+#' @keywords engine
 #' @description Set engine for load survey
 #' @param .engine Character vector with the name of the engine
 #' @importFrom glue glue glue_col identity_transformer
@@ -54,6 +55,7 @@ set_engine <- function(.engine = show_engines()) {
 #' @description Show engines available
 #' @importFrom glue glue glue_col
 #' @export
+#' @keywords engine
 #' @return Character vector
 
 show_engines <- function() {

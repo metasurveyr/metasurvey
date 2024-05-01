@@ -12,3 +12,4 @@ load_survey_example(path = NULL)
 \description{
 Load survey example
 }
+\keyword{utils}

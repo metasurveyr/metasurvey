@@ -93,6 +93,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @param ... Expressions to compute
 #' @param use_copy Use copy
 #' @return Survey object
+#' @keywords Steps
 #' @export
 
 step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
@@ -206,6 +207,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
 #' @param ordered Ordered
 #' @param use_copy Use copy
 #' @return Survey object
+#' @keywords Steps
 #' @export
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default()) {
@@ -347,6 +349,8 @@ get_type_step <- function(steps) {
 #' @importFrom visNetwork visOptions
 #' @importFrom visNetwork addFontAwesome
 #' @return Graph
+#' @keywords Survey methods
+#' @keywords Steps
 #' @export
 
 
