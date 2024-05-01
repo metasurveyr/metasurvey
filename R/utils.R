@@ -37,6 +37,7 @@ validate_weight <- function(svy, weight) {
 
 #' Load survey example
 #' @param path Path to the survey file
+#' @keywords utils
 #' @export
 
 load_survey_example <- function(path = NULL) {
@@ -49,6 +50,7 @@ load_survey_example <- function(path = NULL) {
 
 #' Get use_copy option
 #' @return Use copy
+#' @keywords utils
 #' @export
 
 use_copy_default <- function() {
@@ -58,6 +60,7 @@ use_copy_default <- function() {
 #' Set use_copy option
 #' @param use_copy Use copy
 #' @export
+#' @keywords utils
 #' @examples
 #' set_use_copy(FALSE)
 #' use_copy_default()

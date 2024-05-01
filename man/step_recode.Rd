@@ -35,3 +35,4 @@ Survey object
 \description{
 Step recode
 }
+\keyword{Steps}
