@@ -6,3 +6,35 @@
 metadata_args <- function() {
   c("svy_type", "svy_edition", ".engine_name", "svy_weight")
 }
+
+#' @importFrom glue glue glue_col
+#' @importFrom crayon green
+#' @importFrom crayon red
+
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage(glue_col("{green Welcome to: {.PACKAGE} version {utils::packageVersion(.PACKAGE)}}", .PACKAGE = pkgname))
+  opts_default <- list(
+    use_copy = use_copy_default(),
+    metasurvey.engine = get_engine()
+  )
+
+  sapply(
+    X = 1:length(opts_default),
+    FUN = function(x) {
+      packageStartupMessage(glue_col("{red {names(opts_default)[x]}}: {opts_default[[x]]}"))
+    }
+  )
+}
+
+#' @importFrom glue glue glue_col
+#' @importFrom crayon green
+#' @importFrom crayon red
+
+.onLoad <- function(libname, pkgname) {
+  default_engine()
+
+  set_use_copy(use_copy_default())
+
+  
+}
+

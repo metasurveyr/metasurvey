@@ -19,9 +19,7 @@ set_engine <- function(.engine = show_engines()) {
     if (
       .engine %in% .support_engine
     ) {
-      Sys.setenv(
-        "metasurvey.engine" = .engine
-      )
+      options(metasurvey.engine = .engine)
     } else {
       stop(
         message(
@@ -73,7 +71,7 @@ show_engines <- function() {
 #' @keywords engine
 
 get_engine <- function() {
-  Sys.getenv("metasurvey.engine")
+  Sys.getenv("metasurvey.engine") %@% getOption("metasurvey.engine")
 }
 
 #' @title default_engine
@@ -85,7 +83,5 @@ get_engine <- function() {
 default_engine <- function(.engine = "data.table") {
   engine_env <- get_engine()
 
-  Sys.setenv(
-    "metasurvey.engine" = engine_env %@% .engine
-  )
+  options(metasurvey.engine = engine_env %||% .engine)
 }
