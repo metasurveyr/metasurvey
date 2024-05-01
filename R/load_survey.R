@@ -39,7 +39,7 @@ load_survey <- function(
     )
   }
 
-  .engine <- Sys.getenv("metasurvey.engine")
+  .engine <- getOption("metasurvey.engine")
 
   .namespace <- ls(
     envir = asNamespace("metasurvey"),
@@ -54,6 +54,8 @@ load_survey <- function(
     .engine_name = .engine,
     ...
   )
+
+  
 
   .call_engine <- paste0(
     "load_survey.",
@@ -70,7 +72,7 @@ load_survey <- function(
 #' Load survey with data.table
 #' @param ... Additional arguments
 #' @inheritDotParams  load_survey
-#' @seealso data.table::fread
+#' @seealso data.table::fread foreign::read.spss openxlsx::loadWorkbook
 #' @return Survey object
 #' @importFrom data.table fread
 #' @noRd
@@ -87,10 +89,38 @@ load_survey.data.table <- function(...) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
+  .extension <- gsub(".*\\.", "", (.args$file %||% ".csv")) 
+
+  .read_function = switch(
+    .extension,
+    sav = list(
+      package = "foreign",
+      read_function = "read.spss"
+    ),
+    dta = list(
+      package = "foreign",
+      read_function = "read.spss"
+    ),
+    csv = list(
+      package = "data.table",
+      read_function = "fread"
+    ),
+    xlsx = list(
+      package = "openxlsx",
+      read_function = "loadWorkbook"
+    )
+  )
+
+
   args <- .args[.names_args]
 
+  require(
+    .read_function$package,
+    character.only = TRUE
+  )
+
   svy <- do.call(
-    fread,
+    .read_function$read_function,
     args = args
   )
 
