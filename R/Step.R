@@ -10,7 +10,8 @@ Step <- R6Class("Step",
         svy_before = NULL,
         default_engine = NULL,
         depends_on = list(),
-        initialize = function(name, edition, survey_type, type, new_var, exprs, call, svy_before, default_engine, depends_on) {
+        comments = NULL,
+        initialize = function(name, edition, survey_type, type, new_var, exprs, call, svy_before, default_engine, depends_on, comments) {
             self$name <- name
             self$edition <- edition
             self$survey_type <- survey_type
@@ -21,6 +22,7 @@ Step <- R6Class("Step",
             self$svy_before <- svy_before
             self$default_engine <- default_engine
             self$depends_on <- depends_on
+            self$comments <- comments
         }
     )
 )
