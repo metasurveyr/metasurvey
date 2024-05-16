@@ -12,10 +12,6 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
   .exprs <- substitute(list(...))
 
   if (!is.null(.by)) {
-
-    .vars <- lapply(names(df), function(col) {
-      return(col = col)
-    })
     
     .agg = .data[, j, by = .by,env = list(j = .exprs)]
 
@@ -103,6 +99,8 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @param svy Survey object
 #' @param ... Expressions to compute
 #' @param use_copy Use copy
+#' @param .by By
+#' @param comment Comment
 #' @return Survey object
 #' @keywords Steps
 #' @export
@@ -219,6 +217,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
 #' @param .name_step Name of the step
 #' @param ordered Ordered
 #' @param use_copy Use copy
+#' @param comment Comment
 #' @return Survey object
 #' @keywords Steps
 #' @export
@@ -334,6 +333,25 @@ get_formulas <- function(steps) {
   }
 }
 
+#' Get comments
+#' @param steps List of steps
+#' @return List of comments
+#' @noRd
+
+get_comments <- function(steps) {
+  if (length(steps) > 0) {
+    sapply(
+      X = 1:length(steps),
+      FUN = function(x) {
+        step <- steps[[x]]
+        step$comments
+      }
+    )
+  } else {
+    NULL
+  }
+}
+
 #' Get type of step
 #' @param steps List of steps
 #' @return List of types
@@ -370,9 +388,11 @@ get_type_step <- function(steps) {
 
 
 view_graph <- function(svy, init_step = "Load survey") {
+
   steps <- get_steps(svy)
   steps_type <- get_type_step(steps)
   formulas <- get_formulas(steps)
+  comments <- get_comments(steps)
 
   if (init_step == "Load survey") {
     init_step <- glue::glue_col(
@@ -394,11 +414,25 @@ view_graph <- function(svy, init_step = "Load survey") {
     names(steps)
   )
 
+  title <- c(
+    init_step,
+    paste(
+      paste("<h2>",comments,"</h2>",sep = "\n"),
+      paste(
+        "<h5>",
+        formulas,
+        "</h5>",
+        sep = "\n"
+      ),
+      sep = "\n"
+    )
+  )
+
 
   nodes <- data.frame(
     id = 1:length(names_step),
     label = names_step,
-    title = c(init_step, unlist(formulas)),
+    title = title,
     group = c(
       "Load survey",
       steps_type
