@@ -19,3 +19,6 @@ A Recipe object
 \description{
 Get a recipe from the API
 }
+\keyword{Recipes}
+\keyword{Survey}
+\keyword{methods}

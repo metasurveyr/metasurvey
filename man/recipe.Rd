@@ -15,3 +15,6 @@ A Recipe object
 \description{
 Recipe
 }
+\keyword{Recipes}
+\keyword{Survey}
+\keyword{methods}

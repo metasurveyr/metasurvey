@@ -14,3 +14,6 @@ save_recipe(recipe, file)
 \description{
 Save a recipe to a file
 }
+\keyword{Recipes}
+\keyword{Survey}
+\keyword{methods}

@@ -15,3 +15,6 @@ A Recipe object
 \description{
 Convert a list of steps to a recipe
 }
+\keyword{Recipes}
+\keyword{Survey}
+\keyword{methods}
