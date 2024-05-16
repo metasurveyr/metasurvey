@@ -27,13 +27,6 @@ en este ejemplo se usará el motor `data.table`.
 ```{r setup}
 library(metasurvey)
 
-
-show_engines()
-
-set_engine(
-  "data.table"
-)
-
 ```
 
 ## Carga de datos
