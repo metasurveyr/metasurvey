@@ -37,6 +37,9 @@
     <loc>/reference/get_metadata.html</loc>
   </url>
   <url>
+    <loc>/reference/get_recipe.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_steps.html</loc>
   </url>
   <url>
@@ -52,6 +55,15 @@
     <loc>/reference/metasurvey-package.html</loc>
   </url>
   <url>
+    <loc>/reference/read_recipe.html</loc>
+  </url>
+  <url>
+    <loc>/reference/recipe.html</loc>
+  </url>
+  <url>
+    <loc>/reference/save_recipe.html</loc>
+  </url>
+  <url>
     <loc>/reference/set_engine.html</loc>
   </url>
   <url>
@@ -65,6 +77,9 @@
   </url>
   <url>
     <loc>/reference/step_recode.html</loc>
+  </url>
+  <url>
+    <loc>/reference/steps_to_recipe.html</loc>
   </url>
   <url>
     <loc>/reference/survey_empty.html</loc>
