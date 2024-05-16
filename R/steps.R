@@ -1,5 +1,7 @@
 #' @importFrom data.table copy
-compute <- function(svy, ..., use_copy = use_copy_default()) {
+compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
+
+
   if (!use_copy) {
     .data <- get_data(svy)
   } else {
@@ -7,20 +9,28 @@ compute <- function(svy, ..., use_copy = use_copy_default()) {
     .data <- copy(get_data(.clone))
   }
 
+  .exprs <- substitute(list(...))
 
+  if (!is.null(.by)) {
 
-  .exprs <- substitute(
-    list(...)
-  )
-  .exprs <- eval(
-    .exprs,
-    .data
-  )
+    .vars <- lapply(names(df), function(col) {
+      return(col = col)
+    })
+    
+    .agg = .data[, j, by = .by,env = list(j = .exprs)]
 
-  .data[
-    ,
-    (names(.exprs)) := .exprs
-  ]
+    .data <- merge(.data, .agg, by = .by, all.x = TRUE)
+    
+
+  } else {
+    .exprs <- eval(.exprs, .data)
+    .data[
+      ,
+      (names(.exprs)) := .exprs,
+      by = .by
+    ]
+  }
+
 
   if (!use_copy) {
     return(set_data(svy, .data))
@@ -28,6 +38,7 @@ compute <- function(svy, ..., use_copy = use_copy_default()) {
     return(set_data(.clone, .data))
   }
 }
+
 
 #' @importFrom data.table copy
 
@@ -96,7 +107,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @keywords Steps
 #' @export
 
-step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
+step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default(),comment = "Compute step") {
   .call <- match.call()
 
   check_svy <- is.null(
@@ -111,7 +122,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
     .names_before <- names(copy(get_data(svy$clone())))
 
     if (use_copy) {
-      .svy_after <- compute(svy, ..., use_copy = use_copy)
+      .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy)
 
 
       .names_after <- names(get_data(.svy_after))
@@ -139,7 +150,8 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
           call = .call,
           svy_before = svy,
           default_engine = get_engine(),
-          depends_on = list()
+          depends_on = list(),
+          comment = comment
         )
 
 
@@ -153,7 +165,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
         return(svy)
       }
     } else {
-      compute(svy, ..., use_copy = use_copy)
+      compute(svy, ..., .by = .by,use_copy = use_copy)
 
       .names_after <- names(get_data(svy))
 
@@ -184,7 +196,8 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
         exprs = substitute(list(...)),
         call = .call,
         svy_before = NULL,
-        default_engine = get_engine()
+        default_engine = get_engine(),
+        comment = comment,
       )
 
       svy$add_step(
@@ -210,7 +223,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default()) {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(),comment = "Recode step") {
   .call <- match.call()
 
   check_svy <- is.null(
@@ -247,7 +260,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = svy,
       default_engine = get_engine(),
-      depends_on = list()
+      depends_on = list(),
+      comment = comment
     )
 
     .svy_after$add_step(
@@ -274,7 +288,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = NULL,
       default_engine = get_engine(),
-      depends_on = list()
+      depends_on = list(),
+      comment = comment
     )
 
     svy$add_step(
@@ -454,7 +469,7 @@ view_graph <- function(svy, init_step = "Load survey") {
 }
 
 
-new_step <- function(id = 1, name, description, depends = NULL, type,new_var,...) {
+new_step <- function(id = 1, name, description, depends = NULL, type,new_var = NULL,...) {
 
 
   if(type == "recode") {
