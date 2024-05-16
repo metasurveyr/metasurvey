@@ -38,6 +38,8 @@ metadata_recipe <- function() {
 #' Recipe
 #' @export
 #' @param ... A list with the following metadata: name, user, svy, description
+#' @keywords Survey methods
+#' @keywords Recipes
 #' @return A Recipe object
 
 recipe <- function(...) {
@@ -94,6 +96,8 @@ recipe <- function(...) {
 #' Encoding and decoding recipes
 #' @param recipe A Recipe object
 #' @return A Recipe object
+#' @keywords internal
+#' @noRd 
 
 encoding_recipe <- function(recipe) {
 
@@ -108,6 +112,8 @@ encoding_recipe <- function(recipe) {
 #' Encoding and decoding recipes
 #' @param recipe A Recipe object
 #' @return A Recipe object
+#' @keywords internal
+#' @noRd
 
 decode_recipe <- function(recipe) {
     recipe$steps <- as.call(
@@ -127,6 +133,8 @@ decode_recipe <- function(recipe) {
 #' @param file A character string with the file path
 #' @importFrom jsonlite write_json
 #' @return NULL
+#' @keywords Survey methods
+#' @keywords Recipes
 #' @export
 
 save_recipe <- function(recipe, file) {
@@ -153,6 +161,8 @@ save_recipe <- function(recipe, file) {
 #' @param file A character string with the file path
 #' @importFrom jsonlite read_json
 #' @return A Recipe object
+#' @keywords Survey methods
+#' @keywords Recipes
 #' @export
 
 read_recipe <- function(file) {
@@ -172,7 +182,8 @@ read_recipe <- function(file) {
 #' @importFrom httr content
 #' @importFrom httr add_headers
 #' @return A Recipe object
-#' 
+#' @keywords Survey methods
+#' @keywords Recipes
 #' @export
 
 get_recipe <- function(
@@ -224,6 +235,8 @@ get_recipe <- function(
 #' Convert a list of steps to a recipe
 #' @param steps A list with the steps of the recipe
 #' @return A Recipe object
+#' @keywords Survey methods
+#' @keywords Recipes
 #' @export
 
 steps_to_recipe <- function(steps) {

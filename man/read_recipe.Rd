@@ -15,3 +15,6 @@ A Recipe object
 \description{
 Load a recipe from a file
 }
+\keyword{Recipes}
+\keyword{Survey}
+\keyword{methods}
