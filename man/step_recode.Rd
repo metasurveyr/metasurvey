@@ -11,7 +11,8 @@ step_recode(
   .default = NA_character_,
   .name_step = NULL,
   ordered = FALSE,
-  use_copy = use_copy_default()
+  use_copy = use_copy_default(),
+  comment = "Recode step"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ step_recode(
 \item{ordered}{Ordered}
 
 \item{use_copy}{Use copy}
+
+\item{comment}{Comment}
 }
 \value{
 Survey object

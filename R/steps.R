@@ -1,5 +1,7 @@
 #' @importFrom data.table copy
-compute <- function(svy, ..., use_copy = use_copy_default()) {
+compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
+
+
   if (!use_copy) {
     .data <- get_data(svy)
   } else {
@@ -7,20 +9,24 @@ compute <- function(svy, ..., use_copy = use_copy_default()) {
     .data <- copy(get_data(.clone))
   }
 
+  .exprs <- substitute(list(...))
 
+  if (!is.null(.by)) {
+    
+    .agg = .data[, j, by = .by,env = list(j = .exprs)]
 
-  .exprs <- substitute(
-    list(...)
-  )
-  .exprs <- eval(
-    .exprs,
-    .data
-  )
+    .data <- merge(.data, .agg, by = .by, all.x = TRUE)
+    
 
-  .data[
-    ,
-    (names(.exprs)) := .exprs
-  ]
+  } else {
+    .exprs <- eval(.exprs, .data)
+    .data[
+      ,
+      (names(.exprs)) := .exprs,
+      by = .by
+    ]
+  }
+
 
   if (!use_copy) {
     return(set_data(svy, .data))
@@ -28,6 +34,7 @@ compute <- function(svy, ..., use_copy = use_copy_default()) {
     return(set_data(.clone, .data))
   }
 }
+
 
 #' @importFrom data.table copy
 
@@ -92,11 +99,13 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @param svy Survey object
 #' @param ... Expressions to compute
 #' @param use_copy Use copy
+#' @param .by By
+#' @param comment Comment
 #' @return Survey object
 #' @keywords Steps
 #' @export
 
-step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
+step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default(),comment = "Compute step") {
   .call <- match.call()
 
   check_svy <- is.null(
@@ -111,7 +120,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
     .names_before <- names(copy(get_data(svy$clone())))
 
     if (use_copy) {
-      .svy_after <- compute(svy, ..., use_copy = use_copy)
+      .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy)
 
 
       .names_after <- names(get_data(.svy_after))
@@ -139,7 +148,8 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
           call = .call,
           svy_before = svy,
           default_engine = get_engine(),
-          depends_on = list()
+          depends_on = list(),
+          comment = comment
         )
 
 
@@ -153,7 +163,7 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
         return(svy)
       }
     } else {
-      compute(svy, ..., use_copy = use_copy)
+      compute(svy, ..., .by = .by,use_copy = use_copy)
 
       .names_after <- names(get_data(svy))
 
@@ -184,7 +194,8 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
         exprs = substitute(list(...)),
         call = .call,
         svy_before = NULL,
-        default_engine = get_engine()
+        default_engine = get_engine(),
+        comment = comment,
       )
 
       svy$add_step(
@@ -206,11 +217,12 @@ step_compute <- function(svy = NULL, ..., use_copy = use_copy_default()) {
 #' @param .name_step Name of the step
 #' @param ordered Ordered
 #' @param use_copy Use copy
+#' @param comment Comment
 #' @return Survey object
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default()) {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(),comment = "Recode step") {
   .call <- match.call()
 
   check_svy <- is.null(
@@ -247,7 +259,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = svy,
       default_engine = get_engine(),
-      depends_on = list()
+      depends_on = list(),
+      comment = comment
     )
 
     .svy_after$add_step(
@@ -274,7 +287,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = NULL,
       default_engine = get_engine(),
-      depends_on = list()
+      depends_on = list(),
+      comment = comment
     )
 
     svy$add_step(
@@ -319,6 +333,25 @@ get_formulas <- function(steps) {
   }
 }
 
+#' Get comments
+#' @param steps List of steps
+#' @return List of comments
+#' @noRd
+
+get_comments <- function(steps) {
+  if (length(steps) > 0) {
+    sapply(
+      X = 1:length(steps),
+      FUN = function(x) {
+        step <- steps[[x]]
+        step$comments
+      }
+    )
+  } else {
+    NULL
+  }
+}
+
 #' Get type of step
 #' @param steps List of steps
 #' @return List of types
@@ -355,9 +388,11 @@ get_type_step <- function(steps) {
 
 
 view_graph <- function(svy, init_step = "Load survey") {
+
   steps <- get_steps(svy)
   steps_type <- get_type_step(steps)
   formulas <- get_formulas(steps)
+  comments <- get_comments(steps)
 
   if (init_step == "Load survey") {
     init_step <- glue::glue_col(
@@ -379,11 +414,25 @@ view_graph <- function(svy, init_step = "Load survey") {
     names(steps)
   )
 
+  title <- c(
+    init_step,
+    paste(
+      paste("<h2>",comments,"</h2>",sep = "\n"),
+      paste(
+        "<h5>",
+        formulas,
+        "</h5>",
+        sep = "\n"
+      ),
+      sep = "\n"
+    )
+  )
+
 
   nodes <- data.frame(
     id = 1:length(names_step),
     label = names_step,
-    title = c(init_step, unlist(formulas)),
+    title = title,
     group = c(
       "Load survey",
       steps_type
@@ -454,7 +503,7 @@ view_graph <- function(svy, init_step = "Load survey") {
 }
 
 
-new_step <- function(id = 1, name, description, depends = NULL, type,new_var,...) {
+new_step <- function(id = 1, name, description, depends = NULL, type,new_var = NULL,...) {
 
 
   if(type == "recode") {
