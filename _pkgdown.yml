@@ -44,3 +44,6 @@ reference:
 - title: Utils
   contents:
     - has_keyword("utils")
+- title: Recipes
+  contents:
+    - has_keyword("Recipes")

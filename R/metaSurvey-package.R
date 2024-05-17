@@ -19,3 +19,6 @@
 #' @importFrom bit64 integer64
 ## usethis namespace: end
 NULL
+
+
+utils::globalVariables(c("j"))

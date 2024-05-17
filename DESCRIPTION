@@ -41,6 +41,7 @@ Imports:
     bit64 (>= 4.0.5),
     httr (>= 1.4.7),
     lifecycle (>= 1.0.0),
+    jsonlite (>= 1.7.2),
     R6 (>= 2.5.0),
     emoji (>= 15.0),
     visNetwork (>= 2.0.9)
