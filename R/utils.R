@@ -36,16 +36,49 @@ validate_weight <- function(svy, weight) {
 }
 
 #' Load survey example
-#' @param path Path to the survey file
+#' @param svy_type Survey type
+#' @param svy_edition Survey edition
 #' @keywords utils
 #' @export
 
-load_survey_example <- function(path = NULL) {
-  if (is.null(path)) {
-    dir(system.file("extdata", package = "metasurvey"))
+load_survey_example <- function(svy_type,svy_edition) {
+
+  path = here::here(
+      "example-data",
+      svy_type
+    )
+
+  dir.create(
+    path, 
+    showWarnings = FALSE
+  )
+
+  baseUrl = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
+
+  message(
+    glue::glue("Downloading {path} from {baseUrl}")
+  )
+
+  path_file = here::here(
+    path,
+    paste0(svy_edition,".csv")
+  )
+
+  if (file.exists(path_file)) {
+    return(path_file)
   } else {
-    system.file("extdata", path, package = "metasurvey", mustWork = TRUE)
+    utils::download.file(
+      paste0(baseUrl, paste(svy_type, paste0(svy_edition, ".csv"), sep = "/")),
+      path_file,
+      method = "auto"
+    )
+    return(path_file)
   }
+
+  
+
+  
+
 }
 
 #' Get use_copy option
