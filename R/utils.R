@@ -73,3 +73,57 @@ set_use_copy <- function(use_copy) {
 
   options(use_copy = use_copy)
 }
+
+
+#' Get User
+#' @return User
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+get_user <- function() {
+  getOption("metasurvey.user", default = NULL) %||% ifelse((get_api_key() == public_key()), "public", NULL)
+}
+
+
+#' URL API Host
+#' @return URL API Host
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+url_api_host <- function() {
+  default_host <- "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
+
+  getOption("metasurvey.base_url") %||% default_host
+}
+
+#' Get API Key
+#' @return API Key
+#' @keywords utils
+#' @export
+
+get_api_key <- function() {
+  public_key <- public_key()
+  getOption("metasurvey.api_key") %||% public_key
+}
+
+#' Public Key
+#' @return Public Key
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+public_key <- function() {
+  return("MKwpkpQCX1meBSN6jmsS5XpIiPvJgfOdxzjinsDC83AX5Mx18j3o16cdhtgPYXQj")
+}
+
+
+#' Set API Key
+#' @param api_key API Key
+#' @keywords utils
+#' @export
+
+set_api_key <- function(api_key) {
+  options(metasurvey.api_key = api_key)
+}
