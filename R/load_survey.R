@@ -14,7 +14,7 @@
 #'   svy_type = "eaii",
 #'   svy_edition = "2019-2021",
 #'   svy_weight = "w_trans",
-#'   input = load_survey_example("2019-2021.csv"),
+#'   input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
 #'   dec = ","
 #' )
 #' svy_example

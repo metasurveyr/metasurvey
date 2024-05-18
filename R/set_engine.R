@@ -86,4 +86,5 @@ default_engine <- function(.engine = "data.table") {
   engine_env <- get_engine()
 
   options(metasurvey.engine = engine_env %||% .engine)
+  engine_env %||% .engine
 }

@@ -4,7 +4,12 @@
 \alias{get_recipe}
 \title{Get a recipe from the API}
 \usage{
-get_recipe(svy_type = NULL, svy_edition = NULL, topic = NULL)
+get_recipe(
+  svy_type = NULL,
+  svy_edition = NULL,
+  topic = NULL,
+  allowMultiple = TRUE
+)
 }
 \arguments{
 \item{svy_type}{A character string with the survey type of the recipe}
@@ -12,6 +17,8 @@ get_recipe(svy_type = NULL, svy_edition = NULL, topic = NULL)
 \item{svy_edition}{A character string with the survey edition of the recipe}
 
 \item{topic}{A character string with the topic of the recipe}
+
+\item{allowMultiple}{A logical value to allow multiple recipes}
 }
 \value{
 A Recipe object

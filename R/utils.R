@@ -36,16 +36,49 @@ validate_weight <- function(svy, weight) {
 }
 
 #' Load survey example
-#' @param path Path to the survey file
+#' @param svy_type Survey type
+#' @param svy_edition Survey edition
 #' @keywords utils
 #' @export
 
-load_survey_example <- function(path = NULL) {
-  if (is.null(path)) {
-    dir(system.file("extdata", package = "metasurvey"))
+load_survey_example <- function(svy_type,svy_edition) {
+
+  path = here::here(
+      "example-data",
+      svy_type
+    )
+
+  dir.create(
+    path, 
+    showWarnings = FALSE
+  )
+
+  baseUrl = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
+
+  message(
+    glue::glue("Downloading {path} from {baseUrl}")
+  )
+
+  path_file = here::here(
+    path,
+    paste0(svy_edition,".csv")
+  )
+
+  if (file.exists(path_file)) {
+    return(path_file)
   } else {
-    system.file("extdata", path, package = "metasurvey", mustWork = TRUE)
+    utils::download.file(
+      paste0(baseUrl, paste(svy_type, paste0(svy_edition, ".csv"), sep = "/")),
+      path_file,
+      method = "auto"
+    )
+    return(path_file)
   }
+
+  
+
+  
+
 }
 
 #' Get use_copy option
@@ -72,4 +105,58 @@ set_use_copy <- function(use_copy) {
   }
 
   options(use_copy = use_copy)
+}
+
+
+#' Get User
+#' @return User
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+get_user <- function() {
+  getOption("metasurvey.user", default = NULL) %||% ifelse((get_api_key() == public_key()), "public", NULL)
+}
+
+
+#' URL API Host
+#' @return URL API Host
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+url_api_host <- function() {
+  default_host <- "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
+
+  getOption("metasurvey.base_url") %||% default_host
+}
+
+#' Get API Key
+#' @return API Key
+#' @keywords utils
+#' @export
+
+get_api_key <- function() {
+  public_key <- public_key()
+  getOption("metasurvey.api_key") %||% public_key
+}
+
+#' Public Key
+#' @return Public Key
+#' @keywords utils
+#' @keywords internal
+#' @noRd 
+
+public_key <- function() {
+  return("MKwpkpQCX1meBSN6jmsS5XpIiPvJgfOdxzjinsDC83AX5Mx18j3o16cdhtgPYXQj")
+}
+
+
+#' Set API Key
+#' @param api_key API Key
+#' @keywords utils
+#' @export
+
+set_api_key <- function(api_key) {
+  options(metasurvey.api_key = api_key)
 }
