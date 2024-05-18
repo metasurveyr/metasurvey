@@ -52,7 +52,7 @@ Una vez cargada la encuesta obtendremos un objeto de la clase `Survey` que conti
 # Variable de ponderación: pesoano
 
 svy_example = metasurvey::load_survey(
-  path = metasurvey::load_survey_example("2019-2021.csv"),
+  path = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
   svy_type = "eaii",
   svy_edition = "2019-2021",
   svy_weight = "w_trans"
@@ -79,7 +79,7 @@ eaii_2019 = metasurvey::load_survey(
     svy_type = "eaii",
     svy_edition = "2019-2021",
     svy_weight = "w_trans",
-    input = metasurvey::load_survey_example("2019-2021.csv"),
+    input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
     dec = ","
 )
 
