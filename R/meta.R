@@ -15,12 +15,21 @@ metadata_args <- function() {
   packageStartupMessage(glue_col("{green Welcome to: {.PACKAGE} version {utils::packageVersion(.PACKAGE)}}", .PACKAGE = pkgname))
   opts_default <- list(
     use_copy = use_copy_default(),
-    metasurvey.engine = get_engine()
+    metasurvey.engine = get_engine(),
+    metasurvey.api.key = get_api_key(),
+    metasurvey.user = get_user()
   )
 
   sapply(
     X = 1:length(opts_default),
     FUN = function(x) {
+
+      hidden_opts = names(opts_default)[x] %in% c("metasurvey.api.key")
+
+      if(hidden_opts) {
+        opts_default[[x]] <- "********"
+      }
+
       packageStartupMessage(glue_col("{red {names(opts_default)[x]}}: {opts_default[[x]]}"))
     }
   )

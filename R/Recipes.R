@@ -21,9 +21,6 @@ Recipe <- R6Class("Recipe",
     )
 )
 
-
-
-
 metadata_recipe <- function() {
     return(
         c(
@@ -44,7 +41,7 @@ metadata_recipe <- function() {
 
 recipe <- function(...) {
     
-    dots <- substitute(list(...))
+    dots <- list(...)
 
     metadata_recipes_names <- metadata_recipe()
 
@@ -177,6 +174,7 @@ read_recipe <- function(file) {
 #' @param topic A character string with the topic of the recipe
 #' @param svy_type A character string with the survey type of the recipe
 #' @param svy_edition A character string with the survey edition of the recipe
+#' @param allowMultiple A logical value to allow multiple recipes
 #' @importFrom httr POST
 #' @importFrom jsonlite parse_json
 #' @importFrom httr content
@@ -189,7 +187,8 @@ read_recipe <- function(file) {
 get_recipe <- function(
     svy_type = NULL,
     svy_edition = NULL,
-    topic = NULL
+    topic = NULL,
+    allowMultiple = TRUE
 ) {
 
     filterList = list(
@@ -198,19 +197,25 @@ get_recipe <- function(
         topic = topic
     )
 
+    method = "findOne"
+
+    if (allowMultiple) {
+        method = "find"
+    }
+
     filterList <- filterList[!sapply(filterList, is.null)]
 
-    baseUrl = "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
+    baseUrl = url_api_host()
     
     url = paste0(
         baseUrl,
-        "findOne"
+        method
     )
     
     headers <- c(
         "Content-Type" = "application/json",
         "Access-Control-Request-Headers" = "*",
-        "api-key" = "MKwpkpQCX1meBSN6jmsS5XpIiPvJgfOdxzjinsDC83AX5Mx18j3o16cdhtgPYXQj"
+        "api-key" = get_api_key()
     )
 
     body <- list(
@@ -227,24 +232,87 @@ get_recipe <- function(
         add_headers(.headers = headers)
     )
 
-    recipe <- decode_recipe(parse_json(content(response, "text", encoding = "UTF-8"))[['document']])
-    # return(content(response, "text", encoding = "UTF-8"))
-    return(recipe)
+    content = content(response, "text", encoding = "UTF-8")
+
+    if (response$status != 200) {
+        stop(
+            message(
+                "The API returned an error: ",
+                response$status
+            )
+        )
+    }
+
+    content_json = parse_json(content)
+
+    n_recipe = get_distinct_recipes(content_json)
+
+    message(
+        glue::glue("The API returned {n_recipe} recipes")
+    )
+
+
+    if (n_recipe == 1) {
+        recipe = content_json$document
+        return(
+            Recipe$new(
+                name = unlist(recipe$name),
+                user = unlist(recipe$user),
+                edition = unlist(recipe$svy_edition),
+                survey_type = unlist(recipe$svy_type),
+                default_engine = default_engine(),
+                depends_on = list(),
+                description = unlist(recipe$description),
+                steps = recipe$steps
+            )
+        )
+    } else {
+        return(
+            lapply(
+                X = 1:n_recipe,
+                FUN = function(x) {
+                    recipe = content_json$documents[[x]]
+                    Recipe$new(
+                        name = unlist(recipe$name),
+                        user = unlist(recipe$user),
+                        edition = unlist(recipe$svy_edition),
+                        survey_type = unlist(recipe$svy_type),
+                        default_engine = default_engine(),
+                        depends_on = list(),
+                        description = unlist(recipe$description),
+                        steps = recipe$steps
+                    )
+                }
+            )
+        )
+    }
+
 }
 
 #' Convert a list of steps to a recipe
+#' @param name A character string with the name of the recipe
+#' @param user A character string with the user of the recipe
+#' @param svy A Survey object
+#' @param description A character string with the description of the recipe
 #' @param steps A list with the steps of the recipe
 #' @return A Recipe object
 #' @keywords Survey methods
 #' @keywords Recipes
 #' @export
 
-steps_to_recipe <- function(steps) {
+steps_to_recipe <- function(
+    name,
+    user,
+    svy = survey_empty(type = "eaii", edition = "2019-2021"),
+    description,
+    steps
+) {
     return(
         recipe(
-            user = "Mauro Loprete",
-            svy = survey_empty(type = "eaii", edition = "2019-2021"),
-            description = "Receta para la encuesta de Actividad Industrial, Comercial y de Servicios",
+            name = name,
+            user = user,
+            svy = svy,
+            description = description,
             steps = unname(lapply(
                 steps,
                 function(step) {
@@ -254,3 +322,25 @@ steps_to_recipe <- function(steps) {
         )
     )
 }
+
+
+get_distinct_recipes = function(content_json) {
+    if (is.null(content_json$documents)) {
+        return(1)
+    } else {
+        return(
+            length(
+                unique(
+                    sapply(
+                        X = 1:length(content_json$documents),
+                        FUN = function(x) {
+                            content_json$documents[[x]][['_id']]
+                        }
+                    )
+                )
+            )
+        )
+    }
+}
+
+

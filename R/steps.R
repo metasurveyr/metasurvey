@@ -39,6 +39,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
 #' @importFrom data.table copy
 
 recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default()) {
+
   if (!use_copy) {
     .data <- svy$get_data()
   } else {
@@ -224,6 +225,8 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(),comment = "Recode step") {
   .call <- match.call()
+
+  new_var = as.character(substitute(new_var))
 
   check_svy <- is.null(
     get_data(svy)

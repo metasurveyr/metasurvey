@@ -4,10 +4,12 @@
 \alias{load_survey_example}
 \title{Load survey example}
 \usage{
-load_survey_example(path = NULL)
+load_survey_example(svy_type, svy_edition)
 }
 \arguments{
-\item{path}{Path to the survey file}
+\item{svy_type}{Survey type}
+
+\item{svy_edition}{Survey edition}
 }
 \description{
 Load survey example
