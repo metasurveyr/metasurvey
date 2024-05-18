@@ -4,9 +4,23 @@
 \alias{steps_to_recipe}
 \title{Convert a list of steps to a recipe}
 \usage{
-steps_to_recipe(steps)
+steps_to_recipe(
+  name,
+  user,
+  svy = survey_empty(type = "eaii", edition = "2019-2021"),
+  description,
+  steps
+)
 }
 \arguments{
+\item{name}{A character string with the name of the recipe}
+
+\item{user}{A character string with the user of the recipe}
+
+\item{svy}{A Survey object}
+
+\item{description}{A character string with the description of the recipe}
+
 \item{steps}{A list with the steps of the recipe}
 }
 \value{
