@@ -28,6 +28,9 @@
     <loc>/reference/default_engine.html</loc>
   </url>
   <url>
+    <loc>/reference/get_api_key.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_data.html</loc>
   </url>
   <url>
@@ -62,6 +65,9 @@
   </url>
   <url>
     <loc>/reference/save_recipe.html</loc>
+  </url>
+  <url>
+    <loc>/reference/set_api_key.html</loc>
   </url>
   <url>
     <loc>/reference/set_engine.html</loc>

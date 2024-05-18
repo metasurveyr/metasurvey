@@ -103,7 +103,9 @@ ejemplo se usará el motor <code>data.table</code>.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">metasurvey</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">Welcome to: metasurvey version 0.0.2</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">use_copy</span>: TRUE</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">metasurvey.engine</span>: data.table</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BB0000;">metasurvey.engine</span>: data.table</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">metasurvey.api.key</span>: ********</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">metasurvey.user</span>: public</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="carga-de-datos">Carga de datos<a class="anchor" aria-label="anchor" href="#carga-de-datos"></a>
@@ -136,7 +138,7 @@ encuesta.</p>
 <span><span class="co"># Variable de ponderación: pesoano</span></span>
 <span></span>
 <span><span class="va">svy_example</span> <span class="op">=</span> <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
-<span>  path <span class="op">=</span> <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/load_survey_example.html">load_survey_example</a></span><span class="op">(</span><span class="st">"2019-2021.csv"</span><span class="op">)</span>,</span>
+<span>  path <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv"</span>,</span>
 <span>  svy_type <span class="op">=</span> <span class="st">"eaii"</span>,</span>
 <span>  svy_edition <span class="op">=</span> <span class="st">"2019-2021"</span>,</span>
 <span>  svy_weight <span class="op">=</span> <span class="st">"w_trans"</span></span>
@@ -188,7 +190,7 @@ se pueden obtener los datos en formato <code>data.table</code> o
 <span>    svy_type <span class="op">=</span> <span class="st">"eaii"</span>,</span>
 <span>    svy_edition <span class="op">=</span> <span class="st">"2019-2021"</span>,</span>
 <span>    svy_weight <span class="op">=</span> <span class="st">"w_trans"</span>,</span>
-<span>    input <span class="op">=</span> <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/load_survey_example.html">load_survey_example</a></span><span class="op">(</span><span class="st">"2019-2021.csv"</span><span class="op">)</span>,</span>
+<span>    input <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv"</span>,</span>
 <span>    dec <span class="op">=</span> <span class="st">","</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
@@ -233,21 +235,21 @@ unidades indexadas (U.I.).</p></li>
 <code class="sourceCode R"><span></span>
 <span><span class="va">eaii_2019</span> <span class="op">=</span> <span class="va">eaii_2019</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span> <span class="co"># Clasificación tamaño de la empresa decreto Nº 504/007</span></span>
-<span>        new_var <span class="op">=</span> <span class="st">"cant_traba_tramo"</span>,</span>
+<span>        new_var <span class="op">=</span> <span class="va">cant_traba_tramo</span>,</span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_4_1_3</span>, <span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">~</span> <span class="st">"1"</span>,</span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_4_1_3</span>, <span class="fl">5</span>, <span class="fl">19</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2"</span>,</span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_4_1_3</span>, <span class="fl">20</span>, <span class="fl">99</span><span class="op">)</span> <span class="op">~</span> <span class="st">"3"</span>,</span>
 <span>        <span class="va">IG_4_1_3</span> <span class="op">&gt;</span> <span class="fl">99</span> <span class="op">~</span> <span class="st">"4"</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span> <span class="co"># Clasificación tamaño de la empresa decreto Nº 504/007</span></span>
-<span>        new_var <span class="op">=</span> <span class="st">"ingreso_vta_pesos"</span>,</span>
+<span>        new_var <span class="op">=</span> <span class="va">ingreso_vta_pesos</span>,</span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_5_1_1_3</span>, <span class="fl">0</span>, <span class="fl">9942787</span><span class="op">)</span> <span class="op">~</span> <span class="st">"1"</span>,</span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_5_1_1_3</span>, <span class="fl">9942788</span>, <span class="fl">49713934</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2"</span>, <span class="co"># nolint</span></span>
 <span>        <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">IG_5_1_1_3</span>, <span class="fl">49713935</span>, <span class="fl">372854507</span><span class="op">)</span> <span class="op">~</span> <span class="st">"3"</span>, <span class="co"># nolint</span></span>
 <span>        <span class="va">IG_5_1_1_3</span> <span class="op">&gt;</span> <span class="fl">372854507</span> <span class="op">~</span> <span class="st">"4"</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span> <span class="co"># Clasificación tamaño de la empresa decreto Nº 504/007</span></span>
-<span>        new_var <span class="op">=</span> <span class="st">"tamanio"</span>,</span>
+<span>        new_var <span class="op">=</span> <span class="va">tamanio</span>,</span>
 <span>        <span class="va">cant_traba_tramo</span> <span class="op">==</span> <span class="st">"1"</span> <span class="op">&amp;</span> <span class="va">ingreso_vta_pesos</span> <span class="op">==</span> <span class="st">"1"</span> <span class="op">~</span> <span class="st">"Pequenias"</span>,</span>
 <span>        <span class="va">cant_traba_tramo</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">ingreso_vta_pesos</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">~</span> <span class="st">"Pequenias"</span>,</span>
 <span>        <span class="va">cant_traba_tramo</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">ingreso_vta_pesos</span> <span class="op">==</span> <span class="st">"1"</span> <span class="op">~</span> <span class="st">"Pequenias"</span>,</span>
@@ -293,7 +295,7 @@ antigüedad.</li>
 <span>    <span class="op">)</span> <span class="op">/</span> <span class="fl">52</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
-<span>    <span class="st">"edad_tramos"</span>,</span>
+<span>    <span class="va">edad_tramos</span>,</span>
 <span>    <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">edad</span>, <span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Jovenes"</span>,</span>
 <span>    <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">edad</span>, <span class="fl">11</span>, <span class="fl">20</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Medianas"</span>,</span>
 <span>    <span class="va">edad</span> <span class="op">&gt;</span> <span class="fl">20</span> <span class="op">~</span> <span class="st">"Maduras"</span></span>
@@ -309,7 +311,7 @@ pública, privada o mixta en el año 2021”.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eaii_2019</span> <span class="op">=</span> <span class="va">eaii_2019</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
-<span>    <span class="st">"tipo_empresa"</span>,</span>
+<span>    <span class="va">tipo_empresa</span>,</span>
 <span>    <span class="va">IG_3_6</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="st">"Publica"</span>,</span>
 <span>    <span class="va">IG_3_6</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Privada"</span>,</span>
 <span>    <span class="va">IG_3_6</span> <span class="op">==</span> <span class="fl">3</span> <span class="op">~</span> <span class="st">"Mixta"</span></span>
@@ -325,7 +327,7 @@ que representa el sector de la empresa.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eaii_2019</span> <span class="op">=</span> <span class="va">eaii_2019</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
-<span>      <span class="st">"sector"</span>,</span>
+<span>      <span class="va">sector</span>,</span>
 <span>      <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">Division</span>, <span class="fl">10</span>, <span class="fl">33</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Industria"</span>,</span>
 <span>      <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/between.html" class="external-link">between</a></span><span class="op">(</span><span class="va">Division</span>, <span class="fl">34</span>, <span class="fl">99</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Servicios"</span>,</span>
 <span>      <span class="va">Division</span> <span class="op">==</span> <span class="st">"E1"</span> <span class="op">~</span> <span class="st">"Servicios"</span>,</span>
@@ -346,7 +348,7 @@ innovación en el período 2019-2021.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eaii_2019</span> <span class="op">=</span> <span class="va">eaii_2019</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
-<span>      new_var <span class="op">=</span> <span class="st">"realiza_innovacion"</span>,</span>
+<span>      new_var <span class="op">=</span> <span class="va">realiza_innovacion</span>,</span>
 <span>      <span class="va">B1_1_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>      <span class="va">B1_2_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>      <span class="va">B1_3_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
@@ -371,7 +373,7 @@ obtener la siguiente tabla:</p>
 <code class="sourceCode R"><span>  </span>
 <span><span class="va">eaii_2019</span> <span class="op">=</span> <span class="va">eaii_2019</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
-<span>    new_var <span class="op">=</span> <span class="st">"tipo_actividad"</span>,</span>
+<span>    new_var <span class="op">=</span> <span class="va">tipo_actividad</span>,</span>
 <span>    <span class="va">B1_1_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="st">"I + D Interna"</span>,</span>
 <span>    <span class="va">B1_2_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="st">"I + D Externa"</span>,</span>
 <span>    <span class="va">B1_3_1</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="st">"Bienes de Capital"</span>,</span>

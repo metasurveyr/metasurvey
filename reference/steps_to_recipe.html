@@ -57,12 +57,34 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">steps_to_recipe</span><span class="op">(</span><span class="va">steps</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">steps_to_recipe</span><span class="op">(</span></span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">user</span>,</span>
+<span>  svy <span class="op">=</span> <span class="fu"><a href="survey_empty.html">survey_empty</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"eaii"</span>, edition <span class="op">=</span> <span class="st">"2019-2021"</span><span class="op">)</span>,</span>
+<span>  <span class="va">description</span>,</span>
+<span>  <span class="va">steps</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>steps</dt>
+    <dl><dt>name</dt>
+<dd><p>A character string with the name of the recipe</p></dd>
+
+
+<dt>user</dt>
+<dd><p>A character string with the user of the recipe</p></dd>
+
+
+<dt>svy</dt>
+<dd><p>A Survey object</p></dd>
+
+
+<dt>description</dt>
+<dd><p>A character string with the description of the recipe</p></dd>
+
+
+<dt>steps</dt>
 <dd><p>A list with the steps of the recipe</p></dd>
 
 </dl></div>
