@@ -108,21 +108,21 @@ El decreto Nº 504/007 establece las siguientes categorías:
 
 eaii_2019 = eaii_2019 |>
   metasurvey::step_recode( # Clasificación tamaño de la empresa decreto Nº 504/007
-        new_var = "cant_traba_tramo",
+        new_var = cant_traba_tramo,
         data.table::between(IG_4_1_3, 0, 4) ~ "1",
         data.table::between(IG_4_1_3, 5, 19) ~ "2",
         data.table::between(IG_4_1_3, 20, 99) ~ "3",
         IG_4_1_3 > 99 ~ "4"
     ) |>
     metasurvey::step_recode( # Clasificación tamaño de la empresa decreto Nº 504/007
-        new_var = "ingreso_vta_pesos",
+        new_var = ingreso_vta_pesos,
         data.table::between(IG_5_1_1_3, 0, 9942787) ~ "1",
         data.table::between(IG_5_1_1_3, 9942788, 49713934) ~ "2", # nolint
         data.table::between(IG_5_1_1_3, 49713935, 372854507) ~ "3", # nolint
         IG_5_1_1_3 > 372854507 ~ "4"
     ) |>
     metasurvey::step_recode( # Clasificación tamaño de la empresa decreto Nº 504/007
-        new_var = "tamanio",
+        new_var = tamanio,
         cant_traba_tramo == "1" & ingreso_vta_pesos == "1" ~ "Pequenias",
         cant_traba_tramo == "2" & ingreso_vta_pesos == "2" ~ "Pequenias",
         cant_traba_tramo == "2" & ingreso_vta_pesos == "1" ~ "Pequenias",
@@ -162,7 +162,7 @@ eaii_2019 = eaii_2019 |>
     ) / 52
   ) |>
   metasurvey::step_recode(
-    "edad_tramos",
+    edad_tramos,
     data.table::between(edad, 0, 10) ~ "Jovenes",
     data.table::between(edad, 11, 20) ~ "Medianas",
     edad > 20 ~ "Maduras"
@@ -177,7 +177,7 @@ Las empresas se clasifican en tres categorías según su tipo, para ello se reco
 ```{r}
 eaii_2019 = eaii_2019 |>
   metasurvey::step_recode(
-    "tipo_empresa",
+    tipo_empresa,
     IG_3_6 == 1 ~ "Publica",
     IG_3_6 == 2 ~ "Privada",
     IG_3_6 == 3 ~ "Mixta"
@@ -192,7 +192,7 @@ Cada empresa se clasifica en un sector según la Clasificación Industrial Inter
 ```{r}
 eaii_2019 = eaii_2019 |>
   metasurvey::step_recode(
-      "sector",
+      sector,
       data.table::between(Division, 10, 33) ~ "Industria",
       data.table::between(Division, 34, 99) ~ "Servicios",
       Division == "E1" ~ "Servicios",
@@ -213,7 +213,7 @@ En base a la pregunta "¿La empresa realizó actividades de innovación en el pe
 ```{r}
 eaii_2019 = eaii_2019 |>
   metasurvey::step_recode(
-      new_var = "realiza_innovacion",
+      new_var = realiza_innovacion,
       B1_1_1 == 1 ~ 1,
       B1_2_1 == 1 ~ 1,
       B1_3_1 == 1 ~ 1,
@@ -239,7 +239,7 @@ De esta forma si se realiza una estimación de la cantidad de empresas que reali
   
 eaii_2019 = eaii_2019 |>
   metasurvey::step_recode(
-    new_var = "tipo_actividad",
+    new_var = tipo_actividad,
     B1_1_1 == 1 ~ "I + D Interna",
     B1_2_1 == 1 ~ "I + D Externa",
     B1_3_1 == 1 ~ "Bienes de Capital",
