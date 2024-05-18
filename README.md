@@ -6,7 +6,7 @@
 status](https://www.r-pkg.org/badges/version/metasSurvey)](https://cran.r-project.org/package=metasurvey)
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tidyverse/dplyr?branch=main)
+coverage](https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
 <!-- badges: end -->
 
 This package provides a set of functions to facilitate the analysis of survey sampling data using meta-programming techniques. In the package you can create reproducible analysis pipelines, and easily generate reports and tables. The package is designed to work with the `survey` package, and it is particularly useful for complex survey designs.
@@ -23,7 +23,7 @@ You can install the released version of metaSurvey from [CRAN](https://CRAN.R-pr
 install.packages("metaSurvey")
 ```
 
-And the development version from [GitHub]() with:
+And the development version from Github with:
 
 ``` r
 # install.packages("devtools")
