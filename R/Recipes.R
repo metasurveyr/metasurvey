@@ -215,7 +215,10 @@ get_recipe <- function(
     headers <- c(
         "Content-Type" = "application/json",
         "Access-Control-Request-Headers" = "*",
-        "api-key" = get_api_key()
+        "Authorization" = paste(
+            "Bearer",
+            get_api_key()
+        )
     )
 
     body <- list(
@@ -253,7 +256,7 @@ get_recipe <- function(
 
 
     if (n_recipe == 1) {
-        recipe = content_json$document
+        recipe = content_json$document[[1]]
         return(
             Recipe$new(
                 name = unlist(recipe$name),
