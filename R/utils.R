@@ -115,7 +115,7 @@ set_use_copy <- function(use_copy) {
 #' @noRd 
 
 get_user <- function() {
-  getOption("metasurvey.user", default = NULL) %||% ifelse((get_api_key() == public_key()), "public", NULL)
+  getOption("metasurvey.user", default = NULL) %||% "public"
 }
 
 
@@ -138,7 +138,7 @@ url_api_host <- function() {
 
 get_api_key <- function() {
   public_key <- public_key()
-  getOption("metasurvey.api_key") %||% public_key
+  public_key
 }
 
 #' Public Key
@@ -148,7 +148,10 @@ get_api_key <- function() {
 #' @noRd 
 
 public_key <- function() {
-  return("MKwpkpQCX1meBSN6jmsS5XpIiPvJgfOdxzjinsDC83AX5Mx18j3o16cdhtgPYXQj")
+  url = "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
+  response = POST(url)
+  content = content(response)
+  return(content$access_token)
 }
 
 

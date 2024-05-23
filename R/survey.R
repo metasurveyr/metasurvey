@@ -8,13 +8,19 @@ Survey <- R6Class("Survey",
     steps = list(),
     recipes = list(),
     workflows = list(),
-    initialize = function(data, edition, type, engine, weight) {
+    design = NULL,
+    initialize = function(data, edition, type, engine, weight,design = NULL) {
       self$data <- data
       self$edition <- edition
       self$type <- type
       self$default_engine <- engine
       self$weight <- validate_weight(data, weight)
       self$steps <- list()
+      self$design <- survey::svydesign(
+        id = ~1,
+        weights = as.formula(paste("~", validate_weight(data, weight))),
+        data = data
+      )
     },
     get_data = function() {
       return(self$data)
@@ -49,6 +55,9 @@ Survey <- R6Class("Survey",
     },
     str = function() {
       str(self$data)
+    },
+    set_design = function(design) {
+      self$design <- design
     }
   )
 )
