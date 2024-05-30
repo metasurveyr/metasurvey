@@ -54,8 +54,7 @@ svy_example <- metasurvey::load_survey(
   svy_type = "eaii",
   svy_edition = "2019-2021",
   svy_weight = "w_trans",
-  dec = ",",
-  recipes = get_recipe("eaii")
+  dec = ","
 )
 
 class(svy_example)
