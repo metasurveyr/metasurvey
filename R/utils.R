@@ -41,27 +41,26 @@ validate_weight <- function(svy, weight) {
 #' @keywords utils
 #' @export
 
-load_survey_example <- function(svy_type,svy_edition) {
-
-  path = here::here(
-      "example-data",
-      svy_type
-    )
+load_survey_example <- function(svy_type, svy_edition) {
+  path <- here::here(
+    "example-data",
+    svy_type
+  )
 
   dir.create(
-    path, 
+    path,
     showWarnings = FALSE
   )
 
-  baseUrl = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
+  baseUrl <- "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
 
   message(
     glue::glue("Downloading {path} from {baseUrl}")
   )
 
-  path_file = here::here(
+  path_file <- here::here(
     path,
-    paste0(svy_edition,".csv")
+    paste0(svy_edition, ".csv")
   )
 
   if (file.exists(path_file)) {
@@ -74,11 +73,6 @@ load_survey_example <- function(svy_type,svy_edition) {
     )
     return(path_file)
   }
-
-  
-
-  
-
 }
 
 #' Get use_copy option
@@ -112,7 +106,7 @@ set_use_copy <- function(use_copy) {
 #' @return User
 #' @keywords utils
 #' @keywords internal
-#' @noRd 
+#' @noRd
 
 get_user <- function() {
   getOption("metasurvey.user", default = NULL) %||% "public"
@@ -123,7 +117,7 @@ get_user <- function() {
 #' @return URL API Host
 #' @keywords utils
 #' @keywords internal
-#' @noRd 
+#' @noRd
 
 url_api_host <- function() {
   default_host <- "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
@@ -145,12 +139,12 @@ get_api_key <- function() {
 #' @return Public Key
 #' @keywords utils
 #' @keywords internal
-#' @noRd 
+#' @noRd
 
 public_key <- function() {
-  url = "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
-  response = POST(url)
-  content = content(response)
+  url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
+  response <- POST(url)
+  content <- content(response)
   return(content$access_token)
 }
 

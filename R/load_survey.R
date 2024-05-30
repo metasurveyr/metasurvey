@@ -55,7 +55,7 @@ load_survey <- function(
     ...
   )
 
-  
+
 
   .call_engine <- paste0(
     "load_survey.",
@@ -89,10 +89,9 @@ load_survey.data.table <- function(...) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
-  .extension <- gsub(".*\\.", "", (.args$file %||% ".csv")) 
+  .extension <- gsub(".*\\.", "", (.args$file %||% ".csv"))
 
-  .read_function = switch(
-    .extension,
+  .read_function <- switch(.extension,
     sav = list(
       package = "foreign",
       read_function = "read.spss"
@@ -114,6 +113,8 @@ load_survey.data.table <- function(...) {
 
   args <- .args[.names_args]
 
+
+
   require(
     .read_function$package,
     character.only = TRUE
@@ -124,12 +125,49 @@ load_survey.data.table <- function(...) {
     args = args
   )
 
+  if (!is.null(.args$recipes)) {
+    if (get_distinct_recipes(.args$recipes) > 1) {
+      index_valid_recipes <- sapply(
+        X = 1:get_distinct_recipes(.args$recipes),
+        FUN = function(x) {
+          validate_recipe(
+            svy_type = .args$svy_type,
+            svy_edition = .args$svy_edition,
+            recipe_svy_edition = .args$recipes[[x]]$edition,
+            recipe_svy_type = .args$recipes[[x]]$svy_type
+          )
+        }
+      )
+    } else {
+      index_valid_recipes <- validate_recipe(
+        svy_type = .args$svy_type,
+        svy_edition = .args$svy_edition,
+        recipe_svy_edition = .args$recipes$edition,
+        recipe_svy_type = .args$recipes$survey_type
+      )
+      if (!index_valid_recipes) {
+        message(
+          "Invalid Recipe: \n",
+          .args$recipes$name
+        )
+
+
+
+        .args$recipes <- NULL
+      }
+    }
+  }
+
+
+
+
   Survey$new(
     data = svy,
     edition = .args$svy_edition,
     type = .args$svy_type,
     engine = .engine_name,
-    weight = .args$svy_weight
+    weight = .args$svy_weight,
+    recipes = .args$recipes %||% NULL
   )
 }
 
@@ -142,4 +180,23 @@ load_survey.data.table <- function(...) {
 
 config_survey <- function(...) {
   match.call()[[1]]
+}
+
+
+#' Check valid recipe
+#' @param svy_type Type of survey
+#' @param svy_edition Edition of the survey
+#' @param recipe_svy_edition Edition of the recipe
+#' @param recipe_svy_type Type of the recipe
+#' @return Logical
+#' @keywords internal
+
+validate_recipe <- function(svy_type, svy_edition, recipe_svy_edition, recipe_svy_type) {
+  equal_type <- svy_type == recipe_svy_type
+
+  equal_edition <- svy_edition == recipe_svy_edition
+
+
+
+  return(equal_type & equal_edition)
 }
