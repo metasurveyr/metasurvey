@@ -25,6 +25,18 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/cat_design.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cat_design_type.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cat_estimation.default.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cat_recipes.html</loc>
+  </url>
+  <url>
     <loc>/reference/default_engine.html</loc>
   </url>
   <url>
@@ -103,6 +115,12 @@
     <loc>/reference/use_copy_default.html</loc>
   </url>
   <url>
+    <loc>/reference/validate_recipe.html</loc>
+  </url>
+  <url>
     <loc>/reference/view_graph.html</loc>
+  </url>
+  <url>
+    <loc>/reference/workflow.html</loc>
   </url>
 </urlset>
