@@ -4,7 +4,7 @@
 #' @keywords internal
 
 metadata_args <- function() {
-  c("svy_type", "svy_edition", ".engine_name", "svy_weight")
+  c("svy_type", "svy_edition", ".engine_name", "svy_weight", "recipes", "steps")
 }
 
 #' @importFrom glue glue glue_col
@@ -23,10 +23,9 @@ metadata_args <- function() {
   sapply(
     X = 1:length(opts_default),
     FUN = function(x) {
+      hidden_opts <- names(opts_default)[x] %in% c("metasurvey.api.key")
 
-      hidden_opts = names(opts_default)[x] %in% c("metasurvey.api.key")
-
-      if(hidden_opts) {
+      if (hidden_opts) {
         opts_default[[x]] <- "********"
       }
 
@@ -43,7 +42,4 @@ metadata_args <- function() {
   default_engine()
 
   set_use_copy(use_copy_default())
-
-  
 }
-

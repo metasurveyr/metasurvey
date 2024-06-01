@@ -1,35 +1,39 @@
 Recipe <- R6Class("Recipe",
-    public = list(
-        name = NULL,
-        edition = NULL,
-        survey_type = NULL,
-        default_engine = NULL,
-        depends_on = list(),
-        user = NULL,
-        description = NULL,
-        steps = list(),
-        initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps) {
-            self$name <- name
-            self$edition <- edition
-            self$survey_type <- survey_type
-            self$default_engine <- default_engine
-            self$depends_on <- depends_on
-            self$user <- user
-            self$description <- description
-            self$steps <- steps
-        }
-    )
+  public = list(
+    name = NULL,
+    edition = NULL,
+    survey_type = NULL,
+    default_engine = NULL,
+    depends_on = list(),
+    user = NULL,
+    description = NULL,
+    id = NULL,
+    steps = list(),
+    DOI = NULL,
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, DOI) {
+      self$name <- name
+      self$edition <- edition
+      self$survey_type <- survey_type
+      self$default_engine <- default_engine
+      self$depends_on <- depends_on
+      self$user <- user
+      self$description <- description
+      self$steps <- steps
+      self$id <- id
+      self$DOI <- DOI
+    }
+  )
 )
 
 metadata_recipe <- function() {
-    return(
-        c(
-            "name",
-            "user",
-            "svy",
-            "description"
-        )
+  return(
+    c(
+      "name",
+      "user",
+      "svy",
+      "description"
     )
+  )
 }
 
 #' Recipe
@@ -40,70 +44,53 @@ metadata_recipe <- function() {
 #' @return A Recipe object
 
 recipe <- function(...) {
-    
-    dots <- list(...)
+  dots <- list(...)
 
-    metadata_recipes_names <- metadata_recipe()
+  class_dots <- sapply(dots, class)
 
-    check_args = sum(metadata_recipes_names %in% names(dots))
+  metadata_recipes_names <- metadata_recipe()
+
+  check_args <- sum(metadata_recipes_names %in% names(dots))
+
+  if (!(check_args == length(metadata_recipes_names))) {
+    stop(
+      message(
+        "The recipe must have the following metadata: ",
+        paste(metadata_recipe(), collapse = ", ")
+      )
+    )
+  }
+
+  index_steps <- which(names(dots) %in% metadata_recipe())
 
 
-
-    if (!(check_args == length(metadata_recipes_names))) {
-        stop(
-            message(
-                "The recipe must have the following metadata: ",
-                paste(metadata_recipe(), collapse = ", ")
-            )
-        )
-    }
-
-    index_steps <- which(names(dots) %in% metadata_recipe())
-
-
-    if ("steps" %in% names(dots)) {
-        return(
-            Recipe$new(
-                name = dots$name,
-                user = dots$user,
-                edition = dots$svy$edition,
-                survey_type = dots$svy$type,
-                default_engine = default_engine(),
-                depends_on = list(),
-                description = dots$description,
-                steps = eval(dots$steps)
-            )
-        )
-    } else {
-        return(
-            Recipe$new(
-                name = dots$name,
-                user = dots$user,
-                edition = dots$svy$edition,
-                survey_type = dots$svy$type,
-                default_engine = default_engine(),
-                depends_on = list(),
-                description = dots$description,
-                steps = dots[-index_steps]
-            )
-        )
-    }
-}
-
-#' Encoding and decoding recipes
-#' @param recipe A Recipe object
-#' @return A Recipe object
-#' @keywords internal
-#' @noRd 
-
-encoding_recipe <- function(recipe) {
-
-    recipe$steps <- lapply(recipe$steps, function(step) {
-        step_string <- deparse(step)
-        return(step_string)
-    })
-
-    return(recipe)
+  if ("steps" %in% names(dots)) {
+    return(
+      Recipe$new(
+        name = dots$name,
+        user = dots$user,
+        edition = dots$svy$edition,
+        survey_type = dots$svy$type,
+        default_engine = default_engine(),
+        depends_on = list(),
+        description = dots$description,
+        steps = eval(dots$steps)
+      )
+    )
+  } else {
+    return(
+      Recipe$new(
+        name = dots$name,
+        user = dots$user,
+        edition = dots$svy$edition,
+        survey_type = dots$svy$type,
+        default_engine = default_engine(),
+        depends_on = list(),
+        description = dots$description,
+        steps = dots[-index_steps]
+      )
+    )
+  }
 }
 
 #' Encoding and decoding recipes
@@ -112,17 +99,32 @@ encoding_recipe <- function(recipe) {
 #' @keywords internal
 #' @noRd
 
-decode_recipe <- function(recipe) {
-    recipe$steps <- as.call(
-        lapply(
-            recipe$steps,
-            function(step_string) as.call(parse(text = step_string))[[1]]
-        )
-    )
+encoding_recipe <- function(recipe) {
+  recipe$steps <- lapply(recipe$steps, function(step) {
+    step_string <- deparse(step)
+    return(step_string)
+  })
 
-    return(
-        recipe
+  return(recipe)
+}
+
+#' Encoding and decoding recipes
+#' @param recipe A Recipe object
+#' @return A Recipe object
+#' @keywords internal
+#' @noRd
+
+decode_step <- function(steps) {
+  steps <- as.call(
+    lapply(
+      steps,
+      function(step_string) as.call(parse(text = step_string))[[1]]
     )
+  )
+
+  return(
+    steps
+  )
 }
 
 #' Save a recipe to a file
@@ -135,23 +137,22 @@ decode_recipe <- function(recipe) {
 #' @export
 
 save_recipe <- function(recipe, file) {
+  recipe <- list(
+    name = recipe$name,
+    user = recipe$user,
+    svy_type = recipe$survey_type,
+    edition = recipe$edition,
+    description = recipe$description,
+    steps = recipe$steps
+  )
 
-    recipe = list(
-        name = recipe$name,
-        user = recipe$user,
-        svy_type = recipe$survey_type,
-        edition = recipe$edition,
-        description = recipe$description,
-        steps = recipe$steps
-    )
+  recipe |>
+    encoding_recipe() |>
+    write_json(path = file, simplifyVector = TRUE)
 
-    recipe |> 
-        encoding_recipe() |> 
-        write_json(path = file, simplifyVector = TRUE)
-    
-    message(
-        glue::glue("The recipe has been saved in {file}")
-    )
+  message(
+    glue::glue("The recipe has been saved in {file}")
+  )
 }
 
 #' Load a recipe from a file
@@ -163,11 +164,7 @@ save_recipe <- function(recipe, file) {
 #' @export
 
 read_recipe <- function(file) {
-    
-    file |> 
-        read_json(simplifyVector = TRUE) |> 
-        decode_recipe()
-
+  decode_step(read_json(file, simplifyVector = TRUE)$steps)
 }
 
 #' Get a recipe from the API
@@ -188,105 +185,76 @@ get_recipe <- function(
     svy_type = NULL,
     svy_edition = NULL,
     topic = NULL,
-    allowMultiple = TRUE
-) {
+    allowMultiple = TRUE) {
+  filterList <- list(
+    svy_type = svy_type,
+    svy_edition = svy_edition,
+    topic = topic
+  )
 
-    filterList = list(
-        svy_type = svy_type,
-        svy_edition = svy_edition,
-        topic = topic
+  method <- "findOne"
+
+  if (allowMultiple) {
+    method <- "find"
+  }
+
+  filterList <- filterList[!sapply(filterList, is.null)]
+
+  content_json <- request_api(method, filterList)
+
+  n_recipe <- get_distinct_recipes_json(content_json)
+
+  if (n_recipe == 0) {
+    stop(
+      message(
+        "The API returned no recipes"
+      )
     )
+  }
 
-    method = "findOne"
+  message(
+    glue::glue("The API returned {n_recipe} recipes")
+  )
 
-    if (allowMultiple) {
-        method = "find"
-    }
 
-    filterList <- filterList[!sapply(filterList, is.null)]
-
-    baseUrl = url_api_host()
-    
-    url = paste0(
-        baseUrl,
-        method
+  if (n_recipe == 1) {
+    recipe <- content_json$document[[1]]
+    return(
+      Recipe$new(
+        name = unlist(recipe$name),
+        user = unlist(recipe$user),
+        edition = unlist(recipe$svy_edition),
+        survey_type = unlist(recipe$svy_type),
+        default_engine = default_engine(),
+        depends_on = list(),
+        description = unlist(recipe$description),
+        steps = decode_step(recipe$steps),
+        id = recipe[["_id"]],
+        DOI = unlist(recipe$DOI)
+      )
     )
-    
-    headers <- c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "api-key" = get_api_key()
+  } else {
+    return(
+      lapply(
+        X = 1:n_recipe,
+        FUN = function(x) {
+          recipe <- content_json$documents[[x]]
+          Recipe$new(
+            name = unlist(recipe$name),
+            user = unlist(recipe$user),
+            edition = unlist(recipe$svy_edition),
+            survey_type = unlist(recipe$svy_type),
+            default_engine = default_engine(),
+            depends_on = list(),
+            description = unlist(recipe$description),
+            steps = decode_step(recipe$steps),
+            id = recipe[["_id"]],
+            DOI = unlist(recipe$DOI)
+          )
+        }
+      )
     )
-
-    body <- list(
-        collection = "recipes",
-        database = "metasurvey",
-        dataSource = "Cluster0",
-        filter = filterList
-    )
-
-    response <- POST(
-        url, 
-        body = body,
-        encode = "json",
-        add_headers(.headers = headers)
-    )
-
-    content = content(response, "text", encoding = "UTF-8")
-
-    if (response$status != 200) {
-        stop(
-            message(
-                "The API returned an error: ",
-                response$status
-            )
-        )
-    }
-
-    content_json = parse_json(content)
-
-    n_recipe = get_distinct_recipes(content_json)
-
-    message(
-        glue::glue("The API returned {n_recipe} recipes")
-    )
-
-
-    if (n_recipe == 1) {
-        recipe = content_json$document
-        return(
-            Recipe$new(
-                name = unlist(recipe$name),
-                user = unlist(recipe$user),
-                edition = unlist(recipe$svy_edition),
-                survey_type = unlist(recipe$svy_type),
-                default_engine = default_engine(),
-                depends_on = list(),
-                description = unlist(recipe$description),
-                steps = recipe$steps
-            )
-        )
-    } else {
-        return(
-            lapply(
-                X = 1:n_recipe,
-                FUN = function(x) {
-                    recipe = content_json$documents[[x]]
-                    Recipe$new(
-                        name = unlist(recipe$name),
-                        user = unlist(recipe$user),
-                        edition = unlist(recipe$svy_edition),
-                        survey_type = unlist(recipe$svy_type),
-                        default_engine = default_engine(),
-                        depends_on = list(),
-                        description = unlist(recipe$description),
-                        steps = recipe$steps
-                    )
-                }
-            )
-        )
-    }
-
+  }
 }
 
 #' Convert a list of steps to a recipe
@@ -305,42 +273,136 @@ steps_to_recipe <- function(
     user,
     svy = survey_empty(type = "eaii", edition = "2019-2021"),
     description,
-    steps
-) {
-    return(
-        recipe(
-            name = name,
-            user = user,
-            svy = svy,
-            description = description,
-            steps = unname(lapply(
-                steps,
-                function(step) {
-                    unname(step$call)
-                }
-            ))
-        )
+    steps) {
+  return(
+    recipe(
+      name = name,
+      user = user,
+      svy = svy,
+      description = description,
+      steps = unname(lapply(
+        steps,
+        function(step) {
+          unname(step$call)
+        }
+      ))
     )
+  )
 }
 
 
-get_distinct_recipes = function(content_json) {
-    if (is.null(content_json$documents)) {
+get_distinct_recipes_json <- function(content_json) {
+  tryCatch(
+    {
+      if (is.null(content_json$documents)) {
         return(1)
-    } else {
+      } else {
         return(
-            length(
-                unique(
-                    sapply(
-                        X = 1:length(content_json$documents),
-                        FUN = function(x) {
-                            content_json$documents[[x]][['_id']]
-                        }
-                    )
-                )
+          length(
+            unique(
+              sapply(
+                X = 1:length(content_json$documents),
+                FUN = function(x) {
+                  content_json$documents[[x]][["_id"]]
+                }
+              )
             )
+          )
         )
+      }
+    },
+    error = function(e) {
+      return(0)
     }
+  )
 }
 
 
+get_distinct_recipes <- function(recipe) {
+  tryCatch(
+    {
+      length(unique(
+        sapply(
+          X = 1:length(recipe),
+          FUN = function(x) {
+            recipe <- recipe[[x]]
+            recipe$id
+          }
+        )
+      ))
+    },
+    error = function(e) {
+      return(0)
+    }
+  )
+}
+
+#' API Recipe
+#' @noRd
+#' @keywords internal
+
+request_api <- function(method, filterList) {
+  baseUrl <- url_api_host()
+
+  url <- paste0(
+    baseUrl,
+    method
+  )
+
+  headers <- c(
+    "Content-Type" = "application/json",
+    "Access-Control-Request-Headers" = "*",
+    "Authorization" = paste(
+      "Bearer",
+      get_api_key()
+    )
+  )
+
+  body <- list(
+    collection = "recipes",
+    database = "metasurvey",
+    dataSource = "Cluster0",
+    filter = filterList
+  )
+
+  response <- POST(
+    url,
+    body = body,
+    encode = "json",
+    add_headers(.headers = headers)
+  )
+
+  content <- content(response, "text", encoding = "UTF-8")
+
+  switch(response$status_code,
+    "400" = stop(
+      message(
+        "The API returned an error for a bad request: ",
+        response$status
+      )
+    ),
+    "401" = stop(
+      message(
+        "The API returned an error for unauthorized access: ",
+        response$status
+      )
+    ),
+    "403" = stop(
+      message(
+        "The API returned an error for forbidden access: ",
+        response$status
+      )
+    ),
+    "404" = stop(
+      message(
+        "The API returned an error for not found: ",
+        response$status
+      )
+    )
+  )
+
+
+  return(
+    content_json = parse_json(content)
+  )
+}

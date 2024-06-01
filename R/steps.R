@@ -1,7 +1,5 @@
 #' @importFrom data.table copy
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
-
-
   if (!use_copy) {
     .data <- get_data(svy)
   } else {
@@ -12,12 +10,9 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
   .exprs <- substitute(list(...))
 
   if (!is.null(.by)) {
-    
-    .agg = .data[, j, by = .by,env = list(j = .exprs)]
+    .agg <- .data[, j, by = .by, env = list(j = .exprs)]
 
     .data <- merge(.data, .agg, by = .by, all.x = TRUE)
-    
-
   } else {
     .exprs <- eval(.exprs, .data)
     .data[
@@ -39,7 +34,6 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
 #' @importFrom data.table copy
 
 recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default()) {
-
   if (!use_copy) {
     .data <- svy$get_data()
   } else {
@@ -61,6 +55,10 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       )
     )
   )
+
+
+
+
 
   .data[
     ,
@@ -106,7 +104,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @keywords Steps
 #' @export
 
-step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default(),comment = "Compute step") {
+step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
   .call <- match.call()
 
   check_svy <- is.null(
@@ -116,6 +114,22 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
   if (check_svy) {
     return(.call)
   }
+
+  exprs <- substitute(list(...))
+
+  depends_on <- unique(
+    c(sapply(
+      X = 2:length(exprs),
+      FUN = function(x) {
+        find_dependencies(
+          call_expr = exprs[[x]],
+          survey = get_data(svy)
+        )
+      }
+    ))
+  )
+
+  print(depends_on)
 
   if (!is.null(svy)) {
     .names_before <- names(copy(get_data(svy$clone())))
@@ -136,7 +150,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
           )
         )
 
-        step = Step$new(
+        step <- Step$new(
           name = .name_step,
           edition = get_edition(.svy_after),
           survey_type = get_type(.svy_after),
@@ -149,7 +163,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
           call = .call,
           svy_before = svy,
           default_engine = get_engine(),
-          depends_on = list(),
+          depends_on = depends_on,
           comment = comment
         )
 
@@ -164,7 +178,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
         return(svy)
       }
     } else {
-      compute(svy, ..., .by = .by,use_copy = use_copy)
+      compute(svy, ..., .by = .by, use_copy = use_copy)
 
       .names_after <- names(get_data(svy))
 
@@ -183,7 +197,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
       )
 
 
-      step = Step$new(
+      step <- Step$new(
         name = .name_step,
         edition = get_edition(svy),
         survey_type = get_type(svy),
@@ -197,6 +211,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
         svy_before = NULL,
         default_engine = get_engine(),
         comment = comment,
+        depends_on = depends_on,
       )
 
       svy$add_step(
@@ -223,10 +238,10 @@ step_compute <- function(svy = NULL, ..., .by = NULL,use_copy = use_copy_default
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(),comment = "Recode step") {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step") {
   .call <- match.call()
 
-  new_var = as.character(substitute(new_var))
+  new_var <- as.character(substitute(new_var))
 
   check_svy <- is.null(
     get_data(svy)
@@ -243,6 +258,18 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
     )
   }
 
+  depends_on <- unique(
+    c(sapply(
+      X = 1:length(list(...)),
+      FUN = function(x) {
+        find_dependencies(
+          call_expr = list(...)[[x]],
+          survey = get_data(svy)
+        )
+      }
+    ))
+  )
+
   if (use_copy) {
     .svy_after <- recode(
       svy = svy,
@@ -252,7 +279,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       use_copy = use_copy
     )
 
-    step = Step$new(
+    step <- Step$new(
       name = .name_step,
       edition = get_edition(.svy_after),
       survey_type = get_type(.svy_after),
@@ -262,7 +289,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = svy,
       default_engine = get_engine(),
-      depends_on = list(),
+      depends_on = depends_on,
       comment = comment
     )
 
@@ -280,7 +307,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       use_copy = use_copy
     )
 
-    step = Step$new(
+    step <- Step$new(
       name = .name_step,
       edition = get_edition(svy),
       survey_type = get_type(svy),
@@ -290,7 +317,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       call = .call,
       svy_before = NULL,
       default_engine = get_engine(),
-      depends_on = list(),
+      depends_on = depends_on,
       comment = comment
     )
 
@@ -391,7 +418,6 @@ get_type_step <- function(steps) {
 
 
 view_graph <- function(svy, init_step = "Load survey") {
-
   steps <- get_steps(svy)
   steps_type <- get_type_step(steps)
   formulas <- get_formulas(steps)
@@ -420,7 +446,7 @@ view_graph <- function(svy, init_step = "Load survey") {
   title <- c(
     init_step,
     paste(
-      paste("<h2>",comments,"</h2>",sep = "\n"),
+      paste("<h2>", comments, "</h2>", sep = "\n"),
       paste(
         "<h5>",
         formulas,
@@ -506,10 +532,8 @@ view_graph <- function(svy, init_step = "Load survey") {
 }
 
 
-new_step <- function(id = 1, name, description, depends = NULL, type,new_var = NULL,...) {
-
-
-  if(type == "recode") {
+new_step <- function(id = 1, name, description, depends = NULL, type, new_var = NULL, ...) {
+  if (type == "recode") {
     if (is.null(new_var)) {
       stop("new_var is required for recode")
     }
@@ -538,3 +562,27 @@ new_step <- function(id = 1, name, description, depends = NULL, type,new_var = N
   )
 }
 
+#' @title Find dependencies
+#' @description Find dependencies
+#' @param call_expr Call expression
+#' @param survey Survey
+#' @keywords internal
+#' @return List of dependencies
+#' @noRd
+#'
+find_dependencies <- function(call_expr, survey) {
+  dependencies <- character()
+
+  if (is.call(call_expr)) {
+    for (i in 1:length(call_expr)) {
+      result <- find_dependencies(call_expr[[i]], survey)
+      if (!is.null(result)) {
+        dependencies <- unique(c(dependencies, result))
+      }
+    }
+  } else if (is.name(call_expr) && as.character(call_expr) %in% names(survey)) {
+    dependencies <- unique(c(dependencies, as.character(call_expr)))
+  }
+
+  return(unique(dependencies))
+}

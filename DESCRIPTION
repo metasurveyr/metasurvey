@@ -1,6 +1,6 @@
 Package: metasurvey
-Title: Survey processing with metaprogramming
-Version: 0.0.2
+Title: Survey Processing with Metaprogramming
+Version: 0.0.1
 Authors@R: 
     c(  
         person(
@@ -22,17 +22,18 @@ Authors@R:
         person(
             "COGNUS", 
             role = c( 
-                "fnd"
+                "fnd",
+                "cph"
             )
         ),
         person(
             "ANII",
             role = c(
-                "cph"
+                "fnd"
             )
         )
     )
-Description: This package provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
+Description: Provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
 License: MIT + file LICENSE
 Imports: 
     data.table (>= 1.14.2),
@@ -45,14 +46,14 @@ Imports:
     jsonlite (>= 1.7.2),
     R6 (>= 2.5.0),
     emoji (>= 15.0),
-    visNetwork (>= 2.0.9)
+    visNetwork (>= 2.0.9),
+    survey (>= 4.2.1)
 Suggests: 
     roxygen2 (>= 7.1.2),
     testthat (>= 3.0.0),
     tibble (>= 3.1.3),
     dplyr (>= 1.0.7),
     knitr (>= 1.33),
-    survey (>= 4.2.1),
     foreign (>= 0.8-81),
     rmarkdown (>= 2.11)
 Config/testthat/edition: 3
