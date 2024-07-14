@@ -4,9 +4,9 @@
 \name{metasurvey-package}
 \alias{metasurvey}
 \alias{metasurvey-package}
-\title{metasurvey: Survey Processing with Metaprogramming}
+\title{metasurvey: Survey Processing with Meta-Programming}
 \description{
-Provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
+Provides a set of functions to process survey data using meta-programming. It is designed to work with the 'survey' package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.
 }
 \author{
 \strong{Maintainer}: Mauro Loprete \email{mloprete@cognus.cl}
