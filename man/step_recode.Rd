@@ -12,7 +12,8 @@ step_recode(
   .name_step = NULL,
   ordered = FALSE,
   use_copy = use_copy_default(),
-  comment = "Recode step"
+  comment = "Recode step",
+  .to_factor = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ step_recode(
 \item{use_copy}{Use copy}
 
 \item{comment}{Comment}
+
+\item{.to_factor}{To factor}
 }
 \value{
 Survey object

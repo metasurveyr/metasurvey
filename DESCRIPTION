@@ -1,6 +1,6 @@
 Package: metasurvey
-Title: Survey Processing with Metaprogramming
-Version: 0.0.1
+Title: Survey Processing with Meta-Programming
+Version: 0.0.1.9000
 Authors@R: 
     c(  
         person(
@@ -33,8 +33,8 @@ Authors@R:
             )
         )
     )
-Description: Provides a set of functions to process survey data using metaprogramming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using metaprogramming to generate code that can be used to process the data.
-License: MIT + file LICENSE
+Description: Provides a set of functions to process survey data using meta-programming. It is designed to work with the 'survey' package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.
+License: GPL (>= 3)
 Imports: 
     data.table (>= 1.14.2),
     crayon (>= 1.3.4),

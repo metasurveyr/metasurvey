@@ -47,7 +47,7 @@ set_engine <- function(.engine = show_engines()) {
 
   identity_transformer(
     text = metacode,
-    envir = .GlobalEnv
+    envir = parent.frame()
   )
 }
 

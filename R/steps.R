@@ -33,7 +33,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default()) {
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE) {
   if (!use_copy) {
     .data <- svy$get_data()
   } else {
@@ -60,14 +60,21 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 
 
 
-  .data[
-    ,
-    (new_var) := factor(
-      .default,
-      levels = .labels,
-      ordered = ordered
-    )
-  ]
+  if (.to_factor) {
+    .data[
+      ,
+      (new_var) := factor(
+        .default,
+        levels = .labels,
+        ordered = ordered
+      )
+    ]
+  } else {
+    .data[
+      ,
+      (new_var) := .default
+    ]
+  }
 
   lapply(
     FUN = function(.expr) {
@@ -234,11 +241,12 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @param ordered Ordered
 #' @param use_copy Use copy
 #' @param comment Comment
+#' @param .to_factor To factor
 #' @return Survey object
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step") {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step",.to_factor = FALSE) {
   .call <- match.call()
 
   new_var <- as.character(substitute(new_var))
@@ -276,7 +284,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       new_var = new_var,
       ...,
       .default = .default,
-      use_copy = use_copy
+      use_copy = use_copy,
+      .to_factor = .to_factor
     )
 
     step <- Step$new(
