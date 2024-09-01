@@ -71,7 +71,7 @@ Survey <- R6Class("Survey",
     },
     bake_recipes = function() {
       if (length(self$recipes) > 0) {
-        for (i in 1:length(self$recipes)) {
+        for (i in seq_along(self$recipes)) {
           self <- 1
         }
       }

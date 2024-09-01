@@ -9,8 +9,8 @@ Recipe <- R6Class("Recipe",
     description = NULL,
     id = NULL,
     steps = list(),
-    DOI = NULL,
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, DOI) {
+    doi = NULL,
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -20,7 +20,7 @@ Recipe <- R6Class("Recipe",
       self$description <- description
       self$steps <- steps
       self$id <- id
-      self$DOI <- DOI
+      self$doi <- doi
     }
   )
 )
@@ -230,7 +230,7 @@ get_recipe <- function(
         description = unlist(recipe$description),
         steps = decode_step(recipe$steps),
         id = recipe[["_id"]],
-        DOI = unlist(recipe$DOI)
+        doi = unlist(recipe$DOI)
       )
     )
   } else {
@@ -249,7 +249,7 @@ get_recipe <- function(
             description = unlist(recipe$description),
             steps = decode_step(recipe$steps),
             id = recipe[["_id"]],
-            DOI = unlist(recipe$DOI)
+            doi = unlist(recipe$doi)
           )
         }
       )
@@ -301,7 +301,7 @@ get_distinct_recipes_json <- function(content_json) {
           length(
             unique(
               sapply(
-                X = 1:length(content_json$documents),
+                X = seq_along(content_json$documents),
                 FUN = function(x) {
                   content_json$documents[[x]][["_id"]]
                 }
@@ -323,7 +323,7 @@ get_distinct_recipes <- function(recipe) {
     {
       length(unique(
         sapply(
-          X = 1:length(recipe),
+          X = seq_along(recipe),
           FUN = function(x) {
             recipe <- recipe[[x]]
             recipe$id

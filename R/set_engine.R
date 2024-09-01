@@ -36,7 +36,7 @@ set_engine <- function(.engine = show_engines()) {
   message(
     glue_col(
       "{green Engine: {.engine}}",
-      .engine = Sys.getenv("metasurvey.engine")
+      .engine = get_engine()
     )
   )
 
