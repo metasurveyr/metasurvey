@@ -53,7 +53,7 @@ load_survey_example <- function(svy_type, svy_edition) {
       paste0(
         baseUrl, 
         glue::glue(
-          '{svy_type}/{svy_type}_{svy_edition}.csv'
+          '{svy_type}/{svy_edition}.csv'
         )
       ),
       f,
