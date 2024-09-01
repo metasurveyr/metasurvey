@@ -42,37 +42,28 @@ validate_weight <- function(svy, weight) {
 #' @export
 
 load_survey_example <- function(svy_type, svy_edition) {
-  path <- here::here(
-    "example-data",
-    svy_type
-  )
-
-  dir.create(
-    path,
-    showWarnings = FALSE
-  )
 
   baseUrl <- "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
 
-  message(
-    glue::glue("Downloading {path} from {baseUrl}")
-  )
-
-  path_file <- here::here(
-    path,
-    paste0(svy_edition, ".csv")
-  )
-
-  if (file.exists(path_file)) {
-    return(path_file)
+  f <- tempfile(fileext = ".csv")
+  if (file.exists(f)) {
+    return(f)
   } else {
     utils::download.file(
-      paste0(baseUrl, paste(svy_type, paste0(svy_edition, ".csv"), sep = "/")),
-      path_file,
+      paste0(
+        baseUrl, 
+        glue::glue(
+          '{svy_type}/{svy_type}_{svy_edition}.csv'
+        )
+      ),
+      f,
       method = "auto"
     )
-    return(path_file)
+    return(f)
   }
+
+  
+  return(file.path(tempdir(), paste0(svy_type, paste0(svy_edition, ".csv"), sep = "/")))
 }
 
 #' Get use_copy option
