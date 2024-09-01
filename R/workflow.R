@@ -10,7 +10,7 @@
 workflow <- function(survey, ...) {
   .calls <- substitute(list(...))
   lapply(
-    X = 1:length(survey),
+    X = seq_along(survey),
     function(i) {
       survey <- survey[[i]]
 
@@ -50,11 +50,6 @@ cat_estimation <- function(estimation, call) {
   if (class_estimation != "svyby" & class_estimation != "svyratio") {
     class_estimation <- "default"
   }
-
-  print(paste0(
-    "cat_estimation.",
-    class_estimation
-  ))
 
   do.call(
     paste0(

@@ -9,7 +9,6 @@
 ^guru$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-
 ^.*\.json
 ^.*\.lintr
 ^doc$
@@ -25,3 +24,6 @@ test_recipes.R
 test.R
 recetas_ech.R
 example-data
+^CRAN-SUBMISSION$
+eaii.R$
+test_api.R

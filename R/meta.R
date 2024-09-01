@@ -21,7 +21,7 @@ metadata_args <- function() {
   )
 
   sapply(
-    X = 1:length(opts_default),
+    X = seq_along(opts_default),
     FUN = function(x) {
       hidden_opts <- names(opts_default)[x] %in% c("metasurvey.api.key")
 

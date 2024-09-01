@@ -33,7 +33,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default()) {
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE) {
   if (!use_copy) {
     .data <- svy$get_data()
   } else {
@@ -48,7 +48,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     .default,
     unique(
       sapply(
-        X = 1:length(.exprs),
+        X = seq_along(.exprs),
         FUN = function(x) {
           .exprs[[x]][[3]]
         }
@@ -60,14 +60,21 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 
 
 
-  .data[
-    ,
-    (new_var) := factor(
-      .default,
-      levels = .labels,
-      ordered = ordered
-    )
-  ]
+  if (.to_factor) {
+    .data[
+      ,
+      (new_var) := factor(
+        .default,
+        levels = .labels,
+        ordered = ordered
+      )
+    ]
+  } else {
+    .data[
+      ,
+      (new_var) := .default
+    ]
+  }
 
   lapply(
     FUN = function(.expr) {
@@ -84,7 +91,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       ]
       invisible(NULL)
     },
-    X = 1:length(.exprs)
+    X = seq_along(.exprs)
   )
 
   if (!use_copy) {
@@ -128,8 +135,6 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
       }
     ))
   )
-
-  print(depends_on)
 
   if (!is.null(svy)) {
     .names_before <- names(copy(get_data(svy$clone())))
@@ -234,11 +239,12 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @param ordered Ordered
 #' @param use_copy Use copy
 #' @param comment Comment
+#' @param .to_factor To factor
 #' @return Survey object
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step") {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step",.to_factor = FALSE) {
   .call <- match.call()
 
   new_var <- as.character(substitute(new_var))
@@ -260,7 +266,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
 
   depends_on <- unique(
     c(sapply(
-      X = 1:length(list(...)),
+      X = seq_along(list(...)),
       FUN = function(x) {
         find_dependencies(
           call_expr = list(...)[[x]],
@@ -276,7 +282,8 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       new_var = new_var,
       ...,
       .default = .default,
-      use_copy = use_copy
+      use_copy = use_copy,
+      .to_factor = .to_factor
     )
 
     step <- Step$new(
@@ -338,7 +345,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
 get_formulas <- function(steps) {
   if (length(steps) > 0) {
     sapply(
-      X = 1:length(steps),
+      X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
         exprs <- step$exprs
@@ -371,7 +378,7 @@ get_formulas <- function(steps) {
 get_comments <- function(steps) {
   if (length(steps) > 0) {
     sapply(
-      X = 1:length(steps),
+      X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
         step$comments
@@ -390,7 +397,7 @@ get_comments <- function(steps) {
 get_type_step <- function(steps) {
   if (length(steps) > 0) {
     sapply(
-      X = 1:length(steps),
+      X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
         step$type
@@ -459,7 +466,7 @@ view_graph <- function(svy, init_step = "Load survey") {
 
 
   nodes <- data.frame(
-    id = 1:length(names_step),
+    id = seq_along(names_step),
     label = names_step,
     title = title,
     group = c(
@@ -470,7 +477,7 @@ view_graph <- function(svy, init_step = "Load survey") {
 
 
   edges <- data.frame(
-    from = 1:length(names_step),
+    from = seq_along(names_step),
     to = c(
       2:length(names_step),
       rep(
@@ -574,7 +581,7 @@ find_dependencies <- function(call_expr, survey) {
   dependencies <- character()
 
   if (is.call(call_expr)) {
-    for (i in 1:length(call_expr)) {
+    for (i in seq_along(call_expr)) {
       result <- find_dependencies(call_expr[[i]], survey)
       if (!is.null(result)) {
         dependencies <- unique(c(dependencies, result))
