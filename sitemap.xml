@@ -1,126 +1,43 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/eaii.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cat_design.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cat_design_type.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cat_estimation.default.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cat_recipes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/default_engine.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_api_key.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_engine.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_metadata.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_steps.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/load_survey.html</loc>
-  </url>
-  <url>
-    <loc>/reference/load_survey_example.html</loc>
-  </url>
-  <url>
-    <loc>/reference/metasurvey-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/read_recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/save_recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_api_key.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_engine.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_use_copy.html</loc>
-  </url>
-  <url>
-    <loc>/reference/show_engines.html</loc>
-  </url>
-  <url>
-    <loc>/reference/step_compute.html</loc>
-  </url>
-  <url>
-    <loc>/reference/step_recode.html</loc>
-  </url>
-  <url>
-    <loc>/reference/steps_to_recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/survey_empty.html</loc>
-  </url>
-  <url>
-    <loc>/reference/survey_to_data.table.html</loc>
-  </url>
-  <url>
-    <loc>/reference/survey_to_data_frame.html</loc>
-  </url>
-  <url>
-    <loc>/reference/survey_to_tibble.html</loc>
-  </url>
-  <url>
-    <loc>/reference/use_copy_default.html</loc>
-  </url>
-  <url>
-    <loc>/reference/validate_recipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/view_graph.html</loc>
-  </url>
-  <url>
-    <loc>/reference/workflow.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/eaii.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/cat_design.html</loc></url>
+<url><loc>/reference/cat_design_type.html</loc></url>
+<url><loc>/reference/cat_estimation.default.html</loc></url>
+<url><loc>/reference/cat_recipes.html</loc></url>
+<url><loc>/reference/default_engine.html</loc></url>
+<url><loc>/reference/get_api_key.html</loc></url>
+<url><loc>/reference/get_data.html</loc></url>
+<url><loc>/reference/get_engine.html</loc></url>
+<url><loc>/reference/get_metadata.html</loc></url>
+<url><loc>/reference/get_recipe.html</loc></url>
+<url><loc>/reference/get_steps.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/load_survey.html</loc></url>
+<url><loc>/reference/load_survey_example.html</loc></url>
+<url><loc>/reference/metasurvey-package.html</loc></url>
+<url><loc>/reference/read_recipe.html</loc></url>
+<url><loc>/reference/recipe.html</loc></url>
+<url><loc>/reference/save_recipe.html</loc></url>
+<url><loc>/reference/set_api_key.html</loc></url>
+<url><loc>/reference/set_engine.html</loc></url>
+<url><loc>/reference/set_use_copy.html</loc></url>
+<url><loc>/reference/show_engines.html</loc></url>
+<url><loc>/reference/step_compute.html</loc></url>
+<url><loc>/reference/step_recode.html</loc></url>
+<url><loc>/reference/steps_to_recipe.html</loc></url>
+<url><loc>/reference/survey_empty.html</loc></url>
+<url><loc>/reference/survey_to_data.table.html</loc></url>
+<url><loc>/reference/survey_to_data_frame.html</loc></url>
+<url><loc>/reference/survey_to_tibble.html</loc></url>
+<url><loc>/reference/use_copy_default.html</loc></url>
+<url><loc>/reference/validate_recipe.html</loc></url>
+<url><loc>/reference/view_graph.html</loc></url>
+<url><loc>/reference/workflow.html</loc></url>
 </urlset>
+
