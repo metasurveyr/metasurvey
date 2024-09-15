@@ -1,4 +1,4 @@
-#' Load survey
+#' @title Load survey
 #'
 #' @param path Path to the survey file
 #' @param svy_type Type of survey
