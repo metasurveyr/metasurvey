@@ -1,8 +1,8 @@
 ---
-title: "Encuesta de Actividades de Innovación e Investigación (EAII) 2019-2021"
+title: "eai"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{eaii}
+  %\VignetteIndexEntry{eai}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
 
 Esta encuesta es utilizada para obtener información sobre las actividades de innovación e investigación y desarrollo en las empresas, instituciones y organismos del país, es realizada por la Agencia Nacional de Innovación e Investigación (ANII) en conjunto con el Instituto Nacional de Estadística (INE).
 Los microdatos oficiales se encuentran diposibles en [PRISMA](https://prisma.uy/indicadores/innovacion/periodo-actual) junto con la documentación de la encuesta. En el paquete se encuentra el mismo archivo de microdatos en formato CSV unicamente 
