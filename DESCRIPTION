@@ -18,19 +18,6 @@ Authors@R:
             role = c(
                 "aut"
             )
-        ),
-        person(
-            "COGNUS", 
-            role = c( 
-                "fnd",
-                "cph"
-            )
-        ),
-        person(
-            "ANII",
-            role = c(
-                "fnd"
-            )
         )
     )
 Description: Provides a set of functions to process survey data using meta-programming. It is designed to work with the 'survey' package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.
