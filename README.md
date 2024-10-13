@@ -1,4 +1,4 @@
-# metaSurvey
+# metasurvey
 
 <!-- badges: start -->
 
@@ -20,7 +20,7 @@ The package is currently under development, and it is not yet available on CRAN.
 You can install the released version of metaSurvey from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-install.packages("metaSurvey")
+install.packages("metasurvey")
 ```
 
 And the development version from Github with:
