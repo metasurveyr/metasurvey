@@ -21,12 +21,14 @@ navbar:
       aria-label: GitHub
 
 authors:
+  Mauro Loprete:
+    href: https://www.mauroloprete.com
   COGNUS:
     href: https://www.cognus.biz/
   ANII:
     href: https://www.anii.org.uy/
   Natalia da Silva:
-    href: https://iesta.fcea.udelar.edu.uy/integrantes/natalia-da-silva/
+    href: https://natydasilva.github.io/natydasilva/
 
 reference:
 - title: Engine
