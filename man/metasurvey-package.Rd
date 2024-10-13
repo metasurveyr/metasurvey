@@ -16,11 +16,5 @@ Authors:
   \item Natalia da Silva
 }
 
-Other contributors:
-\itemize{
-  \item COGNUS [funder, copyright holder]
-  \item ANII [funder]
-}
-
 }
 \keyword{internal}
