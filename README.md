@@ -17,7 +17,7 @@ The package is currently under development, and it is not yet available on CRAN.
 
 ## Installation
 
-You can install the released version of metaSurvey from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of metasurvey from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("metasurvey")
@@ -27,7 +27,7 @@ And the development version from Github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("metasurveyR/metaSurvey")
+devtools::install_github("metasurveyR/metasurvey")
 ```
 
 ## Example
@@ -36,7 +36,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 
-library(metaSurvey)
+library(metasurvey)
 
 # Load the data
 
