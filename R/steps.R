@@ -1,4 +1,5 @@
 #' @importFrom data.table copy
+#' @importFrom methods is
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
 
   

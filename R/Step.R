@@ -35,7 +35,6 @@ Step <- R6Class("Step",
 #' @keywords Surveymethods
 #' @noRd 
 #' @keywords internal
-#' @export
 
 step_to_env <- function(step) {
   args_function_step <- names(formals(step$type))
@@ -55,7 +54,6 @@ step_to_env <- function(step) {
 #' @keywords Validate
 #' @noRd 
 #' @keywords internal
-#' @export
 
 validate_step <- function(svy, step) {
   names_svy <- names(svy$data)
@@ -79,7 +77,6 @@ validate_step <- function(svy, step) {
 
 
 #' Bake step
-#' @export
 #' @param svy A Survey object
 #' @param step A Step object
 #' @return A Survey object
