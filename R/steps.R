@@ -68,8 +68,6 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       
     }
 
-    assign("exprs_recode", .exprs, envir = .GlobalEnv)
-
     .labels <- c(
       .default,
       unique(
