@@ -27,3 +27,4 @@ example-data
 ^CRAN-SUBMISSION$
 eaii.R$
 test_api.R
+popac.R
