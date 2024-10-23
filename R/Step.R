@@ -31,6 +31,10 @@ Step <- R6Class("Step",
 
 #' Step to environment
 #' @param step A Step object
+#' @return An environment
+#' @keywords Surveymethods
+#' @noRd 
+#' @keywords internal
 #' @export
 
 step_to_env <- function(step) {
@@ -46,6 +50,11 @@ step_to_env <- function(step) {
 #' Validate step
 #' @param svy A Survey object
 #' @param step A Step object
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Validate
+#' @noRd 
+#' @keywords internal
 #' @export
 
 validate_step <- function(svy, step) {
@@ -73,6 +82,13 @@ validate_step <- function(svy, step) {
 #' @export
 #' @param svy A Survey object
 #' @param step A Step object
+#' @return A Survey object
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Bake
+#' @keywords Survey
+#' @noRd 
+#' @keywords internal
 
 bake_step <- function(svy, step) {
 
@@ -120,6 +136,9 @@ bake_step <- function(svy, step) {
 
 #' Bake steps
 #' @export
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Bake
 #' @param svy A Survey object
 
 bake_steps <- function(svy) {
