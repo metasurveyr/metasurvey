@@ -62,11 +62,8 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     .exprs <- substitute(list(...))
     .exprs <- eval(.exprs, .data, parent.frame())
 
-    
-
-    if (!is(class(.exprs[[1]]),"formula")) {
+    if (!is(.exprs[[1]],"formula")) {
       .exprs <- .exprs[[1]]
-      
     }
 
     .labels <- c(
