@@ -1,4 +1,5 @@
 #' @importFrom data.table copy
+#' @importFrom methods is
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
 
   
@@ -67,8 +68,6 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       .exprs <- .exprs[[1]]
       
     }
-
-    assign("exprs_recode", .exprs, envir = .GlobalEnv)
 
     .labels <- c(
       .default,
