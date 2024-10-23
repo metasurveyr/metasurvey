@@ -148,3 +148,26 @@ public_key <- function() {
 set_api_key <- function(api_key) {
   options(metasurvey.api_key = api_key)
 }
+
+
+#' Lazy processing
+#' @return Value
+#' @keywords utils
+#' @export
+
+lazy_default <- function() {
+  getOption("lazy_processing", default = TRUE)
+}
+
+#' Set lazy processing
+#' @param lazy Lazy processing
+#' @keywords utils
+#' @export
+
+set_lazy_processing <- function(lazy) {
+  if (!is.logical(lazy)) {
+    stop("lazy must be a logical")
+  }
+
+  options(lazy_processing = lazy)
+}
