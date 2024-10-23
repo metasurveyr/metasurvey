@@ -1,103 +1,132 @@
 #' @importFrom data.table copy
-compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default()) {
-  if (!use_copy) {
-    .data <- get_data(svy)
+compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
+
+  
+
+  .dots <- substitute(...)
+
+  if (!lazy) {
+    if (!use_copy) {
+      .data <- get_data(svy)
+    } else {
+      .clone <- svy$clone()
+      .data <- copy(get_data(.clone))
+    }
+
+    if (!is(.dots, "call") & !is(.dots, "name")) {
+      .exprs <- list()
+      for (i in 2:length(.dots)) {
+        .exprs <- c(.exprs, .dots[[i]])
+      }
+    } else {
+      .exprs <- substitute(list(...))
+    }
+
+    if (!is.null(.by)) {
+      .agg <- .data[, j, by = .by, env = list(j = .exprs)]
+
+      .data <- merge(.data, .agg, by = .by, all.x = TRUE)
+    } else {
+      .exprs <- eval(.exprs, .data)
+      .data[
+        ,
+        (names(.exprs)) := .exprs,
+        by = .by
+      ]
+    }
+
+
+    if (!use_copy) {
+      return(set_data(svy, .data))
+    } else {
+      return(set_data(.clone, .data))
+    }
   } else {
-    .clone <- svy$clone()
-    .data <- copy(get_data(.clone))
-  }
-
-  .exprs <- substitute(list(...))
-
-  if (!is.null(.by)) {
-    .agg <- .data[, j, by = .by, env = list(j = .exprs)]
-
-    .data <- merge(.data, .agg, by = .by, all.x = TRUE)
-  } else {
-    .exprs <- eval(.exprs, .data)
-    .data[
-      ,
-      (names(.exprs)) := .exprs,
-      by = .by
-    ]
-  }
-
-
-  if (!use_copy) {
-    return(set_data(svy, .data))
-  } else {
-    return(set_data(.clone, .data))
+    return(svy)
   }
 }
 
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE) {
-  if (!use_copy) {
-    .data <- svy$get_data()
-  } else {
-    .clone <- svy$clone()
-    .data <- copy(get_data(.clone))
-  }
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE, lazy = lazy_default()) {
+  if (!lazy) {
+    if (!use_copy) {
+      .data <- svy$get_data()
+    } else {
+      .clone <- svy$clone()
+      .data <- copy(get_data(.clone))
+    }
 
-  .exprs <- substitute(list(...))
-  .exprs <- eval(.exprs, .data, parent.frame())
+    .exprs <- substitute(list(...))
+    .exprs <- eval(.exprs, .data, parent.frame())
 
-  .labels <- c(
-    .default,
-    unique(
-      sapply(
-        X = seq_along(.exprs),
-        FUN = function(x) {
-          .exprs[[x]][[3]]
-        }
+    
+
+    if (!is(class(.exprs[[1]]),"formula")) {
+      .exprs <- .exprs[[1]]
+      
+    }
+
+    assign("exprs_recode", .exprs, envir = .GlobalEnv)
+
+    .labels <- c(
+      .default,
+      unique(
+        sapply(
+          X = seq_along(.exprs),
+          FUN = function(x) {
+            .exprs[[x]][[3]]
+          }
+        )
       )
     )
-  )
 
 
 
 
 
-  if (.to_factor) {
-    .data[
-      ,
-      (new_var) := factor(
-        .default,
-        levels = .labels,
-        ordered = ordered
-      )
-    ]
-  } else {
-    .data[
-      ,
-      (new_var) := .default
-    ]
-  }
-
-  lapply(
-    FUN = function(.expr) {
-      .filter <- .exprs[[.expr]][[2]]
-      .label <- .exprs[[.expr]][[3]]
-
+    if (.to_factor) {
       .data[
-        eval(
-          .filter,
-          .data,
-          parent.frame()
-        ),
-        (new_var) := .label
+        ,
+        (new_var) := factor(
+          .default,
+          levels = .labels,
+          ordered = ordered
+        )
       ]
-      invisible(NULL)
-    },
-    X = seq_along(.exprs)
-  )
+    } else {
+      .data[
+        ,
+        (new_var) := .default
+      ]
+    }
 
-  if (!use_copy) {
-    return(set_data(svy, .data))
+    lapply(
+      FUN = function(.expr) {
+        .filter <- .exprs[[.expr]][[2]]
+        .label <- .exprs[[.expr]][[3]]
+
+        .data[
+          eval(
+            .filter,
+            .data,
+            parent.frame()
+          ),
+          (new_var) := .label
+        ]
+        invisible(NULL)
+      },
+      X = seq_along(.exprs)
+    )
+
+    if (!use_copy) {
+      return(set_data(svy, .data))
+    } else {
+      return(set_data(.clone, .data))
+    }
   } else {
-    return(set_data(.clone, .data))
+    return(svy)
   }
 }
 
@@ -144,7 +173,9 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 
 
       .names_after <- names(get_data(.svy_after))
-      .new_vars <- .names_after[!.names_after %in% .names_before]
+      .new_vars <- names(exprs)[-1]
+
+      # assign("new_vars", .new_vars_temp, envir = .GlobalEnv)
 
       if (length(.new_vars) > 0) {
         .name_step <- paste0(
@@ -174,9 +205,13 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 
 
 
-        .svy_after$add_step(
-          step
-        )
+        if (validate_step(svy, step)) {
+          .svy_after$add_step(
+            step
+          )
+        } else {
+          stop("Error in step")
+        }
         return(.svy_after)
       } else {
         message("No news variable created: ", substitute(list(...)))
@@ -211,7 +246,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
           .new_vars,
           collapse = ", "
         ),
-        exprs = substitute(list(...)),
+        exprs = list(...),
         call = .call,
         svy_before = NULL,
         default_engine = get_engine(),
@@ -245,6 +280,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @export
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step",.to_factor = FALSE) {
+  
   .call <- match.call()
 
   new_var <- as.character(substitute(new_var))
@@ -292,7 +328,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       survey_type = get_type(.svy_after),
       type = "recode",
       new_var = new_var,
-      exprs = substitute(list(...)),
+      exprs = list(...),
       call = .call,
       svy_before = svy,
       default_engine = get_engine(),
@@ -320,7 +356,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       survey_type = get_type(svy),
       type = "recode",
       new_var = new_var,
-      exprs = substitute(list(...)),
+      exprs = list(...),
       call = .call,
       svy_before = NULL,
       default_engine = get_engine(),
