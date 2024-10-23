@@ -53,6 +53,15 @@ Survey <- R6Class("Survey",
       self$steps[[step$name]] <- step
       self$update_design()
     },
+    add_recipe = function(recipe, bake = lazy_default()) {
+      self$recipes <- recipe
+    },
+    add_workflow = function(workflow) {
+      self$workflows[[workflow$name]] <- workflow
+    },
+    bake = function() {
+      bake_recipes(self, self$recipes)
+    },
     head = function() {
       head(self$data)
     },
@@ -68,13 +77,6 @@ Survey <- R6Class("Survey",
         weights = as.formula(paste("~", validate_weight(self$data, self$weight))),
         data = self$data
       )
-    },
-    bake_recipes = function() {
-      if (length(self$recipes) > 0) {
-        for (i in seq_along(self$recipes)) {
-          self <- 1
-        }
-      }
     },
     active = list(
       design = function() {
@@ -401,4 +403,23 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
     weight = weight,
     engine = engine
   )
+}
+
+
+#' Bake recipes
+#' @param svy Survey object
+#' @param recipes List of recipes
+#' @keywords Surveymethods
+#' @export
+#' @return Survey object
+bake_recipes <- function(svy, recipes) {
+  if (length(recipes) == 0) {
+    return(svy)
+  }
+
+  for (i in seq_along(recipes)) {
+    svy <- recipes[[i]]$bake(svy)
+  }
+
+  return(svy)
 }

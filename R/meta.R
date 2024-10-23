@@ -17,7 +17,8 @@ metadata_args <- function() {
     use_copy = use_copy_default(),
     metasurvey.engine = get_engine(),
     metasurvey.api.key = get_api_key(),
-    metasurvey.user = get_user()
+    metasurvey.user = get_user(),
+    metasurvey.lazy_processing = lazy_default()
   )
 
   sapply(

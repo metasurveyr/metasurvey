@@ -23,10 +23,6 @@ navbar:
 authors:
   Mauro Loprete:
     href: https://www.mauroloprete.com
-  COGNUS:
-    href: https://www.cognus.biz/
-  ANII:
-    href: https://www.anii.org.uy/
   Natalia da Silva:
     href: https://natydasilva.github.io/natydasilva/
 
@@ -49,3 +45,5 @@ reference:
 - title: Recipes
   contents:
     - has_keyword("Recipes")
+
+url: www.mauroloprete.com
