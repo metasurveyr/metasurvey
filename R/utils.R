@@ -136,6 +136,12 @@ public_key <- function() {
   url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
   response <- POST(url)
   content <- content(response)
+
+  if (response$status_code != 200) {
+    stop("Error getting public key")
+    cat(content)
+  }
+
   return(content$access_token)
 }
 
