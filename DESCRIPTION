@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
-Version: 0.0.1.9000
+Version: 0.0.1.9001
 URL: www.mauroloprete.com
 Authors@R: 
     c(  
@@ -34,7 +34,8 @@ Imports:
     R6 (>= 2.5.0),
     emoji (>= 15.0),
     visNetwork (>= 2.0.9),
-    survey (>= 4.2.1)
+    survey (>= 4.2.1),
+    methods
 Suggests: 
     roxygen2 (>= 7.1.2),
     testthat (>= 3.0.0),

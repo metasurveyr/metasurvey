@@ -12,3 +12,6 @@ bake_steps(svy)
 \description{
 Bake steps
 }
+\keyword{Bake}
+\keyword{Steps}
+\keyword{Surveymethods}
