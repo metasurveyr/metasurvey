@@ -111,7 +111,7 @@ get_user <- function() {
 #' @noRd
 
 url_api_host <- function() {
-  default_host <- "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
+  default_host <- "https://data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
 
   getOption("metasurvey.base_url") %||% default_host
 }
