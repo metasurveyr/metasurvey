@@ -111,7 +111,7 @@ get_user <- function() {
 #' @noRd
 
 url_api_host <- function() {
-  default_host <- "https://sa-east-1.aws.data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
+  default_host <- "https://data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
 
   getOption("metasurvey.base_url") %||% default_host
 }
@@ -136,6 +136,11 @@ public_key <- function() {
   url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
   response <- POST(url)
   content <- content(response)
+
+  if (response$status_code != 200) {
+    stop(message("Error getting public key",content))
+  }
+
   return(content$access_token)
 }
 
