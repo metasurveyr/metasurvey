@@ -173,7 +173,8 @@ public_key <- function() {
   content <- content(response)
 
   if (response$status_code != 200) {
-    stop(message("Error getting public key",content))
+    stop("Error getting public key")
+    cat(content)
   }
 
   return(content$access_token)
