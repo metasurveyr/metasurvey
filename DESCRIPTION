@@ -33,10 +33,10 @@ Imports:
     jsonlite (>= 1.7.2),
     R6 (>= 2.5.0),
     emoji (>= 15.0),
-    visNetwork (>= 2.0.9),
     survey (>= 4.2.1),
     methods
 Suggests: 
+    visNetwork (>= 2.0.9),
     roxygen2 (>= 7.1.2),
     testthat (>= 3.0.0),
     tibble (>= 3.1.3),
