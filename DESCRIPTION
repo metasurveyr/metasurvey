@@ -33,7 +33,6 @@ Imports:
     lifecycle (>= 1.0.0),
     jsonlite (>= 1.7.2),
     R6 (>= 2.5.0),
-    emoji (>= 15.0),
     survey (>= 4.2.1),
     methods
 Suggests: 
