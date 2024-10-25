@@ -1,7 +1,7 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
 Version: 0.0.1.9001
-URL: www.mauroloprete.com
+URL: https://github.com/metasurveyr/metasurvey
 Authors@R: 
     c(  
         person(
@@ -21,6 +21,7 @@ Authors@R:
             )
         )
     )
+Logo: man/figures/logo.png
 Description: Provides a set of functions to process survey data using meta-programming. It is designed to work with the 'survey' package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.
 License: GPL (>= 3)
 Imports: 
