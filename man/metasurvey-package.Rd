@@ -13,7 +13,7 @@ Provides a set of functions to process survey data using meta-programming. It is
 \seealso{
 Useful links:
 \itemize{
-  \item \url{www.mauroloprete.com}
+  \item \url{https://github.com/metasurveyr/metasurvey}
 }
 
 }

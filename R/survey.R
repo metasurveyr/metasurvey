@@ -1,4 +1,5 @@
-Survey <- R6Class("Survey",
+Survey <- R6Class(
+  "Survey",
   public = list(
     data = NULL,
     edition = NULL,
@@ -188,7 +189,6 @@ set_weight <- function(svy, new_weight) {
 #' @description Get metadata from survey
 #' @keywords Surveymethods
 #' @importFrom glue glue glue_col
-#' @importFrom emoji emoji
 #' @param self Object of class Survey
 #' @export
 
@@ -196,12 +196,12 @@ get_metadata <- function(self) {
   message(
     glue::glue_col(
       "
-            {emoji('information')}  {blue Type:} {type}
-            {emoji('graph')} {blue Edition:} {edition}
-            {emoji('desktop_computer')}  {blue Engine:} {default_engine}
-            {emoji('abacus')} {blue Design:} {design}
-            {emoji('mag')} {blue Steps:} {steps}
-            {emoji('cupcake')} {blue Recipes:} {names_recipes}
+            {blue Type:} {type}
+            {blue Edition:} {edition}
+            {blue Engine:} {default_engine}
+            {blue Design:} {design}
+            {blue Steps:} {steps}
+            {blue Recipes:} {names_recipes}
             ",
       type = self$type,
       edition = self$edition,
@@ -423,3 +423,5 @@ bake_recipes <- function(svy, recipes) {
 
   return(svy)
 }
+
+
