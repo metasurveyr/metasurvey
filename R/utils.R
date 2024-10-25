@@ -27,7 +27,7 @@ validate_weight <- function(svy, weight) {
 
   if (!weight %in% colnames(svy)) {
     stop(glue_col(
-      "{emoji::emoji('prohibited')} {red Weight {weight} not found in survey}",
+      "{red Weight {weight} not found in survey}",
       .literal = TRUE
     ))
   } else {
