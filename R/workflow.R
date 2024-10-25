@@ -34,11 +34,7 @@ workflow <- function(survey, ...) {
       )
 
       return(
-        list(
-          survey = survey,
-          calls = .calls,
-          result = result
-        )
+        result
       )
     }
   )
