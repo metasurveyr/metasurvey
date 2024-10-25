@@ -443,13 +443,6 @@ get_type_step <- function(steps) {
 #' View graph
 #' @param svy Survey object
 #' @param init_step Initial step
-#' @importFrom visNetwork visNetwork
-#' @importFrom visNetwork visGroups
-#' @importFrom visNetwork visEdges
-#' @importFrom visNetwork visHierarchicalLayout
-#' @importFrom visNetwork visLegend
-#' @importFrom visNetwork visOptions
-#' @importFrom visNetwork addFontAwesome
 #' @return Graph
 #' @keywords Survey methods
 #' @keywords Steps
@@ -461,6 +454,10 @@ view_graph <- function(svy, init_step = "Load survey") {
   steps_type <- get_type_step(steps)
   formulas <- get_formulas(steps)
   comments <- get_comments(steps)
+
+  if (!requireNamespace("visNetwork", quietly = TRUE)) {
+    stop("Package 'visNetwork' is required for this function. Please install it.")
+  }
 
   if (init_step == "Load survey") {
     init_step <- glue::glue_col(
@@ -519,12 +516,12 @@ view_graph <- function(svy, init_step = "Load survey") {
     )
   )
 
-  visNetwork(
+  visNetwork::visNetwork(
     nodes = nodes,
     edges = edges,
     height = "500px", width = "100%"
   ) |>
-    visGroups(
+    visNetwork::visGroups(
       groupname = "Load survey",
       shape = "icon",
       icon = list(
@@ -533,7 +530,7 @@ view_graph <- function(svy, init_step = "Load survey") {
       ),
       shadow = list(enabled = TRUE)
     ) |>
-    visGroups(
+    visNetwork::visGroups(
       groupname = "compute",
       shape = "icon",
       icon = list(
@@ -542,7 +539,7 @@ view_graph <- function(svy, init_step = "Load survey") {
       ),
       shadow = list(enabled = TRUE)
     ) |>
-    visGroups(
+    visNetwork::visGroups(
       groupname = "recode",
       shape = "icon",
       icon = list(
@@ -551,9 +548,9 @@ view_graph <- function(svy, init_step = "Load survey") {
       ),
       shadow = list(enabled = TRUE)
     ) |>
-    addFontAwesome() |>
-    visEdges(arrows = "to") |>
-    visHierarchicalLayout(
+    visNetwork::addFontAwesome() |>
+    visNetwork::visEdges(arrows = "to") |>
+    visNetwork::visHierarchicalLayout(
       direction = "LR",
       levelSeparation = 200
     ) |>
@@ -562,12 +559,13 @@ view_graph <- function(svy, init_step = "Load survey") {
       clickToUse = TRUE,
       manipulation = FALSE
     ) |>
-    visLegend(
+    visNetwork::visLegend(
       width = 0.2,
       position = "left",
       main = "Type",
       zoom = FALSE
     )
+
 }
 
 
