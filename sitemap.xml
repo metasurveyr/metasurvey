@@ -6,6 +6,7 @@
 <url><loc>www.mauroloprete.com/authors.html</loc></url>
 <url><loc>www.mauroloprete.com/index.html</loc></url>
 <url><loc>www.mauroloprete.com/news/index.html</loc></url>
+<url><loc>www.mauroloprete.com/reference/add_weight.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/bake_recipes.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/bake_steps.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/cat_design.html</loc></url>
@@ -13,12 +14,14 @@
 <url><loc>www.mauroloprete.com/reference/cat_estimation.default.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/cat_recipes.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/default_engine.html</loc></url>
+<url><loc>www.mauroloprete.com/reference/extract_time_pattern.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_api_key.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_data.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_engine.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_metadata.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_recipe.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/get_steps.html</loc></url>
+<url><loc>www.mauroloprete.com/reference/group_dates.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/index.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/lazy_default.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/load_survey.html</loc></url>
@@ -41,6 +44,7 @@
 <url><loc>www.mauroloprete.com/reference/survey_to_tibble.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/use_copy_default.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/validate_recipe.html</loc></url>
+<url><loc>www.mauroloprete.com/reference/validate_time_pattern.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/view_graph.html</loc></url>
 <url><loc>www.mauroloprete.com/reference/workflow.html</loc></url>
 </urlset>
