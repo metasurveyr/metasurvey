@@ -349,7 +349,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 #' @keywords utils
 #' @export
 
-group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
+group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
   
   type <- match.arg(type)
   dates_lt <- as.POSIXlt(dates)
@@ -358,9 +358,9 @@ group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
 
   if (type == "monthly") {
     group <- dates_lt$mon + 1
-  } else if (type == "quarter") {
+  } else if (type == "quarterly") {
     group <- (dates_lt$mon %/% 3) + 1
-  } else if (type == "semester") {
+  } else if (type == "biannual") {
     group <- (dates_lt$mon %/% 6) + 1
   }
 
@@ -373,19 +373,23 @@ group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
 #' Add Weight time pattern
 #' @param monthly Weight monthly
 #' @param annual Weight annual
-#' @param quarter Weight quarter
+#' @param quarterly Weight quarterly
+#' @param biannual Weight biannual
+#' @keywords utils
 #' @export 
 #' 
 add_weight <- function(
   monthly = NULL,
   annual = NULL,
-  quarter = NULL
+  quarterly = NULL,
+  biannual = NULL
 ) {
   
   weight_list <- list(
     monthly = monthly,
     annual = annual,
-    quarter = quarter
+    quarterly = quarterly,
+    biannual = biannual
   )
 
   weight_list_clean <- weight_list[!sapply(weight_list, is.null)]
