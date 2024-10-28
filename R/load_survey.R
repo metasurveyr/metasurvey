@@ -1,4 +1,5 @@
-#' @title Load survey
+ #' @title Load survey
+#'
 #' @param path Path to the survey file
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
@@ -14,6 +15,7 @@
 #'   svy_type = "eaii",
 #'   svy_edition = "2019-2021",
 #'   svy_weight = add_weight(annual = "w_trans"),
+#'   input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
 #'   dec = ","
 #' )
 #' svy_example

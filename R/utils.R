@@ -42,56 +42,6 @@ validate_weight <- function(svy, weight) {
   }
 }
 
-#' Validate Replicate
-#' @param svy Survey
-#' @param replicate Replicate
-#' @return Replicate
-#' @keywords utils
-#' @keywords internal
-#' @noRd
-
-validate_replicate <- function(svy, replicate) {
-  if (is.null(svy)) {
-    return(NULL)
-  }
-
-  if (!is.null(replicate$replicate_id)) {
-    if (!is.character(replicate$replicate_id)) {
-      stop("Replicate ID must be a character")
-    }
-
-    if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
-      stop(glue_col(
-        "{red Replicate ID {replicate$replicate_id} not found in survey}",
-        .literal = TRUE
-      ))
-    }
-
-  }
-
-  replicate_file = read_file(replicate$replicate_path)
-
-  if (!is.null(replicate$replicate_pattern)) {
-    if (!is.character(replicate$replicate_pattern)) {
-      stop("Replicate pattern must be a character")
-    }
-
-    column_names = names(replicate_file)
-
-    if (!any(grepl(replicate$replicate_pattern, column_names))) {
-      stop("Replicate pattern not found in replicate file")
-    }
-  }
-
-  replicate[['replicate_file']] <- replicate_file
- 
-  return(
-    replicate
-  )
-
-}
-
-
 #' Validate Weight time pattern
 #' @param svy Survey
 #' @param weight_time_pattern Weight time pattern
@@ -111,17 +61,12 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 
   Map(
     f = function(x) {
-      if (is.character(x = x)) {
-        validate_weight(svy = svy, weight = x)
-      } else {
-        if (is.list(x)) {
-          validate_replicate(svy = svy, replicate = x)
-        }
-      }
+      validate_weight(svy, x)
     },
     weight_list
   )
 
+  return(weight_list)
 }
 
 
@@ -452,34 +397,3 @@ add_weight <- function(
   return(weight_list_clean)
 
 }
-
-#' add_replicate
-#' @param weight Weight
-#' @param replicate_pattern Replicate pattern
-#' @param replicate_path Replicate file
-#' @param replicate_id Replicate ID
-#' @param replicate_type Replicate type
-#' @keywords utils
-#' @export
-
-add_replicate <- function(
-  weight,
-  replicate_pattern,
-  replicate_path = NULL,
-  replicate_id = NULL,
-  replicate_type
-) {
-  
-  replicate_list <- list(
-    weight = weight,
-    replicate_pattern = replicate_pattern,
-    replicate_path = replicate_path,
-    replicate_id = replicate_id,
-    replicate_type = replicate_type
-  )
-
-  replicate_list_clean <- replicate_list[!sapply(replicate_list, is.null)]
-
-  return(replicate_list_clean)
-}
-
