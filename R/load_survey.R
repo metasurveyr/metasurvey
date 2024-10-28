@@ -1,5 +1,4 @@
- #' @title Load survey
-#'
+#' @title Load survey
 #' @param path Path to the survey file
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
@@ -11,10 +10,10 @@
 #' @examples
 #' set_engine("data.table")
 #' svy_example <- load_survey(
+#'  "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
 #'   svy_type = "eaii",
 #'   svy_edition = "2019-2021",
 #'   svy_weight = add_weight(annual = "w_trans"),
-#'   input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
 #'   dec = ","
 #' )
 #' svy_example
@@ -69,6 +68,40 @@ load_survey <- function(
   )
 }
 
+#' Read file with data.table
+#' @param file Path to the file
+#' @param .args Additional arguments
+#' @keywords internal
+#' @noRd
+#' @return data.table
+
+read_file <- function(file, .args = NULL) {
+  .extension <- gsub(".*\\.", "", file)
+  .read_function <- switch(.extension,
+    sav = list(package = "foreign", read_function = "read.spss"),
+    dta = list(package = "foreign", read_function = "read.dta"),
+    csv = list(package = "data.table", read_function = "fread"),
+    xlsx = list(package = "openxlsx", read_function = "read.xlsx"),
+    stop("Unsupported file type: ", .extension) 
+  )
+
+  require(.read_function$package, character.only = TRUE)
+
+  if (is.null(.args)) {
+    .args <- list(file)
+    names(.args) <- names(formals(.read_function$read_function)[1])
+  }
+
+  .names_args <- names(.args)
+
+  .metadata_args <- metadata_args()
+
+  .names_args <- .names_args[!.names_args %in% .metadata_args]
+
+  do.call(.read_function$read_function, args = .args[.names_args])
+}
+
+
 #' Load survey with data.table
 #' @param ... Additional arguments
 #' @inheritDotParams  load_survey
@@ -88,42 +121,8 @@ load_survey.data.table <- function(...) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
-
-  .extension <- gsub(".*\\.", "", (.args$file %||% ".csv"))
-
-  .read_function <- switch(.extension,
-    sav = list(
-      package = "foreign",
-      read_function = "read.spss"
-    ),
-    dta = list(
-      package = "foreign",
-      read_function = "read.spss"
-    ),
-    csv = list(
-      package = "data.table",
-      read_function = "fread"
-    ),
-    xlsx = list(
-      package = "openxlsx",
-      read_function = "loadWorkbook"
-    )
-  )
-
-
-  args <- .args[.names_args]
-
-
-
-  require(
-    .read_function$package,
-    character.only = TRUE
-  )
-
-  svy <- do.call(
-    .read_function$read_function,
-    args = args
-  )
+  
+  svy <- read_file(.args$file, .args[.names_args])
 
   if (!is.null(.args$recipes)) {
     if (get_distinct_recipes(.args$recipes) > 1) {
