@@ -39,8 +39,10 @@ workflow <- function(survey, ..., estimation_type = "monthly") {
             )
           )
 
-      return(
-        result
+          return(
+            result
+          )
+        }
       )
     }
   )
