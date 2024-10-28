@@ -54,7 +54,9 @@ svy_example <- metasurvey::load_survey(
   path = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
   svy_type = "eaii",
   svy_edition = "2019-2021",
-  svy_weight = "w_trans",
+  svy_weight = add_weight(
+    annual = "w_trans"
+  ),
   dec = ","
 )
 
@@ -76,7 +78,9 @@ get_data(svy_example)[1:5, 1:3]
 eaii_2019 <- metasurvey::load_survey(
   svy_type = "eaii",
   svy_edition = "2019-2021",
-  svy_weight = "w_trans",
+  svy_weight = add_weight(
+    annual = "w_trans"
+  ),
   input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
   dec = ","
 )

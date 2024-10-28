@@ -4,10 +4,12 @@
 \alias{cat_design_type}
 \title{cat_design_type}
 \usage{
-cat_design_type(self)
+cat_design_type(self, design_name)
 }
 \arguments{
 \item{self}{Object of class Survey}
+
+\item{design_name}{Name of design}
 }
 \description{
 Cast design type from survey

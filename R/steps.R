@@ -171,8 +171,6 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
       .names_after <- names(get_data(.svy_after))
       .new_vars <- names(exprs)[-1]
 
-      # assign("new_vars", .new_vars_temp, envir = .GlobalEnv)
-
       if (length(.new_vars) > 0) {
         .name_step <- paste0(
           "New variable: ",

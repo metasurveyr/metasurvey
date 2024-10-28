@@ -15,6 +15,13 @@ is_blank <- function(x) {
   }
 }
 
+#' Validate weight
+#' @param svy Survey
+#' @param weight Weight
+#' @return Weight
+#' @keywords utils
+#' @keywords internal
+#' @noRd
 
 validate_weight <- function(svy, weight) {
   if (is.null(svy)) {
@@ -34,6 +41,34 @@ validate_weight <- function(svy, weight) {
     weight
   }
 }
+
+#' Validate Weight time pattern
+#' @param svy Survey
+#' @param weight_time_pattern Weight time pattern
+#' @return Weight time pattern
+#' @keywords utils
+#' @keywords internal
+#' @noRd
+
+validate_weight_time_pattern <- function(svy, weight_list) {
+  if (is.null(svy)) {
+    return(NULL)
+  }
+
+  if (!is.list(weight_list)) {
+    stop("Weight time pattern must be a list")
+  }
+
+  Map(
+    f = function(x) {
+      validate_weight(svy, x)
+    },
+    weight_list
+  )
+
+  return(weight_list)
+}
+
 
 #' Load survey example
 #' @param svy_type Survey type
@@ -175,4 +210,186 @@ set_lazy_processing <- function(lazy) {
   }
 
   options(lazy_processing = lazy)
+}
+
+
+#' Extract time pattern
+#' @param svy_edition Survey edition
+#' @return List
+#' @keywords utils
+#' @export 
+
+extract_time_pattern <- function(svy_edition) {
+  svy_edition <- gsub("[\\s\\-\\/]+", "_", svy_edition)
+  svy_edition <- gsub("[_*]+", "_", svy_edition)
+  svy_edition <- trimws(svy_edition, which = "both")
+
+  type <- NULL
+  year <- NA
+  year_start <- NA
+  year_end <- NA
+  month <- NA
+  periodicity <- NA
+
+  if (grepl("^[A-Za-z]+", svy_edition)) {
+    type <- sub("_.*", "", svy_edition)
+    svy_edition <- sub("^[A-Za-z]+_*", "", svy_edition,perl = TRUE)
+  }
+
+  if (nchar(svy_edition) <= 7) {
+    svy_edition <- gsub("_", "", svy_edition)
+  }
+
+  # Caso: Mensual en formato YYYYMM (e.g., ECH_202312 o ECH202312)
+  if (grepl("^\\d{6}$", svy_edition)) {
+    year <- as.numeric(sub("^(\\d{4})(\\d{2})$", "\\1", svy_edition))
+    month <- as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition))
+    
+    periodicity <- "Mensual"
+    result <- list(type = type, year = year, month = month, periodicity = periodicity)
+
+    # Caso: Mensual con formato YYYY_MM o YYYY-MM
+  } else if (grepl("^(\\d{4})[_-](\\d{2})$", svy_edition)) {
+    year <- as.numeric(sub("^(\\d{4})[_-](\\d{2})$", "\\1", svy_edition))
+    month <- as.numeric(sub("^\\d{4}[_-](\\d{2})$", "\\2", svy_edition))
+    periodicity <- "Mensual"
+    result <- list(type = type, year = year, month = month, periodicity = periodicity)
+
+    # Caso: Encuesta con rango de años (e.g., ECH_2019_2021)
+  } else if (grepl("^(\\d{4})[_-](\\d{4})$", svy_edition)) {
+    years <- as.numeric(unlist(regmatches(svy_edition, gregexpr("\\d{4}", svy_edition))))
+    year_start <- min(years)
+    year_end <- max(years)
+    periodicity <- if (year_end - year_start + 1 == 3) "Trianual" else "Multianual"
+    result <- list(type = type, year_start = year_start, year_end = year_end, periodicity = periodicity)
+
+    # Caso: Anual (e.g., ECH_2023 o solo 2023)
+  } else if (grepl("^\\d{4}$", svy_edition)) {
+    year <- as.numeric(svy_edition)
+    periodicity <- "Anual"
+    result <- list(type = type, year = year, periodicity = periodicity)
+
+    # Caso: Mensual con formato YY_MM (e.g., ECH_23_05)
+  } else if (grepl("^(\\d{2})[_-](\\d{2})$", svy_edition)) {
+    year <- as.numeric(sub("^(\\d{2})[_-](\\d{2})$", "20\\1", svy_edition))
+    month <- as.numeric(sub("^\\d{2}[_-](\\d{2})$", "\\2", svy_edition))
+    periodicity <- "Mensual"
+    result <- list(type = type, year = year, month = month, periodicity = periodicity)
+
+    # Caso por defecto si no hay coincidencia
+  } else {
+    result <- list(type = type, year = year, month = month, periodicity = periodicity)
+  }
+
+  return(result)
+}
+
+
+
+
+#' Validate time pattern
+#' @param svy_edition Survey edition
+#' @param svy_type Survey type
+#' @return Logical
+#' @keywords utils
+#' @return List
+#' @export
+
+validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
+  
+  time_pattern <- extract_time_pattern(svy_edition)
+  
+  if (is.null(time_pattern$type) && is.null(svy_type)) {
+    stop("Type not found. Please provide a valid type in the survey edition or as an argument")
+  }
+
+  if (!is.null(time_pattern$type) && time_pattern$type != svy_type) {
+    stop("Type does not match. Please provide a valid type in the survey edition or as an argument")
+  }
+
+  # Remove svy_type from time_pattern
+
+  names_time <- names(time_pattern)
+
+  remove_attributes <- c("type", "periodicity")
+
+  
+  svy_editions <- ""
+
+  if (!is.null(time_pattern$month) && !is.na(time_pattern$month) && !is.null(time_pattern$year) && !is.na(time_pattern$year)) {
+    date_string <- sprintf("%04d-%02d-01", time_pattern$year, time_pattern$month)
+    svy_edition <- as.Date(date_string)
+  } else {
+    # Si no hay mes o año, crear una cadena básica
+    svy_edition <- Reduce(
+      time_pattern[names_time[!names_time %in% remove_attributes]],
+      f = function(x, y) {
+        paste(x, y, sep = "_")
+      }
+    )
+  }
+
+  
+
+  return(
+    list(
+      svy_type = time_pattern$type %||% svy_type,
+      svy_edition = svy_edition,
+      svy_periodicity = time_pattern$periodicity %||% "Anual"
+    )
+  )
+
+}
+
+
+#' Group dates
+#' @param dates Dates
+#' @param type Type
+#' @return Group
+#' @keywords utils
+#' @export
+
+group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
+  
+  type <- match.arg(type)
+  dates_lt <- as.POSIXlt(dates)
+
+  group <- integer(length(dates))
+
+  if (type == "monthly") {
+    group <- dates_lt$mon + 1
+  } else if (type == "quarter") {
+    group <- (dates_lt$mon %/% 3) + 1
+  } else if (type == "semester") {
+    group <- (dates_lt$mon %/% 6) + 1
+  }
+
+  names(group) <- dates
+
+  return(group)
+}
+
+
+#' Add Weight time pattern
+#' @param monthly Weight monthly
+#' @param annual Weight annual
+#' @param quarter Weight quarter
+#' @export 
+#' 
+add_weight <- function(
+  monthly = NULL,
+  annual = NULL,
+  quarter = NULL
+) {
+  
+  weight_list <- list(
+    monthly = monthly,
+    annual = annual,
+    quarter = quarter
+  )
+
+  weight_list_clean <- weight_list[!sapply(weight_list, is.null)]
+
+  return(weight_list_clean)
+
 }
