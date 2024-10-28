@@ -1,4 +1,5 @@
-Survey <- R6Class("Survey",
+Survey <- R6Class(
+  "Survey",
   public = list(
     data = NULL,
     edition = NULL,
@@ -11,16 +12,33 @@ Survey <- R6Class("Survey",
     design = NULL,
     initialize = function(data, edition, type, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
       self$data <- data
-      self$edition <- edition
-      self$type <- type
-      self$default_engine <- engine
-      self$weight <- validate_weight(data, weight)
-      self$design <- survey::svydesign(
-        id = ~1,
-        weights = as.formula(paste("~", validate_weight(data, weight))),
-        data = data,
-        calibrate.formula = ~1
+
+      time_pattern <- validate_time_pattern(
+        svy_type = type,
+        svy_edition = edition
       )
+
+      weight_list <- validate_weight_time_pattern(data, weight)
+
+      design_list <- lapply(
+        weight_list,
+        function(x) {
+          survey::svydesign(
+            id = ~1,
+            weights = as.formula(paste("~", x)),
+            data = data,
+            calibrate.formula = ~1
+          )
+        }
+      )
+
+      names(design_list) <- names(weight_list)
+
+      self$edition <- time_pattern$svy_edition
+      self$type <- time_pattern$svy_type
+      self$default_engine <- engine
+      self$weight <- weight_list
+      self$design <- design_list
       self$recipes <- recipes
       self$workflows <- list()
     },
@@ -44,7 +62,8 @@ Survey <- R6Class("Survey",
     },
     set_weight = function(weight) {
       data <- self$data
-      self$weight <- validate_weight(data, weight)
+      weight_list <- validate_weight_time_pattern(data, weight)
+      self$weight <- weight_list
     },
     print = function() {
       get_metadata(self)
@@ -72,19 +91,44 @@ Survey <- R6Class("Survey",
       self$design <- design
     },
     update_design = function() {
-      self$design <- survey::svydesign(
-        id = ~1,
-        weights = as.formula(paste("~", validate_weight(self$data, self$weight))),
-        data = self$data
+
+      weight_list <- validate_weight_time_pattern(self$data, self$weight)
+
+      design_list <- lapply(
+        weight_list,
+        function(x) {
+          survey::svydesign(
+            id = ~1,
+            weights = as.formula(paste("~", x)),
+            data = self$data,
+            calibrate.formula = ~1
+          )
+        }
       )
+
+      names(design_list) <- names(weight_list)
+
+      self$design <- design_list
     },
     active = list(
       design = function() {
-        survey::svydesign(
-          id = ~1,
-          weights = as.formula(paste("~", self$weight)),
-          data = self$data
+        weight_list <- validate_weight_time_pattern(data, weight)
+
+        design_list <- lapply(
+          weight_list,
+          function(x) {
+            survey::svydesign(
+              id = ~1,
+              weights = as.formula(paste("~", x)),
+              data = data,
+              calibrate.formula = ~1
+            )
+          }
         )
+
+        names(design_list) <- names(weight_list)
+
+        return(design_list)
       }
     )
   )
@@ -188,7 +232,6 @@ set_weight <- function(svy, new_weight) {
 #' @description Get metadata from survey
 #' @keywords Surveymethods
 #' @importFrom glue glue glue_col
-#' @importFrom emoji emoji
 #' @param self Object of class Survey
 #' @export
 
@@ -196,15 +239,19 @@ get_metadata <- function(self) {
   message(
     glue::glue_col(
       "
-            {emoji('information')}  {blue Type:} {type}
-            {emoji('graph')} {blue Edition:} {edition}
-            {emoji('desktop_computer')}  {blue Engine:} {default_engine}
-            {emoji('abacus')} {blue Design:} {design}
-            {emoji('mag')} {blue Steps:} {steps}
-            {emoji('cupcake')} {blue Recipes:} {names_recipes}
+            {blue Type:} {type}
+            {blue Edition:} {edition}
+            {blue Engine:} {default_engine}
+            {blue Design:} {design}
+            {blue Steps:} {steps}
+            {blue Recipes:} {names_recipes}
             ",
-      type = self$type,
-      edition = self$edition,
+      type = toupper(self$type),
+      edition = ifelse(
+        is(self$edition, "character"),
+        self$edition,
+        format(self$edition, "%Y-%m")
+      ),
       default_engine = self$default_engine,
       design = cat_design(self),
       steps = ifelse(
@@ -241,41 +288,59 @@ get_metadata <- function(self) {
 #'
 
 cat_design <- function(self) {
-  call <- self$design$call
-  cluster <- deparse(call$id) %||% "None"
-  strata <- deparse(call$strata) %||% "None"
-  weight <- self$weight %||% "None"
-  fpc <- deparse(call$fpc) %||% "None"
-  calibrate.formula <- deparse(call$calibrate.formula) %||% "None"
-  return(
-    glue::glue_col(
-      "\n
-          * {green Type:} {design_type}
-          * {green PSU:} {cluster}
-          * {green Strata:} {strata}
-          * {green Weight:} {weight}
-          * {green FPC:} {fpc}
-          * {green Calibrate formula:} {calibrate.formula}
-      ",
-      cluster = cluster,
-      strata = strata,
-      weight = weight,
-      fpc = fpc,
-      design_type = cat_design_type(self)
-    )
+  design_list <- self$design
+
+
+  green <- "\033[32m"
+  reset <- "\033[39m"
+  red <- "\033[31m"
+
+  output_list <- sapply(
+    names(design_list),
+    function(x) {
+      call <- design_list[[x]]$call
+      cluster <- deparse(call$id) %||% "None"
+      strata <- deparse(call$strata) %||% "None"
+      weight <- self$weight[[x]] %||% "None"
+      fpc <- deparse(call$fpc) %||% "None"
+      calibrate.formula <- deparse(call$calibrate.formula) %||% "None"
+      design_type <- cat_design_type(self, x)
+
+      text <- paste0(
+        "\n* ", red, paste(toupper(x), "ESTIMATION"), reset, "\n",
+        "        ", design_type, "\n",
+        "  * ", green, "PSU:", reset, " ", cluster, "\n",
+        "  * ", green, "Strata:", reset, " ", strata, "\n",
+        "  * ", green, "Weight:", reset, " ", weight, "\n",
+        "  * ", green, "FPC:", reset, " ", fpc, "\n",
+        "  * ", green, "Calibrate formula:", reset, " ", calibrate.formula
+      )
+
+      return(paste("\n  ", text))
+    }
   )
+
+  output <- glue::glue_col(paste0(output_list, collapse = ""))
+
+  return(output)
 }
+
+
+
+
+
 
 
 #' @title cat_design_type
 #' @description Cast design type from survey
 #' @keywords Surveymethods
 #' @param self Object of class Survey
+#' @param design_name Name of design
 #' @export
 #'
 #'
 
-cat_design_type <- function(self) {
+cat_design_type <- function(self, design_name) {
   design_engine <- list(
     "survey.design2" = list(
       package = "survey",
@@ -292,28 +357,31 @@ cat_design_type <- function(self) {
     )
   )
 
-  design_engine <- design_engine[[class(self$design)[1]]]
+  # Obtener la clase del diseño específico
+  design_class <- class(self$design[[design_name]])[1]
+  design_details <- design_engine[[design_class]]
 
-  if (is.null(design_engine)) {
+  if (is.null(design_details)) {
     return("None")
   } else {
+    # Determinar el método de estimación de varianza
+    variance_estimation <- ifelse(
+      is.list(design_details$variance_estimation),
+      design_details$variance_estimation[[self$design[[design_name]]$type]],
+      design_details$variance_estimation
+    )
     return(
       glue::glue_col(
-        "\n
-              * {green Package:} {package}
-              * {green Variance estimation:} {variance_estimation}
-        ",
-        package = design_engine$package,
-        type = design_engine$type,
-        variance_estimation = ifelse(
-          is.list(design_engine$variance_estimation),
-          design_engine$variance_estimation[self$design$type],
-          design_engine$variance_estimation
-        )
+        "\n  
+        * {green Package:} {package}
+        * {green Variance estimation:} {variance_estimation}",
+        package = design_details$package,
+        variance_estimation = variance_estimation
       )
     )
   }
 }
+
 
 #' @title cat_recipes
 #' @description Cast recipes from survey
@@ -423,3 +491,6 @@ bake_recipes <- function(svy, recipes) {
 
   return(svy)
 }
+
+
+

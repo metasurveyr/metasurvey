@@ -28,3 +28,7 @@ example-data
 eaii.R$
 test_api.R
 popac.R
+^_pkgdown\.yml$
+^reference$
+^pkgdown$
+pool.R
