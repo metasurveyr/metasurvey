@@ -4,15 +4,18 @@
 \alias{add_weight}
 \title{Add Weight time pattern}
 \usage{
-add_weight(monthly = NULL, annual = NULL, quarter = NULL)
+add_weight(monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL)
 }
 \arguments{
 \item{monthly}{Weight monthly}
 
 \item{annual}{Weight annual}
 
-\item{quarter}{Weight quarter}
+\item{quarterly}{Weight quarterly}
+
+\item{biannual}{Weight biannual}
 }
 \description{
 Add Weight time pattern
 }
+\keyword{utils}
