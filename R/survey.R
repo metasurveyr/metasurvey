@@ -23,23 +23,12 @@ Survey <- R6Class(
       design_list <- lapply(
         weight_list,
         function(x) {
-          if (is.character(x)) {
-            survey::svydesign(
-              id = ~1,
-              weights = as.formula(paste("~", x)),
-              data = data,
-              calibrate.formula = ~1
-            )
-          } else {
-
-            survey::svrepdesign(
-              id = ~1,
-              weights = as.formula(paste("~", x$weight)),
-              data = merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
-              repweights = x$replicate_pattern,
-              type = x$replicate_type
-            )
-          }
+          survey::svydesign(
+            id = ~1,
+            weights = as.formula(paste("~", x)),
+            data = data,
+            calibrate.formula = ~1
+          )
         }
       )
 
@@ -104,49 +93,37 @@ Survey <- R6Class(
     },
     update_design = function() {
 
-      weight_list <- self$weight
+      weight_list <- validate_weight_time_pattern(self$data, self$weight)
 
       design_list <- lapply(
         weight_list,
         function(x) {
-          if (is.character(x)) {
-            self$design[[1]]$variables <- self$data
-          } else {
-            self$design[[1]]$variables <- merge(
-              self$data,
-              x$replicate_file,
-              by.x = names(x$replicate_id),
-              by.y = x$replicate_id
-            )
-          }
+          survey::svydesign(
+            id = ~1,
+            weights = as.formula(paste("~", x)),
+            data = self$data,
+            calibrate.formula = ~1
+          )
         }
       )
 
-      
+      names(design_list) <- names(weight_list)
+
+      self$design <- design_list
     },
     active = list(
       design = function() {
-        weight_list <- self$weight
+        weight_list <- validate_weight_time_pattern(data, weight)
 
         design_list <- lapply(
           weight_list,
           function(x) {
-            if (is.character(x)) {
-              survey::svydesign(
-                id = ~1,
-                weights = as.formula(paste("~", x)),
-                data = self$data,
-                calibrate.formula = ~1
-              )
-            } else {
-              survey::svrepdesign(
-                id = ~1,
-                weights = as.formula(paste("~", x$weight)),
-                data = merge(self$data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
-                repweights = x$replicate_pattern,
-                type = x$replicate_type
-              )
-            }
+            survey::svydesign(
+              id = ~1,
+              weights = as.formula(paste("~", x)),
+              data = data,
+              calibrate.formula = ~1
+            )
           }
         )
 
@@ -348,11 +325,7 @@ cat_design <- function(self) {
       call <- design_list[[x]]$call
       cluster <- deparse(call$id) %||% "None"
       strata <- deparse(call$strata) %||% "None"
-      weight <- ifelse(
-        is.character(self$weight[[x]]),
-        self$weight[[x]] %||% "None",
-        self$weight[[x]]$weight %||% "None"
-      )
+      weight <- self$weight[[x]] %||% "None"
       fpc <- deparse(call$fpc) %||% "None"
       calibrate.formula <- deparse(call$calibrate.formula) %||% "None"
       design_type <- cat_design_type(self, x)

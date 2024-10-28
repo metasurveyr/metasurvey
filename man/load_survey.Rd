@@ -36,6 +36,7 @@ svy_example <- load_survey(
   svy_type = "eaii",
   svy_edition = "2019-2021",
   svy_weight = add_weight(annual = "w_trans"),
+  input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
   dec = ","
 )
 svy_example
