@@ -69,6 +69,27 @@ load_survey <- function(
   )
 }
 
+#' Read file with data.table
+#' @param file
+#' @param args Additional arguments
+#' @return data.table
+
+read_file <- function(file, args) {
+  .extension <- gsub(".*\\.", "", file)
+  .read_function <- switch(.extension,
+    sav = list(package = "foreign", read_function = "read.spss"),
+    dta = list(package = "foreign", read_function = "read.dta"),
+    csv = list(package = "data.table", read_function = "fread"),
+    xlsx = list(package = "openxlsx", read_function = "loadWorkbook"),
+    stop("Unsupported file type: ", .extension) 
+  )
+
+  require(.read_function$package, character.only = TRUE)
+
+  do.call(.read_function$read_function, args = args)
+}
+
+
 #' Load survey with data.table
 #' @param ... Additional arguments
 #' @inheritDotParams  load_survey
@@ -89,41 +110,7 @@ load_survey.data.table <- function(...) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
-  .extension <- gsub(".*\\.", "", (.args$file %||% ".csv"))
-
-  .read_function <- switch(.extension,
-    sav = list(
-      package = "foreign",
-      read_function = "read.spss"
-    ),
-    dta = list(
-      package = "foreign",
-      read_function = "read.spss"
-    ),
-    csv = list(
-      package = "data.table",
-      read_function = "fread"
-    ),
-    xlsx = list(
-      package = "openxlsx",
-      read_function = "loadWorkbook"
-    )
-  )
-
-
-  args <- .args[.names_args]
-
-
-
-  require(
-    .read_function$package,
-    character.only = TRUE
-  )
-
-  svy <- do.call(
-    .read_function$read_function,
-    args = args
-  )
+  svy <- read_file(.args$file, .args[.names_args])
 
   if (!is.null(.args$recipes)) {
     if (get_distinct_recipes(.args$recipes) > 1) {
