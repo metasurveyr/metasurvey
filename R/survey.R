@@ -23,15 +23,25 @@ Survey <- R6Class(
       design_list <- lapply(
         weight_list,
         function(x) {
-          survey::svydesign(
-            id = ~1,
-            weights = as.formula(paste("~", x)),
-            data = data,
-            calibrate.formula = ~1
-          )
+          if (is.character(x)) {
+            survey::svydesign(
+              id = ~1,
+              weights = as.formula(paste("~", x)),
+              data = data,
+              calibrate.formula = ~1
+            )
+          } else {
+
+            survey::svrepdesign(
+              id = ~1,
+              weights = as.formula(paste("~", x$weight)),
+              data = merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
+              repweights = x$replicate_pattern,
+              type = x$replicate_type
+            )
+          }
         }
       )
-
       names(design_list) <- names(weight_list)
 
       self$edition <- time_pattern$svy_edition
@@ -61,6 +71,7 @@ Survey <- R6Class(
       self$type <- type
     },
     set_weight = function(weight) {
+      message("Setting weight")
       data <- self$data
       weight_list <- validate_weight_time_pattern(data, weight)
       self$weight <- weight_list
@@ -92,37 +103,50 @@ Survey <- R6Class(
     },
     update_design = function() {
 
-      weight_list <- validate_weight_time_pattern(self$data, self$weight)
+      weight_list <- self$weight
 
       design_list <- lapply(
         weight_list,
         function(x) {
-          survey::svydesign(
-            id = ~1,
-            weights = as.formula(paste("~", x)),
-            data = self$data,
-            calibrate.formula = ~1
-          )
+          if (is.character(x)) {
+            self$design[[1]]$variables <- self$data
+          } else {
+            self$design[[1]]$variables <- merge(
+              self$data,
+              x$replicate_file,
+              by.x = names(x$replicate_id),
+              by.y = x$replicate_id
+            )
+          }
+          
         }
       )
 
-      names(design_list) <- names(weight_list)
-
-      self$design <- design_list
+      
     },
     active = list(
       design = function() {
-        weight_list <- validate_weight_time_pattern(data, weight)
+        weight_list <- self$weight
 
         design_list <- lapply(
           weight_list,
           function(x) {
-            survey::svydesign(
-              id = ~1,
-              weights = as.formula(paste("~", x)),
-              data = data,
-              calibrate.formula = ~1
-            )
+            if (is.character(x)) {
+              survey::svydesign(
+                id = ~1,
+                weights = as.formula(paste("~", x)),
+                data = self$data,
+                calibrate.formula = ~1
+              )
+            } else {
+              survey::svrepdesign(
+                id = ~1,
+                weights = as.formula(paste("~", x$weight)),
+                data = merge(self$data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
+                repweights = x$replicate_pattern,
+                type = x$replicate_type
+              )
+            }
           }
         )
 
@@ -200,32 +224,55 @@ get_design <- function(self) {
   self$active$design()
 }
 
-set_data <- function(svy, data, .copy = TRUE) {
+set_data <- function(svy, data, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
     clone$set_data(data)
     return(clone)
   } else {
     svy$set_data(data)
+    return(svy)
   }
 }
 
-set_edition <- function(svy, new_edition) {
-  clone <- svy$clone()
-  clone$set_edition(new_edition)
-  return(clone)
+set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
+
+  if (.copy) {
+    clone <- svy$clone()
+    clone$set_edition(new_edition)
+    return(clone)
+  } else {
+    svy$set_edition(new_edition)
+    return(svy)
+  }
 }
 
-set_type <- function(svy, new_type) {
-  clone <- svy$clone()
-  clone$set_type(new_type)
-  return(clone)
+set_type <- function(svy, new_type, .copy = use_copy_default()) {
+
+  if(.copy) {
+    clone <- svy$clone()
+    clone$set_type(new_type)
+    return(clone)
+  } else {
+    svy$set_type(new_type)
+    return(svy)
+  }
 }
 
-set_weight <- function(svy, new_weight) {
-  clone <- svy$clone()
-  clone$set_weight(new_weight)
-  return(clone)
+set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
+  if (.copy) {
+    clone <- svy$clone()
+    clone$set_weight(new_weight)
+    return(clone)
+  } else {
+
+    if(svy$weight == new_weight) {
+      return(svy)
+    }
+
+    svy$set_weight(new_weight)
+    return(svy)
+  }
 }
 
 #' @title get_metadata
@@ -301,7 +348,11 @@ cat_design <- function(self) {
       call <- design_list[[x]]$call
       cluster <- deparse(call$id) %||% "None"
       strata <- deparse(call$strata) %||% "None"
-      weight <- self$weight[[x]] %||% "None"
+      weight <- ifelse(
+        is.character(self$weight[[x]]),
+        self$weight[[x]] %||% "None",
+        self$weight[[x]]$weight %||% "None"
+      )
       fpc <- deparse(call$fpc) %||% "None"
       calibrate.formula <- deparse(call$calibrate.formula) %||% "None"
       design_type <- cat_design_type(self, x)
