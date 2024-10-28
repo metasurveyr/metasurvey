@@ -4,7 +4,7 @@
 \alias{group_dates}
 \title{Group dates}
 \usage{
-group_dates(dates, type = c("monthly", "quarter", "semester"))
+group_dates(dates, type = c("monthly", "quarterly", "biannual"))
 }
 \arguments{
 \item{dates}{Dates}
