@@ -4,12 +4,14 @@
 \alias{workflow}
 \title{Workflow}
 \usage{
-workflow(survey, ...)
+workflow(survey, ..., estimation_type = "monthly")
 }
 \arguments{
 \item{survey}{Survey object}
 
 \item{...}{Calls}
+
+\item{estimation_type}{Estimation type}
 }
 \value{
 Data
