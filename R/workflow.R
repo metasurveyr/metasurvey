@@ -3,45 +3,53 @@
 #' @keywords Surveymethods
 #' @param survey Survey object
 #' @param ... Calls
+#' @param estimation_type Estimation type
 #' @importFrom data.table rbindlist
 #' @export
 #' @return Data
 #'
-workflow <- function(survey, ...) {
+workflow <- function(survey, ..., estimation_type = "monthly") {
+
   .calls <- substitute(list(...))
-  lapply(
-    X = seq_along(survey),
-    function(i) {
-      survey <- survey[[i]]
+  
+  partial_result = sapply(
+    estimation_type,
+    function(x) {
+      lapply(
+        X = seq_along(survey),
+        function(i) {
+          survey <- survey[[i]]
 
-      result <- rbindlist(
-        lapply(
-          2:length(.calls),
-          function(i) {
-            call <- as.list(.calls[[i]])
-            name_function <- deparse(call[[1]])
-            call[["design"]] <- substitute(design)
-            call <- as.call(call)
-            estimation <- eval(call, envir = list(design = survey$design))
+          result <- rbindlist(
+            lapply(
+              2:length(.calls),
+              function(i) {
+                call <- as.list(.calls[[i]])
+                name_function <- deparse(call[[1]])
+                call[["design"]] <- substitute(design)
+                call <- as.call(call)
+                estimation <- eval(call, envir = list(design = survey$design[[x]]))
 
 
 
-            return(
-              cat_estimation(estimation, name_function)
+                return(
+                  cat_estimation(estimation, name_function)
+                )
+              }
             )
-          }
-        )
-      )
+          )
 
-      return(
-        list(
-          survey = survey,
-          calls = .calls,
-          result = result
-        )
+          return(
+            result
+          )
+        }
       )
     }
   )
+
+  names(partial_result) <- estimation_type
+  return(partial_result)
+
 }
 
 cat_estimation <- function(estimation, call) {
