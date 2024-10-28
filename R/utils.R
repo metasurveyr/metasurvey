@@ -91,7 +91,6 @@ validate_replicate <- function(svy, replicate) {
 
 }
 
-
 #' Validate Weight time pattern
 #' @param svy Survey
 #' @param weight_time_pattern Weight time pattern
@@ -121,7 +120,6 @@ validate_weight_time_pattern <- function(svy, weight_list) {
     },
     weight_list
   )
-
 }
 
 
@@ -450,7 +448,6 @@ add_weight <- function(
   weight_list_clean <- weight_list[!sapply(weight_list, is.null)]
 
   return(weight_list_clean)
-
 }
 
 #' add_replicate

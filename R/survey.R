@@ -42,7 +42,6 @@ Survey <- R6Class(
           }
         }
       )
-
       names(design_list) <- names(weight_list)
 
       self$edition <- time_pattern$svy_edition
