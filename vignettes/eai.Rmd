@@ -82,7 +82,6 @@ eaii_2019 <- metasurvey::load_survey(
   svy_weight = add_weight(
     annual = "w_trans"
   ),
-  input = "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
   dec = ","
 )
 ```

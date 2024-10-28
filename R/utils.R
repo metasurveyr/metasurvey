@@ -42,6 +42,56 @@ validate_weight <- function(svy, weight) {
   }
 }
 
+#' Validate Replicate
+#' @param svy Survey
+#' @param replicate Replicate
+#' @return Replicate
+#' @keywords utils
+#' @keywords internal
+#' @noRd
+
+validate_replicate <- function(svy, replicate) {
+  if (is.null(svy)) {
+    return(NULL)
+  }
+
+  if (!is.null(replicate$replicate_id)) {
+    if (!is.character(replicate$replicate_id)) {
+      stop("Replicate ID must be a character")
+    }
+
+    if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
+      stop(glue_col(
+        "{red Replicate ID {replicate$replicate_id} not found in survey}",
+        .literal = TRUE
+      ))
+    }
+
+  }
+
+  replicate_file = read_file(replicate$replicate_path)
+
+  if (!is.null(replicate$replicate_pattern)) {
+    if (!is.character(replicate$replicate_pattern)) {
+      stop("Replicate pattern must be a character")
+    }
+
+    column_names = names(replicate_file)
+
+    if (!any(grepl(replicate$replicate_pattern, column_names))) {
+      stop("Replicate pattern not found in replicate file")
+    }
+  }
+
+  replicate[['replicate_file']] <- replicate_file
+ 
+  return(
+    replicate
+  )
+
+}
+
+
 #' Validate Weight time pattern
 #' @param svy Survey
 #' @param weight_time_pattern Weight time pattern
@@ -61,12 +111,17 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 
   Map(
     f = function(x) {
-      validate_weight(svy, x)
+      if (is.character(x = x)) {
+        validate_weight(svy = svy, weight = x)
+      } else {
+        if (is.list(x)) {
+          validate_replicate(svy = svy, replicate = x)
+        }
+      }
     },
     weight_list
   )
 
-  return(weight_list)
 }
 
 
@@ -173,8 +228,7 @@ public_key <- function() {
   content <- content(response)
 
   if (response$status_code != 200) {
-    stop("Error getting public key")
-    cat(content)
+    stop(message("Error getting public key",content))
   }
 
   return(content$access_token)
@@ -350,7 +404,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 #' @keywords utils
 #' @export
 
-group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
+group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
   
   type <- match.arg(type)
   dates_lt <- as.POSIXlt(dates)
@@ -359,9 +413,9 @@ group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
 
   if (type == "monthly") {
     group <- dates_lt$mon + 1
-  } else if (type == "quarter") {
+  } else if (type == "quarterly") {
     group <- (dates_lt$mon %/% 3) + 1
-  } else if (type == "semester") {
+  } else if (type == "biannual") {
     group <- (dates_lt$mon %/% 6) + 1
   }
 
@@ -374,19 +428,23 @@ group_dates <- function(dates, type = c("monthly", "quarter", "semester")) {
 #' Add Weight time pattern
 #' @param monthly Weight monthly
 #' @param annual Weight annual
-#' @param quarter Weight quarter
+#' @param quarterly Weight quarterly
+#' @param biannual Weight biannual
+#' @keywords utils
 #' @export 
 #' 
 add_weight <- function(
   monthly = NULL,
   annual = NULL,
-  quarter = NULL
+  quarterly = NULL,
+  biannual = NULL
 ) {
   
   weight_list <- list(
     monthly = monthly,
     annual = annual,
-    quarter = quarter
+    quarterly = quarterly,
+    biannual = biannual
   )
 
   weight_list_clean <- weight_list[!sapply(weight_list, is.null)]
@@ -394,3 +452,34 @@ add_weight <- function(
   return(weight_list_clean)
 
 }
+
+#' add_replicate
+#' @param weight Weight
+#' @param replicate_pattern Replicate pattern
+#' @param replicate_path Replicate file
+#' @param replicate_id Replicate ID
+#' @param replicate_type Replicate type
+#' @keywords utils
+#' @export
+
+add_replicate <- function(
+  weight,
+  replicate_pattern,
+  replicate_path = NULL,
+  replicate_id = NULL,
+  replicate_type
+) {
+  
+  replicate_list <- list(
+    weight = weight,
+    replicate_pattern = replicate_pattern,
+    replicate_path = replicate_path,
+    replicate_id = replicate_id,
+    replicate_type = replicate_type
+  )
+
+  replicate_list_clean <- replicate_list[!sapply(replicate_list, is.null)]
+
+  return(replicate_list_clean)
+}
+
