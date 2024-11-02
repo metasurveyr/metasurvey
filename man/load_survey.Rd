@@ -9,6 +9,7 @@ load_survey(
   svy_type = NULL,
   svy_edition = NULL,
   svy_weight = NULL,
+  svy_psu = NULL,
   ...
 )
 }
@@ -20,6 +21,8 @@ load_survey(
 \item{svy_edition}{Edition of the survey}
 
 \item{svy_weight}{Weight of the survey}
+
+\item{svy_psu}{Primary sampling unit}
 
 \item{...}{Additional arguments}
 }
