@@ -4,13 +4,14 @@ Survey <- R6Class(
     data = NULL,
     edition = NULL,
     type = NULL,
+    periodicity = NULL,
     default_engine = NULL,
     weight = NULL,
     steps = list(),
     recipes = NULL,
     workflows = list(),
     design = NULL,
-    initialize = function(data, edition, type, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
+    initialize = function(data, edition, type,psu, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
       self$data <- data
 
       time_pattern <- validate_time_pattern(
@@ -24,8 +25,15 @@ Survey <- R6Class(
         weight_list,
         function(x) {
           if (is.character(x)) {
+
+            if (is.null(psu)) {
+              psu <- ~1
+            } else {
+              psu <- as.formula(paste("~", psu))
+            }
+
             survey::svydesign(
-              id = ~1,
+              id = psu,
               weights = as.formula(paste("~", x)),
               data = data,
               calibrate.formula = ~1
@@ -33,7 +41,7 @@ Survey <- R6Class(
           } else {
 
             survey::svrepdesign(
-              id = ~1,
+              id = psu,
               weights = as.formula(paste("~", x$weight)),
               data = merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
               repweights = x$replicate_pattern,
@@ -51,6 +59,7 @@ Survey <- R6Class(
       self$design <- design_list
       self$recipes <- recipes
       self$workflows <- list()
+      self$periodicity <- time_pattern$svy_periodicity
     },
     get_data = function() {
       return(self$data)
@@ -288,6 +297,7 @@ get_metadata <- function(self) {
       "
             {blue Type:} {type}
             {blue Edition:} {edition}
+            {blue Periodicity:} {periodicity}
             {blue Engine:} {default_engine}
             {blue Design:} {design}
             {blue Steps:} {steps}
@@ -295,7 +305,7 @@ get_metadata <- function(self) {
             ",
       type = toupper(self$type),
       edition = ifelse(
-        is(self$edition, "character"),
+        is(self$edition, "character") || is(self$edition, "numeric"),
         self$edition,
         format(self$edition, "%Y-%m")
       ),
@@ -309,6 +319,7 @@ get_metadata <- function(self) {
           paste0(names(self$steps), collapse = "\n  - ")
         )
       ),
+      periodicity = self$periodicity,
       names_recipes = cat_recipes(self),
       .literal = TRUE
     )

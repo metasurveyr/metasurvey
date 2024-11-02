@@ -12,7 +12,7 @@ workflow <- function(survey, ..., estimation_type = "monthly") {
 
   .calls <- substitute(list(...))
   
-  partial_result = sapply(
+  partial_result = lapply(
     estimation_type,
     function(x) {
       lapply(
