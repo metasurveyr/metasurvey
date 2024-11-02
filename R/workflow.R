@@ -9,10 +9,9 @@
 #' @return Data
 #'
 workflow <- function(survey, ..., estimation_type = "monthly") {
-
   .calls <- substitute(list(...))
-  
-  partial_result = lapply(
+
+  partial_result <- lapply(
     estimation_type,
     function(x) {
       lapply(
@@ -49,7 +48,6 @@ workflow <- function(survey, ..., estimation_type = "monthly") {
 
   names(partial_result) <- estimation_type
   return(partial_result)
-
 }
 
 cat_estimation <- function(estimation, call) {

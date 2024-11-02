@@ -33,7 +33,7 @@ Step <- R6Class("Step",
 #' @param step A Step object
 #' @return An environment
 #' @keywords Surveymethods
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 step_to_env <- function(step) {
@@ -52,14 +52,14 @@ step_to_env <- function(step) {
 #' @keywords Surveymethods
 #' @keywords Steps
 #' @keywords Validate
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 validate_step <- function(svy, step) {
   names_svy <- names(svy$data)
   depends_on <- step$depends_on
 
-  
+
   missing_vars <- depends_on[!depends_on %in% names_svy]
 
   # Si hay variables faltantes, lanza un error con los nombres
@@ -84,13 +84,11 @@ validate_step <- function(svy, step) {
 #' @keywords Steps
 #' @keywords Bake
 #' @keywords Survey
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 bake_step <- function(svy, step) {
-
   if (!step$bake) {
-
     step_valid <- validate_step(svy, step)
 
     if (!step_valid) {
@@ -118,7 +116,7 @@ bake_step <- function(svy, step) {
     env[["lazy"]] <- FALSE
     env[["svy"]] <- svy
 
-    .svy_after = do.call(
+    .svy_after <- do.call(
       what = step$type,
       args = env
     )
@@ -126,8 +124,6 @@ bake_step <- function(svy, step) {
     .svy_after$steps[[step$name]]$bake <- TRUE
 
     return(.svy_after)
-
-
   }
 }
 
@@ -144,6 +140,3 @@ bake_steps <- function(svy) {
   }
   return(svy)
 }
-
-
-
