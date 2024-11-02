@@ -29,3 +29,4 @@ RotativePanelSurvey object
 \description{
 Load panel survey
 }
+\keyword{preprocessing}
