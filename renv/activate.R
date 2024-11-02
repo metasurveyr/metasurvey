@@ -21,7 +21,7 @@ local({
       elapsed <- signif(difftime(Sys.time(), start, units = "auto"), digits = 2L)
       writeLines(sprintf("- renv took %s to run the autoloader.", format(elapsed)))
       writeLines(sprintf("- Profile: %s", profile))
-      print(utils::summaryRprof(profile))
+      # print(utils::summaryRprof(profile))
     }, add = TRUE)
   }
 
