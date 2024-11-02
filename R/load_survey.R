@@ -3,6 +3,7 @@
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
 #' @param svy_weight Weight of the survey
+#' @param svy_psu Primary sampling unit
 #' @param ... Additional arguments
 #' @return Survey object
 #' @keywords preprocessing
