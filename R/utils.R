@@ -418,7 +418,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
   if (!is.null(time_pattern$month) && !is.na(time_pattern$month) && !is.null(time_pattern$year) && !is.na(time_pattern$year)) {
     date_string <- sprintf("%04d-%02d-01", time_pattern$year, time_pattern$month)
-    print(date_string)
     svy_edition <- as.Date(date_string)
   } else {
     # Si no hay mes o año, crear una cadena básica
