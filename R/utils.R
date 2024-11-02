@@ -66,29 +66,27 @@ validate_replicate <- function(svy, replicate) {
         .literal = TRUE
       ))
     }
-
   }
 
-  replicate_file = read_file(replicate$replicate_path)
+  replicate_file <- read_file(replicate$replicate_path)
 
   if (!is.null(replicate$replicate_pattern)) {
     if (!is.character(replicate$replicate_pattern)) {
       stop("Replicate pattern must be a character")
     }
 
-    column_names = names(replicate_file)
+    column_names <- names(replicate_file)
 
     if (!any(grepl(replicate$replicate_pattern, column_names))) {
       stop("Replicate pattern not found in replicate file")
     }
   }
 
-  replicate[['replicate_file']] <- replicate_file
- 
+  replicate[["replicate_file"]] <- replicate_file
+
   return(
     replicate
   )
-
 }
 
 #' Validate Weight time pattern
@@ -130,7 +128,6 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' @export
 
 load_survey_example <- function(svy_type, svy_edition) {
-
   baseUrl <- "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
 
   f <- tempfile(fileext = ".csv")
@@ -139,9 +136,9 @@ load_survey_example <- function(svy_type, svy_edition) {
   } else {
     utils::download.file(
       paste0(
-        baseUrl, 
+        baseUrl,
         glue::glue(
-          '{svy_type}/{svy_edition}.csv'
+          "{svy_type}/{svy_edition}.csv"
         )
       ),
       f,
@@ -150,7 +147,7 @@ load_survey_example <- function(svy_type, svy_edition) {
     return(f)
   }
 
-  
+
   return(file.path(tempdir(), paste0(svy_type, paste0(svy_edition, ".csv"), sep = "/")))
 }
 
@@ -226,7 +223,7 @@ public_key <- function() {
   content <- content(response)
 
   if (response$status_code != 200) {
-    stop(message("Error getting public key",content))
+    stop(message("Error getting public key", content))
   }
 
   return(content$access_token)
@@ -270,7 +267,7 @@ set_lazy_processing <- function(lazy) {
 #' @param svy_edition Survey edition
 #' @return List
 #' @keywords utils
-#' @export 
+#' @export
 
 extract_time_pattern <- function(svy_edition) {
   # Limpiar la entrada: reemplazar espacios y guiones por guiones bajos y quitar guiones bajos extra
@@ -322,7 +319,7 @@ extract_time_pattern <- function(svy_edition) {
     year <- as.numeric(sub("^(\\d{2})[_-](\\d{4})$", "\\2", svy_edition))
 
     if (month >= 1 && month <= 12) {
-      periodicity <-  "Monthly"
+      periodicity <- "Monthly"
     } else {
       month <- NA
       periodicity <- "Formato incorrecto"
@@ -334,7 +331,7 @@ extract_time_pattern <- function(svy_edition) {
     month <- as.numeric(sub("^(\\d{4})[_-](\\d{2})$", "\\2", svy_edition))
 
     if (month >= 1 && month <= 12) {
-      periodicity <-  "Monthly"
+      periodicity <- "Monthly"
     } else {
       month <- NA
       periodicity <- "Formato incorrecto"
@@ -400,9 +397,8 @@ extract_time_pattern <- function(svy_edition) {
 #' @export
 
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
-  
   time_pattern <- extract_time_pattern(svy_edition)
-  
+
   if (is.null(time_pattern$type) && is.null(svy_type)) {
     stop("Type not found. Please provide a valid type in the survey edition or as an argument")
   }
@@ -417,7 +413,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
   remove_attributes <- c("type", "periodicity")
 
-  
+
   svy_editions <- ""
 
   if (!is.null(time_pattern$month) && !is.na(time_pattern$month) && !is.null(time_pattern$year) && !is.na(time_pattern$year)) {
@@ -434,7 +430,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
     )
   }
 
-  
+
 
   return(
     list(
@@ -443,7 +439,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
       svy_periodicity = time_pattern$periodicity %||% "Annual"
     )
   )
-
 }
 
 
@@ -455,7 +450,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 #' @export
 
 group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
-  
   type <- match.arg(type)
   dates_lt <- as.POSIXlt(dates)
 
@@ -481,15 +475,13 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' @param quarterly Weight quarterly
 #' @param biannual Weight biannual
 #' @keywords utils
-#' @export 
-#' 
+#' @export
+#'
 add_weight <- function(
-  monthly = NULL,
-  annual = NULL,
-  quarterly = NULL,
-  biannual = NULL
-) {
-  
+    monthly = NULL,
+    annual = NULL,
+    quarterly = NULL,
+    biannual = NULL) {
   weight_list <- list(
     monthly = monthly,
     annual = annual,
@@ -512,13 +504,11 @@ add_weight <- function(
 #' @export
 
 add_replicate <- function(
-  weight,
-  replicate_pattern,
-  replicate_path = NULL,
-  replicate_id = NULL,
-  replicate_type
-) {
-  
+    weight,
+    replicate_pattern,
+    replicate_path = NULL,
+    replicate_id = NULL,
+    replicate_type) {
   replicate_list <- list(
     weight = weight,
     replicate_pattern = replicate_pattern,
@@ -531,4 +521,3 @@ add_replicate <- function(
 
   return(replicate_list_clean)
 }
-
