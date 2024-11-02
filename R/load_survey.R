@@ -78,6 +78,7 @@ load_survey <- function(
 #' @param svy_type Type of survey
 #' @param svy_weight_implantation Weight of the implantation survey
 #' @param svy_weight_follow_up Weight of the follow-up survey
+#' @keywords preprocessing
 #' @return RotativePanelSurvey object
 
 load_panel_survey <- function(
