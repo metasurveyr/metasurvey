@@ -233,7 +233,7 @@ De esta forma si se realiza una estimación de la cantidad de empresas que reali
 workflow(
   list(eaii_2019),
   survey::svymean(
-    ~ realiza_innovacion
+    ~realiza_innovacion
   ),
   estimation_type = "annual"
 )

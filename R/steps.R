@@ -1,9 +1,6 @@
 #' @importFrom data.table copy
 #' @importFrom methods is
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
-
-  
-
   .dots <- substitute(...)
 
   if (!lazy) {
@@ -50,7 +47,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE, lazy = lazy_default()) {
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(), .to_factor = FALSE, lazy = lazy_default()) {
   if (!lazy) {
     if (!use_copy) {
       .data <- svy$get_data()
@@ -62,7 +59,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     .exprs <- substitute(list(...))
     .exprs <- eval(.exprs, .data, parent.frame())
 
-    if (!is(.exprs[[1]],"formula")) {
+    if (!is(.exprs[[1]], "formula")) {
       .exprs <- .exprs[[1]]
     }
 
@@ -273,8 +270,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step",.to_factor = FALSE) {
-  
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
   .call <- match.call()
 
   new_var <- as.character(substitute(new_var))
@@ -563,7 +559,6 @@ view_graph <- function(svy, init_step = "Load survey") {
       main = "Type",
       zoom = FALSE
     )
-
 }
 
 
