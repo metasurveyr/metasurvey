@@ -2,7 +2,7 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.4.3.9001
+    rev: v0.4.3
     hooks:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]    
@@ -40,7 +40,6 @@ repos:
           \.github/workflows/.*|
           data/.*|
           )$
-    -   id: readme-rmd-rendered2
     -   id: parsable-R
     -   id: no-browser-statement
     -   id: no-print-statement
