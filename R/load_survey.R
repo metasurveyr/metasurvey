@@ -3,6 +3,7 @@
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
 #' @param svy_weight Weight of the survey
+#' @param svy_psu Primary sampling unit
 #' @param ... Additional arguments
 #' @return Survey object
 #' @keywords preprocessing
@@ -22,6 +23,7 @@ load_survey <- function(
     svy_type = NULL,
     svy_edition = NULL,
     svy_weight = NULL,
+    svy_psu = NULL,
     ...) {
   path_null <- missing(path)
 
@@ -50,6 +52,7 @@ load_survey <- function(
     svy_type = svy_type,
     svy_edition = svy_edition,
     svy_weight = svy_weight,
+    svy_psu = svy_psu,
     .engine_name = .engine,
     ...
   )
@@ -65,6 +68,67 @@ load_survey <- function(
   do.call(
     .call_engine,
     args = .args
+  )
+}
+
+
+#' Load panel survey
+#' @param path_implantation Path to the implantation survey
+#' @param path_follow_up Path to the follow-up survey
+#' @param svy_type Type of survey
+#' @param svy_weight_implantation Weight of the implantation survey
+#' @param svy_weight_follow_up Weight of the follow-up survey
+#' @keywords preprocessing
+#' @return RotativePanelSurvey object
+
+load_panel_survey <- function(
+    path_implantation,
+    path_follow_up,
+    svy_type,
+    svy_weight_implantation,
+    svy_weight_follow_up) {
+  names_survey <- gsub(
+    "\\..*",
+    "",
+    list.files(path_follow_up, full.names = FALSE)
+  )
+
+  path_survey <- list.files(path_follow_up, full.names = TRUE)
+
+  names(path_survey) <- names_survey
+
+  implantation <- load_survey(
+    path_implantation,
+    svy_type = svy_type,
+    svy_edition = "2023",
+    svy_weight = svy_weight_implantation
+  )
+
+  follow_up <- lapply(
+    X = names(path_survey),
+    FUN = function(x) {
+      load_survey(
+        path_survey[[x]],
+        svy_type = svy_type,
+        svy_edition = x,
+        svy_weight = svy_weight_follow_up
+      )
+    }
+  )
+
+  names(follow_up) <- names_survey
+
+  return(
+    RotativePanelSurvey$new(
+      implantation = implantation,
+      follow_up = follow_up,
+      type = svy_type,
+      default_engine = "data.table",
+      steps = NULL,
+      recipes = NULL,
+      workflows = NULL,
+      design = NULL
+    )
   )
 }
 
@@ -164,6 +228,7 @@ load_survey.data.table <- function(...) {
     data = svy,
     edition = .args$svy_edition,
     type = .args$svy_type,
+    psu = .args$svy_psu,
     engine = .engine_name,
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
