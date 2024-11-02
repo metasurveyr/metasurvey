@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Load survey</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.1.9003/R/load_survey.R" class="external-link"><code>R/load_survey.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/load_survey.R" class="external-link"><code>R/load_survey.R</code></a></small>
       <div class="d-none name"><code>load_survey.Rd</code></div>
     </div>
 
@@ -47,6 +47,7 @@
 <span>  svy_type <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  svy_edition <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  svy_weight <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  svy_psu <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -69,6 +70,10 @@
 
 <dt id="arg-svy-weight">svy_weight<a class="anchor" aria-label="anchor" href="#arg-svy-weight"></a></dt>
 <dd><p>Weight of the survey</p></dd>
+
+
+<dt id="arg-svy-psu">svy_psu<a class="anchor" aria-label="anchor" href="#arg-svy-psu"></a></dt>
+<dd><p>Primary sampling unit</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -94,13 +99,14 @@
 <span class="r-in"><span><span class="va">svy_example</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Type:</span> EAII</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Edition:</span> 2019_2021</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Periodicity:</span> Trianual</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Engine:</span> data.table</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Design:</span>    </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> * <span style="color: #BB0000;">ANNUAL ESTIMATION</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>           </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> * <span style="color: #00BB00;">Package:</span> survey</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> * <span style="color: #00BB00;">Variance estimation:</span> Ultimate cluster</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   * <span style="color: #00BB00;">PSU:</span> ~1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   * <span style="color: #00BB00;">PSU:</span> psu</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   * <span style="color: #00BB00;">Strata:</span> NULL</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   * <span style="color: #00BB00;">Weight:</span> w_trans</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   * <span style="color: #00BB00;">FPC:</span> NULL</span>
