@@ -115,6 +115,10 @@ bake_step <- function(svy, step) {
 
     env[["lazy"]] <- FALSE
     env[["svy"]] <- svy
+    
+    if (use_copy_default()) {
+      env[["copy"]] <- TRUE
+    }
 
     .svy_after <- do.call(
       what = step$type,
@@ -135,8 +139,13 @@ bake_step <- function(svy, step) {
 #' @param svy A Survey object
 
 bake_steps <- function(svy) {
+  
+  if (use_copy_default()) {
+    svy <- svy$clone()
+  }
+  
   for (i in seq_along(svy$steps)) {
     svy <- bake_step(svy, svy$steps[[i]])
   }
-  return(svy)
+  
 }
