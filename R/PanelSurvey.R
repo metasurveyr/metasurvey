@@ -75,7 +75,6 @@ RotativePanelSurvey <- R6Class(
 #' @export
 
 extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL, use.parallel = FALSE) {
-  
   if (is.null(monthly) && is.null(annual) && is.null(quarterly) && is.null(biannual) && is.null(index)) {
     warning("At least one interval argument must be different from NULL. Returning the implantation survey.")
     annual <- 1
