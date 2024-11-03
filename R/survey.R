@@ -11,7 +11,7 @@ Survey <- R6Class(
     recipes = NULL,
     workflows = list(),
     design = NULL,
-    initialize = function(data, edition, type,psu, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
+    initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
       self$data <- data
 
       time_pattern <- validate_time_pattern(
@@ -25,7 +25,6 @@ Survey <- R6Class(
         weight_list,
         function(x) {
           if (is.character(x)) {
-
             if (is.null(psu)) {
               psu <- ~1
             } else {
@@ -111,7 +110,6 @@ Survey <- R6Class(
       self$design <- design
     },
     update_design = function() {
-
       weight_list <- self$weight
 
       design_list <- lapply(
@@ -127,11 +125,8 @@ Survey <- R6Class(
               by.y = x$replicate_id
             )
           }
-          
         }
       )
-
-      
     },
     active = list(
       design = function() {
@@ -245,7 +240,6 @@ set_data <- function(svy, data, .copy = use_copy_default()) {
 }
 
 set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
-
   if (.copy) {
     clone <- svy$clone()
     clone$set_edition(new_edition)
@@ -257,8 +251,7 @@ set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
 }
 
 set_type <- function(svy, new_type, .copy = use_copy_default()) {
-
-  if(.copy) {
+  if (.copy) {
     clone <- svy$clone()
     clone$set_type(new_type)
     return(clone)
@@ -274,8 +267,7 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
     clone$set_weight(new_weight)
     return(clone)
   } else {
-
-    if(svy$weight == new_weight) {
+    if (svy$weight == new_weight) {
       return(svy)
     }
 
@@ -397,14 +389,14 @@ get_metadata <- function(self) {
         type = toupper(
           unique(
             sapply(
-              self$surveys[1],
+              self$surveys[[1]],
               function(x) x[[1]]$type
             )
           )
         ),
         steps = unique(
           sapply(
-            self$surveys[1],
+            self$surveys[[1]],
             function(x) {
               ifelse(
                 length(x[[1]]$steps) == 0,
@@ -420,13 +412,13 @@ get_metadata <- function(self) {
         periodicity = names(self$surveys),
         periodicity_each = tolower(
           unique(sapply(
-            self$surveys[1],
+            self$surveys[[1]],
             function(x) x[[1]]$periodicity
           ))
         ),
         names_recipes = unique(
           sapply(
-            self$surveys[1],
+            self$surveys[[1]],
             function(x) cat_recipes(x[[1]])
           )
         ),
@@ -434,7 +426,7 @@ get_metadata <- function(self) {
           f = function(x,y) {
             paste0(x, ", ", y)
           },
-          names(self$surveys[1])
+          names(self$surveys[[1]])
         ),
         .literal = TRUE
       )
@@ -550,7 +542,7 @@ cat_design_type <- function(self, design_name) {
     )
     return(
       glue::glue_col(
-        "\n  
+        "\n
         * {green Package:} {package}
         * {green Variance estimation:} {variance_estimation}",
         package = design_details$package,
@@ -669,6 +661,3 @@ bake_recipes <- function(svy, recipes) {
 
   return(svy)
 }
-
-
-
