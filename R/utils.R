@@ -185,7 +185,15 @@ set_use_copy <- function(use_copy) {
 #' @noRd
 
 get_user <- function() {
-  getOption("metasurvey.user", default = NULL) %||% "public"
+  user_key <- NULL
+
+  api_key <- getOption("metasurvey.api_key", default = NULL)
+
+  if (!is.null(api_key)) {
+    user_key <- "apiKey"
+  }
+
+  getOption("metasurvey.user", default = NULL) %||% user_key %||% "public"
 }
 
 
@@ -207,8 +215,33 @@ url_api_host <- function() {
 #' @export
 
 get_api_key <- function() {
-  public_key <- public_key()
-  public_key
+  api_key <- getOption("metasurvey.api_key", default = NULL)
+
+  user <- getOption("metasurvey.user", default = NULL)
+  password <- getOption("metasurvey.password", default = NULL)
+
+  payload <- list(
+    methodAuth = "apiKey",
+    token = api_key
+  )
+
+  if (is.null(api_key)) {
+    if (is.null(user) || is.null(password)) {
+      api_key <- public_key()
+      payload <- list(
+        methodAuth = "anonUser",
+        token = api_key
+      )
+    } else {
+      payload <- list(
+        methodAuth = "userPassword",
+        email = user,
+        password = password
+      )
+    }
+  }
+
+  return(payload)
 }
 
 #' Public Key

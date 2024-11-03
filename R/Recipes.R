@@ -44,7 +44,7 @@ metadata_recipe <- function() {
 #' @return A Recipe object
 
 recipe <- function(...) {
-  dots <- list(...)
+  dots <- substitute(list(...))
 
   class_dots <- sapply(dots, class)
 
@@ -67,6 +67,7 @@ recipe <- function(...) {
   if ("steps" %in% names(dots)) {
     return(
       Recipe$new(
+        id = dots$id %||% stats::runif(1, 0, 1),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -74,12 +75,14 @@ recipe <- function(...) {
         default_engine = default_engine(),
         depends_on = list(),
         description = dots$description,
-        steps = eval(dots$steps)
+        steps = eval(dots$steps),
+        doi = dots$doi %||% NULL
       )
     )
   } else {
     return(
       Recipe$new(
+        id = dots$id %||% stats::runif(1, 0, 1),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -87,7 +90,8 @@ recipe <- function(...) {
         default_engine = default_engine(),
         depends_on = list(),
         description = dots$description,
-        steps = dots[-index_steps]
+        steps = dots[-index_steps],
+        doi = dots$doi %||% NULL
       )
     )
   }
@@ -116,7 +120,7 @@ encoding_recipe <- function(recipe) {
 
 decode_step <- function(steps) {
   steps <- as.call(
-    lapply(
+    sapply(
       steps,
       function(step_string) as.call(parse(text = step_string))[[1]]
     )
@@ -349,13 +353,36 @@ request_api <- function(method, filterList) {
     method
   )
 
-  headers <- c(
-    "Content-Type" = "application/json",
-    "Access-Control-Request-Headers" = "*",
-    "Authorization" = paste(
-      "Bearer",
-      get_api_key()
-    )
+  key <- get_api_key()
+
+  headers <- switch(key$methodAuth,
+    apiKey = {
+      c(
+        "Content-Type" = "application/json",
+        "Access-Control-Request-Headers" = "*",
+        "apiKey" = paste(
+          key$token
+        )
+      )
+    },
+    anonUser = {
+      c(
+        "Content-Type" = "application/json",
+        "Access-Control-Request-Headers" = "*",
+        "Authorization" = paste(
+          "Bearer",
+          key$token
+        )
+      )
+    },
+    userPassword = {
+      c(
+        "Content-Type" = "application/json",
+        "Access-Control-Request-Headers" = "*",
+        "email" = key$email,
+        "password" = key$password
+      )
+    }
   )
 
   body <- list(
