@@ -75,7 +75,9 @@ RotativePanelSurvey <- R6Class(
 #' @keywords RotativePanelSurvey
 #' @export
 
+
 extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL, use.parallel = FALSE) {
+  
   if (is.null(monthly) && is.null(annual) && is.null(quarterly) && is.null(biannual) && is.null(index)) {
     warning("At least one interval argument must be different from NULL. Returning the implantation survey.")
     annual <- 1
@@ -92,6 +94,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
   }
 
   dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))
+
   ts_series <- stats::ts(1:length(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
 
   apply_interval <- function(ts_series, start_year, start_month, end_year, end_month) {
@@ -125,7 +128,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
         results$annual[[as.character(year)]] <- follow_up[indices]
       }
     } else {
-      results$annual[['implantation']] <- RotativePanelSurvey$get_implantation()
+      results$annual[['implantation']] <- list(RotativePanelSurvey$implantation)
     }
   }
 

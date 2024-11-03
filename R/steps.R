@@ -1,9 +1,6 @@
 #' @importFrom data.table copy
 #' @importFrom methods is
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
-
-  
-
   .dots <- substitute(...)
 
   if (!lazy) {
@@ -43,14 +40,18 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
       return(set_data(.clone, .data))
     }
   } else {
-    return(svy)
+    if (!use_copy) {
+      return(svy)
+    } else {
+      return(svy$clone())
+    }
   }
 }
 
 
 #' @importFrom data.table copy
 
-recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(),.to_factor = FALSE, lazy = lazy_default()) {
+recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE, use_copy = use_copy_default(), .to_factor = FALSE, lazy = lazy_default()) {
   if (!lazy) {
     if (!use_copy) {
       .data <- svy$get_data()
@@ -62,7 +63,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     .exprs <- substitute(list(...))
     .exprs <- eval(.exprs, .data, parent.frame())
 
-    if (!is(.exprs[[1]],"formula")) {
+    if (!is(.exprs[[1]], "formula")) {
       .exprs <- .exprs[[1]]
     }
 
@@ -122,7 +123,11 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       return(set_data(.clone, .data))
     }
   } else {
-    return(svy)
+    if (!use_copy) {
+      return(svy)
+    } else {
+      return(svy$clone())
+    }
   }
 }
 
@@ -137,6 +142,17 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @export
 
 step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
+
+  if (is(svy, "RotativePanelSurvey")) {
+    stop(
+      glue::glue_col(
+        "RotativePanelSurvey is not supported in metasurvey {version}",
+        version = utils::packageVersion("metasurvey")
+      )
+    )
+  }
+
+
   .call <- match.call()
 
   check_svy <- is.null(
@@ -162,10 +178,20 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
   )
 
   if (!is.null(svy)) {
-    .names_before <- names(copy(get_data(svy$clone())))
+    
+    
 
     if (use_copy) {
-      .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy)
+
+      tryCatch({
+        .svy_before <- svy$clone()
+      }, error = function(e) {
+        stop("Error in clone. Please run set_use_copy(TRUE) and instance a new survey object and try again")
+      })
+      
+      .names_before <- names(copy(get_data(svy)))
+      
+      .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
 
 
       .names_after <- names(get_data(.svy_after))
@@ -212,14 +238,19 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
         return(svy)
       }
     } else {
-      compute(svy, ..., .by = .by, use_copy = use_copy)
+      
+      compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
 
-      .names_after <- names(get_data(svy))
-
-      .new_vars <- .names_after[!.names_after %in% .names_before]
+      .new_vars <- substitute(list(...))[-1]
+      
+      .new_vars <- names(.new_vars)
+      
+      not_in_data <- !.new_vars %in% names(get_data(svy))
+      
+      .new_vars <- .new_vars[not_in_data]
 
       if (length(.new_vars) == 0) {
-        stop(message("No news variable created: ", substitute(list(...))))
+        stop(message("No news variable created: ", .new_vars[!not_in_data]))
       }
 
       .name_step <- paste0(
@@ -240,7 +271,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
           .new_vars,
           collapse = ", "
         ),
-        exprs = list(...),
+        exprs = substitute(list(...)),
         call = .call,
         svy_before = NULL,
         default_engine = get_engine(),
@@ -273,7 +304,16 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step",.to_factor = FALSE) {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
+  
+  if (is(svy, "RotativePanelSurvey")) {
+    stop(
+      glue::glue_col(
+        "RotativePanelSurvey is not supported in {version}",
+        version = utils::packageVersion("metasurvey")
+      )
+    )
+  }
   
   .call <- match.call()
 
@@ -563,7 +603,6 @@ view_graph <- function(svy, init_step = "Load survey") {
       main = "Type",
       zoom = FALSE
     )
-
 }
 
 

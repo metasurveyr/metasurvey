@@ -11,7 +11,7 @@
 #' @examples
 #' set_engine("data.table")
 #' svy_example <- load_survey(
-#'  "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
+#'   "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/eaii/2019-2021.csv",
 #'   svy_type = "eaii",
 #'   svy_edition = "2019-2021",
 #'   svy_weight = add_weight(annual = "w_trans"),
@@ -146,7 +146,7 @@ read_file <- function(file, .args = NULL) {
     dta = list(package = "foreign", read_function = "read.dta"),
     csv = list(package = "data.table", read_function = "fread"),
     xlsx = list(package = "openxlsx", read_function = "read.xlsx"),
-    stop("Unsupported file type: ", .extension) 
+    stop("Unsupported file type: ", .extension)
   )
 
   require(.read_function$package, character.only = TRUE)
@@ -185,7 +185,7 @@ load_survey.data.table <- function(...) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
-  
+
   svy <- read_file(.args$file, .args[.names_args])
 
   if (!is.null(.args$recipes)) {

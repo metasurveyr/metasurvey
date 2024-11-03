@@ -7,6 +7,7 @@ status](https://www.r-pkg.org/badges/version/metasSurvey)](https://cran.r-projec
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/metasurveyr/metasurvey/main.svg)](https://results.pre-commit.ci/latest/github/metasurveyr/metasurvey/main)
 <!-- badges: end -->
 
 This package provides a set of functions to facilitate the analysis of survey sampling data using meta-programming techniques. In the package you can create reproducible analysis pipelines, and easily generate reports and tables. The package is designed to work with the `survey` package, and it is particularly useful for complex survey designs.
