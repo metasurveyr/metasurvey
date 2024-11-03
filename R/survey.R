@@ -284,9 +284,8 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @export
 
 get_metadata <- function(self) {
-  
   if (is(self, "Survey")) {
-      message(
+    message(
       glue::glue_col(
         "
               {blue Type:} {type}
@@ -423,7 +422,7 @@ get_metadata <- function(self) {
           )
         ),
         groups = Reduce(
-          f = function(x,y) {
+          f = function(x, y) {
             paste0(x, ", ", y)
           },
           names(self$surveys[[1]])
