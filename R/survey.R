@@ -283,9 +283,12 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @export
 
 get_metadata <- function(self) {
-  message(
-    glue::glue_col(
-      "
+  
+  
+  if (is(self, "Survey")) {
+    message(
+      glue::glue_col(
+        "
             {blue Type:} {type}
             {blue Edition:} {edition}
             {blue Periodicity:} {periodicity}
@@ -294,37 +297,87 @@ get_metadata <- function(self) {
             {blue Steps:} {steps}
             {blue Recipes:} {names_recipes}
             ",
-      type = toupper(self$type),
-      edition = ifelse(
-        is(self$edition, "character") || is(self$edition, "numeric"),
-        self$edition,
-        format(self$edition, "%Y-%m")
-      ),
-      default_engine = self$default_engine,
-      design = cat_design(self),
-      steps = ifelse(
-        length(self$steps) == 0,
-        "None",
-        paste0(
-          "\n  - ",
-          paste0(names(self$steps), collapse = "\n  - ")
-        )
-      ),
-      periodicity = self$periodicity,
-      names_recipes = cat_recipes(self),
-      .literal = TRUE
+        type = toupper(self$type),
+        edition = ifelse(
+          is(self$edition, "character") || is(self$edition, "numeric"),
+          self$edition,
+          format(self$edition, "%Y-%m")
+        ),
+        default_engine = self$default_engine,
+        design = cat_design(self),
+        steps = ifelse(
+          length(self$steps) == 0,
+          "None",
+          paste0(
+            "\n  - ",
+            paste0(names(self$steps), collapse = "\n  - ")
+          )
+        ),
+        periodicity = self$periodicity,
+        names_recipes = cat_recipes(self),
+        .literal = TRUE
+      )
     )
-  )
 
-  invisible(
-    list(
-      type = self$type,
-      edition = self$edition,
-      default_engine = self$default_engine,
-      weight = self$weight,
-      steps = names(self$steps)
+    invisible(
+      list(
+        type = self$type,
+        edition = self$edition,
+        default_engine = self$default_engine,
+        weight = self$weight,
+        steps = names(self$steps)
+      )
     )
-  )
+  }
+
+  if (is(self, "RotativePanelSurvey")) {
+    message(
+      glue::glue_col(
+        "
+            {blue Type:} {type} (Rotative Panel)
+            {blue Edition:} {edition}
+            {blue Periodicity:} Implantation: {implantationPeriodicity}, Follow-up: {follow_upPeriodicity}
+            {blue Engine:} {default_engine}
+            {blue Design:} {design}
+            {blue Steps:} {steps}
+            {blue Recipes:} {names_recipes}
+            ",
+        type = toupper(self$type),
+        edition = ifelse(
+          is(self$implantation$edition, "character") || is(self$implantation$edition, "numeric"),
+          self$implantation$edition,
+          format(self$implantation$edition, "%Y-%m")
+        ),
+        default_engine = self$default_engine,
+        design = cat_design(self),
+        steps = ifelse(
+          length(self$steps) == 0,
+          "None",
+          paste0(
+            "\n  - ",
+            paste0(names(self$steps), collapse = "\n  - ")
+          )
+        ),
+        implantationPeriodicity = self$periodicity$implantation,
+        follow_upPeriodicity = self$periodicity$follow_up,
+        names_recipes = cat_recipes(self),
+        .literal = TRUE
+      )
+    )
+
+    invisible(
+      list(
+        type = self$type,
+        edition = self$edition,
+        default_engine = self$default_engine,
+        weight = self$weight,
+        steps = names(self$steps)
+      )
+    )
+  }
+
+  
+  
 }
 
 
