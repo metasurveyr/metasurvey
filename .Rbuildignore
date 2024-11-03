@@ -21,6 +21,7 @@
 ^revdep$
 clasificacion_ui
 test_recipes.R
+<<<<<<< Updated upstream
 test.R
 recetas_ech.R
 example-data
@@ -32,3 +33,6 @@ popac.R
 ^reference$
 ^pkgdown$
 pool.R
+=======
+minnor_version.R
+>>>>>>> Stashed changes

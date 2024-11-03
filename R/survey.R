@@ -39,7 +39,6 @@ Survey <- R6Class(
               calibrate.formula = ~1
             )
           } else {
-
             survey::svrepdesign(
               id = psu,
               weights = as.formula(paste("~", x$weight)),
@@ -50,6 +49,7 @@ Survey <- R6Class(
           }
         }
       )
+
       names(design_list) <- names(weight_list)
 
       self$edition <- time_pattern$svy_edition
@@ -292,48 +292,164 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @export
 
 get_metadata <- function(self) {
-  message(
-    glue::glue_col(
-      "
-            {blue Type:} {type}
+  
+  if (is(self, "Survey")) {
+      message(
+      glue::glue_col(
+        "
+              {blue Type:} {type}
+              {blue Edition:} {edition}
+              {blue Periodicity:} {periodicity}
+              {blue Engine:} {default_engine}
+              {blue Design:} {design}
+              {blue Steps:} {steps}
+              {blue Recipes:} {names_recipes}
+              ",
+        type = toupper(self$type),
+        edition = ifelse(
+          is(self$edition, "character") || is(self$edition, "numeric"),
+          self$edition,
+          format(self$edition, "%Y-%m")
+        ),
+        default_engine = self$default_engine,
+        design = cat_design(self),
+        steps = ifelse(
+          length(self$steps) == 0,
+          "None",
+          paste0(
+            "\n  - ",
+            paste0(names(self$steps), collapse = "\n  - ")
+          )
+        ),
+        periodicity = self$periodicity,
+        names_recipes = cat_recipes(self),
+        .literal = TRUE
+      )
+    )
+
+    invisible(
+      list(
+        type = self$type,
+        edition = self$edition,
+        default_engine = self$default_engine,
+        weight = self$weight,
+        steps = names(self$steps)
+      )
+    )
+  }
+
+  if (is(self, "RotativePanelSurvey")) {
+    message(
+      glue::glue_col(
+        "
+            {blue Type:} {type} (Rotative Panel)
             {blue Edition:} {edition}
-            {blue Periodicity:} {periodicity}
+            {blue Periodicity:} Implantation: {implantationPeriodicity}, Follow-up: {follow_upPeriodicity}
             {blue Engine:} {default_engine}
             {blue Design:} {design}
             {blue Steps:} {steps}
             {blue Recipes:} {names_recipes}
             ",
-      type = toupper(self$type),
-      edition = ifelse(
-        is(self$edition, "character") || is(self$edition, "numeric"),
-        self$edition,
-        format(self$edition, "%Y-%m")
-      ),
-      default_engine = self$default_engine,
-      design = cat_design(self),
-      steps = ifelse(
-        length(self$steps) == 0,
-        "None",
-        paste0(
-          "\n  - ",
-          paste0(names(self$steps), collapse = "\n  - ")
-        )
-      ),
-      periodicity = self$periodicity,
-      names_recipes = cat_recipes(self),
-      .literal = TRUE
+        type = toupper(self$type),
+        edition = ifelse(
+          is(self$implantation$edition, "character") || is(self$implantation$edition, "numeric"),
+          self$implantation$edition,
+          format(self$implantation$edition, "%Y-%m")
+        ),
+        default_engine = self$default_engine,
+        design = cat_design(self),
+        steps = ifelse(
+          length(self$steps) == 0,
+          "None",
+          paste0(
+            "\n  - ",
+            paste0(names(self$steps), collapse = "\n  - ")
+          )
+        ),
+        implantationPeriodicity = self$periodicity$implantation,
+        follow_upPeriodicity = self$periodicity$follow_up,
+        names_recipes = cat_recipes(self),
+        .literal = TRUE
+      )
     )
-  )
 
-  invisible(
-    list(
-      type = self$type,
-      edition = self$edition,
-      default_engine = self$default_engine,
-      weight = self$weight,
-      steps = names(self$steps)
+    invisible(
+      list(
+        type = self$type,
+        edition = self$edition,
+        default_engine = self$default_engine,
+        weight = self$weight,
+        steps = names(self$steps)
+      )
     )
-  )
+  }
+
+  if (is(self, "PoolSurvey")) {
+    message(
+      glue::glue_col(
+        "
+            {blue Type:} {type}
+            {blue Periodicity:} {red Periodicity of pool} {periodicity} {red each survey} {periodicity_each}
+            {blue Steps:} {steps}
+            {blue Recipes:} {names_recipes}
+            {blue Group:} {groups}
+            ",
+        type = toupper(
+          unique(
+            sapply(
+              self$surveys[1],
+              function(x) x[[1]]$type
+            )
+          )
+        ),
+        steps = unique(
+          sapply(
+            self$surveys[1],
+            function(x) {
+              ifelse(
+                length(x[[1]]$steps) == 0,
+                "None",
+                paste0(
+                  "\n  - ",
+                  paste0(names(x[[1]]$steps), collapse = "\n  - ")
+                )
+              )
+            }
+          )
+        ),
+        periodicity = names(self$surveys),
+        periodicity_each = tolower(
+          unique(sapply(
+            self$surveys[1],
+            function(x) x[[1]]$periodicity
+          ))
+        ),
+        names_recipes = unique(
+          sapply(
+            self$surveys[1],
+            function(x) cat_recipes(x[[1]])
+          )
+        ),
+        groups = Reduce(
+          f = function(x,y) {
+            paste0(x, ", ", y)
+          },
+          names(self$surveys[1])
+        ),
+        .literal = TRUE
+      )
+    )
+
+    invisible(
+      list(
+        type = self$type,
+        edition = self$edition,
+        default_engine = self$default_engine,
+        weight = self$weight,
+        steps = names(self$steps)
+      )
+    )
+  }
 }
 
 
