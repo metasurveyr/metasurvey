@@ -353,10 +353,9 @@ request_api <- function(method, filterList) {
     method
   )
 
-  key = get_api_key()
+  key <- get_api_key()
 
-  headers = switch(
-    key$methodAuth,
+  headers <- switch(key$methodAuth,
     apiKey = {
       c(
         "Content-Type" = "application/json",

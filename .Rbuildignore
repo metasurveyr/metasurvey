@@ -24,13 +24,13 @@
 ^renv\.lock$
 ^revdep$
 clasificacion_ui
-test_recipes.R
 eaii.R$
 example-data
+minnor_version.R
 pool.R
 popac.R
-minnor_version.R
 recetas_ech.R
 test.R
 test_api.R
+test_recipes.R
 test_recipes.R

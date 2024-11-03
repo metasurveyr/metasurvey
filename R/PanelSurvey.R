@@ -30,7 +30,6 @@ RotativePanelSurvey <- R6Class(
         implantation = self$implantation$periodicity,
         follow_up = unique(follow_up_types)
       )
-
     },
     get_implantation = function() {
       return(self$implantation)
@@ -77,7 +76,6 @@ RotativePanelSurvey <- R6Class(
 
 
 extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL, use.parallel = FALSE) {
-  
   if (is.null(monthly) && is.null(annual) && is.null(quarterly) && is.null(biannual) && is.null(index)) {
     warning("At least one interval argument must be different from NULL. Returning the implantation survey.")
     annual <- 1
@@ -128,7 +126,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
         results$annual[[as.character(year)]] <- follow_up[indices]
       }
     } else {
-      results$annual[['implantation']] <- list(RotativePanelSurvey$implantation)
+      results$annual[["implantation"]] <- list(RotativePanelSurvey$implantation)
     }
   }
 
@@ -165,7 +163,6 @@ PoolSurvey <- R6Class(
       self$surveys <- surveys
     },
     get_surveys = function(period = NULL) {
-      
       if (!is.null(period)) {
         return(self$surveys[[1]][[period]])
       } else {

@@ -185,13 +185,12 @@ set_use_copy <- function(use_copy) {
 #' @noRd
 
 get_user <- function() {
-
   user_key <- NULL
 
   api_key <- getOption("metasurvey.api_key", default = NULL)
 
   if (!is.null(api_key)) {
-    user_key = "apiKey"
+    user_key <- "apiKey"
   }
 
   getOption("metasurvey.user", default = NULL) %||% user_key %||% "public"
@@ -216,9 +215,6 @@ url_api_host <- function() {
 #' @export
 
 get_api_key <- function() {
-  
-  
-
   api_key <- getOption("metasurvey.api_key", default = NULL)
 
   user <- getOption("metasurvey.user", default = NULL)

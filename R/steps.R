@@ -142,7 +142,6 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @export
 
 step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
-
   if (is(svy, "RotativePanelSurvey")) {
     stop(
       glue::glue_col(
@@ -178,19 +177,18 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
   )
 
   if (!is.null(svy)) {
-    
-    
-
     if (use_copy) {
+      tryCatch(
+        {
+          .svy_before <- svy$clone()
+        },
+        error = function(e) {
+          stop("Error in clone. Please run set_use_copy(TRUE) and instance a new survey object and try again")
+        }
+      )
 
-      tryCatch({
-        .svy_before <- svy$clone()
-      }, error = function(e) {
-        stop("Error in clone. Please run set_use_copy(TRUE) and instance a new survey object and try again")
-      })
-      
       .names_before <- names(copy(get_data(svy)))
-      
+
       .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
 
 
@@ -238,15 +236,14 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
         return(svy)
       }
     } else {
-      
       compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
 
       .new_vars <- substitute(list(...))[-1]
-      
+
       .new_vars <- names(.new_vars)
-      
+
       not_in_data <- !.new_vars %in% names(get_data(svy))
-      
+
       .new_vars <- .new_vars[not_in_data]
 
       if (length(.new_vars) == 0) {
@@ -305,7 +302,6 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @export
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
-  
   if (is(svy, "RotativePanelSurvey")) {
     stop(
       glue::glue_col(
@@ -314,7 +310,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       )
     )
   }
-  
+
   .call <- match.call()
 
   new_var <- as.character(substitute(new_var))
