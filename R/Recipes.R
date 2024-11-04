@@ -271,6 +271,7 @@ get_recipe <- function(
 #' @param svy A Survey object
 #' @param description A character string with the description of the recipe
 #' @param steps A list with the steps of the recipe
+#' @param doi A character string with the DOI of the recipe
 #' @return A Recipe object
 #' @keywords Survey methods
 #' @keywords Recipes
