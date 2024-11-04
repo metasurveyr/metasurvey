@@ -235,7 +235,7 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
-  
+
   print(.args$bake)
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))

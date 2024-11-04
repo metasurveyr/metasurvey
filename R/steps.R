@@ -257,7 +257,6 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
 
 
 step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto", .call) {
-  
   follow_up_processed <- svy$follow_up
   implantation_processed <- svy$implantation
 
@@ -322,9 +321,8 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #' @export
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto") {
-  
   .call <- match.call()
-  
+
   if (is(svy, "RotativePanelSurvey")) {
     return(step_recode_rotative(svy, as.character(substitute(new_var)), ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .level = .level, .call = .call))
   }

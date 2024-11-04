@@ -639,9 +639,8 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
 #' @export
 #' @return Survey object
 bake_recipes <- function(svy) {
-
   recipes <- svy$recipes
-  
+
   if (length(recipes) == 0) {
     return(svy)
   }
@@ -658,20 +657,17 @@ bake_recipes <- function(svy) {
       step_call <- recipe$steps[[step]]
       expr <- call("%>%", expr, step_call)
     }
-    
-    
-    
   }
 
-  svy = eval(expr)
-  svy_after = svy$clone(deep = TRUE)
+  svy <- eval(expr)
+  svy_after <- svy$clone(deep = TRUE)
   svy_after$recipes <- lapply(
     X = seq_along(recipes),
     FUN = function(x) {
       recipes[[x]]$clone()
     }
   )
-  
+
   for (i in seq_along(recipes)) {
     svy_after$recipes[[i]]$bake <- TRUE
   }
