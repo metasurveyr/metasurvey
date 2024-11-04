@@ -46,7 +46,7 @@ metadata_recipe <- function() {
 
 recipe <- function(...) {
   dots <- list(...)
-  
+
 
   class_dots <- sapply(dots, class)
 
@@ -246,7 +246,7 @@ get_recipe <- function(
         X = 1:n_recipe,
         FUN = function(x) {
           recipe <- content_json$documents[[x]]
-          
+
           Recipe$new(
             name = unlist(recipe$name),
             user = unlist(recipe$user),
