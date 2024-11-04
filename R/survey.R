@@ -8,7 +8,7 @@ Survey <- R6Class(
     default_engine = NULL,
     weight = NULL,
     steps = list(),
-    recipes = NULL,
+    recipes = list(),
     workflows = list(),
     design = NULL,
     initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
@@ -56,7 +56,7 @@ Survey <- R6Class(
       self$default_engine <- engine
       self$weight <- weight_list
       self$design <- design_list
-      self$recipes <- recipes
+      self$recipes <- list(recipes)
       self$workflows <- list()
       self$periodicity <- time_pattern$svy_periodicity
     },
@@ -88,17 +88,20 @@ Survey <- R6Class(
       get_metadata(self)
     },
     add_step = function(step) {
-      self$steps[[step$name]] <- step
+      name_index <- length(self$steps) + 1
+      name_index <- paste0("step_", name_index, " ", step$name)
+      self$steps[[name_index]] <- step
       self$update_design()
     },
     add_recipe = function(recipe, bake = lazy_default()) {
-      self$recipes <- recipe
+      index_recipe <- length(self$recipes) + 1
+      self$recipes[[index_recipe]] <- recipe
     },
     add_workflow = function(workflow) {
       self$workflows[[workflow$name]] <- workflow
     },
     bake = function() {
-      bake_recipes(self, self$recipes)
+      bake_recipes(self)
     },
     head = function() {
       head(self$data)
@@ -566,44 +569,30 @@ cat_recipes <- function(self) {
 
   n_recipes <- get_distinct_recipes(self$recipes)
 
-  if (n_recipes > 1) {
-    string_print <- Reduce(
-      f = function(x, y) {
-        paste0(x, "\n  - ", y)
-      },
-      x = sapply(
-        X = 1:n_recipes,
-        FUN = function(x) {
-          glue::glue_col(
-            " {green Name:} {self$recipes[[x]]$name}
+  string_print <- Reduce(
+    f = function(x, y) {
+      paste0(x, "\n  - ", y)
+    },
+    x = sapply(
+      X = 1:n_recipes,
+      FUN = function(x) {
+        glue::glue_col(
+          " {green Name:} {self$recipes[[x]]$name}
                     * {green User:} {self$recipes[[x]]$user}
                     * {green Id:} {self$recipes[[x]]$id}
                     * {green DOI:} {doi}
+                    * {green Bake:} {self$recipes[[x]]$bake}
                 ",
-            doi = ifelse(
-              is.null(self$recipes[[x]]$DOI),
-              "None",
-              self$recipes[[x]]$DOI
-            )
+          doi = ifelse(
+            is.null(self$recipes[[x]]$DOI),
+            "None",
+            self$recipes[[x]]$DOI
           )
-        }
-      ),
-      init = crayon::bgRed("Without bake")
-    )
-  } else {
-    string_print <- glue::glue_col(
-      " {green Name:} {self$recipes$name}
-                    * {green User:} {self$recipes$user}
-                    * {green Id:} {self$recipes$id}
-                    * {green DOI:} {doi}
-                ",
-      doi = ifelse(
-        is.null(self$recipes$DOI),
-        "None",
-        self$recipes$DOI
-      )
-    )
-  }
+        )
+      }
+    ),
+    init = ""
+  )
 
   return(string_print)
 }
@@ -645,18 +634,42 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
 
 #' Bake recipes
 #' @param svy Survey object
-#' @param recipes List of recipes
 #' @keywords Surveymethods
 #' @export
 #' @return Survey object
-bake_recipes <- function(svy, recipes) {
+bake_recipes <- function(svy) {
+  recipes <- svy$recipes
+
   if (length(recipes) == 0) {
     return(svy)
   }
 
-  for (i in seq_along(recipes)) {
-    svy <- recipes[[i]]$bake(svy)
+  if (is(recipes, "Recipe")) {
+    recipes <- list(recipes)
   }
 
-  return(svy)
+  for (i in seq_along(recipes)) {
+    recipe <- recipes[[i]]
+    expr <- as.name("svy")
+
+    for (step in seq_along(recipe$steps)) {
+      step_call <- recipe$steps[[step]]
+      expr <- call("%>%", expr, step_call)
+    }
+  }
+
+  svy <- eval(expr)
+  svy_after <- svy$clone(deep = TRUE)
+  svy_after$recipes <- lapply(
+    X = seq_along(recipes),
+    FUN = function(x) {
+      recipes[[x]]$clone()
+    }
+  )
+
+  for (i in seq_along(recipes)) {
+    svy_after$recipes[[i]]$bake <- TRUE
+  }
+
+  return(svy_after)
 }

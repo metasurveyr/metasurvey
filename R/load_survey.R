@@ -5,6 +5,7 @@
 #' @param svy_weight Weight of the survey
 #' @param svy_psu Primary sampling unit
 #' @param ... Additional arguments
+#' @param bake Logical
 #' @return Survey object
 #' @keywords preprocessing
 #' @export
@@ -24,7 +25,7 @@ load_survey <- function(
     svy_edition = NULL,
     svy_weight = NULL,
     svy_psu = NULL,
-    ...) {
+    ..., bake = FALSE) {
   path_null <- missing(path)
 
   svy_args_null <- missing(svy_type) || missing(svy_edition) || missing(svy_weight)
@@ -54,6 +55,7 @@ load_survey <- function(
     svy_weight = svy_weight,
     svy_psu = svy_psu,
     .engine_name = .engine,
+    bake = bake,
     ...
   )
 
@@ -224,7 +226,7 @@ load_survey.data.table <- function(...) {
 
 
 
-  Survey$new(
+  Survey <- Survey$new(
     data = svy,
     edition = .args$svy_edition,
     type = .args$svy_type,
@@ -233,6 +235,13 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
+
+  print(.args$bake)
+  if (.args$bake %||% FALSE) {
+    return(bake_recipes(Survey))
+  } else {
+    return(Survey)
+  }
 }
 
 

@@ -10,6 +10,7 @@ Recipe <- R6Class("Recipe",
     id = NULL,
     steps = list(),
     doi = NULL,
+    bake = FALSE,
     initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi) {
       self$name <- name
       self$edition <- edition
@@ -44,7 +45,8 @@ metadata_recipe <- function() {
 #' @return A Recipe object
 
 recipe <- function(...) {
-  dots <- substitute(list(...))
+  dots <- list(...)
+
 
   class_dots <- sapply(dots, class)
 
@@ -204,6 +206,7 @@ get_recipe <- function(
 
   filterList <- filterList[!sapply(filterList, is.null)]
 
+
   content_json <- request_api(method, filterList)
 
   n_recipe <- get_distinct_recipes_json(content_json)
@@ -243,6 +246,7 @@ get_recipe <- function(
         X = 1:n_recipe,
         FUN = function(x) {
           recipe <- content_json$documents[[x]]
+
           Recipe$new(
             name = unlist(recipe$name),
             user = unlist(recipe$user),
@@ -267,6 +271,7 @@ get_recipe <- function(
 #' @param svy A Survey object
 #' @param description A character string with the description of the recipe
 #' @param steps A list with the steps of the recipe
+#' @param doi A character string with the DOI of the recipe
 #' @return A Recipe object
 #' @keywords Survey methods
 #' @keywords Recipes
@@ -277,19 +282,20 @@ steps_to_recipe <- function(
     user,
     svy = survey_empty(type = "eaii", edition = "2019-2021"),
     description,
-    steps) {
+    steps, doi = NULL) {
   return(
     recipe(
       name = name,
       user = user,
       svy = svy,
       description = description,
-      steps = unname(lapply(
+      steps = lapply(
         steps,
         function(step) {
-          unname(step$call)
+          (step$call)
         }
-      ))
+      ),
+      doi = doi
     )
   )
 }

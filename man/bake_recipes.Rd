@@ -4,12 +4,10 @@
 \alias{bake_recipes}
 \title{Bake recipes}
 \usage{
-bake_recipes(svy, recipes)
+bake_recipes(svy)
 }
 \arguments{
 \item{svy}{Survey object}
-
-\item{recipes}{List of recipes}
 }
 \value{
 Survey object
