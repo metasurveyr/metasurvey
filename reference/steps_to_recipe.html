@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Convert a list of steps to a recipe</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
       <div class="d-none name"><code>steps_to_recipe.Rd</code></div>
     </div>
 
@@ -47,7 +47,8 @@
 <span>  <span class="va">user</span>,</span>
 <span>  svy <span class="op">=</span> <span class="fu"><a href="survey_empty.html">survey_empty</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"eaii"</span>, edition <span class="op">=</span> <span class="st">"2019-2021"</span><span class="op">)</span>,</span>
 <span>  <span class="va">description</span>,</span>
-<span>  <span class="va">steps</span></span>
+<span>  <span class="va">steps</span>,</span>
+<span>  doi <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,6 +74,10 @@
 
 <dt id="arg-steps">steps<a class="anchor" aria-label="anchor" href="#arg-steps"></a></dt>
 <dd><p>A list with the steps of the recipe</p></dd>
+
+
+<dt id="arg-doi">doi<a class="anchor" aria-label="anchor" href="#arg-doi"></a></dt>
+<dd><p>A character string with the DOI of the recipe</p></dd>
 
 </dl></div>
     <div class="section level2">
