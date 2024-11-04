@@ -101,7 +101,7 @@ Survey <- R6Class(
       self$workflows[[workflow$name]] <- workflow
     },
     bake = function() {
-      bake_recipes(self, self$recipes)
+      bake_recipes(self)
     },
     head = function() {
       head(self$data)
@@ -634,7 +634,6 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
 
 #' Bake recipes
 #' @param svy Survey object
-#' @param recipes List of recipes
 #' @keywords Surveymethods
 #' @export
 #' @return Survey object

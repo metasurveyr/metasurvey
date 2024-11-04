@@ -9,7 +9,8 @@ steps_to_recipe(
   user,
   svy = survey_empty(type = "eaii", edition = "2019-2021"),
   description,
-  steps
+  steps,
+  doi = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ steps_to_recipe(
 \item{description}{A character string with the description of the recipe}
 
 \item{steps}{A list with the steps of the recipe}
+
+\item{doi}{A character string with the DOI of the recipe}
 }
 \value{
 A Recipe object
