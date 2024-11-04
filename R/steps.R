@@ -145,7 +145,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
   
   .call <- match.call()
-  
+
   if (is(svy, "RotativePanelSurvey")) {
     return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .level = .level, .call = .call))
   }
@@ -272,17 +272,17 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
   if (.level == "auto" || .level == "implantation") {
     implantation_processed <- step_compute_survey(svy$implantation, ..., .by = .by, use_copy = use_copy, comment = comment)
   }
-  
-  
-  
+
+
+
   if (length(implantation_processed$steps) > 0) {
     steps <- implantation_processed$steps
   } else {
     steps <- follow_up_processed[[1]]$steps
   }
-  
-  
-  
+
+
+
 
   result <- RotativePanelSurvey$new(
     implantation = implantation_processed,
@@ -294,7 +294,7 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
     workflows = NULL,
     design = NULL
   )
-  
+
   result$steps <- steps
 
   if (use_copy) {
@@ -347,7 +347,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
 #' @param use_copy Use copy
 #' @param comment Comment
 #' @keywords Steps
-#' @noRd 
+#' @noRd
 #' @keywords internal
 
 step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .call = .call) {
