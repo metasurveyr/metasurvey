@@ -143,7 +143,6 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @export
 
 step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
-  
   .call <- match.call()
   if (is(svy, "RotativePanelSurvey")) {
     return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .level = .level, .call = .call))
@@ -255,6 +254,7 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
 #' @keywords Steps
 #' @noRd
 #' @keywords internal
+
 
 step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto", .call) {
   
