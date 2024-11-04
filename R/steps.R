@@ -141,149 +141,146 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @keywords Steps
 #' @export
 
-step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
+step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
+  
   if (is(svy, "RotativePanelSurvey")) {
-    stop(
-      glue::glue_col(
-        "RotativePanelSurvey is not supported in metasurvey {version}",
-        version = utils::packageVersion("metasurvey")
-      )
-    )
+    return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .level = .level))
   }
 
+  if (is(svy, "Survey")) {
+    return(step_compute_survey(svy, ..., .by = .by, use_copy = use_copy, comment = comment))
+  }
 
+  stop("Unsupported survey type")
+}
+
+step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
   .call <- match.call()
-
-  check_svy <- is.null(
-    get_data(svy)
-  )
-
+  check_svy <- is.null(get_data(svy))
   if (check_svy) {
     return(.call)
   }
 
   exprs <- substitute(list(...))
+  depends_on <- unique(c(sapply(2:length(exprs), function(x) {
+    find_dependencies(call_expr = exprs[[x]], survey = get_data(svy))
+  })))
 
-  depends_on <- unique(
-    c(sapply(
-      X = 2:length(exprs),
-      FUN = function(x) {
-        find_dependencies(
-          call_expr = exprs[[x]],
-          survey = get_data(svy)
-        )
+  if (use_copy) {
+    tryCatch(
+      {
+        .svy_before <- svy$clone()
+      },
+      error = function(e) {
+        stop("Error in clone. Please run set_use_copy(TRUE) and instance a new survey object and try again")
       }
-    ))
-  )
+    )
 
-  if (!is.null(svy)) {
-    if (use_copy) {
-      tryCatch(
-        {
-          .svy_before <- svy$clone()
-        },
-        error = function(e) {
-          stop("Error in clone. Please run set_use_copy(TRUE) and instance a new survey object and try again")
-        }
-      )
+    .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
+    .new_vars <- names(exprs)[-1]
 
-      .names_before <- names(copy(get_data(svy)))
-
-      .svy_after <- compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
-
-
-      .names_after <- names(get_data(.svy_after))
-      .new_vars <- names(exprs)[-1]
-
-      if (length(.new_vars) > 0) {
-        .name_step <- paste0(
-          "New variable: ",
-          paste0(
-            .new_vars,
-            collapse = ", "
-          )
-        )
-
-        step <- Step$new(
-          name = .name_step,
-          edition = get_edition(.svy_after),
-          survey_type = get_type(.svy_after),
-          type = "compute",
-          new_var = paste0(
-            .new_vars,
-            collapse = ", "
-          ),
-          exprs = substitute(list(...)),
-          call = .call,
-          svy_before = svy,
-          default_engine = get_engine(),
-          depends_on = depends_on,
-          comment = comment
-        )
-
-
-
-        if (validate_step(svy, step)) {
-          .svy_after$add_step(
-            step
-          )
-        } else {
-          stop("Error in step")
-        }
-        return(.svy_after)
-      } else {
-        message("No news variable created: ", substitute(list(...)))
-        return(svy)
-      }
-    } else {
-      compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
-
-      .new_vars <- substitute(list(...))[-1]
-
-      .new_vars <- names(.new_vars)
-
-      not_in_data <- !.new_vars %in% names(get_data(svy))
-
-      .new_vars <- .new_vars[not_in_data]
-
-      if (length(.new_vars) == 0) {
-        stop(message("No news variable created: ", .new_vars[!not_in_data]))
-      }
-
-      .name_step <- paste0(
-        "New variable: ",
-        paste0(
-          .new_vars,
-          collapse = ", "
-        )
-      )
-
-
+    if (length(.new_vars) > 0) {
       step <- Step$new(
-        name = .name_step,
-        edition = get_edition(svy),
-        survey_type = get_type(svy),
+        name = paste("New variable:", paste(.new_vars, collapse = ", ")),
+        edition = get_edition(.svy_after),
+        survey_type = get_type(.svy_after),
         type = "compute",
-        new_var = paste0(
-          .new_vars,
-          collapse = ", "
-        ),
+        new_var = paste(.new_vars, collapse = ", "),
         exprs = substitute(list(...)),
         call = .call,
-        svy_before = NULL,
+        svy_before = svy,
         default_engine = get_engine(),
-        comment = comment,
         depends_on = depends_on,
+        comment = comment
       )
 
-      svy$add_step(
-        step
-      )
-
-      invisible(svy)
+      if (validate_step(svy, step)) {
+        .svy_after$add_step(step)
+      } else {
+        stop("Error in step")
+      }
+      return(.svy_after)
+    } else {
+      message("No new variable created: ", substitute(list(...)))
+      return(svy)
     }
   } else {
-    return(.call)
+    names_vars <- names(copy(get_data(svy)))
+    compute(svy, ..., .by = .by, use_copy = use_copy, lazy = lazy_default())
+    .new_vars <- names(substitute(list(...)))[-1]
+    not_in_data <- !(.new_vars %in% names_vars)
+    .new_vars <- .new_vars[not_in_data]
+
+    if (length(.new_vars) == 0) {
+      stop("No new variable created")
+    }
+
+    step <- Step$new(
+      name = paste("New variable:", paste(.new_vars, collapse = ", ")),
+      edition = get_edition(svy),
+      survey_type = get_type(svy),
+      type = "compute",
+      new_var = paste(.new_vars, collapse = ", "),
+      exprs = substitute(list(...)),
+      call = .call,
+      svy_before = NULL,
+      default_engine = get_engine(),
+      comment = comment,
+      depends_on = depends_on
+    )
+
+    svy$add_step(step)
+    invisible(svy)
+  }
+}
+
+step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
+  
+  follow_up_processed <- svy$follow_up
+  implantation_processed <- svy$implantation
+
+
+  if (.level == "auto" || .level == "follow_up") {
+    follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
+      step_compute_survey(sub_svy, ..., .by = .by, use_copy = use_copy, comment = comment)
+    })
+  }
+
+  if (.level == "auto" || .level == "implantation") {
+    implantation_processed <- step_compute_survey(svy$implantation, ..., .by = .by, use_copy = use_copy, comment = comment)
+  }
+  
+  
+  
+  if (length(implantation_processed$steps) > 0) {
+    steps <- implantation_processed$steps
+  } else {
+    steps <- follow_up_processed[[1]]$steps
+  }
+  
+  
+  
+
+  result <- RotativePanelSurvey$new(
+    implantation = implantation_processed,
+    follow_up = follow_up_processed,
+    type = svy$type,
+    default_engine = "data.table",
+    steps = NULL,
+    recipes = NULL,
+    workflows = NULL,
+    design = NULL
+  )
+  
+  result$steps <- steps
+
+  if (use_copy) {
+    return(result)
+  } else {
+    svy$implantation <- implantation_processed
+    svy$follow_up <- follow_up_processed
+    svy$steps <- steps
+    return(svy)
   }
 }
 
@@ -301,57 +298,36 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto") {
   if (is(svy, "RotativePanelSurvey")) {
-    stop(
-      glue::glue_col(
-        "RotativePanelSurvey is not supported in {version}",
-        version = utils::packageVersion("metasurvey")
-      )
-    )
+    return(step_recode_rotative(svy, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .level = .level))
   }
 
+  if (is(svy, "Survey")) {
+    return(step_recode_survey(svy, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor))
+  }
+
+  stop("Unsupported survey type")
+}
+
+step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
   .call <- match.call()
-
-  new_var <- as.character(substitute(new_var))
-
-  check_svy <- is.null(
-    get_data(svy)
-  )
-
+  new_var <- as.character(new_var)
+  check_svy <- is.null(get_data(svy))
   if (check_svy) {
     return(.call)
   }
 
   if (is.null(.name_step)) {
-    .name_step <- paste0(
-      "New group: ",
-      new_var
-    )
+    .name_step <- paste0("New group: ", new_var)
   }
 
-  depends_on <- unique(
-    c(sapply(
-      X = seq_along(list(...)),
-      FUN = function(x) {
-        find_dependencies(
-          call_expr = list(...)[[x]],
-          survey = get_data(svy)
-        )
-      }
-    ))
-  )
+  depends_on <- unique(c(sapply(seq_along(list(...)), function(x) {
+    find_dependencies(call_expr = list(...)[[x]], survey = get_data(svy))
+  })))
 
   if (use_copy) {
-    .svy_after <- recode(
-      svy = svy,
-      new_var = new_var,
-      ...,
-      .default = .default,
-      use_copy = use_copy,
-      .to_factor = .to_factor
-    )
-
+    .svy_after <- recode(svy = svy, new_var = new_var, ..., .default = .default, use_copy = use_copy, .to_factor = .to_factor)
     step <- Step$new(
       name = .name_step,
       edition = get_edition(.svy_after),
@@ -365,21 +341,10 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       depends_on = depends_on,
       comment = comment
     )
-
-    .svy_after$add_step(
-      step
-    )
-
+    .svy_after$add_step(step)
     return(.svy_after)
   } else {
-    recode(
-      svy = svy,
-      new_var = new_var,
-      ...,
-      .default = .default,
-      use_copy = use_copy
-    )
-
+    recode(svy = svy, new_var = new_var, ..., .default = .default, use_copy = use_copy)
     step <- Step$new(
       name = .name_step,
       edition = get_edition(svy),
@@ -393,12 +358,42 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
       depends_on = depends_on,
       comment = comment
     )
-
-    svy$add_step(
-      step
-    )
-
+    svy$add_step(step)
     invisible(svy)
+  }
+}
+
+step_recode_rotative <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto") {
+  follow_up_processed <- svy$follow_up
+  implantation_processed <- svy$implantation
+
+  if (.level == "auto" || .level == "follow_up") {
+    follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
+      step_recode_survey(sub_svy, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor)
+    })
+  }
+
+  if (.level == "auto" || .level == "implantation") {
+    implantation_processed <- step_recode_survey(svy$implantation, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor)
+  }
+
+  result <- RotativePanelSurvey$new(
+    implantation = implantation_processed,
+    follow_up = follow_up_processed,
+    type = svy$type,
+    default_engine = "data.table",
+    steps = NULL,
+    recipes = NULL,
+    workflows = NULL,
+    design = NULL
+  )
+
+  if (use_copy) {
+    return(result)
+  } else {
+    svy$implantation <- implantation_processed
+    svy$follow_up <- follow_up_processed
+    return(svy)
   }
 }
 
