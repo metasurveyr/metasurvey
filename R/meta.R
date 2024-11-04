@@ -4,7 +4,7 @@
 #' @keywords internal
 
 metadata_args <- function() {
-  c("svy_type", "svy_edition", ".engine_name", "svy_weight", "recipes", "steps", "svy_psu")
+  c("svy_type", "svy_edition", ".engine_name", "svy_weight", "recipes", "steps", "svy_psu", "bake")
 }
 
 #' @importFrom glue glue glue_col

@@ -10,7 +10,8 @@ load_survey(
   svy_edition = NULL,
   svy_weight = NULL,
   svy_psu = NULL,
-  ...
+  ...,
+  bake = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ load_survey(
 \item{svy_psu}{Primary sampling unit}
 
 \item{...}{Additional arguments}
+
+\item{bake}{Logical}
 }
 \value{
 Survey object
