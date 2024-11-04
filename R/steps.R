@@ -144,12 +144,14 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 
 step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
   
+  .call <- match.call()
+  
   if (is(svy, "RotativePanelSurvey")) {
-    return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .level = .level))
+    return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .level = .level, .call = .call))
   }
 
   if (is(svy, "Survey")) {
-    return(step_compute_survey(svy, ..., .by = .by, use_copy = use_copy, comment = comment))
+    return(step_compute_survey(svy, ..., .by = .by, use_copy = use_copy, comment = comment, .call = .call))
   }
 
   stop("Unsupported survey type")
@@ -165,8 +167,7 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
 #' @noRd
 #' @keywords internal
 
-step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step") {
-  .call <- match.call()
+step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .call) {
   check_svy <- is.null(get_data(svy))
   if (check_svy) {
     return(.call)
@@ -256,7 +257,7 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
 #' @noRd
 #' @keywords internal
 
-step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto") {
+step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), comment = "Compute step", .level = "auto", .call) {
   
   follow_up_processed <- svy$follow_up
   implantation_processed <- svy$implantation
@@ -322,12 +323,15 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #' @export
 
 step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto") {
+  
+  .call <- match.call()
+  
   if (is(svy, "RotativePanelSurvey")) {
-    return(step_recode_rotative(svy, as.character(substitute(new_var)), ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .level = .level))
+    return(step_recode_rotative(svy, as.character(substitute(new_var)), ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .level = .level, .call = .call))
   }
 
   if (is(svy, "Survey")) {
-    return(step_recode_survey(svy, as.character(substitute(new_var)), ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor))
+    return(step_recode_survey(svy, as.character(substitute(new_var)), ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .call = .call))
   }
 
   stop("Unsupported survey type")
@@ -346,8 +350,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
 #' @noRd 
 #' @keywords internal
 
-step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE) {
-  .call <- match.call()
+step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .call = .call) {
   new_var <- as.character(new_var)
   check_svy <- is.null(get_data(svy))
   if (check_svy) {
@@ -414,18 +417,18 @@ step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .nam
 #' @noRd
 #' @keywords internal
 
-step_recode_rotative <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto") {
+step_recode_rotative <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), comment = "Recode step", .to_factor = FALSE, .level = "auto", .call) {
   follow_up_processed <- svy$follow_up
   implantation_processed <- svy$implantation
 
   if (.level == "auto" || .level == "follow_up") {
     follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
-      step_recode_survey(sub_svy, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor)
+      step_recode_survey(sub_svy, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .call = .call)
     })
   }
 
   if (.level == "auto" || .level == "implantation") {
-    implantation_processed <- step_recode_survey(svy$implantation, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor)
+    implantation_processed <- step_recode_survey(svy$implantation, new_var, ..., .default = .default, .name_step = .name_step, ordered = ordered, use_copy = use_copy, comment = comment, .to_factor = .to_factor, .call = .call)
   }
 
   result <- RotativePanelSurvey$new(
