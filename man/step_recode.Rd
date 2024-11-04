@@ -13,7 +13,8 @@ step_recode(
   ordered = FALSE,
   use_copy = use_copy_default(),
   comment = "Recode step",
-  .to_factor = FALSE
+  .to_factor = FALSE,
+  .level = "auto"
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ step_recode(
 \item{comment}{Comment}
 
 \item{.to_factor}{To factor}
+
+\item{.level}{Level}
 }
 \value{
 Survey object

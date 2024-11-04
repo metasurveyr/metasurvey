@@ -9,7 +9,8 @@ step_compute(
   ...,
   .by = NULL,
   use_copy = use_copy_default(),
-  comment = "Compute step"
+  comment = "Compute step",
+  .level = "auto"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ step_compute(
 \item{use_copy}{Use copy}
 
 \item{comment}{Comment}
+
+\item{.level}{Level}
 }
 \value{
 Survey object
