@@ -39,8 +39,8 @@ Load survey
 set_engine("data.table")
 svy_example <- load_survey(
   load_survey_example(
-     svy_type = "eaii",
-     svy_edition = "2019-2021"
+    svy_type = "eaii",
+    svy_edition = "2019-2021"
   ),
   svy_type = "eaii",
   svy_edition = "eaii_2019-2021",

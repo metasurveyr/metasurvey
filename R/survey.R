@@ -107,6 +107,7 @@ Survey <- R6Class(
     add_step = function(step) {
       name_index <- length(self$steps) + 1
       name_index <- paste0("step_", name_index, " ", step$name)
+      step$name <- name_index
       self$steps[[name_index]] <- step
       self$update_design()
     },
@@ -359,7 +360,6 @@ get_metadata <- function(self) {
             {blue Edition:} {edition}
             {blue Periodicity:} Implantation: {implantationPeriodicity}, Follow-up: {follow_upPeriodicity}
             {blue Engine:} {default_engine}
-            {blue Design:} {design}
             {blue Steps:} {steps}
             {blue Recipes:} {names_recipes}
             ",
@@ -370,13 +370,20 @@ get_metadata <- function(self) {
           format(self$implantation$edition, "%Y-%m")
         ),
         default_engine = self$default_engine,
-        design = cat_design(self),
-        steps = ifelse(
-          length(self$steps) == 0,
-          "None",
+        steps = sub(
+          "\n$",
+           "", 
           paste0(
-            "\n  - ",
-            paste0(names(self$steps), collapse = "\n  - ")
+            if (length(self$get_steps()$implantation) > 0) {
+              paste0("implantation: (", paste(names(self$get_steps()$implantation), collapse = ", "), ")\n")
+            } else {
+              ""
+            },
+            if (length(self$get_steps()$follow_up) > 0 && !is.null(row.names(self$get_steps()$follow_up))) {
+              paste0("follow_up: (", paste(row.names(self$get_steps()$follow_up), collapse = ", "), ")\n")
+            } else {
+              ""
+            }
           )
         ),
         implantationPeriodicity = self$periodicity$implantation,
