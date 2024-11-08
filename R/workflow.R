@@ -117,6 +117,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
                   name_function <- deparse(call[[1]])
                   call[["design"]] <- substitute(design)
                   call <- as.call(call)
+                  
 
 
                   # Evaluamos la función en el entorno
