@@ -403,7 +403,7 @@ get_metadata <- function(self) {
         default_engine = self$default_engine,
         steps = sub(
           "\n$",
-          "",
+           "", 
           paste0(
             if (length(self$get_steps()$implantation) > 0) {
               paste0("implantation: (", paste(names(self$get_steps()$implantation), collapse = ", "), ")\n")
