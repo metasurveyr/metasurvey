@@ -18,6 +18,7 @@ Survey <- R6Class(
         svy_type = type,
         svy_edition = edition
       )
+      
 
 
 
@@ -40,26 +41,27 @@ Survey <- R6Class(
               calibrate.formula = ~1
             )
           } else {
-            aux_vars <- c(x$weight, x$replicate_id)
-            data_aux <- data[, aux_vars, with = FALSE]
-            data_aux <- merge(
-              x$replicate_file[, 1:11],
+    
+            
+            aux_vars = c(x$weight, x$replicate_id)
+            data_aux = data[,aux_vars,with = FALSE]
+            data_aux = merge(
+              x$replicate_file[,1:11],
               data_aux,
               by.x = names(x$replicate_id),
               by.y = x$replicate_id
             )
-
-            design <- survey::svrepdesign(
+            
+            design = survey::svrepdesign(
               id = psu,
               weights = as.formula(paste("~", x$weight)),
               data = data_aux,
               repweights = x$replicate_pattern,
               type = x$replicate_type
             )
-
-
-
-            data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
+            
+            
+            data = merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
             design$variables <- data
             design$repweights <- x$replicate_file
             return(design)
@@ -113,10 +115,10 @@ Survey <- R6Class(
       self$update_design()
     },
     add_recipe = function(recipe, bake = lazy_default()) {
+      
       if ((self$edition != recipe$edition)) {
         stop("Invalid Recipe: \n", recipe$name, "\nEdition of survey: ", self$edition, "\nEdition of recipe: ", recipe$edition)
       }
-
       index_recipe <- length(self$recipes) + 1
       self$recipes[[index_recipe]] <- recipe
     },
@@ -621,6 +623,7 @@ cat_design_type <- function(self, design_name) {
 #'
 
 cat_recipes <- function(self) {
+
   if (is.null(self$recipes) || length(self$recipes) == 0) {
     return("None")
   }
@@ -722,7 +725,7 @@ bake_recipes <- function(svy) {
     X = seq_along(recipes),
     FUN = function(x) {
       recipes[[x]]$clone()
-    }
+     }
   )
 
   for (i in seq_along(recipes)) {
