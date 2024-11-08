@@ -85,37 +85,37 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
     warning("At least one interval argument must be different from NULL. Returning the implantation survey.")
     annual <- 1
   }
-  
+
   if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
     stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
   }
-  
+
   follow_up <- RotativePanelSurvey$follow_up
-  
+
   if (!is.null(index)) {
     if (length(index) > 1) {
       return(follow_up[index])
     }
     return(follow_up[[index]])
   }
-  
+
   dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))
-  
+
   ts_series <- stats::ts(1:length(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
-  
+
   apply_interval <- function(ts_series, start_year, start_month, end_year, end_month) {
     as.vector(stats::window(ts_series, start = c(start_year, start_month), end = c(end_year, end_month)))
   }
-  
+
   apply_func <- if (use.parallel) {
     requireNamespace("parallel")
     parallel::mclapply
   } else {
     base::lapply
   }
-  
+
   results <- list()
-  
+
   # Crear solo los intervalos especificados y no dejar listas vacías
   month_names <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
   if (!is.null(monthly)) {
@@ -125,7 +125,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
       results$monthly[[month_names[month]]] <- follow_up[indices]
     }
   }
-  
+
   if (!is.null(annual)) {
     results$annual <- list()
     for (year in annual) {
@@ -133,7 +133,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
       results$annual[[as.character(year)]] <- follow_up[indices]
     }
   }
-  
+
   quarter_names <- c("Q1", "Q2", "Q3", "Q4")
   if (!is.null(quarterly)) {
     results$quarterly <- list()
@@ -144,7 +144,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
       results$quarterly[[quarter_names[quarter]]] <- follow_up[indices]
     }
   }
-  
+
   biannual_names <- c("H1", "H2")
   if (!is.null(biannual)) {
     results$biannual <- list()
@@ -155,7 +155,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
       results$biannual[[biannual_names[semester]]] <- follow_up[indices]
     }
   }
-  
+
   return(PoolSurvey$new(results))
 }
 
