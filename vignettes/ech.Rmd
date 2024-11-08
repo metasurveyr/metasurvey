@@ -21,9 +21,8 @@ knitr::opts_chunk$set(
 ```{r}
 library(metasurvey)
 recetas_mercado_trabajo <- get_recipe(
-    "ech",
-    "2022",
-    topic = "ingreso"
+  "ech",
+  "2022",
+  topic = "ingreso"
 )
-
 ```
