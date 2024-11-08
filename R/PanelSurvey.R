@@ -119,13 +119,9 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
 
   if (!is.null(annual)) {
     results$annual <- list()
-    if (RotativePanelSurvey$implantation$periodicity != "Annual") {
-      for (year in annual) {
-        indices <- apply_interval(ts_series, year, 1, year, 12)
-        results$annual[[as.character(year)]] <- follow_up[indices]
-      }
-    } else {
-      results$annual[["implantation"]] <- list(RotativePanelSurvey$implantation)
+    for (year in annual) {
+      indices <- apply_interval(ts_series, year, 1, year, 12)
+      results$annual[[as.character(year)]] <- follow_up[indices]
     }
   }
 

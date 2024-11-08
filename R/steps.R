@@ -221,10 +221,6 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
     not_in_data <- !(.new_vars %in% names_vars)
     .new_vars <- .new_vars[not_in_data]
 
-    if (length(.new_vars) == 0) {
-      stop("No new variable created")
-    }
-
     step <- Step$new(
       name = paste("New variable:", paste(.new_vars, collapse = ", ")),
       edition = get_edition(svy),
