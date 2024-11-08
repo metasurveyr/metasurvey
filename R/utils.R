@@ -68,10 +68,6 @@ validate_replicate <- function(svy, replicate) {
     }
   }
 
-
-
-
-
   replicate_file <- read_file(replicate$replicate_path)
 
   if (!is.null(replicate$replicate_pattern)) {

@@ -117,7 +117,7 @@ bake_step <- function(svy, step) {
     env[["svy"]] <- svy
 
     if (use_copy_default()) {
-      env[["copy"]] <- TRUE
+      env[["use_copy"]] <- TRUE
     }
 
     .svy_after <- do.call(
