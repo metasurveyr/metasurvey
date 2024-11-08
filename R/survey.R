@@ -11,13 +11,14 @@ Survey <- R6Class(
     recipes = list(),
     workflows = list(),
     design = NULL,
-    initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = NULL) {
+    initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = list()) {
       self$data <- data
 
       time_pattern <- validate_time_pattern(
         svy_type = type,
         svy_edition = edition
       )
+
 
       weight_list <- validate_weight_time_pattern(data, weight)
 
@@ -38,13 +39,28 @@ Survey <- R6Class(
               calibrate.formula = ~1
             )
           } else {
-            survey::svrepdesign(
+            aux_vars <- c(x$weight, x$replicate_id)
+            data_aux <- data[, aux_vars, with = FALSE]
+            data_aux <- merge(
+              x$replicate_file[, 1:11],
+              data_aux,
+              by.x = names(x$replicate_id),
+              by.y = x$replicate_id
+            )
+
+            design <- survey::svrepdesign(
               id = psu,
               weights = as.formula(paste("~", x$weight)),
-              data = merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
+              data = data_aux,
               repweights = x$replicate_pattern,
               type = x$replicate_type
             )
+
+
+            data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
+            design$variables <- data
+            design$repweights <- x$replicate_file
+            return(design)
           }
         }
       )
@@ -56,7 +72,7 @@ Survey <- R6Class(
       self$default_engine <- engine
       self$weight <- weight_list
       self$design <- design_list
-      self$recipes <- list(recipes)
+      self$recipes <- if (is.null(recipes)) list() else list(recipes)
       self$workflows <- list()
       self$periodicity <- time_pattern$svy_periodicity
     },
@@ -94,6 +110,12 @@ Survey <- R6Class(
       self$update_design()
     },
     add_recipe = function(recipe, bake = lazy_default()) {
+      if ((self$edition != recipe$edition)) {
+        stop("Invalid Recipe: \n", recipe$name, "\nEdition of survey: ", self$edition, "\nEdition of recipe: ", recipe$edition)
+      }
+
+
+
       index_recipe <- length(self$recipes) + 1
       self$recipes[[index_recipe]] <- recipe
     },
@@ -147,7 +169,6 @@ Survey <- R6Class(
               )
             } else {
               survey::svrepdesign(
-                id = ~1,
                 weights = as.formula(paste("~", x$weight)),
                 data = merge(self$data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
                 repweights = x$replicate_pattern,
@@ -563,7 +584,7 @@ cat_design_type <- function(self, design_name) {
 #'
 
 cat_recipes <- function(self) {
-  if (is.null(self$recipes)) {
+  if (is.null(self$recipes) || length(self$recipes) == 0) {
     return("None")
   }
 
