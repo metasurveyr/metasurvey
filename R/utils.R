@@ -67,6 +67,8 @@ validate_replicate <- function(svy, replicate) {
       ))
     }
   }
+  
+  
 
 
 
@@ -320,7 +322,7 @@ extract_time_pattern <- function(svy_edition) {
 
   # Extraer el tipo si hay texto al inicio
   if (grepl("$[^0-9]*", svy_edition)) {
-    type <- sub("_.*", "", svy_edition, perl = TRUE)
+    type <- sub("_.*", "", svy_edition,perl = TRUE)
     svy_edition <- gsub("[^0-9]*", "", svy_edition, perl = TRUE)
   }
 
@@ -385,7 +387,8 @@ extract_time_pattern <- function(svy_edition) {
     periodicity <- "Annual"
 
     # Caso: Mensual con formato YY_MM o MM_YY (e.g., "23_05" que se interpreta como "2023-05")
-  } else if ((grepl("^(\\d{2})[_-](\\d{2})$", svy_edition) || grepl("^(\\d{2})(\\d{2})$", svy_edition))) {
+
+  } else if ((grepl("^(\\d{2})[_-](\\d{2})$", svy_edition) || grepl("^(\\d{2})(\\d{2})$", svy_edition)))  {
     part1 <- as.numeric(sub("^(\\d{2})[_-](\\d{2})$", "\\1", svy_edition))
     part2 <- as.numeric(sub("^(\\d{2})[_-](\\d{2})$", "\\2", svy_edition))
 
