@@ -2,5 +2,5 @@ pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
-  eai: eai.html
-last_built: 2024-11-04T23:49Z
+  ech: ech.html
+last_built: 2024-11-08T01:10Z
