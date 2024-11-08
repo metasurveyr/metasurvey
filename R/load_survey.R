@@ -9,22 +9,6 @@
 #' @return Survey object
 #' @keywords preprocessing
 #' @export
-<<<<<<< HEAD
-=======
-#' @examples
-#' set_engine("data.table")
-#' svy_example <- load_survey(
-#'   load_survey_example(
-#'     svy_type = "eaii",
-#'     svy_edition = "2019-2021"
-#'   ),
-#'   svy_type = "eaii",
-#'   svy_edition = "eaii_2019-2021",
-#'   svy_weight = add_weight(annual = "w_trans"),
-#'   dec = ","
-#' )
-#' svy_example
->>>>>>> fe9f73b (Enhance load_survey function to support dynamic file handling and improve error checking for follow-up surveys)
 load_survey <- function(
     path = NULL,
     svy_type = NULL,
@@ -115,17 +99,6 @@ load_panel_survey <- function(
   }
 
   path_survey <- list.files(path_follow_up, full.names = TRUE, pattern = ".csv")
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-  
-  
->>>>>>> fe9f73b (Enhance load_survey function to support dynamic file handling and improve error checking for follow-up surveys)
-=======
-
-
->>>>>>> 2a848fb ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 
   names(path_survey) <- names_survey
 
@@ -219,16 +192,10 @@ load_panel_survey <- function(
       X = 1:length(path_survey),
       FUN = function(x) {
 
-<<<<<<< HEAD
-        y = path_survey[[x]]
-        z = names(path_survey)[x]
-        svy_weight = unname(svy_weight_follow_up[z])[[1]]
-
-=======
         y <- path_survey[[x]]
         z <- names(path_survey)[x]
         svy_weight <- unname(svy_weight_follow_up[z])[[1]]
->>>>>>> 2a848fb ([pre-commit.ci] auto fixes from pre-commit.com hooks)
+
         load_survey(
           y,
           svy_type = svy_type,
