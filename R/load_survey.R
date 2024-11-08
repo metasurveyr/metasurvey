@@ -13,8 +13,8 @@
 #' set_engine("data.table")
 #' svy_example <- load_survey(
 #'   load_survey_example(
-#'      svy_type = "eaii",
-#'      svy_edition = "2019-2021"
+#'     svy_type = "eaii",
+#'     svy_edition = "2019-2021"
 #'   ),
 #'   svy_type = "eaii",
 #'   svy_edition = "eaii_2019-2021",
@@ -85,7 +85,7 @@ load_survey <- function(
 #' @param svy_weight_follow_up Weight of the follow-up survey
 #' @keywords preprocessing
 #' @return RotativePanelSurvey object
-#' @export 
+#' @export
 
 load_panel_survey <- function(
     path_implantation,
@@ -98,46 +98,45 @@ load_panel_survey <- function(
     "",
     list.files(path_follow_up, full.names = FALSE, pattern = ".csv")
   )
-  
+
   if (length(names(svy_weight_follow_up)) > 1) {
     stop(
       "The follow-up survey must have a single weight time pattern"
     )
   }
-  
+
   time_pattern_follow_up <- names(svy_weight_follow_up)
-  
+
   if (is(svy_weight_follow_up[[1]], "list")) {
-    svy_weight_follow_up <- svy_weight_follow_up[[1]] 
+    svy_weight_follow_up <- svy_weight_follow_up[[1]]
   }
 
   path_survey <- list.files(path_follow_up, full.names = TRUE, pattern = ".csv")
-  
-  
+
+
 
   names(path_survey) <- names_survey
-  
+
 
 
   implantation <- load_survey(
     path_implantation,
     svy_type = svy_type,
-    svy_edition = basename(path_implantation) ,
+    svy_edition = basename(path_implantation),
     svy_weight = svy_weight_implantation
   )
-  
+
   if (!is.null(svy_weight_follow_up$replicate_path)) {
     path_file <- svy_weight_follow_up$replicate_path
     path_file_final <- c()
-    
+
     for (i in path_file) {
-      if(file.info(i)$isdir) {
-        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE,pattern = ".rds"))
+      if (file.info(i)$isdir) {
+        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".rds"))
       } else {
         path_file_final <- c(path_file_final, i)
       }
     }
-
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -157,15 +156,14 @@ load_panel_survey <- function(
       },
       USE.NAMES = FALSE
     )
-    
+
     names(path_file_final) <- names_year_month
-    
-    
+
+
     svy_weight_follow_up <- lapply(
       X = as.character(names_year_month),
       FUN = function(x) {
-        
-        replicate = list(
+        replicate <- list(
           add_replicate(
             "W",
             replicate_path = unname(path_file_final[x]),
@@ -174,16 +172,15 @@ load_panel_survey <- function(
             replicate_type = "bootstrap"
           )
         )
-        
+
         names(replicate) <- time_pattern_follow_up
-        
+
         return(replicate)
-        
       }
     )
-    
+
     names(svy_weight_follow_up) <- names_year_month
-    
+
     names_path_survey_year_month <- sapply(
       X = names(path_survey),
       FUN = function(x) {
@@ -203,16 +200,15 @@ load_panel_survey <- function(
       USE.NAMES = FALSE
     )
 
-    
     names(path_survey) <- names_path_survey_year_month
-    
+
     follow_up <- lapply(
       X = 1:length(path_survey),
       FUN = function(x) {
-        y = path_survey[[x]]
-        z = names(path_survey)[x]
-        svy_weight = unname(svy_weight_follow_up[z])[[1]]
-        
+
+        y <- path_survey[[x]]
+        z <- names(path_survey)[x]
+        svy_weight <- unname(svy_weight_follow_up[z])[[1]]
         load_survey(
           y,
           svy_type = svy_type,
@@ -221,6 +217,7 @@ load_panel_survey <- function(
         )
       }
     )
+
     names(follow_up) <- names_survey
   } else {
     follow_up <- lapply(
@@ -234,6 +231,7 @@ load_panel_survey <- function(
         )
       }
     )
+
     names(follow_up) <- names_survey
   }
 
@@ -264,13 +262,12 @@ read_file <- function(file, .args = NULL) {
   .file_name <- gsub("\\..*", "", .file_name)
   .path_without_extension <- gsub("\\..*", "", file)
   .output_file <- paste0(.path_without_extension, ".csv")
-  
-  
-  
+
+
+
   if (.extension != ".csv" && !file.exists(.output_file)) {
-    
     requireNamespace("rio", quietly = TRUE)
-    
+
     rio::convert(
       in_file = file,
       out_file = .output_file
@@ -304,9 +301,7 @@ read_file <- function(file, .args = NULL) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
-
-  df = do.call(.read_function$read_function, args = .args[.names_args])
-
+  df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
 }
 
@@ -376,6 +371,7 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
+
 
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))
