@@ -107,10 +107,22 @@ bake_step <- function(svy, step) {
       }
     }
 
-    names(env) <- names(exprs_combined)[-1]
+    if (step$type == "compute") {
+      names(env) <- names(exprs_combined)[-1]
+    }
 
-    for (i in seq_along(args_function_step)) {
-      env[[args_function_step[i]]] <- step[[args_function_step[i]]]
+    if (step$type == "recode") {
+      env[["new_var"]] <- step$new_var
+    }
+
+    names_arg <- names(step$call)
+
+    names_arg <- names_arg[names_arg %in% args_function_step]
+    
+    names_not_env <- names_arg[!names_arg %in% names(env)]
+
+    for (i in seq_along(names_not_env)) {
+      env[[names_not_env[i]]] <- step$call[[names_not_env[i]]]
     }
 
     env[["lazy"]] <- FALSE
@@ -120,12 +132,12 @@ bake_step <- function(svy, step) {
       env[["use_copy"]] <- TRUE
     }
 
+    
+
     .svy_after <- do.call(
       what = step$type,
       args = env
     )
-
-    .svy_after$steps[[step$name]]$bake <- TRUE
 
     return(.svy_after)
   }
@@ -137,13 +149,77 @@ bake_step <- function(svy, step) {
 #' @keywords Steps
 #' @keywords Bake
 #' @param svy A Survey object
+#' 
 
 bake_steps <- function(svy) {
-  if (use_copy_default()) {
-    svy <- svy$clone()
+  if (is(svy,"Survey")) {
+    return(bake_steps_survey(svy))
   }
 
-  for (i in seq_along(svy$steps)) {
-    svy <- bake_step(svy, svy$steps[[i]])
+  if(is(svy,"RotativePanelSurvey")) {
+    return(bake_steps_rotative(svy))
   }
+
+  stop("The object is not a Survey or RotativePanelSurvey object")
+
+}
+
+#' Bake steps survey rotative
+#' @param svy A Survey object
+#' @return A Survey object
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Bake
+#' @keywords Survey
+#' @noRd
+#' @keywords internal
+
+
+bake_steps_rotative <- function(svy) {
+  if (use_copy_default()) {
+    svy_copy <- svy$clone(deep = TRUE)
+    svy_copy$implantation <- bake_steps_survey(svy_copy$implantation)
+    for (i in seq_along(svy$follow_up)) {
+      svy_copy$follow_up[[i]] <- bake_steps_survey(svy_copy$follow_up[[i]])
+    }
+    return(svy_copy)
+  } else {
+    svy$implantation <- bake_steps_survey(svy$implantation)
+    for (i in seq_along(svy$follow_up)) {
+      svy$follow_up[[i]] <- bake_steps_survey(svy$follow_up[[i]])
+    }
+    return(svy)
+  }
+}
+
+#' Bake steps survey
+#' @param svy A Survey object
+#' @return A Survey object
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Bake
+#' @keywords Survey
+#' @noRd
+#' @keywords internal
+
+bake_steps_survey <- function(svy) {
+  
+  if (use_copy_default()) {
+    svy_copy <- svy$clone(deep = TRUE)
+    for (i in seq_along(svy$steps)) {
+      svy_copy <- bake_step(svy_copy, svy$steps[[i]])
+      svy_copy$steps[[i]] <- svy_copy$steps[[i]]$clone(deep = TRUE)
+      svy_copy$steps[[i]]$bake <- TRUE
+    }
+    svy_copy$update_design()
+    return(svy_copy)
+  } else {
+    for (i in seq_along(svy$steps)) {
+      bake_step(svy, svy$steps[[i]])
+       svy$steps[[i]]$bake <- TRUE
+    }
+    svy$update_design()
+    return(svy)
+  }
+  
 }
