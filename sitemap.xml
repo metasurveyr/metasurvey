@@ -15,11 +15,14 @@
 <url><loc>/reference/cat_estimation.default.html</loc></url>
 <url><loc>/reference/cat_recipes.html</loc></url>
 <url><loc>/reference/default_engine.html</loc></url>
+<url><loc>/reference/evaluate_cv.html</loc></url>
 <url><loc>/reference/extract_surveys.html</loc></url>
 <url><loc>/reference/extract_time_pattern.html</loc></url>
 <url><loc>/reference/get_api_key.html</loc></url>
 <url><loc>/reference/get_data.html</loc></url>
 <url><loc>/reference/get_engine.html</loc></url>
+<url><loc>/reference/get_follow_up.html</loc></url>
+<url><loc>/reference/get_implantation.html</loc></url>
 <url><loc>/reference/get_metadata.html</loc></url>
 <url><loc>/reference/get_recipe.html</loc></url>
 <url><loc>/reference/get_steps.html</loc></url>
@@ -30,8 +33,10 @@
 <url><loc>/reference/load_survey.html</loc></url>
 <url><loc>/reference/load_survey_example.html</loc></url>
 <url><loc>/reference/metasurvey-package.html</loc></url>
+<url><loc>/reference/publish_recipe.html</loc></url>
 <url><loc>/reference/read_recipe.html</loc></url>
 <url><loc>/reference/recipe.html</loc></url>
+<url><loc>/reference/recipe_to_json.html</loc></url>
 <url><loc>/reference/save_recipe.html</loc></url>
 <url><loc>/reference/set_api_key.html</loc></url>
 <url><loc>/reference/set_engine.html</loc></url>
