@@ -118,7 +118,7 @@ bake_step <- function(svy, step) {
     names_arg <- names(step$call)
 
     names_arg <- names_arg[names_arg %in% args_function_step]
-    
+
     names_not_env <- names_arg[!names_arg %in% names(env)]
 
     for (i in seq_along(names_not_env)) {
@@ -132,7 +132,7 @@ bake_step <- function(svy, step) {
       env[["use_copy"]] <- TRUE
     }
 
-    
+
 
     .svy_after <- do.call(
       what = step$type,
@@ -149,19 +149,18 @@ bake_step <- function(svy, step) {
 #' @keywords Steps
 #' @keywords Bake
 #' @param svy A Survey object
-#' 
+#'
 
 bake_steps <- function(svy) {
-  if (is(svy,"Survey")) {
+  if (is(svy, "Survey")) {
     return(bake_steps_survey(svy))
   }
 
-  if(is(svy,"RotativePanelSurvey")) {
+  if (is(svy, "RotativePanelSurvey")) {
     return(bake_steps_rotative(svy))
   }
 
   stop("The object is not a Survey or RotativePanelSurvey object")
-
 }
 
 #' Bake steps survey rotative
@@ -203,7 +202,6 @@ bake_steps_rotative <- function(svy) {
 #' @keywords internal
 
 bake_steps_survey <- function(svy) {
-  
   if (use_copy_default()) {
     svy_copy <- svy$clone(deep = TRUE)
     for (i in seq_along(svy$steps)) {
@@ -216,10 +214,9 @@ bake_steps_survey <- function(svy) {
   } else {
     for (i in seq_along(svy$steps)) {
       bake_step(svy, svy$steps[[i]])
-       svy$steps[[i]]$bake <- TRUE
+      svy$steps[[i]]$bake <- TRUE
     }
     svy$update_design()
     return(svy)
   }
-  
 }
