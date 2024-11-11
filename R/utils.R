@@ -70,8 +70,6 @@ validate_replicate <- function(svy, replicate) {
 
 
   replicate_file <- read_file(replicate$replicate_path)
-  assign("replicate_file", replicate_file, envir = .GlobalEnv)
-  assign("replicate", replicate, envir = .GlobalEnv)
 
 
   if (!is.null(replicate$replicate_pattern)) {
@@ -565,4 +563,26 @@ add_replicate <- function(
   replicate_list_clean <- replicate_list[!sapply(replicate_list, is.null)]
 
   return(replicate_list_clean)
+}
+
+#' Evaluate estimation with Coeficient of Variation
+#' @param cv Coeficient of Variation
+#' @return character
+#' @keywords utils
+#' @export
+
+evaluate_cv <- function(cv) {
+  if (cv < 5) {
+    return("Excelente")
+  } else if (cv >= 5 && cv < 10) {
+    return("Muy bueno")
+  } else if (cv >= 10 && cv < 15) {
+    return("Bueno")
+  } else if (cv >= 15 && cv < 25) {
+    return("Aceptable")
+  } else if (cv >= 25 && cv < 35) {
+    return("Utilizar con precaucion")
+  } else {
+    return("No publicar")
+  }
 }
