@@ -9,19 +9,6 @@
 #' @return Survey object
 #' @keywords preprocessing
 #' @export
-#' @examples
-#' set_engine("data.table")
-#' svy_example <- load_survey(
-#'   load_survey_example(
-#'     svy_type = "eaii",
-#'     svy_edition = "2019-2021"
-#'   ),
-#'   svy_type = "eaii",
-#'   svy_edition = "eaii_2019-2021",
-#'   svy_weight = add_weight(annual = "w_trans"),
-#'   dec = ","
-#' )
-#' svy_example
 load_survey <- function(
     path = NULL,
     svy_type = NULL,
@@ -131,7 +118,7 @@ load_panel_survey <- function(
 
     for (i in path_file) {
       if (file.info(i)$isdir) {
-        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".rds"))
+        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".csv"))
       } else {
         path_file_final <- c(path_file_final, i)
       }
@@ -208,7 +195,6 @@ load_panel_survey <- function(
         z <- names(path_survey)[x]
         svy_weight <- unname(svy_weight_follow_up[z])[[1]]
 
-
         load_survey(
           y,
           svy_type = svy_type,
@@ -259,8 +245,8 @@ load_panel_survey <- function(
 read_file <- function(file, .args = NULL) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
-  .file_name <- gsub("\\..*", "", .file_name)
-  .path_without_extension <- gsub("\\..*", "", file)
+
+  .path_without_extension <- gsub("\\..*", "", .file_name)
   .output_file <- paste0(.path_without_extension, ".csv")
 
 
@@ -326,6 +312,7 @@ load_survey.data.table <- function(...) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
+
   svy <- read_file(.args$file, .args[.names_args])
 
   if (!is.null(.args$recipes)) {
@@ -371,8 +358,6 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
-
-
 
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))

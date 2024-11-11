@@ -44,7 +44,13 @@ RotativePanelSurvey <- R6Class(
       return(self$default_engine)
     },
     get_steps = function() {
-      return(self$steps)
+      steps_implantation <- self$implantation$steps
+      steps_follow_up <- sapply(self$follow_up, function(f) f$steps)
+
+      return(list(
+        implantation = steps_implantation,
+        follow_up = steps_follow_up
+      ))
     },
     get_recipes = function() {
       return(self$recipes)
@@ -87,7 +93,10 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
   follow_up <- RotativePanelSurvey$follow_up
 
   if (!is.null(index)) {
-    return(PoolSurvey$new(list(follow_up = follow_up[index])))
+    if (length(index) > 1) {
+      return(follow_up[index])
+    }
+    return(follow_up[[index]])
   }
 
   dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))
@@ -169,3 +178,35 @@ PoolSurvey <- R6Class(
     }
   )
 )
+
+#' get_implantation
+#' @param RotativePanelSurvey A RotativePanelSurvey object
+#' @return A list
+#' @keywords Surveymethods
+#' @keywords RotativePanelSurvey
+#' @export
+
+get_implantation <- function(RotativePanelSurvey) {
+  if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
+    stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
+  }
+
+  return(RotativePanelSurvey$implantation)
+}
+
+#' get_follow_up
+#' @param RotativePanelSurvey A RotativePanelSurvey object
+#' @param index An integer
+#' @return A list
+#' @keywords Surveymethods
+#' @keywords RotativePanelSurvey
+#' @export
+#'
+
+get_follow_up <- function(RotativePanelSurvey, index = 1:length(RotativePanelSurvey$follow_up)) {
+  if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
+    stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
+  }
+
+  return(RotativePanelSurvey$follow_up[index])
+}
