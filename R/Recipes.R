@@ -176,6 +176,7 @@ save_recipe <- function(recipe, file) {
 #' @keywords Recipes
 
 recipe_to_json <- function(recipe) {
+
   recipe <- list(
     name = recipe$name,
     user = recipe$user,
@@ -185,9 +186,8 @@ recipe_to_json <- function(recipe) {
     steps = recipe$steps
   )
 
-  recipe |>
-    encoding_recipe() |>
-    jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo")
+  recipe |> encoding_recipe() |> jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo")
+
 }
 
 
@@ -567,3 +567,5 @@ publish_recipe <- function(recipe) {
     )
   }
 }
+
+
