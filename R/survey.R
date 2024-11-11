@@ -139,9 +139,8 @@ Survey <- R6Class(
     update_design = function() {
       weight_list <- self$weight
 
-      
       data_now <- self$get_data()
-      
+
       for (i in seq_along(weight_list)) {
         if (is.character(weight_list[[i]])) {
           self$design[[i]]$variables <- self$data
@@ -248,14 +247,9 @@ get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
 }
 
 get_info_weight <- function(svy) {
-<<<<<<< HEAD
+
   info_weight <- c("")
 
-=======
-  
-  info_weight <- c("")
-  
->>>>>>> e732250 (New function evaluate_cv)
   for (i in seq_along(svy$weight)) {
     if (is.character(svy$weight[[i]]) == 1) {
       info_weight[i] <- glue::glue(
@@ -266,13 +260,8 @@ get_info_weight <- function(svy) {
         "
 
          {names(svy$weight)[[i]]}: {svy$weight[[i]]$weight} (Replicate design)
-<<<<<<< HEAD
          Type: {svy$weight[[i]]$replicate_type}
-         Pattern: {svy$weight[[i]]$replicate_pattern}
-=======
-         Type: {svy$weight[[i]]$replicate_type} 
          Pattern: {svy$weight[[i]]$replicate_pattern} 
->>>>>>> e732250 (New function evaluate_cv)
          Replicate file: {basename(svy$weight[[i]]$replicate_path)} with {ncol(svy$weight[[i]]$replicate_file) - 1} replicates"
       )
     }
@@ -417,7 +406,7 @@ get_metadata <- function(self) {
         default_engine = self$default_engine,
         steps = sub(
           "\n$",
-           "", 
+          "",
           paste0(
             if (length(self$get_steps()$implantation) > 0) {
               paste0("implantation: (", paste(names(self$get_steps()$implantation), collapse = ", "), ")\n")
