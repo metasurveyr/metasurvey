@@ -94,7 +94,10 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
   follow_up <- RotativePanelSurvey$follow_up
 
   if (!is.null(index)) {
-    return(PoolSurvey$new(list(follow_up = follow_up[index])))
+    if (length(index) > 1) {
+      return(follow_up[index])
+    }
+    return(follow_up[[index]])
   }
 
   dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))

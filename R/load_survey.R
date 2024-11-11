@@ -132,11 +132,13 @@ load_panel_survey <- function(
 
     for (i in path_file) {
       if (file.info(i)$isdir) {
-        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".rds"))
+        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".csv"))
       } else {
         path_file_final <- c(path_file_final, i)
       }
     }
+
+    assign("path_file_final", path_file_final, envir = .GlobalEnv)
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -259,8 +261,7 @@ load_panel_survey <- function(
 read_file <- function(file, .args = NULL) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
-  .file_name <- gsub("\\..*", "", .file_name)
-  .path_without_extension <- gsub("\\..*", "", file)
+  .path_without_extension <- gsub("\\..*", "", .file_name)
   .output_file <- paste0(.path_without_extension, ".csv")
 
 
