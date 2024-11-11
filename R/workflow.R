@@ -121,6 +121,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
 
 
 
+
                   # Evaluamos la función en el entorno
                   estimation <- eval(call, envir = list(design = survey_item$design[[estimation_type]]))
 

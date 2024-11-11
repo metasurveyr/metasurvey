@@ -105,7 +105,6 @@ load_panel_survey <- function(
   names(path_survey) <- names_survey
 
 
-
   implantation <- load_survey(
     path_implantation,
     svy_type = svy_type,
@@ -124,7 +123,6 @@ load_panel_survey <- function(
         path_file_final <- c(path_file_final, i)
       }
     }
-
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -194,9 +192,11 @@ load_panel_survey <- function(
       X = 1:length(path_survey),
       FUN = function(x) {
 
+
         y <- path_survey[[x]]
         z <- names(path_survey)[x]
         svy_weight <- unname(svy_weight_follow_up[z])[[1]]
+
         load_survey(
           y,
           svy_type = svy_type,
@@ -247,6 +247,7 @@ load_panel_survey <- function(
 read_file <- function(file, .args = NULL) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
+
   .path_without_extension <- gsub("\\..*", "", .file_name)
   .output_file <- paste0(.path_without_extension, ".csv")
 
@@ -287,8 +288,6 @@ read_file <- function(file, .args = NULL) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
-
-  
 
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
@@ -361,7 +360,6 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
-
 
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))

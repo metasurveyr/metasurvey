@@ -20,7 +20,6 @@ Survey <- R6Class(
       )
 
 
-
       weight_list <- validate_weight_time_pattern(data, weight)
 
       design_list <- lapply(
@@ -622,7 +621,6 @@ cat_design_type <- function(self, design_name) {
 #'
 
 cat_recipes <- function(self) {
-
   if (is.null(self$recipes) || length(self$recipes) == 0) {
     return("None")
   }
