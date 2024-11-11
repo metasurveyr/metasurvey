@@ -259,12 +259,12 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 
   if (.level == "auto" || .level == "follow_up") {
     follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
-      step_compute_survey(sub_svy, ..., .by = .by, use_copy = use_copy, comment = comment)
+      step_compute_survey(sub_svy, ..., .by = .by, use_copy = use_copy, comment = comment, .call = .call)
     })
   }
 
   if (.level == "auto" || .level == "implantation") {
-    implantation_processed <- step_compute_survey(svy$implantation, ..., .by = .by, use_copy = use_copy, comment = comment)
+    implantation_processed <- step_compute_survey(svy$implantation, ..., .by = .by, use_copy = use_copy, comment = comment, .call = .call)
   }
 
 
@@ -349,6 +349,7 @@ step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .nam
   if (check_svy) {
     return(.call)
   }
+  
 
   if (is.null(.name_step)) {
     .name_step <- paste0("New group: ", new_var)
@@ -540,13 +541,17 @@ view_graph <- function(svy, init_step = "Load survey") {
       "
 
 
+
+
+
+
             Type: {type}
             Edition: {edition}
-            Weight: {weight}
+            Weight {weight}
             ",
       type = get_type(svy),
       edition = get_edition(svy),
-      weight = get_weight(svy)
+      weight = get_info_weight(svy)
     )
   }
 
