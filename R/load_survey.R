@@ -9,19 +9,6 @@
 #' @return Survey object
 #' @keywords preprocessing
 #' @export
-#' @examples
-#' set_engine("data.table")
-#' svy_example <- load_survey(
-#'   load_survey_example(
-#'     svy_type = "eaii",
-#'     svy_edition = "2019-2021"
-#'   ),
-#'   svy_type = "eaii",
-#'   svy_edition = "eaii_2019-2021",
-#'   svy_weight = add_weight(annual = "w_trans"),
-#'   dec = ","
-#' )
-#' svy_example
 load_survey <- function(
     path = NULL,
     svy_type = NULL,
@@ -138,7 +125,6 @@ load_panel_survey <- function(
       }
     }
 
-    assign("path_file_final", path_file_final, envir = .GlobalEnv)
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -302,6 +288,8 @@ read_file <- function(file, .args = NULL) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
+  
+
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
 }
@@ -326,6 +314,7 @@ load_survey.data.table <- function(...) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
+
 
   svy <- read_file(.args$file, .args[.names_args])
 
