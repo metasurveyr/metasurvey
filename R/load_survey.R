@@ -192,7 +192,6 @@ load_panel_survey <- function(
     follow_up <- lapply(
       X = 1:length(path_survey),
       FUN = function(x) {
-
         y <- path_survey[[x]]
         z <- names(path_survey)[x]
         svy_weight <- unname(svy_weight_follow_up[z])[[1]]

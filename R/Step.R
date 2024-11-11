@@ -148,14 +148,14 @@ bake_step <- function(svy, step) {
 #' @keywords Steps
 #' @keywords Bake
 #' @param svy A Survey object
-#' 
+#'
 
 bake_steps <- function(svy) {
-  if (is(svy,"Survey")) {
+  if (is(svy, "Survey")) {
     return(bake_steps_survey(svy))
   }
 
-  if(is(svy,"RotativePanelSurvey")) {
+  if (is(svy, "RotativePanelSurvey")) {
     return(bake_steps_rotative(svy))
   }
 
@@ -201,6 +201,7 @@ bake_steps_rotative <- function(svy) {
 #' @keywords internal
 
 bake_steps_survey <- function(svy) {
+
   if (use_copy_default()) {
     svy_copy <- svy$clone(deep = TRUE)
     for (i in seq_along(svy$steps)) {
@@ -218,36 +219,4 @@ bake_steps_survey <- function(svy) {
     svy$update_design()
     return(svy)
   }
-}
-
-#' Bake steps survey
-#' @param svy A Survey object
-#' @return A Survey object
-#' @keywords Surveymethods
-#' @keywords Steps
-#' @keywords Bake
-#' @keywords Survey
-#' @noRd
-#' @keywords internal
-
-bake_steps_survey <- function(svy) {
-  
-  if (use_copy_default()) {
-    svy_copy <- svy$clone(deep = TRUE)
-    for (i in seq_along(svy$steps)) {
-      svy_copy <- bake_step(svy_copy, svy$steps[[i]])
-      svy_copy$steps[[i]] <- svy_copy$steps[[i]]$clone(deep = TRUE)
-      svy_copy$steps[[i]]$bake <- TRUE
-    }
-    svy_copy$update_design()
-    return(svy_copy)
-  } else {
-    for (i in seq_along(svy$steps)) {
-      bake_step(svy, svy$steps[[i]])
-       svy$steps[[i]]$bake <- TRUE
-    }
-    svy$update_design()
-    return(svy)
-  }
-  
 }
