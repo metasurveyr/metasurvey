@@ -44,7 +44,6 @@ RotativePanelSurvey <- R6Class(
       return(self$default_engine)
     },
     get_steps = function() {
-
       steps_implantation <- self$implantation$steps
       steps_follow_up <- sapply(self$follow_up, function(f) f$steps)
 
@@ -202,7 +201,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' @keywords Surveymethods
 #' @keywords RotativePanelSurvey
 #' @export
-#' 
+#'
 
 get_follow_up <- function(RotativePanelSurvey, index = 1:length(RotativePanelSurvey$follow_up)) {
   if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {

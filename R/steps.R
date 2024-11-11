@@ -349,7 +349,7 @@ step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .nam
   if (check_svy) {
     return(.call)
   }
-  
+
 
   if (is.null(.name_step)) {
     .name_step <- paste0("New group: ", new_var)
