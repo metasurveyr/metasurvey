@@ -10,7 +10,8 @@ steps_to_recipe(
   svy = survey_empty(type = "eaii", edition = "2019-2021"),
   description,
   steps,
-  doi = NULL
+  doi = NULL,
+  topic = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ steps_to_recipe(
 \item{steps}{A list with the steps of the recipe}
 
 \item{doi}{A character string with the DOI of the recipe}
+
+\item{topic}{A character string with the topic of the recipe}
 }
 \value{
 A Recipe object
@@ -33,5 +36,6 @@ A Recipe object
 Convert a list of steps to a recipe
 }
 \keyword{Recipes}
+\keyword{Steps}
 \keyword{Survey}
 \keyword{methods}
