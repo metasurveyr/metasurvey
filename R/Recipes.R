@@ -11,7 +11,8 @@ Recipe <- R6Class("Recipe",
     steps = list(),
     doi = NULL,
     bake = FALSE,
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi) {
+    topic = NULL,
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -22,6 +23,7 @@ Recipe <- R6Class("Recipe",
       self$steps <- steps
       self$id <- id
       self$doi <- doi
+      self$topic <- topic
     }
   )
 )
@@ -65,7 +67,6 @@ recipe <- function(...) {
 
   index_steps <- which(names(dots) %in% metadata_recipe())
 
-
   if ("steps" %in% names(dots)) {
     return(
       Recipe$new(
@@ -75,10 +76,16 @@ recipe <- function(...) {
         edition = dots$svy$edition,
         survey_type = dots$svy$type,
         default_engine = default_engine(),
-        depends_on = list(),
+        depends_on = unique(sapply(
+          X = dots$steps,
+          FUN = function(step) {
+            step$depends_on
+          }
+        )),
         description = dots$description,
-        steps = eval(dots$steps),
-        doi = dots$doi %||% NULL
+        steps = dots$steps_call,
+        doi = dots$doi %||% NULL,
+        topic = dots$topic
       )
     )
   } else {
@@ -93,7 +100,8 @@ recipe <- function(...) {
         depends_on = list(),
         description = dots$description,
         steps = dots[-index_steps],
-        doi = dots$doi %||% NULL
+        doi = dots$doi %||% NULL,
+        topic = dots$topic
       )
     )
   }
@@ -160,6 +168,28 @@ save_recipe <- function(recipe, file) {
     glue::glue("The recipe has been saved in {file}")
   )
 }
+
+#' recipe to json
+#' @param recipe A Recipe object
+#' @return A JSON object
+#' @keywords Survey methods
+#' @keywords Recipes
+
+recipe_to_json <- function(recipe) {
+  recipe <- list(
+    name = recipe$name,
+    user = recipe$user,
+    svy_type = recipe$svy_type,
+    edition = recipe$edition,
+    description = recipe$description,
+    steps = recipe$steps
+  )
+
+  recipe |>
+    encoding_recipe() |>
+    jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo")
+}
+
 
 #' Load a recipe from a file
 #' @param file A character string with the file path
@@ -233,11 +263,12 @@ get_recipe <- function(
         edition = unlist(recipe$svy_edition),
         survey_type = unlist(recipe$svy_type),
         default_engine = default_engine(),
-        depends_on = list(),
+        depends_on = unlist(recipe$depends_on),
         description = unlist(recipe$description),
         steps = decode_step(recipe$steps),
         id = recipe[["_id"]],
-        doi = unlist(recipe$DOI)
+        doi = unlist(recipe$DOI),
+        topic = unlist(recipe$topic)
       )
     )
   } else {
@@ -257,7 +288,8 @@ get_recipe <- function(
             description = unlist(recipe$description),
             steps = decode_step(recipe$steps),
             id = recipe[["_id"]],
-            doi = unlist(recipe$doi)
+            doi = unlist(recipe$doi),
+            topic = unlist(recipe$topic)
           )
         }
       )
@@ -272,6 +304,9 @@ get_recipe <- function(
 #' @param description A character string with the description of the recipe
 #' @param steps A list with the steps of the recipe
 #' @param doi A character string with the DOI of the recipe
+#' @param topic A character string with the topic of the recipe
+#' @keywords Steps
+#' @keywords Survey methods
 #' @return A Recipe object
 #' @keywords Survey methods
 #' @keywords Recipes
@@ -282,20 +317,22 @@ steps_to_recipe <- function(
     user,
     svy = survey_empty(type = "eaii", edition = "2019-2021"),
     description,
-    steps, doi = NULL) {
+    steps, doi = NULL, topic = NULL) {
   return(
     recipe(
       name = name,
       user = user,
       svy = svy,
       description = description,
-      steps = lapply(
+      steps = steps,
+      steps_call = eval(lapply(
         steps,
         function(step) {
-          (step$call)
+          deparse(step$call)
         }
-      ),
-      doi = doi
+      )),
+      doi = doi,
+      topic = topic
     )
   )
 }
@@ -438,4 +475,95 @@ request_api <- function(method, filterList) {
   return(
     content_json = parse_json(content)
   )
+}
+
+
+#' Publish a recipe to the API
+#' @param recipe A Recipe object
+#' @importFrom httr POST
+#' @importFrom httr add_headers
+#' @importFrom jsonlite toJSON
+#' @return A JSON object
+#' @keywords Survey methods
+#' @keywords Recipes
+#' @export
+
+publish_recipe <- function(recipe) {
+  recipe <- list(
+    name = recipe$name,
+    user = recipe$user,
+    description = recipe$description,
+    svy_type = recipe$svy_type,
+    svy_edition = recipe$edition,
+    steps = recipe$steps,
+    topic = recipe$topic,
+    doi = recipe$doi,
+    depends_on = unlist(recipe$depends_on)
+  )
+
+  recipe <- recipe
+
+  api_url <- paste0(url_api_host(), "insertOne")
+  database_name <- "metasurvey"
+  collection_name <- "recipes"
+  key <- get_api_key()
+
+  # Verificar que el JSON no esté vacío
+  if (is.null(recipe) || length(recipe) == 0) {
+    stop("No recipe data provided.")
+  }
+
+  # Estructurar el payload para MongoDB Atlas Data API
+  payload <- list(
+    dataSource = "Cluster0", # Reemplaza con el nombre de tu clúster si es diferente
+    database = database_name,
+    collection = collection_name,
+    document = recipe
+  )
+
+  # Estructurar encabezados de acuerdo al método de autenticación
+  headers <- switch(key$methodAuth,
+    apiKey = c(
+      "Content-Type" = "application/json",
+      "Access-Control-Request-Headers" = "*",
+      "apiKey" = key$token
+    ),
+    anonUser = c(
+      "Content-Type" = "application/json",
+      "Access-Control-Request-Headers" = "*",
+      "Authorization" = paste("Bearer", key$token)
+    ),
+    userPassword = c(
+      "Content-Type" = "application/ejson",
+      "Accept" = "application/json",
+      "email" = key$email,
+      "password" = key$password
+    )
+  )
+
+  # Realizar la solicitud POST a la Data API de MongoDB Atlas
+  response <- tryCatch(
+    {
+      POST(
+        url = api_url,
+        add_headers(headers),
+        body = jsonlite::toJSON(payload, auto_unbox = TRUE),
+        encode = "json"
+      )
+    },
+    error = function(e) {
+      stop("Failed to publish recipe to MongoDB Atlas Data API: ", e$message)
+    }
+  )
+
+  # Verificar la respuesta de la API
+  if (response$status_code < 300) {
+    message("Recipe successfully published to metasurvey API. Thanks for your contribution :). Status code: ", response$status_code)
+    return(content(response, "parsed")) # Devuelve el contenido de la respuesta
+  } else {
+    stop(
+      "Failed to publish recipe. Status code: ", response$status_code,
+      " - ", content(response, "text", encoding = "UTF-8")
+    )
+  }
 }

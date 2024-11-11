@@ -42,8 +42,8 @@ Survey <- R6Class(
             aux_vars <- c(x$weight, x$replicate_id)
             data_aux <- data[, aux_vars, with = FALSE]
             data_aux <- merge(
-              x$replicate_file[, 1:11],
               data_aux,
+              x$replicate_file[, 1:11],
               by.x = names(x$replicate_id),
               by.y = x$replicate_id
             )
@@ -59,7 +59,9 @@ Survey <- R6Class(
 
             data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
             design$variables <- data
-            design$repweights <- x$replicate_file
+            vars <- grepl(x$replicate_pattern, names(data))
+            rep_weights <- data[, vars, with = FALSE]
+            design$repweights <- data.table(rep_weights)
             return(design)
           }
         }
@@ -106,6 +108,7 @@ Survey <- R6Class(
     add_step = function(step) {
       name_index <- length(self$steps) + 1
       name_index <- paste0("step_", name_index, " ", step$name)
+      step$name <- name_index
       self$steps[[name_index]] <- step
       self$update_design()
     },
@@ -113,9 +116,6 @@ Survey <- R6Class(
       if ((self$edition != recipe$edition)) {
         stop("Invalid Recipe: \n", recipe$name, "\nEdition of survey: ", self$edition, "\nEdition of recipe: ", recipe$edition)
       }
-
-
-
       index_recipe <- length(self$recipes) + 1
       self$recipes[[index_recipe]] <- recipe
     },
@@ -137,21 +137,21 @@ Survey <- R6Class(
     update_design = function() {
       weight_list <- self$weight
 
-      design_list <- lapply(
-        weight_list,
-        function(x) {
-          if (is.character(x)) {
-            self$design[[1]]$variables <- self$data
-          } else {
-            self$design[[1]]$variables <- merge(
-              self$data,
-              x$replicate_file,
-              by.x = names(x$replicate_id),
-              by.y = x$replicate_id
-            )
-          }
+      data_now <- self$get_data()
+
+      for (i in seq_along(weight_list)) {
+        if (is.character(weight_list[[i]])) {
+          self$design[[i]]$variables <- self$data
+        } else {
+          temp <- self$get_data()
+          self$design[[i]]$variables <- merge(
+            data_now,
+            weight_list[[i]]$replicate_file,
+            by.x = names(weight_list[[i]]$replicate_id),
+            by.y = weight_list[[i]]$replicate_id
+          )
         }
-      )
+      }
     },
     active = list(
       design = function() {
@@ -240,8 +240,38 @@ get_edition <- function(svy) {
   svy$get_edition()
 }
 
-get_weight <- function(svy) {
-  svy$weight
+get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
+  svy$weight[[estimation_type]]
+}
+
+get_info_weight <- function(svy) {
+  info_weight <- c("")
+
+  for (i in seq_along(svy$weight)) {
+    if (is.character(svy$weight[[i]]) == 1) {
+      info_weight[i] <- glue::glue(
+        "Weight {names(svy$weight)[[i]]}: {svy$weight[[i]]} (Simple design)"
+      )
+    } else {
+      info_weight[i] <- glue::glue(
+        "
+
+         {names(svy$weight)[[i]]}: {svy$weight[[i]]$weight} (Replicate design)
+         Type: {svy$weight[[i]]$replicate_type}
+         Pattern: {svy$weight[[i]]$replicate_pattern}
+         Replicate file: {basename(svy$weight[[i]]$replicate_path)} with {ncol(svy$weight[[i]]$replicate_file) - 1} replicates"
+      )
+    }
+  }
+
+  glue::glue(
+    Reduce(
+      f = function(x, y) {
+        paste0(x, "\n", y)
+      },
+      x = info_weight
+    )
+  )
 }
 
 get_type <- function(svy) {
@@ -361,7 +391,6 @@ get_metadata <- function(self) {
             {blue Edition:} {edition}
             {blue Periodicity:} Implantation: {implantationPeriodicity}, Follow-up: {follow_upPeriodicity}
             {blue Engine:} {default_engine}
-            {blue Design:} {design}
             {blue Steps:} {steps}
             {blue Recipes:} {names_recipes}
             ",
@@ -372,13 +401,20 @@ get_metadata <- function(self) {
           format(self$implantation$edition, "%Y-%m")
         ),
         default_engine = self$default_engine,
-        design = cat_design(self),
-        steps = ifelse(
-          length(self$steps) == 0,
-          "None",
+        steps = sub(
+          "\n$",
+          "",
           paste0(
-            "\n  - ",
-            paste0(names(self$steps), collapse = "\n  - ")
+            if (length(self$get_steps()$implantation) > 0) {
+              paste0("implantation: (", paste(names(self$get_steps()$implantation), collapse = ", "), ")\n")
+            } else {
+              ""
+            },
+            if (length(self$get_steps()$follow_up) > 0 && !is.null(row.names(self$get_steps()$follow_up))) {
+              paste0("follow_up: (", paste(row.names(self$get_steps()$follow_up), collapse = ", "), ")\n")
+            } else {
+              ""
+            }
           )
         ),
         implantationPeriodicity = self$periodicity$implantation,
