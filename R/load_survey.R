@@ -124,7 +124,6 @@ load_panel_survey <- function(
       }
     }
 
-    assign("path_file_final", path_file_final, envir = .GlobalEnv)
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -293,6 +292,8 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
+
+  
 
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
