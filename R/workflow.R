@@ -117,6 +117,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
                   name_function <- deparse(call[[1]])
                   call[["design"]] <- substitute(design)
                   call <- as.call(call)
+                  
 
 
 
@@ -155,13 +156,14 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
       final_result,
       function(x) {
         numeric_vars <- names(x)[sapply(x, is.numeric)]
+        
+      
+        agg = x[, lapply(.SD, mean), by = list(stat), .SDcols = numeric_vars]
+        data.table(agg[, `:=` (evaluate = sapply(cv, evaluate_cv))])
 
-
-
-        agg <- x[, lapply(.SD, mean), by = list(stat), .SDcols = numeric_vars]
-        data.table(agg[, `:=`(evaluate = sapply(cv, evaluate_cv))])
       }
     )
+    
 
 
     return(final_result)

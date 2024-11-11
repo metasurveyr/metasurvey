@@ -44,8 +44,8 @@ Survey <- R6Class(
             aux_vars <- c(x$weight, x$replicate_id)
             data_aux <- data[, aux_vars, with = FALSE]
             data_aux <- merge(
-              x$replicate_file[, 1:11],
               data_aux,
+              x$replicate_file[, 1:11],
               by.x = names(x$replicate_id),
               by.y = x$replicate_id
             )
@@ -61,7 +61,9 @@ Survey <- R6Class(
 
             data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
             design$variables <- data
-            design$repweights <- x$replicate_file
+            vars <- grepl(x$replicate_pattern, names(data))
+            rep_weights <- data[, vars, with = FALSE]
+            design$repweights <- data.table(rep_weights)
             return(design)
           }
         }
@@ -137,8 +139,9 @@ Survey <- R6Class(
     update_design = function() {
       weight_list <- self$weight
 
+      
       data_now <- self$get_data()
-
+      
       for (i in seq_along(weight_list)) {
         if (is.character(weight_list[[i]])) {
           self$design[[i]]$variables <- self$data
@@ -245,8 +248,14 @@ get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
 }
 
 get_info_weight <- function(svy) {
+<<<<<<< HEAD
   info_weight <- c("")
 
+=======
+  
+  info_weight <- c("")
+  
+>>>>>>> e732250 (New function evaluate_cv)
   for (i in seq_along(svy$weight)) {
     if (is.character(svy$weight[[i]]) == 1) {
       info_weight[i] <- glue::glue(
@@ -257,8 +266,13 @@ get_info_weight <- function(svy) {
         "
 
          {names(svy$weight)[[i]]}: {svy$weight[[i]]$weight} (Replicate design)
+<<<<<<< HEAD
          Type: {svy$weight[[i]]$replicate_type}
          Pattern: {svy$weight[[i]]$replicate_pattern}
+=======
+         Type: {svy$weight[[i]]$replicate_type} 
+         Pattern: {svy$weight[[i]]$replicate_pattern} 
+>>>>>>> e732250 (New function evaluate_cv)
          Replicate file: {basename(svy$weight[[i]]$replicate_path)} with {ncol(svy$weight[[i]]$replicate_file) - 1} replicates"
       )
     }

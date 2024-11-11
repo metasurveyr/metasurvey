@@ -70,8 +70,6 @@ validate_replicate <- function(svy, replicate) {
 
 
   replicate_file <- read_file(replicate$replicate_path)
-  assign("replicate_file", replicate_file, envir = .GlobalEnv)
-  assign("replicate", replicate, envir = .GlobalEnv)
 
 
 
