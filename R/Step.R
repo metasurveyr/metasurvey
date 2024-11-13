@@ -133,6 +133,10 @@ bake_step <- function(svy, step) {
     }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
     .svy_after <- do.call(
       what = step$type,
       args = env
@@ -201,7 +205,6 @@ bake_steps_rotative <- function(svy) {
 #' @keywords internal
 
 bake_steps_survey <- function(svy) {
-
   if (use_copy_default()) {
     svy_copy <- svy$clone(deep = TRUE)
     for (i in seq_along(svy$steps)) {
