@@ -133,10 +133,7 @@ bake_step <- function(svy, step) {
     }
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> main
     .svy_after <- do.call(
       what = step$type,
       args = env
