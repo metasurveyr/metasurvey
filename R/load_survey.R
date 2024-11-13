@@ -100,9 +100,9 @@ load_panel_survey <- function(
 
   path_survey <- list.files(path_follow_up, full.names = TRUE, pattern = ".csv")
 
-
-
   names(path_survey) <- names_survey
+
+
 
 
   implantation <- load_survey(
@@ -123,6 +123,7 @@ load_panel_survey <- function(
         path_file_final <- c(path_file_final, i)
       }
     }
+
 
     names_year_month <- sapply(
       X = basename(path_file_final),
@@ -242,7 +243,7 @@ load_panel_survey <- function(
 #' @noRd
 #' @return data.table
 
-read_file <- function(file, .args = NULL) {
+read_file <- function(file, .args = NULL, convert = FALSE) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
 
@@ -251,16 +252,18 @@ read_file <- function(file, .args = NULL) {
 
 
 
-  if (.extension != ".csv" && !file.exists(.output_file)) {
-    requireNamespace("rio", quietly = TRUE)
+  if (convert) {
+    if (.extension != ".csv" && !file.exists(.output_file)) {
+      requireNamespace("rio", quietly = TRUE)
 
-    rio::convert(
-      in_file = file,
-      out_file = .output_file
-    )
-    .extension <- "csv"
-  } else {
-    .extension <- "csv"
+      rio::convert(
+        in_file = file,
+        out_file = .output_file
+      )
+      .extension <- "csv"
+    } else {
+      .extension <- "csv"
+    }
   }
 
   .read_function <- switch(.extension,
@@ -286,6 +289,8 @@ read_file <- function(file, .args = NULL) {
   .metadata_args <- metadata_args()
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
+
+
 
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))

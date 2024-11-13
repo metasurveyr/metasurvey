@@ -20,6 +20,8 @@ Survey <- R6Class(
       )
 
 
+
+
       weight_list <- validate_weight_time_pattern(data, weight)
 
       design_list <- lapply(
