@@ -567,4 +567,3 @@ publish_recipe <- function(recipe) {
     )
   }
 }
-
