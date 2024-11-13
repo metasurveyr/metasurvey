@@ -260,7 +260,7 @@ get_info_weight <- function(svy) {
 
          {names(svy$weight)[[i]]}: {svy$weight[[i]]$weight} (Replicate design)
          Type: {svy$weight[[i]]$replicate_type}
-         Pattern: {svy$weight[[i]]$replicate_pattern} 
+         Pattern: {svy$weight[[i]]$replicate_pattern}
          Replicate file: {basename(svy$weight[[i]]$replicate_path)} with {ncol(svy$weight[[i]]$replicate_file) - 1} replicates"
       )
     }
@@ -622,7 +622,6 @@ cat_design_type <- function(self, design_name) {
 #'
 
 cat_recipes <- function(self) {
-
   if (is.null(self$recipes) || length(self$recipes) == 0) {
     return("None")
   }

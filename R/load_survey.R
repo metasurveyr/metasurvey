@@ -264,7 +264,6 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
     } else {
       .extension <- "csv"
     }
-
   }
 
   .read_function <- switch(.extension,
@@ -291,7 +290,7 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
-  
+
 
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
