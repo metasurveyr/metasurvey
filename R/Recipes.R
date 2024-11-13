@@ -187,7 +187,7 @@ recipe_to_json <- function(recipe) {
 
   recipe |>
     encoding_recipe() |>
-    jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo"))
+    jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo")
 }
 
 
