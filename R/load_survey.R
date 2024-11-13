@@ -242,7 +242,7 @@ load_panel_survey <- function(
 #' @noRd
 #' @return data.table
 
-read_file <- function(file, .args = NULL) {
+read_file <- function(file, .args = NULL, convert = FALSE) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
 
@@ -251,16 +251,18 @@ read_file <- function(file, .args = NULL) {
 
 
 
-  if (.extension != ".csv" && !file.exists(.output_file)) {
-    requireNamespace("rio", quietly = TRUE)
+  if (convert) {
+    if (.extension != ".csv" && !file.exists(.output_file)) {
+      requireNamespace("rio", quietly = TRUE)
 
-    rio::convert(
-      in_file = file,
-      out_file = .output_file
-    )
-    .extension <- "csv"
-  } else {
-    .extension <- "csv"
+      rio::convert(
+        in_file = file,
+        out_file = .output_file
+      )
+      .extension <- "csv"
+    } else {
+      .extension <- "csv"
+    }
   }
 
   .read_function <- switch(.extension,
