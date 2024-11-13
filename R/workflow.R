@@ -118,10 +118,6 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
                   call[["design"]] <- substitute(design)
                   call <- as.call(call)
 
-
-
-
-
                   # Evaluamos la función en el entorno
                   estimation <- eval(call, envir = list(design = survey_item$design[[estimation_type]]))
 
@@ -160,7 +156,6 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
         data.table(agg[, `:=`(evaluate = sapply(cv, evaluate_cv))])
       }
     )
-
 
     return(final_result)
   }
