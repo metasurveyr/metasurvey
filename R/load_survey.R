@@ -248,7 +248,6 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
   .file_name <- basename(file)
 
   .path_without_extension <- gsub("\\..*", "", .file_name)
-
   .output_file <- paste0(.path_without_extension, ".csv")
 
 
@@ -365,7 +364,6 @@ load_survey.data.table <- function(...) {
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL
   )
-
 
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))

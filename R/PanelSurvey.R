@@ -202,6 +202,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' @keywords RotativePanelSurvey
 #' @export
 
+
 get_follow_up <- function(RotativePanelSurvey, index = 1:length(RotativePanelSurvey$follow_up)) {
   if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
     stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")

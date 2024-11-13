@@ -247,7 +247,6 @@ get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
 }
 
 get_info_weight <- function(svy) {
-
   info_weight <- c("")
 
   for (i in seq_along(svy$weight)) {
