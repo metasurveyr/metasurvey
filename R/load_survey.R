@@ -249,7 +249,10 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
   .path_without_extension <- gsub("\\..*", "", .file_name)
   .output_file <- paste0(.path_without_extension, ".csv")
-
+  .output_file <- file.path(
+    dirname(file),
+    .output_file
+  )
 
 
   if (convert) {

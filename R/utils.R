@@ -449,7 +449,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
     stop("Type does not match. Please provide a valid type in the survey edition or as an argument")
   }
 
-  # Remove svy_type from time_pattern
 
   names_time <- names(time_pattern)
 
@@ -462,7 +461,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
     date_string <- sprintf("%04d-%02d-01", time_pattern$year, time_pattern$month)
     svy_edition <- as.Date(date_string)
   } else {
-    # Si no hay mes o año, crear una cadena básica
     svy_edition <- Reduce(
       time_pattern[names_time[!names_time %in% remove_attributes]],
       f = function(x, y) {
