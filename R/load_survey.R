@@ -258,7 +258,6 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
   if (convert) {
     if (.extension != ".csv" && !file.exists(.output_file)) {
       requireNamespace("rio", quietly = TRUE)
-
       rio::convert(
         in_file = file,
         out_file = .output_file
