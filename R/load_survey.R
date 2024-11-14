@@ -249,13 +249,15 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
   .path_without_extension <- gsub("\\..*", "", .file_name)
   .output_file <- paste0(.path_without_extension, ".csv")
-
+  .output_file <- file.path(
+    dirname(file),
+    .output_file
+  )
 
 
   if (convert) {
     if (.extension != ".csv" && !file.exists(.output_file)) {
       requireNamespace("rio", quietly = TRUE)
-
       rio::convert(
         in_file = file,
         out_file = .output_file
