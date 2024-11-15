@@ -2,7 +2,7 @@ test_that(
   "Cargar una encuesta de Panel (ECH 2023)",
   {
     path_dir <- here::here("example-data", "ech", "ech_2023")
-    ech_2023 = load_panel_survey(
+    ech_2023 <- load_panel_survey(
       path_implantation = file.path(path_dir, "ECH_implantacion_2023.csv"),
       path_follow_up = file.path(path_dir, "seguimiento"),
       svy_type = "ECH",
@@ -41,7 +41,7 @@ test_that(
     testthat::expect_equal(
       ech_2023$get_follow_up()[[1]]$design$monthly$variables,
       {
-        design = survey::svydesign(
+        design <- survey::svydesign(
           ids = ~1,
           weights = ~W,
           data = ech_2023$get_follow_up()[[1]]$data
@@ -54,7 +54,5 @@ test_that(
       ech_2023$get_follow_up()[[1]]$design$monthly,
       "survey.design"
     )
-
-
   }
 )
