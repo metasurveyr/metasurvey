@@ -29,18 +29,18 @@ test_that(
 )
 
 test_that(
-    "Probar extraer time pesos replicados en MM-AAAA",
-    {
-        testthat::expect_equal(
-            metasurvey:::extract_time_pattern("pesos_replicados_01-2023"),
-            list(
-                type = "pesos_replicados",
-                year = 2023,
-                month = 1,
-                periodicity = "Monthly"
-            )
-        )
-    }
+  "Probar extraer time pesos replicados en MM-AAAA",
+  {
+    testthat::expect_equal(
+      metasurvey:::extract_time_pattern("pesos_replicados_01-2023"),
+      list(
+        type = "pesos",
+        year = 2023,
+        month = 1,
+        periodicity = "Monthly"
+      )
+    )
+  }
 )
 
 test_that(
