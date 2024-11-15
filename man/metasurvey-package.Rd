@@ -22,7 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Natalia da Silva
+  \item Natalia da Silva \email{natalia.dasilva@fcea.edu.uy}
 }
 
 }

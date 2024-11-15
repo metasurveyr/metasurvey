@@ -319,7 +319,7 @@ extract_time_pattern <- function(svy_edition) {
 
   # Extraer el tipo si hay texto al inicio
   if (grepl("$[^0-9]*", svy_edition)) {
-    type <- sub("_.*", "", svy_edition, perl = TRUE)
+    type <- sub("[0-9_]*$", "", svy_edition, perl = TRUE)
     svy_edition <- gsub("[^0-9]*", "", svy_edition, perl = TRUE)
   }
 
@@ -445,8 +445,10 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
     stop("Type not found. Please provide a valid type in the survey edition or as an argument")
   }
 
+  time_pattern$type <- time_pattern$type %@% svy_type
+
   if (!is.null(time_pattern$type) && toupper(time_pattern$type) != toupper(svy_type)) {
-    stop("Type does not match. Please provide a valid type in the survey edition or as an argument")
+    message("Type does not match. Please provide a valid type in the survey edition or as an argument")
   }
 
 
@@ -473,7 +475,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
   return(
     list(
-      svy_type = time_pattern$type %||% svy_type,
+      svy_type = svy_type %@% time_pattern$type,
       svy_edition = svy_edition,
       svy_periodicity = time_pattern$periodicity %||% "Annual"
     )
