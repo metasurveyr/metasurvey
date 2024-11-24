@@ -30,43 +30,39 @@ workflow <- function(survey, ..., estimation_type = "monthly") {
 workflow_default <- function(survey, ..., estimation_type = "monthly") {
   .calls <- substitute(list(...))
 
-  partial_result <- lapply(
-    estimation_type,
-    function(x) {
-      lapply(
-        X = seq_along(survey),
-        function(i) {
-          survey <- survey[[i]]
+  result <- rbindlist(
+    lapply(
+      estimation_type,
+      function(x) {
+        rbindlist(
+          lapply(
+            X = seq_along(survey),
+            function(i) {
+              survey <- survey[[i]]
 
-          result <- rbindlist(
-            lapply(
-              2:length(.calls),
-              function(i) {
-                call <- as.list(.calls[[i]])
-                name_function <- deparse(call[[1]])
-                call[["design"]] <- substitute(design)
-                call <- as.call(call)
-                estimation <- eval(call, envir = list(design = survey$design[[x]]))
+              partial_result <- rbindlist(
+                lapply(
+                  2:length(.calls),
+                  function(i) {
+                    call <- as.list(.calls[[i]])
+                    name_function <- deparse(call[[1]])
+                    call[["design"]] <- substitute(design)
+                    call <- as.call(call)
+                    estimation <- eval(call, envir = list(design = survey$design[[x]]))
 
-
-
-                return(
-                  cat_estimation(estimation, name_function)
+                    return(cat_estimation(estimation, name_function))
+                  }
                 )
-              }
-            )
+              )
+              return(partial_result)
+            }
           )
-
-          return(
-            result
-          )
-        }
-      )
-    }
+        )
+      }
+    )
   )
 
-  names(partial_result) <- estimation_type
-  return(partial_result)
+  return(result)
 }
 
 #' @title Workflow pool
@@ -90,74 +86,50 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   }
 
   .calls <- substitute(list(...))
-
   survey <- survey$surveys[[estimation_type_first]]
-
   estimation_type_vector <- names(survey)
 
-
-
-  # Generamos la lista final, con nombres de los tipos de estimación
-  final_result <- lapply(
-    estimation_type_vector,
-    function(x) {
-      # Para cada tipo de estimación, creamos un data.table combinando los resultados
-      results_by_type <- rbindlist(
-        lapply(
-          seq_along(survey[[x]]),
-          function(i) {
-            survey_item <- survey[[x]][[i]]
-
-            # Ejecutamos cada función en .calls
-            result <- rbindlist(
-              lapply(
-                2:length(.calls),
-                function(j) {
-                  call <- as.list(.calls[[j]])
-                  name_function <- deparse(call[[1]])
-                  call[["design"]] <- substitute(design)
-                  call <- as.call(call)
-
-                  # Evaluamos la función en el entorno
-                  estimation <- eval(call, envir = list(design = survey_item$design[[estimation_type]]))
-
-                  # Llamamos a cat_estimation para procesar la estimación y etiquetarla
-                  return(
-                    cat_estimation(estimation, name_function)
-                  )
-                }
-              )
-            )
-            result[["survey"]] <- survey_item$edition
-            return(result)
-          }
-        )
-      )
-
-      # Devolvemos un data.table por cada tipo de estimación
-      return(results_by_type)
-    }
-  )
-
-  # Asignamos nombres a los resultados para tener la estructura por tipo de estimación
-  names(final_result) <- estimation_type_vector
-
-  if (estimation_type_first == estimation_type) {
-    return(final_result)
-  } else {
-    final_result <- lapply(
-      final_result,
+  result <- rbindlist(
+    lapply(
+      estimation_type_vector,
       function(x) {
-        numeric_vars <- names(x)[sapply(x, is.numeric)]
+        partial_result <- rbindlist(
+          lapply(
+            seq_along(survey[[x]]),
+            function(i) {
+              survey_item <- survey[[x]][[i]]
 
-
-
-        agg <- x[, lapply(.SD, mean), by = list(stat), .SDcols = numeric_vars]
-        data.table(agg[, `:=`(evaluate = sapply(cv, evaluate_cv))])
+              result <- rbindlist(
+                lapply(
+                  2:length(.calls),
+                  function(j) {
+                    call <- as.list(.calls[[j]])
+                    name_function <- deparse(call[[1]])
+                    call[["design"]] <- substitute(design)
+                    call <- as.call(call)
+                    estimation <- eval(call, envir = list(design = survey_item$design[[estimation_type]]))
+                    return(cat_estimation(estimation, name_function))
+                  }
+                )
+              )
+              result[, period := survey_item$edition]
+              return(result)
+            }
+          )
+        )
+        partial_result[, type := x]
+        return(partial_result)
       }
     )
+  )
 
-    return(final_result)
+  if (estimation_type_first == estimation_type) {
+    return(data.table(result))
+  } else {
+    numeric_vars <- names(result)[sapply(result, is.numeric)]
+    agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
+    agg[, evaluate := sapply(cv, evaluate_cv)]
+    return(data.table(agg[order(stat), ]))
   }
 }
 

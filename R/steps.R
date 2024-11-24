@@ -3,6 +3,7 @@
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
   .dots <- substitute(...)
 
+
   if (!lazy) {
     if (!use_copy) {
       .data <- get_data(svy)
@@ -11,7 +12,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
       .data <- copy(get_data(.clone))
     }
 
-    if (!is(.dots, "call") & !is(.dots, "name")) {
+    if (!is(.dots, "call") & !is(.dots, "name") & !is(.dots, "numeric") & !is(.dots, "logical")) {
       .exprs <- list()
       for (i in 2:length(.dots)) {
         .exprs <- c(.exprs, .dots[[i]])
@@ -175,6 +176,10 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
   depends_on <- unique(c(sapply(2:length(exprs), function(x) {
     find_dependencies(call_expr = exprs[[x]], survey = get_data(svy))
   })))
+
+  if (length(depends_on[[1]]) == 0) {
+    depends_on <- NULL
+  }
 
   if (use_copy) {
     tryCatch(

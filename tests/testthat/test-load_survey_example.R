@@ -34,7 +34,7 @@ test_that(
     testthat::expect_equal(
       metasurvey:::extract_time_pattern("pesos_replicados_01-2023"),
       list(
-        type = "pesos",
+        type = "pesos_replicados",
         year = 2023,
         month = 1,
         periodicity = "Monthly"
