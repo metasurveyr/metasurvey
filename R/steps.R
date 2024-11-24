@@ -2,7 +2,7 @@
 #' @importFrom methods is
 compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = lazy_default()) {
   .dots <- substitute(...)
-  
+
 
   if (!lazy) {
     if (!use_copy) {
@@ -176,9 +176,9 @@ step_compute_survey <- function(svy, ..., .by = NULL, use_copy = use_copy_defaul
   depends_on <- unique(c(sapply(2:length(exprs), function(x) {
     find_dependencies(call_expr = exprs[[x]], survey = get_data(svy))
   })))
-  
+
   if (length(depends_on[[1]]) == 0) {
-    depends_on = NULL
+    depends_on <- NULL
   }
 
   if (use_copy) {

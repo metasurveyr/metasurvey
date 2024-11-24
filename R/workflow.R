@@ -29,7 +29,7 @@ workflow <- function(survey, ..., estimation_type = "monthly") {
 
 workflow_default <- function(survey, ..., estimation_type = "monthly") {
   .calls <- substitute(list(...))
-  
+
   result <- rbindlist(
     lapply(
       estimation_type,
@@ -39,7 +39,7 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
             X = seq_along(survey),
             function(i) {
               survey <- survey[[i]]
-              
+
               partial_result <- rbindlist(
                 lapply(
                   2:length(.calls),
@@ -49,7 +49,7 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
                     call[["design"]] <- substitute(design)
                     call <- as.call(call)
                     estimation <- eval(call, envir = list(design = survey$design[[x]]))
-                    
+
                     return(cat_estimation(estimation, name_function))
                   }
                 )
@@ -61,7 +61,7 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
       }
     )
   )
-  
+
   return(result)
 }
 
@@ -98,7 +98,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
             seq_along(survey[[x]]),
             function(i) {
               survey_item <- survey[[x]][[i]]
-              
+
               result <- rbindlist(
                 lapply(
                   2:length(.calls),
@@ -129,7 +129,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
     numeric_vars <- names(result)[sapply(result, is.numeric)]
     agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
     agg[, evaluate := sapply(cv, evaluate_cv)]
-    return(data.table(agg[order(stat),]))
+    return(data.table(agg[order(stat), ]))
   }
 }
 
