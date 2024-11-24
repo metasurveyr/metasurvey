@@ -331,7 +331,7 @@ load_survey.data.table <- function(...) {
             svy_type = .args$svy_type,
             svy_edition = .args$svy_edition,
             recipe_svy_edition = .args$recipes[[x]]$edition,
-            recipe_svy_type = .args$recipes[[x]]$svy_type
+            recipe_svy_type = .args$recipes[[x]]$survey_type
           )
         }
       )

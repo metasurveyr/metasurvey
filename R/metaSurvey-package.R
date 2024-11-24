@@ -21,4 +21,4 @@
 NULL
 
 
-utils::globalVariables(c("j", "se", "stat"))
+utils::globalVariables(c("j", "se", "stat", "period", "type", "evaluate"))
