@@ -70,13 +70,17 @@ Survey <- R6Class(
       )
 
       names(design_list) <- names(weight_list)
+      
+      if (length(recipes) == 1) {
+        recipes <- list(recipes)
+      }
 
       self$edition <- time_pattern$svy_edition
       self$type <- time_pattern$svy_type
       self$default_engine <- engine
       self$weight <- weight_list
       self$design <- design_list
-      self$recipes <- if (is.null(recipes)) list() else list(recipes)
+      self$recipes <- if (is.null(recipes)) list() else recipes
       self$workflows <- list()
       self$periodicity <- time_pattern$svy_periodicity
     },
@@ -714,10 +718,12 @@ bake_recipes <- function(svy) {
     for (step in seq_along(recipe$steps)) {
       step_call <- recipe$steps[[step]]
       expr <- call("%>%", expr, step_call)
+      
     }
+    svy <- eval(expr)
   }
 
-  svy <- eval(expr)
+  
   svy_after <- svy$clone(deep = TRUE)
   svy_after$recipes <- lapply(
     X = seq_along(recipes),
