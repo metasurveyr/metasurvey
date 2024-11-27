@@ -727,6 +727,10 @@ bake_recipes <- function(svy) {
     svy <- eval(expr)
   }
 
+<<<<<<< HEAD
+=======
+  
+>>>>>>> main
   svy_after <- svy$clone(deep = TRUE)
   svy_after$recipes <- lapply(
     X = seq_along(recipes),
