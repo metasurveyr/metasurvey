@@ -8,4 +8,8 @@
 
 library(testthat)
 
-library(foreign)
+library(metasurvey)
+
+metasurvey::set_engine('data.table')
+
+test_check("metasurvey")
