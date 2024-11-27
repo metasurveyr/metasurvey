@@ -70,7 +70,7 @@ Survey <- R6Class(
       )
 
       names(design_list) <- names(weight_list)
-      
+
       if (length(recipes) == 1) {
         recipes <- list(recipes)
       }
@@ -722,7 +722,6 @@ bake_recipes <- function(svy) {
     for (step in seq_along(recipe$steps)) {
       step_call <- recipe$steps[[step]]
       expr <- call("%>%", expr, step_call)
-      
     }
     svy <- eval(expr)
   }
