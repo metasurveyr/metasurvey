@@ -2,7 +2,7 @@
 % Please edit documentation in R/steps.R
 \name{step_compute}
 \alias{step_compute}
-\title{Step compute}
+\title{Step compute to create new variables}
 \usage{
 step_compute(
   svy = NULL,
@@ -14,22 +14,40 @@ step_compute(
 )
 }
 \arguments{
-\item{svy}{Survey object}
+\item{svy}{\code{Survey} object or \code{RotativePanelSurvey}}
 
-\item{...}{Expressions to compute}
+\item{...}{\verb{<data-masking>} Name-value pairs. The name gives the name of the column in the output.
 
-\item{.by}{By}
+The value can be:
+\itemize{
+\item A vector of length 1, which will be recycled to the correct length.
+\item A vector the same length as the current group (or the whole data frame if ungrouped).
+\item NULL, to remove the column.
+A data frame or tibble, to create multiple columns in the output.
+}}
 
-\item{use_copy}{Use copy}
+\item{.by}{Strig with group variable to compute}
 
-\item{comment}{Comment}
+\item{use_copy}{Logical, if its FALSE adds the new variables to reference object like \code{data.table}, if it is TRUE adds the new variables to a new object}
 
-\item{.level}{Level}
+\item{comment}{String to add metadata information to the stap compute compatible with Markdown syntax}
+
+\item{.level}{String use for \code{Rotative_Panel_survey} object indicating data to use, level options available;  'implantation' or 'follow-up'}
 }
 \value{
-Survey object
+\code{Survey}  or \code{Rotative_Panel_Survey} object
 }
 \description{
-Step compute
+Function to create new variables similar to Stata COMPUTE function for the same porpose
+}
+\examples{
+\dontrun{
+step_compute(
+pd=POBPCOAC \%in\% 3:5,
+.default = 0,
+comment = "Población Desocupada",
+.level = "follow_up"
+)
+}
 }
 \keyword{Steps}
