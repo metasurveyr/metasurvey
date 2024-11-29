@@ -5,7 +5,8 @@
 #' @param svy_weight List with survey weight information sepcifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
 #' @param svy_psu Primary sampling unit
 #' @param ... Further arguments to be passed to  load_survey
-#' @param bake Logical
+#' @param bake Logical inicating if a recipes is processed when the data are loaded.
+#' @param recipes object, using helper function get_recipes()
 #' @return Survey object
 #' @examples
 #' ech_2022 <- load_survey(
@@ -29,7 +30,8 @@ load_survey <- function(
     svy_edition = NULL,
     svy_weight = NULL,
     svy_psu = NULL,
-    ..., bake = FALSE) {
+    ..., bake = FALSE,
+    recipes = NULL) {
   path_null <- missing(path)
 
   svy_args_null <- missing(svy_type) || missing(svy_edition) || missing(svy_weight)

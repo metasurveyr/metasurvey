@@ -11,7 +11,8 @@ load_survey(
   svy_weight = NULL,
   svy_psu = NULL,
   ...,
-  bake = FALSE
+  bake = FALSE,
+  recipes = NULL
 )
 }
 \arguments{
@@ -27,7 +28,9 @@ load_survey(
 
 \item{...}{Further arguments to be passed to  load_survey}
 
-\item{bake}{Logical}
+\item{bake}{Logical inicating if a recipes is processed when the data are loaded.}
+
+\item{recipes}{object, using helper function get_recipes()}
 }
 \value{
 Survey object
