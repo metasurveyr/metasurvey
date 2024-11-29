@@ -41,7 +41,7 @@ set_engine <- function(.engine = show_engines()) {
   )
 
   metacode <- glue(
-    "if (!require({.engine},quietly = TRUE, warn.conflicts = TRUE)) install.packages('{.engine}')",
+    "if (!require({.engine},quietly = TRUE, warn.conflicts = TRUE)) install.packages('{.engine}', repos = 'http://cran.us.r-project.org')",
     .engine = get_engine()
   )
 
