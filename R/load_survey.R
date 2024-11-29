@@ -1,12 +1,26 @@
 #' @title Read survey files from different formats and create survey objects 
-#' @param path Path to the survey file
-#' @param svy_type Type of survey
-#' @param svy_edition Edition of the survey
-#' @param svy_weight Weight of the survey
+#' @param path Path to the survey file, file can be in different formats, csv, xtsx, dta, sav and rds
+#' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
+#' @param svy_edition String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range 
+#' @param svy_weight List with survey weight information sepcifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
 #' @param svy_psu Primary sampling unit
-#' @param ... Additional arguments
+#' @param ... Further arguments to be passed to  load_survey
 #' @param bake Logical
 #' @return Survey object
+#' @examples
+#' ech_2022 <- load_survey(
+#'metasurvey::load_survey_example(
+#'  "ech",
+#'  "ech_2022"
+#'),
+#'svy_edition = "2022",
+#'svy_type = "ech",
+#'svy_weight = add_weight(annual = "w_ano"),
+#'recipes = get_recipe(
+#'  "ech",
+#'  "2022"
+#')
+#')
 #' @keywords preprocessing
 #' @export
 load_survey <- function(
