@@ -1,8 +1,8 @@
-#' @title Read survey files from different formats and create survey objects 
-#' @param path Path to the survey file, file can be in different formats, csv, xtsx, dta, sav and rds
+#' @title Read survey files from different formats and create a Survey object
+#' @param path Survey file path, file can be in different formats, csv, xtsx, dta, sav and rds
 #' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
 #' @param svy_edition String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range 
-#' @param svy_weight List with survey weight information sepcifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param svy_weight List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
 #' @param svy_psu Primary sampling unit
 #' @param ... Further arguments to be passed to  load_survey
 #' @param bake Logical inicating if a recipes is processed when the data are loaded.
@@ -80,14 +80,54 @@ load_survey <- function(
 }
 
 
-#' Load panel survey
-#' @param path_implantation Path to the implantation survey
-#' @param path_follow_up Path to the follow-up survey
-#' @param svy_type Type of survey
-#' @param svy_weight_implantation Weight of the implantation survey
-#' @param svy_weight_follow_up Weight of the follow-up survey
+#' @title Read panel survey files from different formats and create a RotativePanelSurvey object 
+#' @param path_implantation Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds
+#' @param path_follow_up Path with all the needed files with only survey valid files but also can be character vector with path files.
+#' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
+#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param ... Further arguments to be passed to  load_panel_survey
 #' @keywords preprocessing
 #' @return RotativePanelSurvey object
+#' @examples
+#' \dontrun{
+#' # example code
+#' path_dir <- here::here("example-data", "ech", "ech_2023")
+#'ech_2023 <- load_panel_survey(
+#'  path_implantation = file.path(
+#'    path_dir,
+#'    "ECH_implantacion_2023.csv"
+#'  ),
+#'  path_follow_up = file.path(
+#'    path_dir,
+#'    "seguimiento"
+#'  ),
+#'  svy_type = "ECH_2023",
+#'  svy_weight_implantation = add_weight(
+#'    annual = "W_ANO"
+#'  ),
+#'  svy_weight_follow_up = add_weight(
+#'    monthly = add_replicate(
+#'      "W",
+#'      replicate_path = file.path(
+#'        path_dir,
+#'        c(
+#'          "Pesos replicados Bootstrap mensuales enero_junio 2023",
+#'          "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
+#'        ),
+#'        c(
+#'          "Pesos replicados mensuales enero_junio 2023",
+#'          "Pesos replicados mensuales Julio_diciembre 2023"
+#'        )
+#'      ),
+#'      replicate_id = c("ID" = "ID"),
+#'      replicate_pattern = "wr[0-9]+",
+#'      replicate_type = "bootstrap"
+#'    )
+#'  )
+#')
+#'}
+#' 
 #' @export
 
 load_panel_survey <- function(
@@ -95,7 +135,8 @@ load_panel_survey <- function(
     path_follow_up,
     svy_type,
     svy_weight_implantation,
-    svy_weight_follow_up) {
+    svy_weight_follow_up,
+    ...) {
   names_survey <- gsub(
     "\\..*",
     "",

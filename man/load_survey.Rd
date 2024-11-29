@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_survey.R
 \name{load_survey}
 \alias{load_survey}
-\title{Read survey files from different formats and create survey objects}
+\title{Read survey files from different formats and create a Survey object}
 \usage{
 load_survey(
   path = NULL,
@@ -16,13 +16,13 @@ load_survey(
 )
 }
 \arguments{
-\item{path}{Path to the survey file, file can be in different formats, csv, xtsx, dta, sav and rds}
+\item{path}{Survey file path, file can be in different formats, csv, xtsx, dta, sav and rds}
 
 \item{svy_type}{String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)}
 
 \item{svy_edition}{String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range}
 
-\item{svy_weight}{List with survey weight information sepcifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
+\item{svy_weight}{List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
 
 \item{svy_psu}{Primary sampling unit}
 
@@ -36,7 +36,7 @@ load_survey(
 Survey object
 }
 \description{
-Read survey files from different formats and create survey objects
+Read survey files from different formats and create a Survey object
 }
 \examples{
 ech_2022 <- load_survey(
