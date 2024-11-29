@@ -1,4 +1,4 @@
-#' @title Load survey
+#' @title Read survey files from different formats and create survey objects 
 #' @param path Path to the survey file
 #' @param svy_type Type of survey
 #' @param svy_edition Edition of the survey
