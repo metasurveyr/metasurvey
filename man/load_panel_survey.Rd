@@ -2,31 +2,74 @@
 % Please edit documentation in R/load_survey.R
 \name{load_panel_survey}
 \alias{load_panel_survey}
-\title{Load panel survey}
+\title{Read panel survey files from different formats and create a RotativePanelSurvey object}
 \usage{
 load_panel_survey(
   path_implantation,
   path_follow_up,
   svy_type,
   svy_weight_implantation,
-  svy_weight_follow_up
+  svy_weight_follow_up,
+  ...
 )
 }
 \arguments{
-\item{path_implantation}{Path to the implantation survey}
+\item{path_implantation}{Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds}
 
-\item{path_follow_up}{Path to the follow-up survey}
+\item{path_follow_up}{Path with all the needed files with only survey valid files but also can be character vector with path files.}
 
-\item{svy_type}{Type of survey}
+\item{svy_type}{String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)}
 
-\item{svy_weight_implantation}{Weight of the implantation survey}
+\item{svy_weight_implantation}{List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
 
-\item{svy_weight_follow_up}{Weight of the follow-up survey}
+\item{svy_weight_follow_up}{List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
+
+\item{...}{Further arguments to be passed to  load_panel_survey}
 }
 \value{
 RotativePanelSurvey object
 }
 \description{
-Load panel survey
+Read panel survey files from different formats and create a RotativePanelSurvey object
+}
+\examples{
+\dontrun{
+# example code
+path_dir <- here::here("example-data", "ech", "ech_2023")
+ech_2023 <- load_panel_survey(
+ path_implantation = file.path(
+   path_dir,
+   "ECH_implantacion_2023.csv"
+ ),
+ path_follow_up = file.path(
+   path_dir,
+   "seguimiento"
+ ),
+ svy_type = "ECH_2023",
+ svy_weight_implantation = add_weight(
+   annual = "W_ANO"
+ ),
+ svy_weight_follow_up = add_weight(
+   monthly = add_replicate(
+     "W",
+     replicate_path = file.path(
+       path_dir,
+       c(
+         "Pesos replicados Bootstrap mensuales enero_junio 2023",
+         "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
+       ),
+       c(
+         "Pesos replicados mensuales enero_junio 2023",
+         "Pesos replicados mensuales Julio_diciembre 2023"
+       )
+     ),
+     replicate_id = c("ID" = "ID"),
+     replicate_pattern = "wr[0-9]+",
+     replicate_type = "bootstrap"
+   )
+ )
+)
+}
+
 }
 \keyword{preprocessing}
