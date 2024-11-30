@@ -132,14 +132,31 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
   }
 }
 
-#' Step compute
-#' @param svy Survey object
-#' @param ... Expressions to compute
-#' @param use_copy Use copy
-#' @param .by By
-#' @param comment Comment
-#' @param .level Level
-#' @return Survey object
+#' @title Step compute to create new variables
+#' @description Function to create new variables similar to Stata COMPUTE function for the same porpose
+#' @param svy `Survey` object or `RotativePanelSurvey`
+#' @param ... `<data-masking>` Name-value pairs. The name gives the name of the column in the output.
+#'
+#'The value can be:
+#' - A vector of length 1, which will be recycled to the correct length.
+#' - A vector the same length as the current group (or the whole data frame if ungrouped).
+#' - NULL, to remove the column.
+#' A data frame or tibble, to create multiple columns in the output.
+#' 
+#' @param use_copy Logical, if its FALSE adds the new variables to reference object like `data.table`, if it is TRUE adds the new variables to a new object
+#' @param .by Strig with group variable to compute
+#' @param comment String to add metadata information to the stap compute compatible with Markdown syntax
+#' @param .level String use for `Rotative_Panel_survey` object indicating data to use, level options available;  'implantation' or 'follow-up'
+#' @return `Survey`  or `Rotative_Panel_Survey` object
+#' @examples 
+#' \dontrun{
+#' step_compute(
+#' pd=POBPCOAC %in% 3:5,
+#'.default = 0,
+#'comment = "Población Desocupada",
+#'.level = "follow_up"
+#')
+#' }
 #' @keywords Steps
 #' @export
 
