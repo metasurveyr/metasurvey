@@ -62,6 +62,7 @@ load_survey <- function(
     svy_psu = svy_psu,
     .engine_name = .engine,
     bake = bake,
+    recipes = recipes,
     ...
   )
 
