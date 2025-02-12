@@ -86,6 +86,16 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   }
 
   .calls <- substitute(list(...))
+
+  if (all(c("rho", "R") %in% names(.calls))) {
+    rho <- eval(.calls[["rho"]])
+    R <- eval(.calls[["R"]])
+    .calls <- .calls[-which(names(.calls) %in% c("rho", "R"))]
+  } else {
+    rho <- 1
+    R <- 1
+  }
+
   survey <- survey$surveys[[estimation_type_first]]
   estimation_type_vector <- names(survey)
 
@@ -123,11 +133,21 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
     )
   )
 
+  adj_se <- function(variance, rho, R) {
+    sqrt(1+rho*R) * sqrt(variance)
+  }
+
+  result <- result[
+    ,
+    variance := se ** 2
+  ]
+
   if (estimation_type_first == estimation_type) {
     return(data.table(result))
   } else {
     numeric_vars <- names(result)[sapply(result, is.numeric)]
     agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
+    agg[, se := sapply(variance, adj_se, rho = rho, R = R)]
     agg[, evaluate := sapply(cv, evaluate_cv)]
     return(data.table(agg[order(stat), ]))
   }
