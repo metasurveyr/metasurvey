@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9016</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,48 +61,48 @@
 
 
 <dl><dt id="arg-svy">svy<a class="anchor" aria-label="anchor" href="#arg-svy"></a></dt>
-<dd><p>Survey object</p></dd>
+<dd><p><code>Survey</code> object or <code>RotativePanelSurvey</code></p></dd>
 
 
 <dt id="arg-new-var">new_var<a class="anchor" aria-label="anchor" href="#arg-new-var"></a></dt>
-<dd><p>New variable</p></dd>
+<dd><p>Character of string of the new variable to create</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Expressions to recode</p></dd>
+<dd><p>A sequence of two-sided formulas. The left hand side (LHS) determines which values match this case. The right hand side (RHS) provides the replacement value. The LHS inputs must evaluate to logical vectors. The RHS inputs will be coerced to their common type.All inputs will be recycled to their common size. That said, we encourage all LHS inputs to be the same size. Recycling is mainly useful for RHS inputs, where you might supply a size 1 input that will be recycled to the size of the LHS inputs.</p></dd>
 
 
 <dt id="arg--default">.default<a class="anchor" aria-label="anchor" href="#arg--default"></a></dt>
-<dd><p>Default value</p></dd>
+<dd><p>Value to replace if no match is found</p></dd>
 
 
 <dt id="arg--name-step">.name_step<a class="anchor" aria-label="anchor" href="#arg--name-step"></a></dt>
-<dd><p>Name of the step</p></dd>
+<dd><p>Character name of the step identify the step in the survey object, is the name of the step is not provided it will be created automatically</p></dd>
 
 
 <dt id="arg-ordered">ordered<a class="anchor" aria-label="anchor" href="#arg-ordered"></a></dt>
-<dd><p>Ordered</p></dd>
+<dd><p>Logical, if TRUE the new variable will be ordered</p></dd>
 
 
 <dt id="arg-use-copy">use_copy<a class="anchor" aria-label="anchor" href="#arg-use-copy"></a></dt>
-<dd><p>Use copy</p></dd>
+<dd><p>Logical, if its FALSE adds the new variables to reference object like <code>data.table</code>, if it is TRUE adds the new variables to a new object</p></dd>
 
 
 <dt id="arg-comment">comment<a class="anchor" aria-label="anchor" href="#arg-comment"></a></dt>
-<dd><p>Comment</p></dd>
+<dd><p>String to add metadata information to the stap compute compatible with Markdown syntax</p></dd>
 
 
 <dt id="arg--to-factor">.to_factor<a class="anchor" aria-label="anchor" href="#arg--to-factor"></a></dt>
-<dd><p>To factor</p></dd>
+<dd><p>Logical, if TRUE the new variable will be converted to factor</p></dd>
 
 
 <dt id="arg--level">.level<a class="anchor" aria-label="anchor" href="#arg--level"></a></dt>
-<dd><p>Level</p></dd>
+<dd><p>String use for <code>Rotative_Panel_survey</code> object indicating data to use, level options available;  'implantation' or 'follow-up'</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Survey object</p>
+    <p><code>Survey</code>  or <code>Rotative_Panel_Survey</code> object</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
