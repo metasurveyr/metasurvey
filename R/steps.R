@@ -324,17 +324,17 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 }
 
 #' Step recode
-#' @param svy Survey object
-#' @param new_var New variable
-#' @param ... Expressions to recode
-#' @param .default Default value
-#' @param .name_step Name of the step
-#' @param ordered Ordered
-#' @param use_copy Use copy
-#' @param comment Comment
-#' @param .to_factor To factor
-#' @param .level Level
-#' @return Survey object
+#' @param svy `Survey` object or `RotativePanelSurvey`
+#' @param new_var Character of string of the new variable to create 
+#' @param ... A sequence of two-sided formulas. The left hand side (LHS) determines which values match this case. The right hand side (RHS) provides the replacement value. The LHS inputs must evaluate to logical vectors. The RHS inputs will be coerced to their common type.All inputs will be recycled to their common size. That said, we encourage all LHS inputs to be the same size. Recycling is mainly useful for RHS inputs, where you might supply a size 1 input that will be recycled to the size of the LHS inputs.
+#' @param .default Value to replace if no match is found
+#' @param .name_step Character name of the step identify the step in the survey object, is the name of the step is not provided it will be created automatically
+#' @param ordered  Logical, if TRUE the new variable will be ordered
+#' @param use_copy Logical, if its FALSE adds the new variables to reference object like `data.table`, if it is TRUE adds the new variables to a new object
+#' @param comment String to add metadata information to the stap compute compatible with Markdown syntax
+#' @param .to_factor Logical, if TRUE the new variable will be converted to factor
+#' @param .level String use for `Rotative_Panel_survey` object indicating data to use, level options available;  'implantation' or 'follow-up'
+#' @return `Survey`  or `Rotative_Panel_Survey` object
 #' @keywords Steps
 #' @export
 
