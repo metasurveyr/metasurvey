@@ -18,7 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Mauro Loprete \email{mloprete@cognus.cl}
+\strong{Maintainer}: Mauro Loprete \email{mauroloprete1@gmail.com}
 
 Authors:
 \itemize{
