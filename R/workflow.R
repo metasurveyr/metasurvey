@@ -134,12 +134,12 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   )
 
   adj_se <- function(variance, rho, R) {
-    sqrt(1+rho*R) * sqrt(variance)
+    sqrt(1 + rho * R) * sqrt(variance)
   }
 
   result <- result[
     ,
-    variance := se ** 2
+    variance := se**2
   ]
 
   if (estimation_type_first == estimation_type) {
