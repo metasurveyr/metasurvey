@@ -41,30 +41,38 @@ Survey <- R6Class(
               calibrate.formula = ~1
             )
           } else {
-            aux_vars <- c(x$weight, x$replicate_id)
-            data_aux <- data[, aux_vars, with = FALSE]
-            data_aux <- merge(
-              data_aux,
-              x$replicate_file[, 1:11],
+            data_merged <- merge(
+              data,
+              x$replicate_file,
               by.x = names(x$replicate_id),
-              by.y = x$replicate_id
+              by.y = names(x$replicate_id),
+              sort = TRUE  # Conserva el orden original, si es necesario
             )
-
+            
+            all_rep_cols <- names(data_merged)[grepl(x$replicate_pattern, names(data_merged))]
+            
+            initial_rep_cols <- all_rep_cols[1:10]
+            
+            setDT(data_merged)
+            
+          
             design <- survey::svrepdesign(
-              id = psu,
               weights = as.formula(paste("~", x$weight)),
-              data = data_aux,
-              repweights = x$replicate_pattern,
+              data = data_merged[, c(x$weight, names(x$replicate_id), initial_rep_cols), with = FALSE],
+              repweights = data_merged[, ..initial_rep_cols],
               type = x$replicate_type
             )
-
-
-            data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
-            design$variables <- data
-            vars <- grepl(x$replicate_pattern, names(data))
-            rep_weights <- data[, vars, with = FALSE]
-            design$repweights <- data.table(rep_weights)
-            return(design)
+            
+            
+            design_full <- update(design, repweights = data_merged[, ..all_rep_cols])
+            
+            design_full$degf <- length(all_rep_cols) - 1
+            design_full$repweights <- data_merged[, ..all_rep_cols]
+            # design_full$scale <- 0.001001001
+            design_full$scale <- 1/length(all_rep_cols)
+            design_full$rscales <- rep(1, length(all_rep_cols))
+            
+            return(design_full)
           }
         }
       )
