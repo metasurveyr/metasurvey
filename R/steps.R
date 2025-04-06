@@ -137,25 +137,25 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @param svy `Survey` object or `RotativePanelSurvey`
 #' @param ... `<data-masking>` Name-value pairs. The name gives the name of the column in the output.
 #'
-#'The value can be:
+#' The value can be:
 #' - A vector of length 1, which will be recycled to the correct length.
 #' - A vector the same length as the current group (or the whole data frame if ungrouped).
 #' - NULL, to remove the column.
 #' A data frame or tibble, to create multiple columns in the output.
-#' 
+#'
 #' @param use_copy Logical, if its FALSE adds the new variables to reference object like `data.table`, if it is TRUE adds the new variables to a new object
 #' @param .by Strig with group variable to compute
 #' @param comment String to add metadata information to the stap compute compatible with Markdown syntax
 #' @param .level String use for `Rotative_Panel_survey` object indicating data to use, level options available;  'implantation' or 'follow-up'
 #' @return `Survey`  or `Rotative_Panel_Survey` object
-#' @examples 
+#' @examples
 #' \dontrun{
 #' step_compute(
-#' pd=POBPCOAC %in% 3:5,
-#'.default = 0,
-#'comment = "Población Desocupada",
-#'.level = "follow_up"
-#')
+#'   pd = POBPCOAC %in% 3:5,
+#'   .default = 0,
+#'   comment = "Poblacion Desocupada",
+#'   .level = "follow_up"
+#' )
 #' }
 #' @keywords Steps
 #' @export
@@ -325,7 +325,7 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 
 #' Step recode
 #' @param svy `Survey` object or `RotativePanelSurvey`
-#' @param new_var Character of string of the new variable to create 
+#' @param new_var Character of string of the new variable to create
 #' @param ... A sequence of two-sided formulas. The left hand side (LHS) determines which values match this case. The right hand side (RHS) provides the replacement value. The LHS inputs must evaluate to logical vectors. The RHS inputs will be coerced to their common type.All inputs will be recycled to their common size. That said, we encourage all LHS inputs to be the same size. Recycling is mainly useful for RHS inputs, where you might supply a size 1 input that will be recycled to the size of the LHS inputs.
 #' @param .default Value to replace if no match is found
 #' @param .name_step Character name of the step identify the step in the survey object, is the name of the step is not provided it will be created automatically
