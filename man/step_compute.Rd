@@ -43,10 +43,10 @@ Function to create new variables similar to Stata COMPUTE function for the same 
 \examples{
 \dontrun{
 step_compute(
-pd=POBPCOAC \%in\% 3:5,
-.default = 0,
-comment = "Población Desocupada",
-.level = "follow_up"
+  pd = POBPCOAC \%in\% 3:5,
+  .default = 0,
+  comment = "Poblacion Desocupada",
+  .level = "follow_up"
 )
 }
 }

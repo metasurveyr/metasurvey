@@ -212,7 +212,7 @@ cat_estimation.svyby <- function(estimation, call) {
 #' @keywords internal
 
 cat_estimation.default <- function(estimation, call) {
-  confint_estimation <- confint(estimation)
+  confint_estimation <- stats::confint(estimation)
 
 
   dt <- data.table(
@@ -220,8 +220,8 @@ cat_estimation.default <- function(estimation, call) {
     value = coef(estimation),
     se = unname(SE(estimation)),
     cv = unname(cv(estimation)),
-    confint_lower = unname(confint(estimation)[, 1]),
-    confint_upper = unname(confint(estimation)[, 2])
+    confint_lower = unname(confint_estimation[, 1]),
+    confint_upper = unname(confint_estimation[, 2])
   )
   names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
@@ -246,8 +246,8 @@ cat_estimation.svyratio <- function(estimation, call) {
     value = coef(estimation),
     se = unname(SE(estimation)),
     cv = unname(cv(estimation)),
-    confint_lower = unname(confint(estimation)[, 1]),
-    confint_upper = unname(confint(estimation)[, 2])
+    confint_lower = unname(confint_estimation[, 1]),
+    confint_upper = unname(confint_estimation[, 2])
   )
   names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
