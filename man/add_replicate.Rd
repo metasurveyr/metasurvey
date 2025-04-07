@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{add_replicate}
 \alias{add_replicate}
-\title{add_replicate}
+\title{Add replicate pattern in survey design with weight and replicate files}
 \usage{
 add_replicate(
   weight,
@@ -13,17 +13,35 @@ add_replicate(
 )
 }
 \arguments{
-\item{weight}{Weight}
+\item{weight}{String with name of weight in survey}
 
-\item{replicate_pattern}{Replicate pattern}
+\item{replicate_pattern}{String with replicate pattern for columns names regex expression}
 
-\item{replicate_path}{Replicate file}
+\item{replicate_path}{String with replicate file path}
 
-\item{replicate_id}{Replicate ID}
+\item{replicate_id}{String with replicate ID use to join with survey}
 
-\item{replicate_type}{Replicate type}
+\item{replicate_type}{String with replicate type, e.g. "bootstrap", "jackknife"}
+}
+\value{
+List of replicate parameters. It will be used to create a replicate object in the survey design.
 }
 \description{
-add_replicate
+Add replicate pattern in survey design with weight and replicate files
+}
+\examples{
+add_replicate(
+  weight = "W",
+  replicate_pattern = "wr[0-9]+",
+  replicate_path = here::here(
+    "example-data",
+    "ech",
+    "ech_2023",
+    "pesos replicados Bootstrap anual 2023.xlsx"
+  ),
+  replicate_id = c("ID" = "ID"),
+  replicate_type = "bootstrap"
+)
+
 }
 \keyword{utils}
