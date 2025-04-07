@@ -570,9 +570,8 @@ add_replicate <- function(
 #' @export
 
 evaluate_cv <- function(cv) {
-  
   if (cv <= 1) {
-    cv = cv * 100
+    cv <- cv * 100
   }
 
   if (cv < 5) {
