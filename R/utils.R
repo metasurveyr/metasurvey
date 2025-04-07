@@ -511,11 +511,26 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 
 
 #' Add Weight time pattern
-#' @param monthly Weight monthly
-#' @param annual Weight annual
-#' @param quarterly Weight quarterly
-#' @param biannual Weight biannual
+#' @param monthly String or replicate list with weight monthly pattern
+#' @param annual String or replicate list with weight annual pattern
+#' @param quarterly String or replicate list with weight quarterly pattern
+#' @param biannual String or replicate list with weight biannual pattern
 #' @keywords utils
+#' @examples
+#' add_weight(
+#'   monthly = add_replicate(
+#'     weight = "W",
+#'     replicate_pattern = "wr[0-9]+",
+#'     replicate_path = here::here(
+#'       "example-data",
+#'       "ech",
+#'       "ech_2023",
+#'       "pesos_replicados_01-2023.xlsx"
+#'     ),
+#'     replicate_id = c("ID" = "ID"),
+#'     replicate_type = "bootstrap"
+#'   )
+#' )
 #' @export
 #'
 add_weight <- function(

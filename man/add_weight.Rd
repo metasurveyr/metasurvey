@@ -7,15 +7,31 @@
 add_weight(monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL)
 }
 \arguments{
-\item{monthly}{Weight monthly}
+\item{monthly}{String or replicate list with weight monthly pattern}
 
-\item{annual}{Weight annual}
+\item{annual}{String or replicate list with weight annual pattern}
 
-\item{quarterly}{Weight quarterly}
+\item{quarterly}{String or replicate list with weight quarterly pattern}
 
-\item{biannual}{Weight biannual}
+\item{biannual}{String or replicate list with weight biannual pattern}
 }
 \description{
 Add Weight time pattern
+}
+\examples{
+add_weight(
+  monthly = add_replicate(
+    weight = "W",
+    replicate_pattern = "wr[0-9]+",
+    replicate_path = here::here(
+      "example-data",
+      "ech",
+      "ech_2023",
+      "pesos_replicados_01-2023.xlsx"
+    ),
+    replicate_id = c("ID" = "ID"),
+    replicate_type = "bootstrap"
+  )
+)
 }
 \keyword{utils}
