@@ -46,32 +46,32 @@ Survey <- R6Class(
               x$replicate_file,
               by.x = names(x$replicate_id),
               by.y = names(x$replicate_id),
-              sort = TRUE  # Conserva el orden original, si es necesario
+              sort = TRUE # Conserva el orden original, si es necesario
             )
-            
+
             all_rep_cols <- names(data_merged)[grepl(x$replicate_pattern, names(data_merged))]
-            
+
             initial_rep_cols <- all_rep_cols[1:10]
-            
+
             setDT(data_merged)
-            
-          
+
+
             design <- survey::svrepdesign(
               weights = as.formula(paste("~", x$weight)),
               data = data_merged[, c(x$weight, names(x$replicate_id), initial_rep_cols), with = FALSE],
               repweights = data_merged[, ..initial_rep_cols],
               type = x$replicate_type
             )
-            
-            
+
+
             design_full <- update(design, repweights = data_merged[, ..all_rep_cols])
-            
+
             design_full$degf <- length(all_rep_cols) - 1
             design_full$repweights <- data_merged[, ..all_rep_cols]
             # design_full$scale <- 0.001001001
-            design_full$scale <- 1/length(all_rep_cols)
+            design_full$scale <- 1 / length(all_rep_cols)
             design_full$rscales <- rep(1, length(all_rep_cols))
-            
+
             return(design_full)
           }
         }
