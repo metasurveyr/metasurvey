@@ -2,19 +2,25 @@
 % Please edit documentation in R/Recipes.R
 \name{read_recipe}
 \alias{read_recipe}
-\title{Load a recipe from a file}
+\title{Read Recipe}
 \usage{
 read_recipe(file)
 }
 \arguments{
-\item{file}{A character string with the file path}
+\item{file}{A character string specifying the file path.}
 }
 \value{
-A Recipe object
+A Recipe object.
 }
 \description{
-Load a recipe from a file
+Reads a Recipe object from a JSON file.
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
+\details{
+This function reads a JSON file and decodes it into a Recipe object.
+}
+\examples{
+# Example of reading a Recipe object
+recipe_obj <- read_recipe("recipe.json")
+print(recipe_obj)
+}
+\keyword{utils}

@@ -7,9 +7,9 @@
 default_engine(.engine = "data.table")
 }
 \arguments{
-\item{.engine}{Character vector with the name of the engine}
+\item{.engine}{Character vector with the name of the default engine. By default, "data.table" is used.}
 }
 \description{
-Set default engine
+This function sets a default engine for loading surveys. If an engine is already configured, it keeps it; otherwise, it sets "data.table" as the default engine.
 }
 \keyword{engine}

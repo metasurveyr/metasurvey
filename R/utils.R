@@ -249,6 +249,7 @@ get_api_key <- function() {
 #' @return Public Key
 #' @keywords utils
 #' @keywords internal
+#' @importFrom httr POST content
 #' @noRd
 
 public_key <- function() {

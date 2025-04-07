@@ -7,14 +7,30 @@
 recipe(...)
 }
 \arguments{
-\item{...}{A list with the following metadata: name, user, svy, description}
+\item{...}{A list with the following metadata: name, user, svy, description.}
 }
 \value{
-A Recipe object
+A Recipe object.
 }
 \description{
-Recipe
+Creates a new Recipe object for processing survey data.
+}
+\details{
+This function validates the provided metadata and creates a Recipe object. If steps are included, they are added to the Recipe object.
+}
+\examples{
+# Example of creating a Recipe object
+recipe_obj <- recipe(
+  name = "Example Recipe",
+  user = "Metasurvey User",
+  svy = survey_empty(type = "eaii", edition = "2019-2021"),
+  description = "This is an example recipe."
+)
+print(recipe_obj)
+}
+\seealso{
+See \code{\link{Recipe}} for the class definition.
 }
 \keyword{Recipes}
 \keyword{Survey}
-\keyword{methods}
+\keyword{methods,}
