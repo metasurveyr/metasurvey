@@ -61,145 +61,56 @@
 </div>
 <!-- badges: start -->
 
-<p><strong>metasurvey</strong> provides tools to streamline the analysis of complex survey data using metaprogramming and reproducible pipelines.<br>
-It integrates tightly with the <a href="https://cran.r-project.org/package=survey" class="external-link"><code>survey</code></a> package and is especially helpful when working with <strong>complex survey designs</strong> and <strong>recurrent estimations</strong> over time (e.g., rotating panels or repeated cross-sections).</p>
-<p>Key features:</p>
-<ul>
-<li>Tidy-style API for survey processing and estimation.</li>
-<li>Reproducible survey pipelines with steps and workflows.</li>
-<li>Support for advanced variance estimation methods (e.g., bootstrap replicates).</li>
-<li>Recipes and reusable metadata to manage harmonized survey definitions over time.</li>
-</ul>
-<hr>
+<p>This package provides a set of functions to facilitate the analysis of survey sampling data using meta-programming techniques. In the package you can create reproducible analysis pipelines, and easily generate reports and tables. The package is designed to work with the <code>survey</code> package, and it is particularly useful for complex survey designs.</p>
+<p>Adittionally, the package provides a set of functions to facilitate the variance estimation of complex survey designs, and to facilitate the analysis of complex survey designs using the <code>survey</code> package.</p>
+<p>The package is currently under development, and it is not yet available on CRAN. You can install the development version of the package using the <code>devtools</code> package.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the stable version from CRAN:</p>
+<p>You can install the released version of metasurvey from <a href="https://CRAN.R-project.org" class="external-link">CRAN</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"metasurvey"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
+<p>And the development version from Github with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"metasurveyR/metasurvey"</span><span class="op">)</span></span></code></pre></div>
-<hr>
 </div>
 <div class="section level2">
-<h2 id="quick-example">Quick example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
+<p>This is a basic example which shows you how to solve a common problem:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metasurveyr/metasurvey" class="external-link">metasurvey</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metasurveyr/metasurvey" class="external-link">metasurvey</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ech_2022</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
-<span>    <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/load_survey_example.html">load_survey_example</a></span><span class="op">(</span></span>
-<span>        <span class="st">"ech"</span>,</span>
-<span>        <span class="st">"ech_2022"</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    svy_edition <span class="op">=</span> <span class="st">"2022"</span>,</span>
-<span>    svy_type <span class="op">=</span> <span class="st">"ech"</span>,</span>
-<span>    svy_weight <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w_ano"</span><span class="op">)</span>,</span>
-<span>    recipes <span class="op">=</span> <span class="fu"><a href="reference/get_recipe.html">get_recipe</a></span><span class="op">(</span></span>
-<span>        <span class="st">"ech"</span>,</span>
-<span>        <span class="st">"2022"</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="full-panel-example-with-bootstrap-replicates">Full panel example (with bootstrap replicates)<a class="anchor" aria-label="anchor" href="#full-panel-example-with-bootstrap-replicates"></a>
-</h2>
-<p>This example uses the Uruguayan <a href="https://www.google.com/search?client=safari&amp;rls=en&amp;q=ECH&amp;ie=UTF-8&amp;oe=UTF-8" class="external-link"><em>ECH</em></a> panel with bootstrap replicate weights.<br>
-First, download and unzip the example data:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-o</span> example-data.zip <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">mkdir</span> example-data</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">mkdir</span> temp <span class="kw">&amp;&amp;</span> <span class="fu">unzip</span> example-data.zip <span class="at">-d</span> temp <span class="kw">&amp;&amp;</span> <span class="fu">mv</span> temp/example-data/<span class="pp">*</span> example-data/ <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> temp</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">rm</span> example-data.zip</span></code></pre></div>
-<p>Or run the following R script to download and unzip the data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># download_example_data.R</span></span>
+<span><span class="co"># Load the data</span></span>
 <span></span>
-<span><span class="co"># This script downloads and unzips the example-data.zip from S3</span></span>
-<span></span>
-<span><span class="va">download_example_ech</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">zip_url</span> <span class="op">&lt;-</span> <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
-<span>  <span class="va">dest_zip</span> <span class="op">&lt;-</span> <span class="st">"example-data.zip"</span></span>
-<span>  <span class="va">temp_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"example-data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Download the zip file</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="va">zip_url</span>, destfile <span class="op">=</span> <span class="va">dest_zip</span>, mode <span class="op">=</span> <span class="st">"wb"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Downloaded example-data.zip"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Unzip to temporary directory</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">temp_dir</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/unzip.html" class="external-link">unzip</a></span><span class="op">(</span><span class="va">dest_zip</span>, exdir <span class="op">=</span> <span class="va">temp_dir</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Unzipped example-data.zip"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">target_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"example-data"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">target_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.rename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, </span>
-<span>              <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">target_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Moved unzipped data to chapters/example-data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Cleanup</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">dest_zip</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">temp_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Cleanup done"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Run the function</span></span>
-<span><span class="fu">download_example_ech</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Then, you can run the following analysis:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metasurveyr/metasurvey" class="external-link">metasurvey</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">path_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"example-data"</span>, <span class="st">"ech"</span>, <span class="st">"ech_2023"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">ech_2023</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_panel_survey.html">load_panel_survey</a></span><span class="op">(</span></span>
-<span>  path_implantation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">path_dir</span>, <span class="st">"ECH_implantacion_2023.csv"</span><span class="op">)</span>,</span>
-<span>  path_follow_up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">path_dir</span>, <span class="st">"seguimiento"</span><span class="op">)</span>,</span>
-<span>  svy_type <span class="op">=</span> <span class="st">"ECH_2023"</span>,</span>
-<span>  svy_weight_implantation <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"W_ANO"</span><span class="op">)</span>,</span>
-<span>  svy_weight_follow_up <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span></span>
-<span>    monthly <span class="op">=</span> <span class="fu"><a href="reference/add_replicate.html">add_replicate</a></span><span class="op">(</span></span>
-<span>      <span class="st">"W"</span>,</span>
-<span>      replicate_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span>
-<span>        <span class="va">path_dir</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>          <span class="st">"Pesos replicados Bootstrap mensuales enero_junio 2023"</span>,</span>
-<span>          <span class="st">"Pesos replicados Bootstrap mensuales julio_diciembre 2023"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>          <span class="st">"Pesos replicados mensuales enero_junio 2023"</span>,</span>
-<span>          <span class="st">"Pesos replicados mensuales Julio_diciembre 2023"</span></span>
-<span>        <span class="op">)</span></span>
-<span>      <span class="op">)</span>,</span>
-<span>      replicate_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span> <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>,</span>
-<span>      replicate_pattern <span class="op">=</span> <span class="st">"wr[0-9]+"</span>,</span>
-<span>      replicate_type <span class="op">=</span> <span class="st">"bootstrap"</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">ech_2023</span> <span class="op">&lt;-</span> <span class="va">ech_2023</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pea"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PEA"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pet"</span>, <span class="va">e27</span> <span class="op">&gt;=</span> <span class="fl">14</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PET"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"po"</span>, <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PO"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pd"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PD"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">ech_2023_bake</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">ech_2023</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">workflow_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/workflow.html">workflow</a></span><span class="op">(</span></span>
-<span>  survey <span class="op">=</span> <span class="fu"><a href="reference/extract_surveys.html">extract_surveys</a></span><span class="op">(</span><span class="va">ech_2023_bake</span>, quarterly <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyratio.html" class="external-link">svyratio</a></span><span class="op">(</span><span class="op">~</span><span class="va">pea</span>, denominator <span class="op">=</span> <span class="op">~</span><span class="va">pet</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyratio.html" class="external-link">svyratio</a></span><span class="op">(</span><span class="op">~</span><span class="va">po</span>, denominator <span class="op">=</span> <span class="op">~</span><span class="va">pet</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyratio.html" class="external-link">svyratio</a></span><span class="op">(</span><span class="op">~</span><span class="va">pd</span>, denominator <span class="op">=</span> <span class="op">~</span><span class="va">pea</span><span class="op">)</span>,</span>
-<span>  estimation_type <span class="op">=</span> <span class="st">"quarterly:monthly"</span>,</span>
-<span>  rho <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  R <span class="op">=</span> <span class="fl">5</span> <span class="op">/</span> <span class="fl">6</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">workflow_result</span></span></code></pre></div>
+<span><span class="va">eph2022_3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="reference/load_survey_example.html">load_survey_example</a></span><span class="op">(</span><span class="st">"eph2022_3.csv"</span><span class="op">)</span>,</span>
+<span>  svy_type <span class="op">=</span> <span class="st">"eph"</span>,</span>
+<span>  svy_edition <span class="op">=</span> <span class="st">"2022_3"</span>,</span>
+<span>  svy_weight <span class="op">=</span> <span class="st">"PONDERA"</span></span>
+<span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>    <span class="st">"pea"</span>,</span>
+<span>    <span class="va">ESTADO</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    .default <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>    <span class="st">"pet"</span>,</span>
+<span>    <span class="va">ESTADO</span> <span class="op">!=</span> <span class="fl">4</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    .default <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>    <span class="st">"po"</span>,</span>
+<span>    <span class="va">ESTADO</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    .default <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
+<span>    <span class="st">"pd"</span>,</span>
+<span>    <span class="va">ESTADO</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    .default <span class="op">=</span> <span class="fl">0</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
