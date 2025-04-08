@@ -7,18 +7,18 @@
 survey_empty(edition = NULL, type = NULL, weight = NULL, engine = NULL)
 }
 \arguments{
-\item{edition}{Edition of survey}
+\item{edition}{The edition of the survey.}
 
-\item{type}{Type of survey}
+\item{type}{The type of the survey.}
 
-\item{weight}{Weight of survey}
+\item{weight}{The weight(s) of the survey.}
 
-\item{engine}{Engine of survey}
+\item{engine}{The engine of the survey.}
 }
 \value{
-Survey object
+An empty Survey object.
 }
 \description{
-Create an empty survey
+Create an empty Survey object.
 }
 \keyword{Surveymethods}

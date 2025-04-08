@@ -45,3 +45,12 @@ reference:
 - title: Recipes
   contents:
     - has_keyword("Recipes")
+- title: PoolSurvey
+  contents:
+    - has_keyword("PoolSurvey")
+- title: RotativePanelSurvey
+  contents:
+    - has_keyword("RotativePanelSurvey")
+- title: Survey
+  contents:
+    - has_keyword("Survey")

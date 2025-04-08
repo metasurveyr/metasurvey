@@ -249,6 +249,7 @@ get_api_key <- function() {
 #' @return Public Key
 #' @keywords utils
 #' @keywords internal
+#' @importFrom httr POST content
 #' @noRd
 
 public_key <- function() {
@@ -511,11 +512,26 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 
 
 #' Add Weight time pattern
-#' @param monthly Weight monthly
-#' @param annual Weight annual
-#' @param quarterly Weight quarterly
-#' @param biannual Weight biannual
+#' @param monthly String or replicate list with weight monthly pattern
+#' @param annual String or replicate list with weight annual pattern
+#' @param quarterly String or replicate list with weight quarterly pattern
+#' @param biannual String or replicate list with weight biannual pattern
 #' @keywords utils
+#' @examples
+#' add_weight(
+#'   monthly = add_replicate(
+#'     weight = "W",
+#'     replicate_pattern = "wr[0-9]+",
+#'     replicate_path = here::here(
+#'       "example-data",
+#'       "ech",
+#'       "ech_2023",
+#'       "pesos_replicados_01-2023.xlsx"
+#'     ),
+#'     replicate_id = c("ID" = "ID"),
+#'     replicate_type = "bootstrap"
+#'   )
+#' )
 #' @export
 #'
 add_weight <- function(
@@ -535,14 +551,29 @@ add_weight <- function(
   return(weight_list_clean)
 }
 
-#' add_replicate
-#' @param weight Weight
-#' @param replicate_pattern Replicate pattern
-#' @param replicate_path Replicate file
-#' @param replicate_id Replicate ID
-#' @param replicate_type Replicate type
+#' @title Add replicate pattern in survey design with weight and replicate files
+#' @param weight String with name of weight in survey
+#' @param replicate_pattern String with replicate pattern for columns names regex expression
+#' @param replicate_path String with replicate file path
+#' @param replicate_id String with replicate ID use to join with survey
+#' @param replicate_type String with replicate type, e.g. "bootstrap", "jackknife"
 #' @keywords utils
 #' @export
+#' @examples
+#' add_replicate(
+#'   weight = "W",
+#'   replicate_pattern = "wr[0-9]+",
+#'   replicate_path = here::here(
+#'     "example-data",
+#'     "ech",
+#'     "ech_2023",
+#'     "pesos replicados Bootstrap anual 2023.xlsx"
+#'   ),
+#'   replicate_id = c("ID" = "ID"),
+#'   replicate_type = "bootstrap"
+#' )
+#'
+#' @return List of replicate parameters. It will be used to create a replicate object in the survey design.
 
 add_replicate <- function(
     weight,
@@ -570,9 +601,8 @@ add_replicate <- function(
 #' @export
 
 evaluate_cv <- function(cv) {
-  
   if (cv <= 1) {
-    cv = cv * 100
+    cv <- cv * 100
   }
 
   if (cv < 5) {

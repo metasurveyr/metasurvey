@@ -1,3 +1,17 @@
+#' @title RotativePanelSurvey Class
+#' @description This class represents a rotative panel survey, which includes implantation and follow-up surveys.
+#' It provides methods to access and manipulate survey data, steps, recipes, workflows, and designs.
+#' @field implantation A survey object representing the implantation survey.
+#' @field follow_up A list of survey objects representing the follow-up surveys.
+#' @field type A string indicating the type of the survey.
+#' @field default_engine A string specifying the default engine used for processing.
+#' @field steps A list of steps applied to the survey.
+#' @field recipes A list of recipes associated with the survey.
+#' @field workflows A list of workflows associated with the survey.
+#' @field design A design object for the survey.
+#' @field periodicity A list containing the periodicity of the implantation and follow-up surveys.
+#' @keywords Surveymethods, RotativePanelSurvey
+#' @export
 RotativePanelSurvey <- R6Class(
   "RotativePanelSurvey",
   public = list(
@@ -10,6 +24,16 @@ RotativePanelSurvey <- R6Class(
     workflows = NULL,
     design = NULL,
     periodicity = NULL,
+
+    #' @description Initializes a new instance of the RotativePanelSurvey class.
+    #' @param implantation A survey object representing the implantation survey.
+    #' @param follow_up A list of survey objects representing the follow-up surveys.
+    #' @param type A string indicating the type of the survey.
+    #' @param default_engine A string specifying the default engine used for processing.
+    #' @param steps A list of steps applied to the survey.
+    #' @param recipes A list of recipes associated with the survey.
+    #' @param workflows A list of workflows associated with the survey.
+    #' @param design A design object for the survey.
     initialize = function(implantation, follow_up, type, default_engine, steps, recipes, workflows, design) {
       self$implantation <- implantation
       self$follow_up <- follow_up
@@ -31,18 +55,38 @@ RotativePanelSurvey <- R6Class(
         follow_up = unique(follow_up_types)
       )
     },
+
+    #' @description Retrieves the implantation survey.
+    #' @return A survey object representing the implantation survey.
     get_implantation = function() {
       return(self$implantation)
     },
+
+    #' @description Retrieves the follow-up surveys.
+    #' @param index An integer specifying the index of the follow-up survey to retrieve.
+    #' @param monthly A vector of integers specifying monthly intervals.
+    #' @param quarterly A vector of integers specifying quarterly intervals.
+    #' @param semiannual A vector of integers specifying semiannual intervals.
+    #' @param annual A vector of integers specifying annual intervals.
+    #' @return A list of follow-up surveys matching the specified criteria.
     get_follow_up = function(index = length(self$follow_up), monthly = NULL, quarterly = NULL, semiannual = NULL, annual = NULL) {
       return(self$follow_up[index])
     },
+
+    #' @description Retrieves the type of the survey.
+    #' @return A string indicating the type of the survey.
     get_type = function() {
       return(self$type)
     },
+
+    #' @description Retrieves the default engine used for processing.
+    #' @return A string specifying the default engine.
     get_default_engine = function() {
       return(self$default_engine)
     },
+
+    #' @description Retrieves the steps applied to the survey.
+    #' @return A list containing the steps for the implantation and follow-up surveys.
     get_steps = function() {
       steps_implantation <- self$implantation$steps
       steps_follow_up <- sapply(self$follow_up, function(f) f$steps)
@@ -52,15 +96,26 @@ RotativePanelSurvey <- R6Class(
         follow_up = steps_follow_up
       ))
     },
+
+    #' @description Retrieves the recipes associated with the survey.
+    #' @return A list of recipes.
     get_recipes = function() {
       return(self$recipes)
     },
+
+    #' @description Retrieves the workflows associated with the survey.
+    #' @return A list of workflows.
     get_workflows = function() {
       return(self$workflows)
     },
+
+    #' @description Retrieves the design object for the survey.
+    #' @return A design object.
     get_design = function() {
       return(self$design)
     },
+
+    #' @description Prints metadata about the RotativePanelSurvey object.
     print = function() {
       get_metadata(self = self)
     }
@@ -159,13 +214,26 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
   return(PoolSurvey$new(results))
 }
 
+#' @title PoolSurvey Class
+#' @description This class represents a collection of surveys grouped by specific periods (e.g., monthly, quarterly, annual).
+#' It provides methods to access and manipulate the grouped surveys.
+#' @field surveys A list containing the grouped surveys.
+#' @keywords Surveymethods, PoolSurvey
+#' @export
 PoolSurvey <- R6Class(
   "PoolSurvey",
   public = list(
     surveys = NULL,
+
+    #' @description Initializes a new instance of the PoolSurvey class.
+    #' @param surveys A list containing the grouped surveys.
     initialize = function(surveys) {
       self$surveys <- surveys
     },
+
+    #' @description Retrieves surveys for a specific period.
+    #' @param period A string specifying the period to retrieve (e.g., "monthly", "quarterly").
+    #' @return A list of surveys for the specified period.
     get_surveys = function(period = NULL) {
       if (!is.null(period)) {
         return(self$surveys[[1]][[period]])
@@ -173,6 +241,8 @@ PoolSurvey <- R6Class(
         return(self$surveys)
       }
     },
+
+    #' @description Prints metadata about the PoolSurvey object.
     print = function() {
       get_metadata(self = self)
     }

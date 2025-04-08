@@ -2,15 +2,30 @@
 % Please edit documentation in R/Step.R
 \name{bake_steps}
 \alias{bake_steps}
-\title{Bake steps}
+\title{Bake steps
+Applies all steps in a survey workflow to a Survey or RotativePanelSurvey object.}
 \usage{
 bake_steps(svy)
 }
 \arguments{
-\item{svy}{A Survey object}
+\item{svy}{A Survey or RotativePanelSurvey object containing the survey data and steps to be applied.}
+}
+\value{
+A Survey or RotativePanelSurvey object with all steps applied.
 }
 \description{
 Bake steps
+Applies all steps in a survey workflow to a Survey or RotativePanelSurvey object.
+}
+\details{
+This function iterates through all the steps defined in the survey object and applies them sequentially. If the object is a RotativePanelSurvey, it processes both the implantation and follow-up surveys.
+}
+\examples{
+svy <- Survey$new(data = data.frame(var1 = 1:10, var2 = 11:20))
+step1 <- Step$new(name = "step1", edition = "2023", survey_type = "example_survey", type = "compute", new_var = "var3", exprs = list(var3 = var1 + var2), call = NULL, svy_before = NULL, default_engine = NULL, depends_on = list("var1", "var2"), comments = "Compute var3", bake = FALSE)
+svy$steps <- list(step1)
+svy <- bake_steps(svy)
+print(svy$data)
 }
 \keyword{Bake}
 \keyword{Steps}

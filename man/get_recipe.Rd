@@ -2,7 +2,7 @@
 % Please edit documentation in R/Recipes.R
 \name{get_recipe}
 \alias{get_recipe}
-\title{Get a recipe from the API}
+\title{Get Recipe}
 \usage{
 get_recipe(
   svy_type = NULL,
@@ -12,20 +12,26 @@ get_recipe(
 )
 }
 \arguments{
-\item{svy_type}{A character string with the survey type of the recipe}
+\item{svy_type}{A character string specifying the survey type.}
 
-\item{svy_edition}{A character string with the survey edition of the recipe}
+\item{svy_edition}{A character string specifying the survey edition.}
 
-\item{topic}{A character string with the topic of the recipe}
+\item{topic}{A character string specifying the topic of the recipe.}
 
-\item{allowMultiple}{A logical value to allow multiple recipes}
+\item{allowMultiple}{A logical value indicating whether to allow multiple recipes.}
 }
 \value{
-A Recipe object
+A Recipe object or a list of Recipe objects.
 }
 \description{
-Get a recipe from the API
+Retrieves a Recipe object from the API based on specified criteria.
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
+\details{
+This function queries the API to retrieve recipes matching the specified criteria.
+}
+\examples{
+# Example of retrieving a Recipe object from the API
+recipe_obj <- get_recipe(svy_type = "eaii", svy_edition = "2019-2021")
+print(recipe_obj)
+}
+\keyword{utils}

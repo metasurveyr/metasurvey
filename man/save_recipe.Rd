@@ -2,18 +2,26 @@
 % Please edit documentation in R/Recipes.R
 \name{save_recipe}
 \alias{save_recipe}
-\title{Save a recipe to a file}
+\title{Save Recipe}
 \usage{
 save_recipe(recipe, file)
 }
 \arguments{
-\item{recipe}{A Recipe object}
+\item{recipe}{A Recipe object.}
 
-\item{file}{A character string with the file path}
+\item{file}{A character string specifying the file path.}
+}
+\value{
+NULL.
 }
 \description{
-Save a recipe to a file
+Saves a Recipe object to a file in JSON format.
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
+\details{
+This function encodes the Recipe object and writes it to a JSON file.
+}
+\examples{
+# Example of saving a Recipe object
+save_recipe(recipe_obj, "recipe.json")
+}
+\keyword{utils}
