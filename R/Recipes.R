@@ -1,3 +1,20 @@
+#' @title Recipe Class
+#' @rdname Recipe_class
+#' @description This class represents a recipe for processing survey data. A recipe includes metadata such as name, edition, survey type, user, description, and a list of steps to be applied to the survey data.
+#' @field name A string representing the name of the recipe.
+#' @field edition A string indicating the edition of the survey associated with the recipe.
+#' @field survey_type A string specifying the type of survey (e.g., "eaii", "ech").
+#' @field default_engine A string indicating the default engine used for processing.
+#' @field depends_on A list of dependencies required by the recipe.
+#' @field user A string representing the user or creator of the recipe.
+#' @field description A string providing a description of the recipe.
+#' @field id A unique identifier for the recipe.
+#' @field steps A list of steps to be applied to the survey data.
+#' @field doi A string representing the DOI (Digital Object Identifier) of the recipe.
+#' @field bake A logical value indicating whether the recipe should be baked (processed) immediately.
+#' @field topic A string specifying the topic of the recipe.
+#' @keywords Recipes
+#' @export
 Recipe <- R6Class("Recipe",
   public = list(
     name = NULL,
@@ -12,6 +29,19 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
+
+    #' @description Initializes a new instance of the Recipe class.
+    #' @param name A string representing the name of the recipe.
+    #' @param edition A string indicating the edition of the survey associated with the recipe.
+    #' @param survey_type A string specifying the type of survey (e.g., "eaii", "ech").
+    #' @param default_engine A string indicating the default engine used for processing.
+    #' @param depends_on A list of dependencies required by the recipe.
+    #' @param user A string representing the user or creator of the recipe.
+    #' @param description A string providing a description of the recipe.
+    #' @param steps A list of steps to be applied to the survey data.
+    #' @param id A unique identifier for the recipe.
+    #' @param doi A string representing the DOI (Digital Object Identifier) of the recipe.
+    #' @param topic A string specifying the topic of the recipe.
     initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
       self$name <- name
       self$edition <- edition
@@ -28,6 +58,10 @@ Recipe <- R6Class("Recipe",
   )
 )
 
+#' @title Metadata for Recipe
+#' @description Returns the metadata fields required for a recipe.
+#' @return A character vector of metadata field names.
+#' @keywords internal
 metadata_recipe <- function() {
   return(
     c(
@@ -39,13 +73,23 @@ metadata_recipe <- function() {
   )
 }
 
-#' Recipe
+#' @title Recipe
+#' @description Creates a new Recipe object for processing survey data.
+#' @param ... A list with the following metadata: name, user, svy, description.
+#' @return A Recipe object.
+#' @keywords Survey methods, Recipes
+#' @seealso See \code{\link{Recipe}} for the class definition.
+#' @details This function validates the provided metadata and creates a Recipe object. If steps are included, they are added to the Recipe object.
+#' @examples
+#' # Example of creating a Recipe object
+#' recipe_obj <- recipe(
+#'   name = "Example Recipe",
+#'   user = "Metasurvey User",
+#'   svy = survey_empty(type = "eaii", edition = "2019-2021"),
+#'   description = "This is an example recipe."
+#' )
+#' print(recipe_obj)
 #' @export
-#' @param ... A list with the following metadata: name, user, svy, description
-#' @keywords Survey methods
-#' @keywords Recipes
-#' @return A Recipe object
-
 recipe <- function(...) {
   dots <- list(...)
 
@@ -141,15 +185,17 @@ decode_step <- function(steps) {
   )
 }
 
-#' Save a recipe to a file
-#' @param recipe A Recipe object
-#' @param file A character string with the file path
-#' @importFrom jsonlite write_json
-#' @return NULL
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @title Save Recipe
+#' @description Saves a Recipe object to a file in JSON format.
+#' @param recipe A Recipe object.
+#' @param file A character string specifying the file path.
+#' @return NULL.
+#' @keywords utils
+#' @details This function encodes the Recipe object and writes it to a JSON file.
+#' @examples
+#' # Example of saving a Recipe object
+#' save_recipe(recipe_obj, "recipe.json")
 #' @export
-
 save_recipe <- function(recipe, file) {
   recipe <- list(
     name = recipe$name,
@@ -190,33 +236,35 @@ recipe_to_json <- function(recipe) {
     jsonlite::toJSON(simplifyVector = TRUE, raw = "mongo")
 }
 
-
-#' Load a recipe from a file
-#' @param file A character string with the file path
-#' @importFrom jsonlite read_json
-#' @return A Recipe object
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @title Read Recipe
+#' @description Reads a Recipe object from a JSON file.
+#' @param file A character string specifying the file path.
+#' @return A Recipe object.
+#' @details This function reads a JSON file and decodes it into a Recipe object.
+#' @examples
+#' # Example of reading a Recipe object
+#' recipe_obj <- read_recipe("recipe.json")
+#' print(recipe_obj)
 #' @export
-
+#' @keywords utils
 read_recipe <- function(file) {
   decode_step(read_json(file, simplifyVector = TRUE)$steps)
 }
 
-#' Get a recipe from the API
-#' @param topic A character string with the topic of the recipe
-#' @param svy_type A character string with the survey type of the recipe
-#' @param svy_edition A character string with the survey edition of the recipe
-#' @param allowMultiple A logical value to allow multiple recipes
-#' @importFrom httr POST
-#' @importFrom jsonlite parse_json
-#' @importFrom httr content
-#' @importFrom httr add_headers
-#' @return A Recipe object
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @title Get Recipe
+#' @description Retrieves a Recipe object from the API based on specified criteria.
+#' @param svy_type A character string specifying the survey type.
+#' @param svy_edition A character string specifying the survey edition.
+#' @param topic A character string specifying the topic of the recipe.
+#' @param allowMultiple A logical value indicating whether to allow multiple recipes.
+#' @return A Recipe object or a list of Recipe objects.
+#' @details This function queries the API to retrieve recipes matching the specified criteria.
+#' @examples
+#' # Example of retrieving a Recipe object from the API
+#' recipe_obj <- get_recipe(svy_type = "eaii", svy_edition = "2019-2021")
+#' print(recipe_obj)
+#' @keywords utils
 #' @export
-
 get_recipe <- function(
     svy_type = NULL,
     svy_edition = NULL,
@@ -309,7 +357,7 @@ get_recipe <- function(
 #' @keywords Survey methods
 #' @return A Recipe object
 #' @keywords Survey methods
-#' @keywords Recipes
+#' @keywords Recipes, utils
 #' @export
 
 steps_to_recipe <- function(
@@ -386,6 +434,8 @@ get_distinct_recipes <- function(recipe) {
 
 #' API Recipe
 #' @noRd
+#' @importFrom httr add_headers
+#' @importFrom jsonlite parse_json
 #' @keywords internal
 
 request_api <- function(method, filterList) {
@@ -477,17 +527,16 @@ request_api <- function(method, filterList) {
   )
 }
 
-
-#' Publish a recipe to the API
-#' @param recipe A Recipe object
-#' @importFrom httr POST
-#' @importFrom httr add_headers
-#' @importFrom jsonlite toJSON
-#' @return A JSON object
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @title Publish Recipe
+#' @description Publishes a Recipe object to the API.
+#' @param recipe A Recipe object.
+#' @return A JSON object containing the API response.
+#' @details This function sends a Recipe object to the API for publication.
+#' @examples
+#' # Example of publishing a Recipe object to the API
+#' publish_recipe(recipe_obj)
+#' @keywords utils
 #' @export
-
 publish_recipe <- function(recipe) {
   recipe <- list(
     name = recipe$name,

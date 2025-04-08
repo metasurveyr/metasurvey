@@ -1,5 +1,67 @@
+#' Step Class
+#' Represents a step in a survey workflow.
+#' @description The `Step` class is used to define and manage individual steps in a survey workflow. Each step can include operations such as recoding variables, computing new variables, or validating dependencies.
+#' @field name The name of the step.
+#' @field edition The edition of the survey associated with the step.
+#' @field survey_type The type of survey associated with the step.
+#' @field type The type of operation performed by the step (e.g., "compute", "recode").
+#' @field new_var The name of the new variable created by the step, if applicable.
+#' @field exprs A list of expressions defining the step's operations.
+#' @field call The function call associated with the step.
+#' @field svy_before The survey object before the step is applied.
+#' @field default_engine The default engine used for processing the step.
+#' @field depends_on A list of variables that the step depends on.
+#' @field comments Comments or notes about the step.
+#' @field bake A logical value indicating whether the step has been executed.
+#' @details The `Step` class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
+#' @examples
+#' step <- Step$new(
+#'   name = "example_step",
+#'   edition = "2023",
+#'   survey_type = "example_survey",
+#'   type = "compute",
+#'   new_var = "example_var",
+#'   exprs = list(a = 1, b = 2),
+#'   call = NULL,
+#'   svy_before = NULL,
+#'   default_engine = NULL,
+#'   depends_on = list("var1", "var2"),
+#'   comments = "Example step",
+#'   bake = FALSE
+#' )
+#' print(step)
+#' @keywords Surveymethods
+#' @keywords Steps
+#' @keywords Workflow
+#' @export
+#' @param name The name of the step.
+#' @param edition The edition of the survey associated with the step.
+#' @param survey_type The type of survey associated with the step.
+#' @param type The type of operation performed by the step (e.g., "compute", "recode").
+#' @param new_var The name of the new variable created by the step, if applicable.
+#' @param exprs A list of expressions defining the step's operations.
+#' @param call The function call associated with the step.
+#' @param svy_before The survey object before the step is applied.
+#' @param default_engine The default engine used for processing the step.
+#' @param depends_on A list of variables that the step depends on.
+#' @param comments Comments or notes about the step.
+#' @param bake A logical value indicating whether the step has been executed.
 Step <- R6Class("Step",
   public = list(
+    #' @method initialize method
+    #' @description Initializes a new Step object with the provided attributes.
+    #' @param name The name of the step.
+    #' @param edition The edition of the survey associated with the step.
+    #' @param survey_type The type of survey associated with the step.
+    #' @param type The type of operation performed by the step (e.g., "compute", "recode").
+    #' @param new_var The name of the new variable created by the step, if applicable.
+    #' @param exprs A list of expressions defining the step's operations.
+    #' @param call The function call associated with the step.
+    #' @param svy_before The survey object before the step is applied.
+    #' @param default_engine The default engine used for processing the step.
+    #' @param depends_on A list of variables that the step depends on.
+    #' @param comments Comments or notes about the step.
+    #' @param bake A logical value indicating whether the step has been executed.
     name = NULL,
     edition = NULL,
     survey_type = NULL,
@@ -30,8 +92,14 @@ Step <- R6Class("Step",
 )
 
 #' Step to environment
-#' @param step A Step object
-#' @return An environment
+#' Converts a Step object into an environment for further processing.
+#' @param step A Step object containing the step details.
+#' @return An environment containing the step's arguments and expressions.
+#' @details This function extracts the arguments of the step's type function and maps them to the step's attributes. It also substitutes the step's expressions into the environment for evaluation.
+#' @examples
+#' step <- Step$new(name = "example_step", edition = "2023", survey_type = "example_survey", type = "compute", new_var = "example_var", exprs = list(a = 1, b = 2), call = NULL, svy_before = NULL, default_engine = NULL, depends_on = list("var1", "var2"), comments = "Example step", bake = FALSE)
+#' env <- step_to_env(step)
+#' print(env)
 #' @keywords Surveymethods
 #' @noRd
 #' @keywords internal
@@ -47,8 +115,15 @@ step_to_env <- function(step) {
 }
 
 #' Validate step
-#' @param svy A Survey object
-#' @param step A Step object
+#' Validates that all dependencies of a Step object are present in the Survey object.
+#' @param svy A Survey object containing the survey data.
+#' @param step A Step object containing the step details.
+#' @return TRUE if all dependencies are present, otherwise an error is raised.
+#' @details This function checks if the variables listed in the `depends_on` attribute of the Step object exist in the Survey object's data. If any variables are missing, an error is thrown with the names of the missing variables.
+#' @examples
+#' svy <- Survey$new(data = data.frame(var1 = 1:10, var2 = 11:20))
+#' step <- Step$new(name = "example_step", edition = "2023", survey_type = "example_survey", type = "compute", new_var = "example_var", exprs = list(a = 1, b = 2), call = NULL, svy_before = NULL, default_engine = NULL, depends_on = list("var1", "var2"), comments = "Example step", bake = FALSE)
+#' validate_step(svy, step)
 #' @keywords Surveymethods
 #' @keywords Steps
 #' @keywords Validate
@@ -59,10 +134,8 @@ validate_step <- function(svy, step) {
   names_svy <- names(svy$data)
   depends_on <- step$depends_on
 
-
   missing_vars <- depends_on[!depends_on %in% names_svy]
 
-  # Si hay variables faltantes, lanza un error con los nombres
   if (length(missing_vars) > 0) {
     stop(
       paste0(
@@ -74,7 +147,6 @@ validate_step <- function(svy, step) {
     return(TRUE)
   }
 }
-
 
 #' Bake step
 #' @param svy A Survey object
@@ -144,13 +216,20 @@ bake_step <- function(svy, step) {
 }
 
 #' Bake steps
-#' @export
+#' Applies all steps in a survey workflow to a Survey or RotativePanelSurvey object.
+#' @param svy A Survey or RotativePanelSurvey object containing the survey data and steps to be applied.
+#' @return A Survey or RotativePanelSurvey object with all steps applied.
+#' @details This function iterates through all the steps defined in the survey object and applies them sequentially. If the object is a RotativePanelSurvey, it processes both the implantation and follow-up surveys.
+#' @examples
+#' svy <- Survey$new(data = data.frame(var1 = 1:10, var2 = 11:20))
+#' step1 <- Step$new(name = "step1", edition = "2023", survey_type = "example_survey", type = "compute", new_var = "var3", exprs = list(var3 = var1 + var2), call = NULL, svy_before = NULL, default_engine = NULL, depends_on = list("var1", "var2"), comments = "Compute var3", bake = FALSE)
+#' svy$steps <- list(step1)
+#' svy <- bake_steps(svy)
+#' print(svy$data)
 #' @keywords Surveymethods
 #' @keywords Steps
 #' @keywords Bake
-#' @param svy A Survey object
-#'
-
+#' @export
 bake_steps <- function(svy) {
   if (is(svy, "Survey")) {
     return(bake_steps_survey(svy))
@@ -185,7 +264,7 @@ bake_steps_rotative <- function(svy) {
   } else {
     svy$implantation <- bake_steps_survey(svy$implantation)
     for (i in seq_along(svy$follow_up)) {
-      svy$follow_up[[i]] <- bake_steps_survey(svy$follow_up[[i]])
+      svy$follow_up <- bake_steps_survey(svy$follow_up[[i]])
     }
     return(svy)
   }

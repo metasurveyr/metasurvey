@@ -1,8 +1,8 @@
 #' @title Read survey files from different formats and create a Survey object
 #' @param path Survey file path, file can be in different formats, csv, xtsx, dta, sav and rds
 #' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
-#' @param svy_edition String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range 
-#' @param svy_weight List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param svy_edition String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range
+#' @param svy_weight List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
 #' @param svy_psu Primary sampling unit
 #' @param ... Further arguments to be passed to  load_survey
 #' @param bake Logical inicating if a recipes is processed when the data are loaded.
@@ -10,18 +10,27 @@
 #' @return Survey object
 #' @examples
 #' ech_2022 <- load_survey(
-#'metasurvey::load_survey_example(
-#'  "ech",
-#'  "ech_2022"
-#'),
-#'svy_edition = "2022",
-#'svy_type = "ech",
-#'svy_weight = add_weight(annual = "w_ano"),
-#'recipes = get_recipe(
-#'  "ech",
-#'  "2022"
-#')
-#')
+#'   metasurvey::load_survey_example(
+#'     "ech",
+#'     "ech_2022"
+#'   ),
+#'   svy_edition = "2022",
+#'   svy_type = "ech",
+#'   svy_weight = add_weight(annual = "w_ano"),
+#'   recipes = get_recipe(
+#'     "ech",
+#'     "2022"
+#'   )
+#' )
+#' # Example of loading a survey file
+#' survey <- load_survey(
+#'   path = "path/to/survey.csv",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(annual = "w_ano"),
+#'   bake = TRUE
+#' )
+#' print(survey)
 #' @keywords preprocessing
 #' @export
 load_survey <- function(
@@ -81,12 +90,12 @@ load_survey <- function(
 }
 
 
-#' @title Read panel survey files from different formats and create a RotativePanelSurvey object 
+#' @title Read panel survey files from different formats and create a RotativePanelSurvey object
 #' @param path_implantation Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds
 #' @param path_follow_up Path with all the needed files with only survey valid files but also can be character vector with path files.
 #' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
-#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
-#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
+#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
 #' @param ... Further arguments to be passed to  load_panel_survey
 #' @keywords preprocessing
 #' @return RotativePanelSurvey object
@@ -94,41 +103,50 @@ load_survey <- function(
 #' \dontrun{
 #' # example code
 #' path_dir <- here::here("example-data", "ech", "ech_2023")
-#'ech_2023 <- load_panel_survey(
-#'  path_implantation = file.path(
-#'    path_dir,
-#'    "ECH_implantacion_2023.csv"
-#'  ),
-#'  path_follow_up = file.path(
-#'    path_dir,
-#'    "seguimiento"
-#'  ),
-#'  svy_type = "ECH_2023",
-#'  svy_weight_implantation = add_weight(
-#'    annual = "W_ANO"
-#'  ),
-#'  svy_weight_follow_up = add_weight(
-#'    monthly = add_replicate(
-#'      "W",
-#'      replicate_path = file.path(
-#'        path_dir,
-#'        c(
-#'          "Pesos replicados Bootstrap mensuales enero_junio 2023",
-#'          "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
-#'        ),
-#'        c(
-#'          "Pesos replicados mensuales enero_junio 2023",
-#'          "Pesos replicados mensuales Julio_diciembre 2023"
-#'        )
-#'      ),
-#'      replicate_id = c("ID" = "ID"),
-#'      replicate_pattern = "wr[0-9]+",
-#'      replicate_type = "bootstrap"
-#'    )
-#'  )
-#')
-#'}
-#' 
+#' ech_2023 <- load_panel_survey(
+#'   path_implantation = file.path(
+#'     path_dir,
+#'     "ECH_implantacion_2023.csv"
+#'   ),
+#'   path_follow_up = file.path(
+#'     path_dir,
+#'     "seguimiento"
+#'   ),
+#'   svy_type = "ECH_2023",
+#'   svy_weight_implantation = add_weight(
+#'     annual = "W_ANO"
+#'   ),
+#'   svy_weight_follow_up = add_weight(
+#'     monthly = add_replicate(
+#'       "W",
+#'       replicate_path = file.path(
+#'         path_dir,
+#'         c(
+#'           "Pesos replicados Bootstrap mensuales enero_junio 2023",
+#'           "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
+#'         ),
+#'         c(
+#'           "Pesos replicados mensuales enero_junio 2023",
+#'           "Pesos replicados mensuales Julio_diciembre 2023"
+#'         )
+#'       ),
+#'       replicate_id = c("ID" = "ID"),
+#'       replicate_pattern = "wr[0-9]+",
+#'       replicate_type = "bootstrap"
+#'     )
+#'   )
+#' )
+#' }
+#' # Example of loading a panel survey
+#' panel_survey <- load_panel_survey(
+#'   path_implantation = "path/to/implantation.csv",
+#'   path_follow_up = "path/to/follow_up",
+#'   svy_type = "ech",
+#'   svy_weight_implantation = add_weight(annual = "w_ano"),
+#'   svy_weight_follow_up = add_weight(monthly = "w_monthly")
+#' )
+#' print(panel_survey)
+#' @keywords preprocessing
 #' @export
 
 load_panel_survey <- function(
@@ -300,7 +318,10 @@ load_panel_survey <- function(
 #' @keywords internal
 #' @noRd
 #' @return data.table
-
+#' @examples
+#' # Example of reading a file with data.table
+#' data <- read_file("path/to/file.csv")
+#' print(data)
 read_file <- function(file, .args = NULL, convert = FALSE) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
@@ -365,7 +386,15 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 #' @importFrom data.table fread
 #' @noRd
 #' @keywords internal
-
+#' @examples
+#' # Example of loading a survey with data.table
+#' survey <- load_survey.data.table(
+#'   file = "path/to/survey.csv",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(annual = "w_ano")
+#' )
+#' print(survey)
 load_survey.data.table <- function(...) {
   .engine_name <- "data.table"
 

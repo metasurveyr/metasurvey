@@ -7,9 +7,9 @@
 get_engine()
 }
 \value{
-Character vector of the engine
+Character vector with the name of the configured engine.
 }
 \description{
-Get engine
+This function retrieves the currently configured engine for loading surveys. It returns the engine configured in the system options or environment variables.
 }
 \keyword{engine}

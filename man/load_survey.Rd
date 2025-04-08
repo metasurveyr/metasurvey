@@ -40,17 +40,26 @@ Read survey files from different formats and create a Survey object
 }
 \examples{
 ech_2022 <- load_survey(
-metasurvey::load_survey_example(
- "ech",
- "ech_2022"
-),
-svy_edition = "2022",
-svy_type = "ech",
-svy_weight = add_weight(annual = "w_ano"),
-recipes = get_recipe(
- "ech",
- "2022"
+  metasurvey::load_survey_example(
+    "ech",
+    "ech_2022"
+  ),
+  svy_edition = "2022",
+  svy_type = "ech",
+  svy_weight = add_weight(annual = "w_ano"),
+  recipes = get_recipe(
+    "ech",
+    "2022"
+  )
 )
+# Example of loading a survey file
+survey <- load_survey(
+  path = "path/to/survey.csv",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(annual = "w_ano"),
+  bake = TRUE
 )
+print(survey)
 }
 \keyword{preprocessing}
