@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_survey.R
 \name{load_survey}
 \alias{load_survey}
-\title{Read survey files from different formats and create a Survey object}
+\title{Load survey from file and create Survey object}
 \usage{
 load_survey(
   path = NULL,
@@ -16,41 +16,106 @@ load_survey(
 )
 }
 \arguments{
-\item{path}{Survey file path, file can be in different formats, csv, xtsx, dta, sav and rds}
+\item{path}{Path to the survey file. Supports multiple formats: csv, xlsx,
+dta (Stata), sav (SPSS), rds (R). If NULL, survey arguments must be
+specified to create an empty object}
 
-\item{svy_type}{String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)}
+\item{svy_type}{Survey type as string. Supported types:
+\itemize{
+\item "ech": Encuesta Continua de Hogares (Uruguay)
+\item "eph": Encuesta Permanente de Hogares (Argentina)
+\item "eai": Encuesta de Actividades de Innovación (Uruguay)
+\item "eaii": Encuesta de Actividades de Innovación e I+D (Uruguay)
+}}
 
-\item{svy_edition}{String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range}
+\item{svy_edition}{Survey edition as string. Supports different temporal
+patterns:
+\itemize{
+\item "YYYY": Year (e.g., "2023")
+\item "YYYYMM" or "MMYYYY": Year-month (e.g., "202301" or "012023")
+\item "YYYY-YYYY": Year range (e.g., "2020-2022")
+}}
 
-\item{svy_weight}{List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
+\item{svy_weight}{List with weight information specifying periodicity and
+weight variable name. Use helper function \code{\link{add_weight}}}
 
-\item{svy_psu}{Primary sampling unit}
+\item{svy_psu}{Primary sampling unit (PSU) variable as string}
 
-\item{...}{Further arguments to be passed to  load_survey}
+\item{...}{Additional arguments passed to specific reading functions}
 
-\item{bake}{Logical inicating if a recipes is processed when the data are loaded.}
+\item{bake}{Logical indicating whether recipes are processed automatically
+when loading data. Defaults to FALSE}
 
-\item{recipes}{object, using helper function get_recipes()}
+\item{recipes}{Recipe object obtained with \code{\link{get_recipe}}.
+If bake=TRUE, these recipes are applied automatically}
 }
 \value{
-Survey object
+\code{Survey} object with structure:
+\itemize{
+\item \code{data}: Survey data
+\item \code{metadata}: Information about type, edition, weights
+\item \code{steps}: History of applied transformations
+\item \code{recipes}: Available recipes
+\item \code{design}: Sample design information
+}
 }
 \description{
-Read survey files from different formats and create a Survey object
+This function reads survey files in multiple formats and creates a Survey
+object with all necessary metadata for subsequent analysis. Supports various
+survey types with specific configurations for each one.
+}
+\details{
+The function automatically detects file format and uses the appropriate
+reader. For each survey type, it applies specific configurations such as
+standard variables, data types, and validations.
+
+When \code{bake=TRUE} is specified, recipes are applied immediately after
+loading the data, creating an analysis-ready object.
+
+If no \code{path} is provided, an empty Survey object is created that can
+be used to build step pipelines without initial data.
 }
 \examples{
-ech_2022 <- load_survey(
-metasurvey::load_survey_example(
- "ech",
- "ech_2022"
-),
-svy_edition = "2022",
-svy_type = "ech",
-svy_weight = add_weight(annual = "w_ano"),
-recipes = get_recipe(
- "ech",
- "2022"
+\dontrun{
+# Load ECH 2023 with recipes
+ech_2023 <- load_survey(
+  path = "data/ech_2023.csv",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(annual = "pesoano"),
+  recipes = get_recipe("ech", "2023"),
+  bake = TRUE
 )
+
+# Load monthly survey
+ech_january <- load_survey(
+  path = "data/ech_202301.dta", 
+  svy_type = "ech",
+  svy_edition = "202301",
+  svy_weight = add_weight(monthly = "pesomes")
 )
+
+# Create empty object for pipeline
+pipeline <- load_survey(
+  svy_type = "ech",
+  svy_edition = "2023"
+) \%>\%
+  step_compute(new_var = operation)
+
+# With included example data
+ech_example <- load_survey(
+  metasurvey::load_survey_example("ech", "ech_2022"),
+  svy_type = "ech", 
+  svy_edition = "2022",
+  svy_weight = add_weight(annual = "pesoano")
+)
+}
+
+}
+\seealso{
+\code{\link{add_weight}} to specify weights
+\code{\link{get_recipe}} to get available recipes
+\code{\link{load_survey_example}} to load example data
+\code{\link{load_panel_survey}} for panel surveys
 }
 \keyword{preprocessing}

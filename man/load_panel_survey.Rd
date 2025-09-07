@@ -37,39 +37,49 @@ Read panel survey files from different formats and create a RotativePanelSurvey 
 # example code
 path_dir <- here::here("example-data", "ech", "ech_2023")
 ech_2023 <- load_panel_survey(
- path_implantation = file.path(
-   path_dir,
-   "ECH_implantacion_2023.csv"
- ),
- path_follow_up = file.path(
-   path_dir,
-   "seguimiento"
- ),
- svy_type = "ECH_2023",
- svy_weight_implantation = add_weight(
-   annual = "W_ANO"
- ),
- svy_weight_follow_up = add_weight(
-   monthly = add_replicate(
-     "W",
-     replicate_path = file.path(
-       path_dir,
-       c(
-         "Pesos replicados Bootstrap mensuales enero_junio 2023",
-         "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
-       ),
-       c(
-         "Pesos replicados mensuales enero_junio 2023",
-         "Pesos replicados mensuales Julio_diciembre 2023"
-       )
-     ),
-     replicate_id = c("ID" = "ID"),
-     replicate_pattern = "wr[0-9]+",
-     replicate_type = "bootstrap"
-   )
- )
+  path_implantation = file.path(
+    path_dir,
+    "ECH_implantacion_2023.csv"
+  ),
+  path_follow_up = file.path(
+    path_dir,
+    "seguimiento"
+  ),
+  svy_type = "ECH_2023",
+  svy_weight_implantation = add_weight(
+    annual = "W_ANO"
+  ),
+  svy_weight_follow_up = add_weight(
+    monthly = add_replicate(
+      "W",
+      replicate_path = file.path(
+        path_dir,
+        c(
+          "Pesos replicados Bootstrap mensuales enero_junio 2023",
+          "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
+        ),
+        c(
+          "Pesos replicados mensuales enero_junio 2023",
+          "Pesos replicados mensuales Julio_diciembre 2023"
+        )
+      ),
+      replicate_id = c("ID" = "ID"),
+      replicate_pattern = "wr[0-9]+",
+      replicate_type = "bootstrap"
+    )
+  )
 )
 }
-
+\dontrun{
+# Example of loading a panel survey
+panel_survey <- load_panel_survey(
+  path_implantation = "path/to/implantation.csv",
+  path_follow_up = "path/to/follow_up",
+  svy_type = "ech",
+  svy_weight_implantation = add_weight(annual = "w_ano"),
+  svy_weight_follow_up = add_weight(monthly = "w_monthly")
+)
+print(panel_survey)
+}
 }
 \keyword{preprocessing}

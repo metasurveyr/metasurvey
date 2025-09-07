@@ -2,19 +2,26 @@
 % Please edit documentation in R/Recipes.R
 \name{publish_recipe}
 \alias{publish_recipe}
-\title{Publish a recipe to the API}
+\title{Publish Recipe}
 \usage{
 publish_recipe(recipe)
 }
 \arguments{
-\item{recipe}{A Recipe object}
+\item{recipe}{A Recipe object.}
 }
 \value{
-A JSON object
+A JSON object containing the API response.
 }
 \description{
-Publish a recipe to the API
+Publishes a Recipe object to the API.
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
+\details{
+This function sends a Recipe object to the API for publication.
+}
+\examples{
+\dontrun{
+# Example of publishing a Recipe object to the API
+publish_recipe(recipe_obj)
+}
+}
+\keyword{utils}

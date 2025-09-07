@@ -2,20 +2,43 @@
 % Please edit documentation in R/utils.R
 \name{set_use_copy}
 \alias{set_use_copy}
-\title{Set use_copy option}
+\title{Set data copy option}
 \usage{
 set_use_copy(use_copy)
 }
 \arguments{
-\item{use_copy}{Use copy}
+\item{use_copy}{Logical value: TRUE to create data copies (safer),
+FALSE to modify data in place (more efficient)}
 }
 \description{
-Set use_copy option
+Configures whether survey operations should create copies of the data or
+modify existing data in place. This setting affects memory usage and
+performance across the metasurvey package.
+}
+\details{
+Setting use_copy affects all subsequent survey operations:
+\itemize{
+\item TRUE (default): Operations create data copies, preserving original data
+\item FALSE: Operations modify data in place, reducing memory usage
+}
+
+Use FALSE for large datasets where memory is a concern, but ensure you
+don't need the original data after operations.
 }
 \examples{
-set_use_copy(FALSE)
-use_copy_default()
+# Set to use copies (default behavior)
 set_use_copy(TRUE)
 use_copy_default()
+
+# Set to modify in place for better performance
+set_use_copy(FALSE)
+use_copy_default()
+
+# Reset to default
+set_use_copy(TRUE)
+
+}
+\seealso{
+\code{\link{use_copy_default}} to check current setting
 }
 \keyword{utils}

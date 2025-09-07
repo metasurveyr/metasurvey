@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{add_replicate}
 \alias{add_replicate}
-\title{add_replicate}
+\title{Configure replicate weights for variance estimation}
 \usage{
 add_replicate(
   weight,
@@ -13,17 +13,98 @@ add_replicate(
 )
 }
 \arguments{
-\item{weight}{Weight}
+\item{weight}{String with the name of the main weight variable in the
+survey (e.g., "pesoano", "pesomes")}
 
-\item{replicate_pattern}{Replicate pattern}
+\item{replicate_pattern}{String with regex pattern to identify replicate
+weight columns. Examples: "wr\\d+" for columns wr1, wr2, etc.}
 
-\item{replicate_path}{Replicate file}
+\item{replicate_path}{Path to the file containing replicate weights.
+If NULL, assumes they are in the same main dataset}
 
-\item{replicate_id}{Replicate ID}
+\item{replicate_id}{Named vector specifying how to join between the main
+dataset and replicate file. Format: c("main_var" = "replicate_var")}
 
-\item{replicate_type}{Replicate type}
+\item{replicate_type}{Type of replication used. Options:
+"bootstrap", "jackknife", "BRR" (Balanced Repeated Replication)}
+}
+\value{
+List with replicate configuration that will be used by the
+sampling design for variance estimation
 }
 \description{
-add_replicate
+This function configures replicate weights (bootstrap, jackknife, etc.) that
+allow estimation of variance for complex statistics in surveys with complex
+sampling designs. It is essential for obtaining correct standard errors in
+population estimates.
+}
+\details{
+Replicate weights are essential for:
+\itemize{
+\item Correctly estimating variance in complex designs
+\item Calculating appropriate confidence intervals
+\item Obtaining reliable coefficients of variation
+\item Performing valid statistical tests
+}
+
+The regex pattern must exactly match the replicate weight column names
+in the file. For example, if columns are named "wr001", "wr002", etc.,
+use the pattern "wr\\\\d+".
+
+This function is typically used within \code{add_weight()} for more
+complex weight configurations.
+}
+\examples{
+\dontrun{
+# Basic configuration with external file
+annual_replicates <- add_replicate(
+  weight = "pesoano",
+  replicate_pattern = "wr\\\\\\\\d+",
+  replicate_path = "bootstrap_weights_2023.xlsx",
+  replicate_id = c("ID_HOGAR" = "ID"),
+  replicate_type = "bootstrap"
+)
+
+# With replicates in same dataset
+integrated_replicates <- add_replicate(
+  weight = "main_weight", 
+  replicate_pattern = "rep_\\\\\\\\d{3}",
+  replicate_type = "jackknife"
+)
+
+# Use within add_weight
+weight_config <- add_weight(
+  annual = add_replicate(
+    weight = "pesoano",
+    replicate_pattern = "wr\\\\\\\\d+", 
+    replicate_path = "bootstrap_annual.xlsx",
+    replicate_id = c("numero" = "ID_HOGAR"),
+    replicate_type = "bootstrap"
+  ),
+  monthly = "pesomes"  # No replicates for monthly
+)
+
+# In load_survey
+ech <- load_survey(
+  path = "ech_2023.dta",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(
+    annual = add_replicate(
+      weight = "pesoano",
+      replicate_pattern = "wr\\\\\\\\d+",
+      replicate_path = "bootstrap_weights.xlsx", 
+      replicate_id = c("numero" = "ID"),
+      replicate_type = "bootstrap"
+    )
+  )
+)
+}
+
+}
+\seealso{
+\code{\link{add_weight}} for complete weight configuration
+\code{\link[survey]{svrepdesign}} for replicate design in survey package
+\code{\link{load_survey}} where this configuration is used
 }
 \keyword{utils}
