@@ -1,3 +1,35 @@
+#' Recipe R6 class
+#'
+#' R6 class representing a reproducible data transformation recipe for
+#' surveys. It encapsulates metadata, declared dependencies, and a list of
+#' transformation steps to be applied to a Survey object.
+#'
+#' @name Recipe
+#' @docType class
+#' @format An R6 class generator (R6ClassGenerator)
+#'
+#' @field name Descriptive name of the recipe (character).
+#' @field edition Target edition/period (character or Date).
+#' @field survey_type Survey type (character), e.g., "ech", "eaii".
+#' @field default_engine Default evaluation engine (character).
+#' @field depends_on Vector/list of dependencies declared by the steps.
+#' @field user Author/owner (character).
+#' @field description Recipe description (character).
+#' @field id Unique identifier (character/numeric).
+#' @field steps List of step calls that make up the workflow.
+#' @field doi DOI or external identifier (character|NULL).
+#' @field bake Logical flag indicating whether it has been applied.
+#' @field topic Recipe topic (character|NULL).
+#'
+#' @section Methods:
+#' \describe{
+#'   \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
+#' }
+#'
+#' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
+#'   \code{\link{read_recipe}}, \code{\link{bake_recipes}}
+#' @keywords Recipes
+#' @export
 Recipe <- R6Class("Recipe",
   public = list(
     name = NULL,
@@ -12,6 +44,19 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
+  #' @description
+  #' Create a Recipe object
+  #' @param name Descriptive name of the recipe (character)
+  #' @param edition Target edition/period (character or Date)
+  #' @param survey_type Survey type (character), e.g., "ech", "eaii"
+  #' @param default_engine Default evaluation engine (character)
+  #' @param depends_on Vector or list of declared dependencies
+  #' @param user Author or owner of the recipe (character)
+  #' @param description Detailed description of the recipe (character)
+  #' @param steps List of step calls that make up the workflow
+  #' @param id Unique identifier (character or numeric)
+  #' @param doi DOI or external identifier (character or NULL)
+  #' @param topic Recipe topic (character or NULL)
     initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
       self$name <- name
       self$edition <- edition
