@@ -3,7 +3,8 @@ Title: Survey Processing with Meta-Programming
 Version: 0.0.3
 Author: Mauro Loprete [aut, cre], Natalia da Silva [aut], Fabricio Machado [aut]
 Maintainer: Mauro Loprete <mauroloprete1@gmail.com>
-URL: https://github.com/metasurveyr/metasurvey
+URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
+BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R: 
     c(  
         person(
