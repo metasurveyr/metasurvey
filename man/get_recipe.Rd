@@ -2,7 +2,7 @@
 % Please edit documentation in R/Recipes.R
 \name{get_recipe}
 \alias{get_recipe}
-\title{Get Recipe}
+\title{Get recipe from repository or API}
 \usage{
 get_recipe(
   svy_type = NULL,
@@ -12,26 +12,90 @@ get_recipe(
 )
 }
 \arguments{
-\item{svy_type}{A character string specifying the survey type.}
+\item{svy_type}{String specifying the survey type. Examples:
+"ech", "eaii", "eai", "eph"}
 
-\item{svy_edition}{A character string specifying the survey edition.}
+\item{svy_edition}{String specifying the survey edition.
+Supported formats: "YYYY", "YYYYMM", "YYYY-YYYY"}
 
-\item{topic}{A character string specifying the topic of the recipe.}
+\item{topic}{String specifying the recipe topic. Examples:
+"labor_market", "poverty", "income", "demographics"}
 
-\item{allowMultiple}{A logical value indicating whether to allow multiple recipes.}
+\item{allowMultiple}{Logical indicating whether multiple recipes are allowed.
+If FALSE and multiple matches exist, returns the most recent one}
 }
 \value{
-A Recipe object or a list of Recipe objects.
+\code{Recipe} object or list of \code{Recipe} objects according to the
+specified criteria and the value of \code{allowMultiple}
 }
 \description{
-Retrieves a Recipe object from the API based on specified criteria.
+This function retrieves data transformation recipes from the metasurvey
+repository or API, based on specific criteria such as survey type, edition,
+and topic. It is the primary way to access predefined and community-validated
+recipes.
 }
 \details{
-This function queries the API to retrieve recipes matching the specified criteria.
+This function is essential for:
+\itemize{
+\item Accessing official recipes: Get validated and maintained recipes
+by specialized teams
+\item Reproducibility: Ensure different users apply the same standard
+transformations
+\item Automation: Integrate recipes into automatic pipelines
+\item Collaboration: Share methodologies between teams and organizations
+\item Versioning: Access different recipe versions according to edition
+}
+
+The function first searches in local repositories and then queries the API
+if necessary. Recipes are cached to improve performance.
+
+Search criteria are combined with AND operator, so all specified criteria
+must match for a recipe to be returned.
 }
 \examples{
-# Example of retrieving a Recipe object from the API
-recipe_obj <- get_recipe(svy_type = "eaii", svy_edition = "2019-2021")
-print(recipe_obj)
+\dontrun{
+# Get specific recipe for ECH 2023
+ech_recipe <- get_recipe(
+  svy_type = "ech",
+  svy_edition = "2023"
+)
+
+# Recipe for specific topic
+labor_recipe <- get_recipe(
+  svy_type = "ech", 
+  svy_edition = "2023",
+  topic = "labor_market"
+)
+
+# Allow multiple recipes
+available_recipes <- get_recipe(
+  svy_type = "eaii",
+  svy_edition = "2019-2021",
+  allowMultiple = TRUE
+)
+
+# Use recipe in load_survey
+ech_with_recipe <- load_survey(
+  path = "ech_2023.dta",
+  svy_type = "ech",
+  svy_edition = "2023", 
+  recipes = get_recipe("ech", "2023"),
+  bake = TRUE
+)
+
+# For year ranges
+panel_recipe <- get_recipe(
+  svy_type = "ech_panel",
+  svy_edition = "2020-2023"
+)
+}
+
+}
+\seealso{
+\code{\link{recipe}} to create custom recipes
+\code{\link{save_recipe}} to save recipes locally
+\code{\link{read_recipe}} to read recipes from file
+\code{\link{publish_recipe}} to publish recipes to the repository
+\code{\link{load_survey}} where recipes are used
 }
 \keyword{utils}

@@ -21,7 +21,9 @@ Saves a Recipe object to a file in JSON format.
 This function encodes the Recipe object and writes it to a JSON file.
 }
 \examples{
+\dontrun{
 # Example of saving a Recipe object
 save_recipe(recipe_obj, "recipe.json")
+}
 }
 \keyword{utils}

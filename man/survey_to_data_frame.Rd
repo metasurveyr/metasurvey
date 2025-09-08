@@ -7,12 +7,12 @@
 survey_to_data_frame(svy)
 }
 \arguments{
-\item{svy}{A Survey object.}
+\item{svy}{Survey object}
 }
 \value{
-A data.frame containing the survey data.
+data.frame
 }
 \description{
-Convert a Survey object to a data.frame.
+Convert survey to data.frame
 }
 \keyword{Surveymethods}

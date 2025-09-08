@@ -2,14 +2,32 @@
 % Please edit documentation in R/utils.R
 \name{use_copy_default}
 \alias{use_copy_default}
-\title{Get use_copy option}
+\title{Get data copy option}
 \usage{
 use_copy_default()
 }
 \value{
-Use copy
+Logical value indicating whether to use data copies (TRUE) or
+modify data in place (FALSE). Default is TRUE.
 }
 \description{
-Get use_copy option
+Retrieves the current setting for the use_copy option, which controls
+whether survey operations create copies of the data or modify in place.
+}
+\details{
+The use_copy option affects memory usage and performance:
+\itemize{
+\item TRUE: Creates copies, safer but uses more memory
+\item FALSE: Modifies in place, more efficient but requires caution
+}
+}
+\examples{
+# Check current setting
+current_setting <- use_copy_default()
+print(current_setting)
+
+}
+\seealso{
+\code{\link{set_use_copy}} to change the setting
 }
 \keyword{utils}

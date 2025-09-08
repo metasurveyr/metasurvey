@@ -8,6 +8,8 @@ template:
     btn-border-radius: 0.75rem
     code_font: {google: "Fira Code"}
 
+url: https://metasurveyr.github.io/metasurvey
+
 
 navbar:
   bg: primary
@@ -25,8 +27,15 @@ authors:
     href: https://www.mauroloprete.com
   Natalia da Silva:
     href: https://natydasilva.github.io/natydasilva/
+  Fabricio Machado:
+    href: https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html
 
 reference:
+- title: AST System (Core Engine)
+  desc: Abstract Syntax Tree functions - the core evaluation engine
+  contents:
+  - has_keyword("AST")
+ 
 - title: Engine
   contents:
     - has_keyword("engine")
@@ -35,7 +44,10 @@ reference:
     - has_keyword("Surveymethods")
 - title: Steps
   contents:
-    - has_keyword("Steps")
+  - has_keyword("Steps")
+  - bake_steps
+  - step_remove
+  - step_rename
 - title: Preprocessing
   contents:
     - has_keyword("preprocessing")
@@ -54,3 +66,17 @@ reference:
 - title: Survey
   contents:
     - has_keyword("Survey")
+
+articles:
+- title: "Getting started"
+  desc: "Tutorials that accompany the function documentation"
+  contents:
+  - getting-started
+  - advanced-workflows
+  - ast-core
+  - ech-case-study
+  - panel-analysis
+  - recipes
+  - complex-designs
+  - performance-optimization
+  - ninios

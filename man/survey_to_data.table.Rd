@@ -7,12 +7,12 @@
 survey_to_data.table(svy)
 }
 \arguments{
-\item{svy}{A Survey object.}
+\item{svy}{Survey object}
 }
 \value{
-A data.table containing the survey data.
+data.table
 }
 \description{
-Convert a Survey object to a data.table.
+Convert survey to data.table
 }
 \keyword{Surveymethods}

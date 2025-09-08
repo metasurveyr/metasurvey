@@ -2,18 +2,86 @@
 % Please edit documentation in R/PanelSurvey.R
 \name{get_implantation}
 \alias{get_implantation}
-\title{get_implantation}
+\title{Obtener encuesta de implantación de panel rotativo}
 \usage{
 get_implantation(RotativePanelSurvey)
 }
 \arguments{
-\item{RotativePanelSurvey}{A RotativePanelSurvey object}
+\item{RotativePanelSurvey}{Objeto \code{RotativePanelSurvey} del cual extraer
+la encuesta de implantación}
 }
 \value{
-A list
+Objeto \code{Survey} que contiene la encuesta de implantación con todos
+sus metadatos, datos y configuración de diseño
 }
 \description{
-get_implantation
+Esta función extrae la encuesta de implantación (primera onda) de un objeto
+RotativePanelSurvey. La encuesta de implantación representa la primera
+recolección de datos del panel y es fundamental para establecer la línea base
+y las características estructurales del panel.
+}
+\details{
+La encuesta de implantación es especial en un panel rotativo porque:
+\itemize{
+\item Establece la línea base: Define las características iniciales de
+todas las unidades del panel
+\item Contiene toda la muestra: Incluye todas las unidades que participarán
+en las diferentes ondas del panel
+\item Define estructura temporal: Establece los patrones de rotación y
+seguimiento del panel
+\item Configura metadatos: Contiene información sobre periodicidad,
+variables clave y estratificación
+\item Base para seguimiento: Sirve como referencia para tracking de
+unidades en ondas posteriores
+}
+
+Esta función es esencial para análisis que requieren:
+\itemize{
+\item Comparaciones temporales desde la línea base
+\item Análisis de la estructura completa del panel
+\item Configuración de modelos longitudinales
+\item Evaluación de la calidad del diseño muestral
+}
+}
+\examples{
+\dontrun{
+# Cargar panel rotativo de ECH
+panel_ech <- load_panel_survey(
+  path = "ech_panel_2023.dta", 
+  svy_type = "ech_panel",
+  svy_edition = "2023"
+)
+
+# Obtener encuesta de implantación
+ech_implantacion <- get_implantation(panel_ech)
+
+# Verificar características de la implantación
+cat("Tamaño muestra implantación:", nrow(ech_implantacion$data))
+cat("Variables disponibles:", ncol(ech_implantacion$data))
+
+# Usar en análisis de línea base
+baseline_stats <- workflow(
+  survey = ech_implantacion,
+  svymean(~tasa_actividad, na.rm = TRUE),
+  estimation_type = "baseline"
+)
+
+# Comparar con follow-up
+followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
+
+# Análisis de cambios desde implantación
+panel_comparison <- list(
+  implantacion = ech_implantacion,
+  seguimiento = followup_1
+)
+}
+
+}
+\seealso{
+\code{\link{get_follow_up}} para obtener encuestas de seguimiento
+\code{\link{extract_surveys}} para extraer múltiples encuestas por criterios
+\code{\link{load_panel_survey}} para cargar paneles rotativos
+\code{\link{workflow}} para análisis con la encuesta de implantación
 }
 \keyword{RotativePanelSurvey}
 \keyword{Surveymethods}

@@ -2,14 +2,45 @@
 % Please edit documentation in R/survey.R
 \name{cat_design}
 \alias{cat_design}
-\title{cat_design}
+\title{Display survey design information}
 \usage{
 cat_design(self)
 }
 \arguments{
-\item{self}{Object of class Survey}
+\item{self}{Survey object containing design information}
+}
+\value{
+Invisibly returns NULL; called for side effect of printing design info
 }
 \description{
-Cast design from survey
+Pretty-prints the sampling design configuration for each estimation type
+in a Survey object, showing PSU, strata, weights, and other design elements
+in a color-coded, readable format.
+}
+\details{
+This function displays design information including:
+\itemize{
+\item Primary Sampling Units (PSU/clusters)
+\item Stratification variables
+\item Weight variables for each estimation type
+\item Finite Population Correction (FPC) if used
+\item Calibration formulas if applied
+\item Overall design type classification
+}
+
+Output is color-coded for better readability in supporting terminals.
+}
+\examples{
+\dontrun{
+# Display design for survey with multiple estimation types
+ech_survey <- load_survey("ech_2023.dta", 
+                         svy_type = "ech", 
+                         svy_edition = "2023")
+cat_design(ech_survey)
+}
+
+}
+\seealso{
+\code{\link{cat_design_type}} for design type classification
 }
 \keyword{Surveymethods}

@@ -1,18 +1,33 @@
-#' @title Recipe Class
-#' @rdname Recipe_class
-#' @description This class represents a recipe for processing survey data. A recipe includes metadata such as name, edition, survey type, user, description, and a list of steps to be applied to the survey data.
-#' @field name A string representing the name of the recipe.
-#' @field edition A string indicating the edition of the survey associated with the recipe.
-#' @field survey_type A string specifying the type of survey (e.g., "eaii", "ech").
-#' @field default_engine A string indicating the default engine used for processing.
-#' @field depends_on A list of dependencies required by the recipe.
-#' @field user A string representing the user or creator of the recipe.
-#' @field description A string providing a description of the recipe.
-#' @field id A unique identifier for the recipe.
-#' @field steps A list of steps to be applied to the survey data.
-#' @field doi A string representing the DOI (Digital Object Identifier) of the recipe.
-#' @field bake A logical value indicating whether the recipe should be baked (processed) immediately.
-#' @field topic A string specifying the topic of the recipe.
+#' Recipe R6 class
+#'
+#' R6 class representing a reproducible data transformation recipe for
+#' surveys. It encapsulates metadata, declared dependencies, and a list of
+#' transformation steps to be applied to a Survey object.
+#'
+#' @name Recipe
+#' @docType class
+#' @format An R6 class generator (R6ClassGenerator)
+#'
+#' @field name Descriptive name of the recipe (character).
+#' @field edition Target edition/period (character or Date).
+#' @field survey_type Survey type (character), e.g., "ech", "eaii".
+#' @field default_engine Default evaluation engine (character).
+#' @field depends_on Vector/list of dependencies declared by the steps.
+#' @field user Author/owner (character).
+#' @field description Recipe description (character).
+#' @field id Unique identifier (character/numeric).
+#' @field steps List of step calls that make up the workflow.
+#' @field doi DOI or external identifier (character|NULL).
+#' @field bake Logical flag indicating whether it has been applied.
+#' @field topic Recipe topic (character|NULL).
+#'
+#' @section Methods:
+#' \describe{
+#'   \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
+#' }
+#'
+#' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
+#'   \code{\link{read_recipe}}, \code{\link{bake_recipes}}
 #' @keywords Recipes
 #' @export
 Recipe <- R6Class("Recipe",
@@ -29,19 +44,19 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
-
-    #' @description Initializes a new instance of the Recipe class.
-    #' @param name A string representing the name of the recipe.
-    #' @param edition A string indicating the edition of the survey associated with the recipe.
-    #' @param survey_type A string specifying the type of survey (e.g., "eaii", "ech").
-    #' @param default_engine A string indicating the default engine used for processing.
-    #' @param depends_on A list of dependencies required by the recipe.
-    #' @param user A string representing the user or creator of the recipe.
-    #' @param description A string providing a description of the recipe.
-    #' @param steps A list of steps to be applied to the survey data.
-    #' @param id A unique identifier for the recipe.
-    #' @param doi A string representing the DOI (Digital Object Identifier) of the recipe.
-    #' @param topic A string specifying the topic of the recipe.
+    #' @description
+    #' Create a Recipe object
+    #' @param name Descriptive name of the recipe (character)
+    #' @param edition Target edition/period (character or Date)
+    #' @param survey_type Survey type (character), e.g., "ech", "eaii"
+    #' @param default_engine Default evaluation engine (character)
+    #' @param depends_on Vector or list of declared dependencies
+    #' @param user Author or owner of the recipe (character)
+    #' @param description Detailed description of the recipe (character)
+    #' @param steps List of step calls that make up the workflow
+    #' @param id Unique identifier (character or numeric)
+    #' @param doi DOI or external identifier (character or NULL)
+    #' @param topic Recipe topic (character or NULL)
     initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
       self$name <- name
       self$edition <- edition
@@ -58,10 +73,6 @@ Recipe <- R6Class("Recipe",
   )
 )
 
-#' @title Metadata for Recipe
-#' @description Returns the metadata fields required for a recipe.
-#' @return A character vector of metadata field names.
-#' @keywords internal
 metadata_recipe <- function() {
   return(
     c(
@@ -73,23 +84,103 @@ metadata_recipe <- function() {
   )
 }
 
-#' @title Recipe
-#' @description Creates a new Recipe object for processing survey data.
-#' @param ... A list with the following metadata: name, user, svy, description.
-#' @return A Recipe object.
-#' @keywords Survey methods, Recipes
-#' @seealso See \code{\link{Recipe}} for the class definition.
-#' @details This function validates the provided metadata and creates a Recipe object. If steps are included, they are added to the Recipe object.
+#' Crear receta de transformación de datos de encuesta
+#'
+#' Esta función crea un objeto Recipe que encapsula una secuencia de
+#' transformaciones de datos que pueden ser aplicadas a encuestas de manera
+#' reproducible. Las recetas permiten documentar, compartir y reutilizar
+#' workflows de procesamiento de datos.
+#'
+#' @param ... Lista con la metadata requerida y steps opcionales. Los
+#'   parámetros obligatorios son:
+#'   \itemize{
+#'     \item \code{name}: Nombre descriptivo de la receta
+#'     \item \code{user}: Usuario/autor que crea la receta
+#'     \item \code{svy}: Objeto Survey base (usar \code{survey_empty()} para recetas genéricas)
+#'     \item \code{description}: Descripción detallada del propósito de la receta
+#'   }
+#'   Parámetros opcionales incluyen steps de transformación de datos.
+#'
+#' @return Objeto `Recipe` que contiene:
+#'   \itemize{
+#'     \item Metadata completa de la receta
+#'     \item Lista de steps de transformación
+#'     \item Información de dependencias
+#'     \item Configuración de motor por defecto
+#'   }
+#'
+#' @details
+#' Las recetas son fundamentales para:
+#' \itemize{
+#'   \item Reproducibilidad: Garantizar que las transformaciones se apliquen consistentemente
+#'   \item Documentación: Mantener registro de qué transformaciones se realizan y por qué
+#'   \item Colaboración: Compartir workflows entre usuarios y equipos
+#'   \item Versionado: Mantener diferentes versiones de procesamiento para distintas ediciones
+#'   \item Automatización: Aplicar transformaciones complejas automáticamente
+#' }
+#'
+#' Los steps incluidos en la receta pueden ser cualquier combinación de
+#' \code{step_compute}, \code{step_recode}, u otros steps de transformación.
+#'
+#' Las recetas se pueden guardar con \code{save_recipe()}, cargar con
+#' \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
+#'
 #' @examples
-#' # Example of creating a Recipe object
-#' recipe_obj <- recipe(
-#'   name = "Example Recipe",
-#'   user = "Metasurvey User",
-#'   svy = survey_empty(type = "eaii", edition = "2019-2021"),
-#'   description = "This is an example recipe."
+#' \dontrun{
+#' # Receta básica sin steps
+#' receta_base <- recipe(
+#'   name = "Indicadores ECH Básicos",
+#'   user = "Analista INE",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Crea indicadores laborales básicos para ECH 2023"
 #' )
-#' print(recipe_obj)
+#'
+#' # Receta con steps incluidos
+#' receta_completa <- recipe(
+#'   name = "Mercado Laboral ECH",
+#'   user = "Equipo Laboral",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Análisis completo del mercado laboral uruguayo",
+#'
+#'   # Steps de transformación
+#'   step_recode(
+#'     condicion_actividad,
+#'     POBPCOAC == 2 ~ "Ocupado",
+#'     POBPCOAC %in% 3:5 ~ "Desocupado",
+#'     POBPCOAC %in% 6:8 ~ "Inactivo",
+#'     .default = "Sin dato"
+#'   ),
+#'   step_compute(
+#'     tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
+#'     tasa_empleo = ocupados / poblacion_14_mas * 100,
+#'     tasa_desempleo = desocupados / (ocupados + desocupados) * 100
+#'   )
+#' )
+#'
+#' # Aplicar receta a datos
+#' ech_procesada <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   recipes = receta_completa,
+#'   bake = TRUE
+#' )
+#' }
+#'
+#' @seealso
+#' \code{\link{Recipe}} para la definición de la clase
+#' \code{\link{save_recipe}} para guardar recetas
+#' \code{\link{read_recipe}} para cargar recetas
+#' \code{\link{get_recipe}} para obtener recetas del repositorio
+#' \code{\link{bake_recipes}} para aplicar recetas a datos
+#'
+#' @keywords Survey methods, Recipes
 #' @export
+#' @param ... A list with the following metadata: name, user, svy, description
+#' @keywords Survey methods
+#' @keywords Recipes
+#' @return A Recipe object
+
 recipe <- function(...) {
   dots <- list(...)
 
@@ -193,9 +284,12 @@ decode_step <- function(steps) {
 #' @keywords utils
 #' @details This function encodes the Recipe object and writes it to a JSON file.
 #' @examples
+#' \dontrun{
 #' # Example of saving a Recipe object
 #' save_recipe(recipe_obj, "recipe.json")
+#' }
 #' @export
+
 save_recipe <- function(recipe, file) {
   recipe <- list(
     name = recipe$name,
@@ -208,7 +302,7 @@ save_recipe <- function(recipe, file) {
 
   recipe |>
     encoding_recipe() |>
-    write_json(path = file, simplifyVector = TRUE)
+    jsonlite::write_json(path = file, simplifyVector = TRUE)
 
   message(
     glue::glue("The recipe has been saved in {file}")
@@ -241,30 +335,104 @@ recipe_to_json <- function(recipe) {
 #' @param file A character string specifying the file path.
 #' @return A Recipe object.
 #' @details This function reads a JSON file and decodes it into a Recipe object.
+#' @keywords utils
 #' @examples
+#' \dontrun{
 #' # Example of reading a Recipe object
 #' recipe_obj <- read_recipe("recipe.json")
 #' print(recipe_obj)
+#' }
 #' @export
-#' @keywords utils
+
 read_recipe <- function(file) {
-  decode_step(read_json(file, simplifyVector = TRUE)$steps)
+  decode_step(jsonlite::read_json(file, simplifyVector = TRUE)$steps)
 }
 
-#' @title Get Recipe
-#' @description Retrieves a Recipe object from the API based on specified criteria.
-#' @param svy_type A character string specifying the survey type.
-#' @param svy_edition A character string specifying the survey edition.
-#' @param topic A character string specifying the topic of the recipe.
-#' @param allowMultiple A logical value indicating whether to allow multiple recipes.
-#' @return A Recipe object or a list of Recipe objects.
-#' @details This function queries the API to retrieve recipes matching the specified criteria.
+#' Get recipe from repository or API
+#'
+#' This function retrieves data transformation recipes from the metasurvey
+#' repository or API, based on specific criteria such as survey type, edition,
+#' and topic. It is the primary way to access predefined and community-validated
+#' recipes.
+#'
+#' @param svy_type String specifying the survey type. Examples:
+#'   "ech", "eaii", "eai", "eph"
+#' @param svy_edition String specifying the survey edition.
+#'   Supported formats: "YYYY", "YYYYMM", "YYYY-YYYY"
+#' @param topic String specifying the recipe topic. Examples:
+#'   "labor_market", "poverty", "income", "demographics"
+#' @param allowMultiple Logical indicating whether multiple recipes are allowed.
+#'   If FALSE and multiple matches exist, returns the most recent one
+#'
+#' @return `Recipe` object or list of `Recipe` objects according to the
+#'   specified criteria and the value of \code{allowMultiple}
+#'
+#' @details
+#' This function is essential for:
+#' \itemize{
+#'   \item Accessing official recipes: Get validated and maintained recipes
+#'     by specialized teams
+#'   \item Reproducibility: Ensure different users apply the same standard
+#'     transformations
+#'   \item Automation: Integrate recipes into automatic pipelines
+#'   \item Collaboration: Share methodologies between teams and organizations
+#'   \item Versioning: Access different recipe versions according to edition
+#' }
+#'
+#' The function first searches in local repositories and then queries the API
+#' if necessary. Recipes are cached to improve performance.
+#'
+#' Search criteria are combined with AND operator, so all specified criteria
+#' must match for a recipe to be returned.
+#'
 #' @examples
-#' # Example of retrieving a Recipe object from the API
-#' recipe_obj <- get_recipe(svy_type = "eaii", svy_edition = "2019-2021")
-#' print(recipe_obj)
+#' \dontrun{
+#' # Get specific recipe for ECH 2023
+#' ech_recipe <- get_recipe(
+#'   svy_type = "ech",
+#'   svy_edition = "2023"
+#' )
+#'
+#' # Recipe for specific topic
+#' labor_recipe <- get_recipe(
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   topic = "labor_market"
+#' )
+#'
+#' # Allow multiple recipes
+#' available_recipes <- get_recipe(
+#'   svy_type = "eaii",
+#'   svy_edition = "2019-2021",
+#'   allowMultiple = TRUE
+#' )
+#'
+#' # Use recipe in load_survey
+#' ech_with_recipe <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   recipes = get_recipe("ech", "2023"),
+#'   bake = TRUE
+#' )
+#'
+#' # For year ranges
+#' panel_recipe <- get_recipe(
+#'   svy_type = "ech_panel",
+#'   svy_edition = "2020-2023"
+#' )
+#' }
+#'
+#' @seealso
+#' \code{\link{recipe}} to create custom recipes
+#' \code{\link{save_recipe}} to save recipes locally
+#' \code{\link{read_recipe}} to read recipes from file
+#' \code{\link{publish_recipe}} to publish recipes to the repository
+#' \code{\link{load_survey}} where recipes are used
+#'
 #' @keywords utils
 #' @export
+
 get_recipe <- function(
     svy_type = NULL,
     svy_edition = NULL,
@@ -357,7 +525,7 @@ get_recipe <- function(
 #' @keywords Survey methods
 #' @return A Recipe object
 #' @keywords Survey methods
-#' @keywords Recipes, utils
+#' @keywords Recipes
 #' @export
 
 steps_to_recipe <- function(
@@ -433,9 +601,9 @@ get_distinct_recipes <- function(recipe) {
 }
 
 #' API Recipe
-#' @noRd
-#' @importFrom httr add_headers
+#' @importFrom httr POST add_headers content
 #' @importFrom jsonlite parse_json
+#' @noRd
 #' @keywords internal
 
 request_api <- function(method, filterList) {
@@ -533,10 +701,13 @@ request_api <- function(method, filterList) {
 #' @return A JSON object containing the API response.
 #' @details This function sends a Recipe object to the API for publication.
 #' @examples
+#' \dontrun{
 #' # Example of publishing a Recipe object to the API
 #' publish_recipe(recipe_obj)
+#' }
 #' @keywords utils
 #' @export
+
 publish_recipe <- function(recipe) {
   recipe <- list(
     name = recipe$name,

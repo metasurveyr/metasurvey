@@ -1,36 +1,97 @@
-#' @title Read survey files from different formats and create a Survey object
-#' @param path Survey file path, file can be in different formats, csv, xtsx, dta, sav and rds
-#' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
-#' @param svy_edition String with survey edition information, support different time patterns: "YYYYMM"/"MMYYYY" (year- month), "YYYY" (year),  ("YYYY-YYYY") date range
-#' @param svy_weight List with survey weight information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
-#' @param svy_psu Primary sampling unit
-#' @param ... Further arguments to be passed to  load_survey
-#' @param bake Logical inicating if a recipes is processed when the data are loaded.
-#' @param recipes object, using helper function get_recipes()
-#' @return Survey object
+#' Load survey from file and create Survey object
+#'
+#' This function reads survey files in multiple formats and creates a Survey
+#' object with all necessary metadata for subsequent analysis. Supports various
+#' survey types with specific configurations for each one.
+#'
+#' @param path Path to the survey file. Supports multiple formats: csv, xlsx,
+#'   dta (Stata), sav (SPSS), rds (R). If NULL, survey arguments must be
+#'   specified to create an empty object
+#' @param svy_type Survey type as string. Supported types:
+#'   \itemize{
+#'     \item "ech": Encuesta Continua de Hogares (Uruguay)
+#'     \item "eph": Encuesta Permanente de Hogares (Argentina)
+#'     \item "eai": Encuesta de Actividades de Innovación (Uruguay)
+#'     \item "eaii": Encuesta de Actividades de Innovación e I+D (Uruguay)
+#'   }
+#' @param svy_edition Survey edition as string. Supports different temporal
+#'   patterns:
+#'   \itemize{
+#'     \item "YYYY": Year (e.g., "2023")
+#'     \item "YYYYMM" or "MMYYYY": Year-month (e.g., "202301" or "012023")
+#'     \item "YYYY-YYYY": Year range (e.g., "2020-2022")
+#'   }
+#' @param svy_weight List with weight information specifying periodicity and
+#'   weight variable name. Use helper function \code{\link{add_weight}}
+#' @param svy_psu Primary sampling unit (PSU) variable as string
+#' @param ... Additional arguments passed to specific reading functions
+#' @param bake Logical indicating whether recipes are processed automatically
+#'   when loading data. Defaults to FALSE
+#' @param recipes Recipe object obtained with \code{\link{get_recipe}}.
+#'   If bake=TRUE, these recipes are applied automatically
+#'
+#' @return `Survey` object with structure:
+#'   \itemize{
+#'     \item \code{data}: Survey data
+#'     \item \code{metadata}: Information about type, edition, weights
+#'     \item \code{steps}: History of applied transformations
+#'     \item \code{recipes}: Available recipes
+#'     \item \code{design}: Sample design information
+#'   }
+#'
+#' @details
+#' The function automatically detects file format and uses the appropriate
+#' reader. For each survey type, it applies specific configurations such as
+#' standard variables, data types, and validations.
+#'
+#' When \code{bake=TRUE} is specified, recipes are applied immediately after
+#' loading the data, creating an analysis-ready object.
+#'
+#' If no \code{path} is provided, an empty Survey object is created that can
+#' be used to build step pipelines without initial data.
+#'
 #' @examples
-#' ech_2022 <- load_survey(
-#'   metasurvey::load_survey_example(
-#'     "ech",
-#'     "ech_2022"
-#'   ),
-#'   svy_edition = "2022",
-#'   svy_type = "ech",
-#'   svy_weight = add_weight(annual = "w_ano"),
-#'   recipes = get_recipe(
-#'     "ech",
-#'     "2022"
-#'   )
-#' )
-#' # Example of loading a survey file
-#' survey <- load_survey(
-#'   path = "path/to/survey.csv",
+#' \dontrun{
+#' # Load ECH 2023 with recipes
+#' ech_2023 <- load_survey(
+#'   path = "data/ech_2023.csv",
 #'   svy_type = "ech",
 #'   svy_edition = "2023",
-#'   svy_weight = add_weight(annual = "w_ano"),
+#'   svy_weight = add_weight(annual = "pesoano"),
+#'   recipes = get_recipe("ech", "2023"),
 #'   bake = TRUE
 #' )
-#' print(survey)
+#'
+#' # Load monthly survey
+#' ech_january <- load_survey(
+#'   path = "data/ech_202301.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "202301",
+#'   svy_weight = add_weight(monthly = "pesomes")
+#' )
+#'
+#' # Create empty object for pipeline
+#' pipeline <- load_survey(
+#'   svy_type = "ech",
+#'   svy_edition = "2023"
+#' ) %>%
+#'   step_compute(new_var = operation)
+#'
+#' # With included example data
+#' ech_example <- load_survey(
+#'   metasurvey::load_survey_example("ech", "ech_2022"),
+#'   svy_type = "ech",
+#'   svy_edition = "2022",
+#'   svy_weight = add_weight(annual = "pesoano")
+#' )
+#' }
+#'
+#' @seealso
+#' \code{\link{add_weight}} to specify weights
+#' \code{\link{get_recipe}} to get available recipes
+#' \code{\link{load_survey_example}} to load example data
+#' \code{\link{load_panel_survey}} for panel surveys
+#'
 #' @keywords preprocessing
 #' @export
 load_survey <- function(
@@ -137,6 +198,7 @@ load_survey <- function(
 #'   )
 #' )
 #' }
+#' \dontrun{
 #' # Example of loading a panel survey
 #' panel_survey <- load_panel_survey(
 #'   path_implantation = "path/to/implantation.csv",
@@ -146,6 +208,7 @@ load_survey <- function(
 #'   svy_weight_follow_up = add_weight(monthly = "w_monthly")
 #' )
 #' print(panel_survey)
+#' }
 #' @keywords preprocessing
 #' @export
 
@@ -318,10 +381,7 @@ load_panel_survey <- function(
 #' @keywords internal
 #' @noRd
 #' @return data.table
-#' @examples
-#' # Example of reading a file with data.table
-#' data <- read_file("path/to/file.csv")
-#' print(data)
+
 read_file <- function(file, .args = NULL, convert = FALSE) {
   .extension <- gsub(".*\\.", "", file)
   .file_name <- basename(file)
@@ -386,15 +446,7 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 #' @importFrom data.table fread
 #' @noRd
 #' @keywords internal
-#' @examples
-#' # Example of loading a survey with data.table
-#' survey <- load_survey.data.table(
-#'   file = "path/to/survey.csv",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   svy_weight = add_weight(annual = "w_ano")
-#' )
-#' print(survey)
+
 load_survey.data.table <- function(...) {
   .engine_name <- "data.table"
 

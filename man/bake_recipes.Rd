@@ -2,17 +2,17 @@
 % Please edit documentation in R/survey.R
 \name{bake_recipes}
 \alias{bake_recipes}
-\title{bake_recipes}
+\title{Bake recipes}
 \usage{
 bake_recipes(svy)
 }
 \arguments{
-\item{svy}{A Survey object with recipes to bake.}
+\item{svy}{Survey object}
 }
 \value{
-A Survey object with baked recipes.
+Survey object
 }
 \description{
-Bake all recipes in a Survey object.
+Bake recipes
 }
 \keyword{Surveymethods}

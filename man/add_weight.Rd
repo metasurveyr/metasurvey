@@ -2,36 +2,85 @@
 % Please edit documentation in R/utils.R
 \name{add_weight}
 \alias{add_weight}
-\title{Add Weight time pattern}
+\title{Configure weights by periodicity for Survey objects}
 \usage{
 add_weight(monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL)
 }
 \arguments{
-\item{monthly}{String or replicate list with weight monthly pattern}
+\item{monthly}{String with monthly weight variable name, or replicate list
+created with \code{\link{add_replicate}} for monthly weights}
 
-\item{annual}{String or replicate list with weight annual pattern}
+\item{annual}{String with annual weight variable name, or replicate list
+for annual weights}
 
-\item{quarterly}{String or replicate list with weight quarterly pattern}
+\item{quarterly}{String with quarterly weight variable name, or replicate
+list for quarterly weights}
 
-\item{biannual}{String or replicate list with weight biannual pattern}
+\item{biannual}{String with biannual weight variable name, or replicate
+list for biannual weights}
+}
+\value{
+Named list with weight configuration by periodicity, which will be
+used by \code{\link{load_survey}} and \code{\link{workflow}} to
+automatically select the appropriate weight
 }
 \description{
-Add Weight time pattern
+This function creates a weight structure that allows specifying different
+weight variables according to estimation periodicity. It is essential for
+proper functioning of workflows with multiple temporal estimation types.
+}
+\details{
+This function is fundamental for surveys that require different weights
+according to temporal estimation type. For example, Uruguay's ECH has
+specific weights for monthly, quarterly, and annual estimations.
+
+Each parameter can be:
+\itemize{
+\item A simple string with the weight variable name
+\item A replicate structure created with \code{add_replicate()}
+for bootstrap or jackknife estimations
+}
+
+Weights are automatically selected in \code{workflow()} according to the
+specified \code{estimation_type} parameter.
 }
 \examples{
-add_weight(
+\dontrun{
+# Basic configuration with simple weight variables
+ech_weights <- add_weight(
+  monthly = "pesomes",
+  quarterly = "pesotri", 
+  annual = "pesoano"
+)
+
+# With bootstrap replicates for variance estimation
+weights_with_replicates <- add_weight(
   monthly = add_replicate(
-    weight = "W",
-    replicate_pattern = "wr[0-9]+",
-    replicate_path = here::here(
-      "example-data",
-      "ech",
-      "ech_2023",
-      "pesos_replicados_01-2023.xlsx"
-    ),
-    replicate_id = c("ID" = "ID"),
+    weight = "pesomes",
+    replicate_pattern = "wr\\\\\\\\d+",
+    replicate_path = "monthly_replicate_weights.xlsx",
+    replicate_id = c("ID_HOGAR" = "ID"),
     replicate_type = "bootstrap"
+  ),
+  annual = "pesoano"
+)
+
+# Usage in load_survey
+ech <- load_survey(
+  path = "ech_2023.dta",
+  svy_type = "ech",
+  svy_edition = "2023", 
+  svy_weight = add_weight(
+    monthly = "pesomes",
+    annual = "pesoano"
   )
 )
+}
+
+}
+\seealso{
+\code{\link{add_replicate}} to configure bootstrap/jackknife replicates
+\code{\link{load_survey}} where this configuration is used
+\code{\link{workflow}} that automatically selects weights
 }
 \keyword{utils}

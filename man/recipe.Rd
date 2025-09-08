@@ -2,35 +2,98 @@
 % Please edit documentation in R/Recipes.R
 \name{recipe}
 \alias{recipe}
-\title{Recipe}
+\title{Crear receta de transformación de datos de encuesta}
 \usage{
 recipe(...)
 }
 \arguments{
-\item{...}{A list with the following metadata: name, user, svy, description.}
+\item{...}{A list with the following metadata: name, user, svy, description}
 }
 \value{
-A Recipe object.
+Objeto \code{Recipe} que contiene:
+\itemize{
+\item Metadata completa de la receta
+\item Lista de steps de transformación
+\item Información de dependencias
+\item Configuración de motor por defecto
+}
+
+A Recipe object
 }
 \description{
-Creates a new Recipe object for processing survey data.
+Esta función crea un objeto Recipe que encapsula una secuencia de
+transformaciones de datos que pueden ser aplicadas a encuestas de manera
+reproducible. Las recetas permiten documentar, compartir y reutilizar
+workflows de procesamiento de datos.
 }
 \details{
-This function validates the provided metadata and creates a Recipe object. If steps are included, they are added to the Recipe object.
+Las recetas son fundamentales para:
+\itemize{
+\item Reproducibilidad: Garantizar que las transformaciones se apliquen consistentemente
+\item Documentación: Mantener registro de qué transformaciones se realizan y por qué
+\item Colaboración: Compartir workflows entre usuarios y equipos
+\item Versionado: Mantener diferentes versiones de procesamiento para distintas ediciones
+\item Automatización: Aplicar transformaciones complejas automáticamente
+}
+
+Los steps incluidos en la receta pueden ser cualquier combinación de
+\code{step_compute}, \code{step_recode}, u otros steps de transformación.
+
+Las recetas se pueden guardar con \code{save_recipe()}, cargar con
+\code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
 }
 \examples{
-# Example of creating a Recipe object
-recipe_obj <- recipe(
-  name = "Example Recipe",
-  user = "Metasurvey User",
-  svy = survey_empty(type = "eaii", edition = "2019-2021"),
-  description = "This is an example recipe."
+\dontrun{
+# Receta básica sin steps
+receta_base <- recipe(
+  name = "Indicadores ECH Básicos",
+  user = "Analista INE",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Crea indicadores laborales básicos para ECH 2023"
 )
-print(recipe_obj)
+
+# Receta con steps incluidos
+receta_completa <- recipe(
+  name = "Mercado Laboral ECH",
+  user = "Equipo Laboral",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Análisis completo del mercado laboral uruguayo",
+  
+  # Steps de transformación
+  step_recode(
+    condicion_actividad,
+    POBPCOAC == 2 ~ "Ocupado",
+    POBPCOAC \%in\% 3:5 ~ "Desocupado",
+    POBPCOAC \%in\% 6:8 ~ "Inactivo",
+    .default = "Sin dato"
+  ),
+  
+  step_compute(
+    tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
+    tasa_empleo = ocupados / poblacion_14_mas * 100,
+    tasa_desempleo = desocupados / (ocupados + desocupados) * 100
+  )
+)
+
+# Aplicar receta a datos
+ech_procesada <- load_survey(
+  path = "ech_2023.dta",
+  svy_type = "ech", 
+  svy_edition = "2023",
+  recipes = receta_completa,
+  bake = TRUE
+)
+}
+
 }
 \seealso{
-See \code{\link{Recipe}} for the class definition.
+\code{\link{Recipe}} para la definición de la clase
+\code{\link{save_recipe}} para guardar recetas
+\code{\link{read_recipe}} para cargar recetas
+\code{\link{get_recipe}} para obtener recetas del repositorio
+\code{\link{bake_recipes}} para aplicar recetas a datos
 }
 \keyword{Recipes}
 \keyword{Survey}
+\keyword{methods}
 \keyword{methods,}
