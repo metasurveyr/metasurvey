@@ -5,12 +5,12 @@
 #' survey types with specific configurations for each one.
 #'
 #' @param path Path to the survey file. Supports multiple formats: csv, xlsx,
-#'   dta (Stata), sav (SPSS), rds (R). If NULL, survey arguments must be 
+#'   dta (Stata), sav (SPSS), rds (R). If NULL, survey arguments must be
 #'   specified to create an empty object
 #' @param svy_type Survey type as string. Supported types:
 #'   \itemize{
 #'     \item "ech": Encuesta Continua de Hogares (Uruguay)
-#'     \item "eph": Encuesta Permanente de Hogares (Argentina) 
+#'     \item "eph": Encuesta Permanente de Hogares (Argentina)
 #'     \item "eai": Encuesta de Actividades de Innovación (Uruguay)
 #'     \item "eaii": Encuesta de Actividades de Innovación e I+D (Uruguay)
 #'   }
@@ -43,10 +43,10 @@
 #' The function automatically detects file format and uses the appropriate
 #' reader. For each survey type, it applies specific configurations such as
 #' standard variables, data types, and validations.
-#' 
+#'
 #' When \code{bake=TRUE} is specified, recipes are applied immediately after
 #' loading the data, creating an analysis-ready object.
-#' 
+#'
 #' If no \code{path} is provided, an empty Survey object is created that can
 #' be used to build step pipelines without initial data.
 #'
@@ -64,7 +64,7 @@
 #'
 #' # Load monthly survey
 #' ech_january <- load_survey(
-#'   path = "data/ech_202301.dta", 
+#'   path = "data/ech_202301.dta",
 #'   svy_type = "ech",
 #'   svy_edition = "202301",
 #'   svy_weight = add_weight(monthly = "pesomes")
@@ -80,7 +80,7 @@
 #' # With included example data
 #' ech_example <- load_survey(
 #'   metasurvey::load_survey_example("ech", "ech_2022"),
-#'   svy_type = "ech", 
+#'   svy_type = "ech",
 #'   svy_edition = "2022",
 #'   svy_weight = add_weight(annual = "pesoano")
 #' )
@@ -151,12 +151,12 @@ load_survey <- function(
 }
 
 
-#' @title Read panel survey files from different formats and create a RotativePanelSurvey object 
+#' @title Read panel survey files from different formats and create a RotativePanelSurvey object
 #' @param path_implantation Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds
 #' @param path_follow_up Path with all the needed files with only survey valid files but also can be character vector with path files.
 #' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
-#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
-#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight(). 
+#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
+#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
 #' @param ... Further arguments to be passed to  load_panel_survey
 #' @keywords preprocessing
 #' @return RotativePanelSurvey object

@@ -21,14 +21,14 @@ test_that("step_rename renames columns and records step", {
 })
 
 test_that("step_join with data.frame RHS performs left/inner/full joins", {
-  lhs <- data.frame(id = 1:3, a = c("x","y","z"), w = 1)
-  rhs <- data.frame(id = c(2,3,4), b = c(20,30,40))
+  lhs <- data.frame(id = 1:3, a = c("x", "y", "z"), w = 1)
+  rhs <- data.frame(id = c(2, 3, 4), b = c(20, 30, 40))
   s <- Survey$new(data = data.table::data.table(lhs), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
 
   # Left join keeps all LHS rows
   s_left <- bake_steps(step_join(s, rhs, by = "id", type = "left"))
   expect_equal(nrow(s_left$data), 3)
-  expect_true(all(c("id","a","b") %in% names(s_left$data)))
+  expect_true(all(c("id", "a", "b") %in% names(s_left$data)))
 
   # Inner join keeps only matches
   s_inner <- bake_steps(step_join(s, rhs, by = "id", type = "inner"))

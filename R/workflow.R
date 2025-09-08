@@ -26,14 +26,14 @@
 #' The function automatically selects the appropriate sample design according
 #' to the specified \code{estimation_type}. For each Survey in the input list,
 #' it executes all functions specified in \code{...} and combines the results.
-#' 
+#'
 #' Supported estimation types:
 #' \itemize{
 #'   \item "monthly": Monthly estimations
-#'   \item "quarterly": Quarterly estimations  
+#'   \item "quarterly": Quarterly estimations
 #'   \item "annual": Annual estimations
 #' }
-#' 
+#'
 #' For PoolSurvey objects, it uses a specialized methodology that handles
 #' pooling of multiple surveys.
 #'
@@ -43,7 +43,7 @@
 #' result <- workflow(
 #'   survey = list(ech_2023),
 #'   svymean(~unemployed, na.rm = TRUE),
-#'   svytotal(~active_population, na.rm = TRUE), 
+#'   svytotal(~active_population, na.rm = TRUE),
 #'   estimation_type = "annual"
 #' )
 #'
@@ -54,7 +54,7 @@
 #'   svyratio(~total_income, ~persons, na.rm = TRUE),
 #'   estimation_type = "monthly"
 #' )
-#' 
+#'
 #' # Domain estimations
 #' result_domains <- workflow(
 #'   survey = list(ech_2023),

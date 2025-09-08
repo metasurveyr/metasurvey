@@ -41,12 +41,12 @@ metadata_recipe <- function() {
 
 #' Crear receta de transformación de datos de encuesta
 #'
-#' Esta función crea un objeto Recipe que encapsula una secuencia de 
+#' Esta función crea un objeto Recipe que encapsula una secuencia de
 #' transformaciones de datos que pueden ser aplicadas a encuestas de manera
 #' reproducible. Las recetas permiten documentar, compartir y reutilizar
 #' workflows de procesamiento de datos.
 #'
-#' @param ... Lista con la metadata requerida y steps opcionales. Los 
+#' @param ... Lista con la metadata requerida y steps opcionales. Los
 #'   parámetros obligatorios son:
 #'   \itemize{
 #'     \item \code{name}: Nombre descriptivo de la receta
@@ -73,10 +73,10 @@ metadata_recipe <- function() {
 #'   \item Versionado: Mantener diferentes versiones de procesamiento para distintas ediciones
 #'   \item Automatización: Aplicar transformaciones complejas automáticamente
 #' }
-#' 
+#'
 #' Los steps incluidos en la receta pueden ser cualquier combinación de
 #' \code{step_compute}, \code{step_recode}, u otros steps de transformación.
-#' 
+#'
 #' Las recetas se pueden guardar con \code{save_recipe()}, cargar con
 #' \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
 #'
@@ -96,7 +96,7 @@ metadata_recipe <- function() {
 #'   user = "Equipo Laboral",
 #'   svy = survey_empty(type = "ech", edition = "2023"),
 #'   description = "Análisis completo del mercado laboral uruguayo",
-#'   
+#'
 #'   # Steps de transformación
 #'   step_recode(
 #'     condicion_actividad,
@@ -105,7 +105,6 @@ metadata_recipe <- function() {
 #'     POBPCOAC %in% 6:8 ~ "Inactivo",
 #'     .default = "Sin dato"
 #'   ),
-#'   
 #'   step_compute(
 #'     tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
 #'     tasa_empleo = ocupados / poblacion_14_mas * 100,
@@ -116,7 +115,7 @@ metadata_recipe <- function() {
 #' # Aplicar receta a datos
 #' ech_procesada <- load_survey(
 #'   path = "ech_2023.dta",
-#'   svy_type = "ech", 
+#'   svy_type = "ech",
 #'   svy_edition = "2023",
 #'   recipes = receta_completa,
 #'   bake = TRUE
@@ -334,10 +333,10 @@ read_recipe <- function(file) {
 #'   \item Collaboration: Share methodologies between teams and organizations
 #'   \item Versioning: Access different recipe versions according to edition
 #' }
-#' 
+#'
 #' The function first searches in local repositories and then queries the API
 #' if necessary. Recipes are cached to improve performance.
-#' 
+#'
 #' Search criteria are combined with AND operator, so all specified criteria
 #' must match for a recipe to be returned.
 #'
@@ -351,7 +350,7 @@ read_recipe <- function(file) {
 #'
 #' # Recipe for specific topic
 #' labor_recipe <- get_recipe(
-#'   svy_type = "ech", 
+#'   svy_type = "ech",
 #'   svy_edition = "2023",
 #'   topic = "labor_market"
 #' )
@@ -367,11 +366,11 @@ read_recipe <- function(file) {
 #' ech_with_recipe <- load_survey(
 #'   path = "ech_2023.dta",
 #'   svy_type = "ech",
-#'   svy_edition = "2023", 
+#'   svy_edition = "2023",
 #'   recipes = get_recipe("ech", "2023"),
 #'   bake = TRUE
 #' )
-#' 
+#'
 #' # For year ranges
 #' panel_recipe <- get_recipe(
 #'   svy_type = "ech_panel",

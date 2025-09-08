@@ -186,7 +186,7 @@ bake_step <- function(svy, step) {
 
   # Prepare the list of arguments for do.call
   args <- list()
-  
+
   # Add mandatory arguments for baking
   args$svy <- svy
   args$lazy <- FALSE
@@ -205,13 +205,13 @@ bake_step <- function(svy, step) {
 
   # Execute the step function
   updated_svy <- do.call(step$type, args)
-  
+
   return(updated_svy)
 }
 
 #' Execute all pending AST steps (materialization)
 #'
-#' **CORE AST EXECUTION**: This function now uses Abstract Syntax Tree (AST) 
+#' **CORE AST EXECUTION**: This function now uses Abstract Syntax Tree (AST)
 #' evaluation as its fundamental execution engine. All pending steps are processed
 #' through the AST system for optimized, validated, and traceable execution.
 #'
@@ -222,25 +222,25 @@ bake_step <- function(svy, step) {
 #'
 #' @details
 #' **AST CORE EXECUTION ENGINE**:
-#' 
+#'
 #' \strong{1. AST Step Processing:}
-#' - All pending steps converted to AST representation  
+#' - All pending steps converted to AST representation
 #' - Dependency graphs built from AST analysis
 #' - Execution order optimized based on dependencies
 #' - Each step validated before materialization
-#' 
+#'
 #' \strong{2. Enhanced Execution Features:}
 #' - AST optimization applied to all expressions
 #' - Parallel dependency resolution where possible
 #' - Advanced error detection with precise context
 #' - Comprehensive execution logging and traceability
-#' 
+#'
 #' \strong{3. Performance Benefits:}
 #' - Pre-compiled AST expressions for faster execution
 #' - Optimized evaluation paths reduce computation time
 #' - Cached intermediate results for repeated operations
 #' - Minimal memory overhead with maximum performance gains
-#' 
+#'
 #' \strong{4. AST Capabilities:}
 #' - Automatic dependency validation prevents runtime errors
 #' - Expression optimization (constant folding, dead code elimination)
@@ -250,17 +250,17 @@ bake_step <- function(svy, step) {
 #' The function provides several key advantages through AST:
 #' \itemize{
 #'   \item **AST Optimization**: All expressions optimized before execution
-#'   \item **Dependency Validation**: Variables verified to exist using AST analysis  
+#'   \item **Dependency Validation**: Variables verified to exist using AST analysis
 #'   \item **Error Prevention**: Static analysis catches errors before runtime
 #'   \item **Performance**: Optimized execution paths and cached compilations
 #'   \item **Traceability**: Complete AST-based audit trail of transformations
 #'   \item **Complex Handling**: RotativePanelSurvey processed with AST at all levels
 #' }
-#' 
+#'
 #' For RotativePanelSurvey objects, the AST engine processes both the implantation
-#' level and follow-up levels, applying appropriate AST optimizations according to 
+#' level and follow-up levels, applying appropriate AST optimizations according to
 #' the level specified in each step.
-#' 
+#'
 #' Steps are executed in dependency-optimized order determined by AST analysis,
 #' and each step's AST expressions can reference variables created by previous steps.
 #'
@@ -270,22 +270,22 @@ bake_step <- function(svy, step) {
 #' ech <- load_survey("ech_2023.dta", svy_type = "ech", svy_edition = "2023") |>
 #'   step_compute(
 #'     employed = ifelse(POBPCOAC == 2, 1, 0),
-#'     optimize_ast = TRUE,  # AST optimization enabled
+#'     optimize_ast = TRUE, # AST optimization enabled
 #'     comment = "Employment indicator - AST optimized"
 #'   ) |>
 #'   step_recode(
 #'     age_group,
-#'     e27 < 18 ~ "Minor",              # AST validates e27 exists
-#'     e27 >= 18 & e27 < 65 ~ "Adult",  # AST optimizes conditions
+#'     e27 < 18 ~ "Minor", # AST validates e27 exists
+#'     e27 >= 18 & e27 < 65 ~ "Adult", # AST optimizes conditions
 #'     e27 >= 65 ~ "Senior",
-#'     validate_deps = TRUE,  # AST dependency validation
+#'     validate_deps = TRUE, # AST dependency validation
 #'     comment = "Age groups - AST powered"
 #'   )
-#' 
+#'
 #' # Execute all steps with AST engine
-#' processed_ech <- bake_steps(ech)  # AST processes all steps optimally
-#' 
-#' # Verify AST-created variables exist  
+#' processed_ech <- bake_steps(ech) # AST processes all steps optimally
+#'
+#' # Verify AST-created variables exist
 #' print(names(processed_ech$data))
 #'
 #' # AST RotativePanelSurvey execution
@@ -297,15 +297,16 @@ bake_step <- function(svy, step) {
 #'     optimize_ast = TRUE,
 #'     comment = "Quarterly activity rate - AST optimized"
 #'   )
-#' 
-#' processed_panel <- bake_steps(panel)  # AST handles multi-level execution
-#' 
-#' # AST-optimized pipeline with recipes  
-#' result <- load_survey("data.dta", 
-#'                      svy_type = "ech", 
-#'                      svy_edition = "2023",
-#'                      recipes = my_ast_recipe) |>
-#'   bake_steps()  # Apply recipe with AST
+#'
+#' processed_panel <- bake_steps(panel) # AST handles multi-level execution
+#'
+#' # AST-optimized pipeline with recipes
+#' result <- load_survey("data.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   recipes = my_ast_recipe
+#' ) |>
+#'   bake_steps() # Apply recipe with AST
 #' }
 #' @export
 bake_steps <- function(svy) {
@@ -329,32 +330,32 @@ bake_ast_step <- function(svy, step) {
   if (is(svy, "Survey")) {
     # Get the data
     data <- svy$data
-    
+
     # Evaluate each AST expression
     for (i in seq_along(step$expressions)) {
       var_name <- step$names[i]
       ast_expr <- step$expressions[[i]]
-      
+
       # Evaluate AST against data
       result <- evaluate_ast(ast_expr, data)
-      
+
       # Add result to data
-  if (data.table::is.data.table(data)) {
+      if (data.table::is.data.table(data)) {
         data[, (var_name) := result]
       } else {
         data[[var_name]] <- result
       }
     }
-    
+
     # Update survey data
     svy$data <- data
-    
+
     # Mark step as baked
     step$bake <- TRUE
-    
+
     return(svy)
   }
-  
+
   stop("AST steps currently only supported for Survey objects")
 }
 
