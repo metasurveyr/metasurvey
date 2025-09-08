@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-09-08T02:18Z
+last_built: 2025-09-08T02:34Z
 urls:
   reference: https://metasurveyr.github.io/metasurvey/reference
   article: https://metasurveyr.github.io/metasurvey/articles
