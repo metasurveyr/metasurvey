@@ -3,52 +3,55 @@
 NULL
 
 #' Core AST computation engine
-#' 
+#'
 #' This is the fundamental computation engine that uses Abstract Syntax Tree
 #' evaluation as the core mechanism for all metasurvey computations.
-#' 
+#'
 #' @noRd
 #' @param svy Survey object
-#' @param ast_expressions List of parsed AST expressions  
+#' @param ast_expressions List of parsed AST expressions
 #' @param .by Variables to group by
 #' @param use_copy Whether to copy the object
 #' @param cache_ast Whether to cache compiled AST
 #' @return Modified survey object
 #' @keywords internal
-compute_with_ast <- function(svy, ast_expressions = NULL, .by = NULL, 
-                            use_copy = use_copy_default(), cache_ast = TRUE) {
-  
+compute_with_ast <- function(svy, ast_expressions = NULL, .by = NULL,
+                             use_copy = use_copy_default(), cache_ast = TRUE) {
   # If no AST expressions provided, fall back to traditional compute
   if (is.null(ast_expressions) || length(ast_expressions) == 0) {
     return(compute(svy, .by = .by, use_copy = use_copy, lazy = lazy_default()))
   }
-  
+
   # Get data for evaluation
   if (!use_copy) {
     .data <- get_data(svy)
   } else {
-  .clone <- svy$clone(deep = TRUE)
+    .clone <- svy$clone(deep = TRUE)
     .data <- copy(get_data(.clone))
   }
-  
+
   ast_results <- list()
   for (var_name in names(ast_expressions)) {
     ast_obj <- ast_expressions[[var_name]]
-    
-    tryCatch({
-      # Use AST evaluation as core engine
-      result <- evaluate_ast(ast_obj, data = .data)
-      ast_results[[var_name]] <- result
-      
-    }, error = function(e) {
-      # Fallback with context
-      warning(sprintf("AST evaluation failed for '%s': %s. Check expression syntax.", 
-                     var_name, e$message))
-      # Could implement fallback to traditional evaluation here if needed
-      stop(sprintf("AST evaluation error in variable '%s': %s", var_name, e$message))
-    })
+
+    tryCatch(
+      {
+        # Use AST evaluation as core engine
+        result <- evaluate_ast(ast_obj, data = .data)
+        ast_results[[var_name]] <- result
+      },
+      error = function(e) {
+        # Fallback with context
+        warning(sprintf(
+          "AST evaluation failed for '%s': %s. Check expression syntax.",
+          var_name, e$message
+        ))
+        # Could implement fallback to traditional evaluation here if needed
+        stop(sprintf("AST evaluation error in variable '%s': %s", var_name, e$message))
+      }
+    )
   }
-  
+
   # Apply results to data using data.table assignment
   if (length(ast_results) > 0) {
     if (!is.null(.by)) {
@@ -63,7 +66,7 @@ compute_with_ast <- function(svy, ast_expressions = NULL, .by = NULL,
       }
     }
   }
-  
+
   # Return modified survey object
   if (!use_copy) {
     return(set_data(svy, .data))
@@ -73,10 +76,10 @@ compute_with_ast <- function(svy, ast_expressions = NULL, .by = NULL,
 }
 
 #' Core AST recoding engine
-#' 
+#'
 #' This is the fundamental recoding engine that uses Abstract Syntax Tree
 #' evaluation for all conditional logic in recoding operations.
-#' 
+#'
 #' @param svy Survey object
 #' @param new_var Name of new variable to create
 #' @param conditions List of condition formulas (LHS ~ RHS)
@@ -84,105 +87,112 @@ compute_with_ast <- function(svy, ast_expressions = NULL, .by = NULL,
 #' @param ast_params AST configuration parameters
 #' @return Modified survey object with new recoded variable
 #' @keywords internal
-recode_with_ast <- function(svy, new_var, conditions, default_value = NA_character_, 
-                           ast_params = list()) {
-  
+recode_with_ast <- function(svy, new_var, conditions, default_value = NA_character_,
+                            ast_params = list()) {
   # Get data for evaluation
   .data <- get_data(svy)
   n_rows <- nrow(.data)
-  
+
   # Initialize result vector with default values
   result <- rep(default_value, n_rows)
-  
+
 
   ast_conditions <- list()
   condition_values <- list()
   all_dependencies <- character()
-  
+
   for (i in seq_along(conditions)) {
     condition_formula <- conditions[[i]]
-    
+
     # Extract LHS (condition) and RHS (value)
     if (!inherits(condition_formula, "formula")) {
       stop(sprintf("Condition %d is not a formula. Use format: condition ~ value", i))
     }
-    
-    lhs_expr <- condition_formula[[2]]  # Left side: condition
+
+    lhs_expr <- condition_formula[[2]] # Left side: condition
     rhs_value <- condition_formula[[3]] # Right side: value
-    
-    tryCatch({
-      # Parse condition as AST
-      ast_condition <- parse_ast(lhs_expr)
-      ast_conditions[[i]] <- ast_condition
-      
-      # Get dependencies from AST
-      deps <- get_ast_dependencies(ast_condition)
-      all_dependencies <- unique(c(all_dependencies, deps))
-      
-      # Apply optimization if requested
-      if (isTRUE(ast_params$optimize_ast)) {
-        ast_condition <- optimize_ast(ast_condition, data = .data)
+
+    tryCatch(
+      {
+        # Parse condition as AST
+        ast_condition <- parse_ast(lhs_expr)
         ast_conditions[[i]] <- ast_condition
-      }
-      
-      # Store the value to assign (evaluate if it's an expression)
-      if (is.call(rhs_value) || is.name(rhs_value)) {
+
+        # Get dependencies from AST
+        deps <- get_ast_dependencies(ast_condition)
+        all_dependencies <- unique(c(all_dependencies, deps))
+
+        # Apply optimization if requested
+        if (isTRUE(ast_params$optimize_ast)) {
+          ast_condition <- optimize_ast(ast_condition, data = .data)
+          ast_conditions[[i]] <- ast_condition
+        }
+
+        # Store the value to assign (evaluate if it's an expression)
+        if (is.call(rhs_value) || is.name(rhs_value)) {
+          condition_values[[i]] <- eval(rhs_value)
+        } else {
+          condition_values[[i]] <- rhs_value
+        }
+      },
+      error = function(e) {
+        warning(sprintf(
+          "AST parsing failed for condition %d: %s. Using traditional evaluation.",
+          i, e$message
+        ))
+        # Store original expression for fallback
+        ast_conditions[[i]] <- lhs_expr
         condition_values[[i]] <- eval(rhs_value)
-      } else {
-        condition_values[[i]] <- rhs_value
       }
-      
-    }, error = function(e) {
-      warning(sprintf("AST parsing failed for condition %d: %s. Using traditional evaluation.", 
-                     i, e$message))
-      # Store original expression for fallback
-      ast_conditions[[i]] <- lhs_expr
-      condition_values[[i]] <- eval(rhs_value)
-    })
+    )
   }
-  
+
   # Validate dependencies if requested
   if (isTRUE(ast_params$validate_deps) && length(all_dependencies) > 0) {
     data_vars <- names(.data)
     missing_vars <- setdiff(all_dependencies, data_vars)
     if (length(missing_vars) > 0) {
-      stop(sprintf("AST Dependency validation failed in recode conditions. Missing variables: %s", 
-                  paste(missing_vars, collapse = ", ")))
+      stop(sprintf(
+        "AST Dependency validation failed in recode conditions. Missing variables: %s",
+        paste(missing_vars, collapse = ", ")
+      ))
     }
   }
-  
+
   for (i in seq_along(ast_conditions)) {
     ast_condition <- ast_conditions[[i]]
     condition_value <- condition_values[[i]]
-    
-    tryCatch({
-      # Use AST evaluation for condition
-      if (inherits(ast_condition, "metasurvey_ast")) {
-        condition_result <- evaluate_ast(ast_condition, data = .data)
-      } else {
-        # Fallback to traditional evaluation
-        condition_result <- eval(ast_condition, .data)
+
+    tryCatch(
+      {
+        # Use AST evaluation for condition
+        if (inherits(ast_condition, "metasurvey_ast")) {
+          condition_result <- evaluate_ast(ast_condition, data = .data)
+        } else {
+          # Fallback to traditional evaluation
+          condition_result <- eval(ast_condition, .data)
+        }
+
+        # Apply condition (first matching wins)
+        if (is.logical(condition_result)) {
+          result[condition_result & !is.na(condition_result)] <- condition_value
+        }
+      },
+      error = function(e) {
+        warning(sprintf("AST evaluation failed for condition %d: %s", i, e$message))
       }
-      
-      # Apply condition (first matching wins)
-      if (is.logical(condition_result)) {
-        result[condition_result & !is.na(condition_result)] <- condition_value
-      }
-      
-    }, error = function(e) {
-      warning(sprintf("AST evaluation failed for condition %d: %s", i, e$message))
-    })
+    )
   }
-  
+
   return(result)
 }
 
 #' AST survey recoding wrapper
-#' 
+#'
 #' Wrapper function that integrates AST recoding with survey object management
-#' 
+#'
 #' @param svy Survey object
-#' @param new_var Name of new variable 
+#' @param new_var Name of new variable
 #' @param conditions List of recoding conditions
 #' @param default_value Default value for unmatched cases
 #' @param use_copy Whether to copy survey object
@@ -191,26 +201,25 @@ recode_with_ast <- function(svy, new_var, conditions, default_value = NA_charact
 #' @return Modified survey object
 #' @keywords internal
 recode_with_ast_survey <- function(svy, new_var, conditions, default_value = NA_character_,
-                                  use_copy = TRUE, to_factor = FALSE, ast_params = list()) {
-  
+                                   use_copy = TRUE, to_factor = FALSE, ast_params = list()) {
   if (use_copy) {
-  .svy_clone <- svy$clone(deep = TRUE)
+    .svy_clone <- svy$clone(deep = TRUE)
     .data <- copy(get_data(.svy_clone))
   } else {
     .data <- get_data(svy)
   }
-  
+
   # Use core AST recoding engine
   result_values <- recode_with_ast(svy, new_var, conditions, default_value, ast_params)
-  
+
   # Convert to factor if requested
   if (to_factor) {
     result_values <- as.factor(result_values)
   }
-  
+
   # Assign new variable using data.table
   .data[, (new_var) := result_values]
-  
+
   # Return modified survey object
   if (use_copy) {
     return(set_data(.svy_clone, .data))
@@ -227,7 +236,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
     if (!use_copy) {
       .data <- get_data(svy)
     } else {
-  .clone <- svy$clone(deep = TRUE)
+      .clone <- svy$clone(deep = TRUE)
       .data <- copy(get_data(.clone))
     }
 
@@ -353,13 +362,13 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 
 #' Create AST computation steps for survey variables
 #'
-#' **CORE AST SYSTEM**: This function now uses Abstract Syntax Tree (AST) 
+#' **CORE AST SYSTEM**: This function now uses Abstract Syntax Tree (AST)
 #' evaluation as its fundamental engine. All computations are parsed into AST form,
 #' optimized, and evaluated with advanced dependency detection and error prevention.
 #'
 #' @param svy A `Survey` or `RotativePanelSurvey` object. If NULL, creates a step
 #'   that can be applied later using the pipe operator (%>%)
-#' @param ... Computation expressions that are **automatically parsed as AST**. 
+#' @param ... Computation expressions that are **automatically parsed as AST**.
 #'   Each expression is converted to Abstract Syntax Tree for optimized evaluation.
 #'   Names are assigned using `new_var = expression`
 #' @param .by Vector of variables to group computations by. AST automatically
@@ -370,7 +379,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #'   Compatible with Markdown syntax. Defaults to "AST Compute step"
 #' @param .level For RotativePanelSurvey objects, specifies the level where
 #'   computations are applied: "implantation", "follow_up", "quarter", "month", or "auto"
-#' @param optimize_ast Whether to apply AST optimizations (constant folding, 
+#' @param optimize_ast Whether to apply AST optimizations (constant folding,
 #'   expression simplification). Default: TRUE
 #' @param cache_ast Whether to cache compiled AST expressions for reuse. Default: TRUE
 #' @param validate_deps Whether to validate all variable dependencies exist
@@ -381,29 +390,29 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #'
 #' @details
 #' **AST CORE ENGINE FEATURES**:
-#' 
+#'
 #' \strong{1. Automatic AST Parsing:}
 #' - All expressions converted to Abstract Syntax Trees
 #' - Static analysis performed before execution
 #' - Dependency detection prevents runtime errors
-#' 
+#'
 #' \strong{2. AST Optimization:}
 #' - Constant expressions pre-calculated
 #' - Dead code elimination
 #' - Expression simplification
 #' - Optimized evaluation paths
-#' 
+#'
 #' \strong{3. Enhanced Error Prevention:}
 #' - Missing variables detected before execution
 #' - Type checking when possible
 #' - Precise error locations with context
 #' - Dependency graphs for debugging
-#' 
+#'
 #' \strong{4. Performance Benefits:}
 #' - Optimized evaluation reduces computation time
 #' - Cached AST compilation for repeated operations
 #' - Minimal overhead with significant gains
-#' 
+#'
 #' For RotativePanelSurvey objects, AST validation ensures computations
 #' are compatible with the specified hierarchical level:
 #' - "implantation": Household/dwelling level computations
@@ -437,59 +446,63 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #'     comment = "Quarterly activity rate"
 #'   )
 #' }
-#' @seealso 
+#' @seealso
 #' \code{\link{step_recode}} for categorical recodings
 #' \code{\link{bake_steps}} to execute all pending steps
 #'
 #' @keywords Steps AST
 #' @export
 
-step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), 
-                        comment = "AST Compute step", .level = "auto", 
-                        optimize_ast = TRUE, cache_ast = TRUE, validate_deps = TRUE) {
+step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(),
+                         comment = "AST Compute step", .level = "auto",
+                         optimize_ast = TRUE, cache_ast = TRUE, validate_deps = TRUE) {
   .call <- match.call()
-  
+
   # Prepare AST parameters to pass to implementation functions
   ast_params <- list(
     optimize_ast = optimize_ast,
-    cache_ast = cache_ast, 
+    cache_ast = cache_ast,
     validate_deps = validate_deps
   )
-  
+
   # Capture and prepare expressions
   exprs <- as.list(substitute(list(...))[-1])
   expr_names <- names(exprs)
-  
+
   # Parse expressions into ASTs
   ast_expressions <- list()
   for (i in seq_along(exprs)) {
     ast_expressions[[expr_names[i]]] <- parse_ast(exprs[[i]])
   }
-  
+
   # Optionally optimize ASTs
   optimized_asts <- if (isTRUE(ast_params$optimize_ast)) {
     lapply(ast_expressions, function(ast) optimize_ast(ast, data = get_data(svy)))
   } else {
     ast_expressions
   }
-  
+
   # Collect dependencies
   ast_dependencies <- unique(unlist(lapply(ast_expressions, get_ast_dependencies)))
-  
+
   if (is(svy, "RotativePanelSurvey")) {
-    return(step_compute_rotative(svy, ..., .by = .by, use_copy = use_copy, 
-                                comment = comment, .level = .level, .call = .call,
-                                ast_params = ast_params))
+    return(step_compute_rotative(svy, ...,
+      .by = .by, use_copy = use_copy,
+      comment = comment, .level = .level, .call = .call,
+      ast_params = ast_params
+    ))
   }
-  
-  
+
+
   # Validate dependencies if requested
   if (isTRUE(ast_params$validate_deps) && length(ast_dependencies) > 0 && !is.null(svy)) {
     data_vars <- names(get_data(svy))
     missing_vars <- setdiff(ast_dependencies, data_vars)
     if (length(missing_vars) > 0) {
-      stop(sprintf("AST Dependency validation failed. Missing variables: %s", 
-                  paste(missing_vars, collapse = ", ")))
+      stop(sprintf(
+        "AST Dependency validation failed. Missing variables: %s",
+        paste(missing_vars, collapse = ", ")
+      ))
     }
   }
 
@@ -507,11 +520,13 @@ step_compute <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_defaul
     )
 
     # **CORE AST EVALUATION** - Use AST system for computation
-  .svy_after <- compute_with_ast(svy, ast_expressions = optimized_asts, 
-                                   .by = .by, use_copy = use_copy, 
-                                   cache_ast = ast_params$cache_ast %||% TRUE)
-    
-  .new_vars <- expr_names
+    .svy_after <- compute_with_ast(svy,
+      ast_expressions = optimized_asts,
+      .by = .by, use_copy = use_copy,
+      cache_ast = ast_params$cache_ast %||% TRUE
+    )
+
+    .new_vars <- expr_names
 
     if (length(.new_vars) > 0) {
       step <- Step$new(
@@ -637,7 +652,7 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 
 #' Create AST recoding steps for categorical variables
 
-#' **CORE AST SYSTEM**: This function now uses Abstract Syntax Tree (AST) 
+#' **CORE AST SYSTEM**: This function now uses Abstract Syntax Tree (AST)
 #' evaluation as its fundamental engine for all recoding conditions. All conditional
 #' expressions are parsed as AST, optimized, and evaluated with dependency validation.
 #'
@@ -670,25 +685,25 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #'
 #' @details
 #' **AST CORE ENGINE FOR RECODING**:
-#' 
+#'
 #' \strong{1. AST Condition Parsing:}
 #' - All LHS conditions converted to Abstract Syntax Trees
 #' - Static analysis of logical expressions
 #' - Dependency detection for all referenced variables
 #' - Optimization of conditional logic
-#' 
+#'
 #' \strong{2. Enhanced Condition Evaluation:}
 #' - Conditions evaluated in order using AST engine
 #' - First matching AST condition determines assignment
 #' - Optimized short-circuit evaluation
 #' - Better error reporting with expression context
-#' 
+#'
 #' \strong{3. AST Optimization Features:}
 #' - Constant folding in conditions (e.g., `5 + 3 > 7` → `8 > 7` → `TRUE`)
 #' - Dead code elimination for unreachable conditions
 #' - Expression simplification for faster evaluation
 #' - Dependency pre-validation prevents runtime errors
-#' 
+#'
 #' AST condition examples:
 #' - Simple: `variable == 1` (parsed as AST, dependencies: `variable`)
 #' - Complex: `age >= 18 & income > 1000 * 12` (optimized: `income > 12000`)
@@ -702,7 +717,7 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #'   step_recode(
 #'     labor_status,
 #'     POBPCOAC == 2 ~ "Employed",
-#'     POBPCOAC %in% 3:5 ~ "Unemployed", 
+#'     POBPCOAC %in% 3:5 ~ "Unemployed",
 #'     POBPCOAC %in% 6:8 ~ "Inactive",
 #'     .default = "Missing",
 #'     comment = "Labor force status from ECH"
@@ -740,8 +755,8 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #'     comment = "Simplified region"
 #'   )
 #' }
-#' 
-#' @seealso 
+#'
+#' @seealso
 #' \code{\link{step_compute}} for more complex calculations
 #' \code{\link{bake_steps}} to execute all pending steps
 #' \code{\link{get_steps}} to view step history
@@ -749,12 +764,12 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
 #' @keywords Steps
 #' @export
 
-step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_, 
-                       .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(), 
-                       comment = "AST Recode step", .to_factor = FALSE, .level = "auto",
-                       optimize_ast = TRUE, validate_deps = TRUE, cache_ast = TRUE) {
+step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_character_,
+                        .name_step = NULL, ordered = FALSE, use_copy = use_copy_default(),
+                        comment = "AST Recode step", .to_factor = FALSE, .level = "auto",
+                        optimize_ast = TRUE, validate_deps = TRUE, cache_ast = TRUE) {
   .call <- match.call()
-  
+
   # Prepare AST parameters
   ast_params <- list(
     optimize_ast = optimize_ast,
@@ -763,19 +778,21 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
   )
 
   if (is(svy, "RotativePanelSurvey")) {
-    return(step_recode_rotative(svy, as.character(substitute(new_var)), ..., 
-                               .default = .default, .name_step = .name_step, 
-                               ordered = ordered, use_copy = use_copy, 
-                               comment = comment, .to_factor = .to_factor, 
-                               .level = .level, .call = .call, ast_params = ast_params))
+    return(step_recode_rotative(svy, as.character(substitute(new_var)), ...,
+      .default = .default, .name_step = .name_step,
+      ordered = ordered, use_copy = use_copy,
+      comment = comment, .to_factor = .to_factor,
+      .level = .level, .call = .call, ast_params = ast_params
+    ))
   }
 
   if (is(svy, "Survey")) {
-    return(step_recode_survey(svy, as.character(substitute(new_var)), ..., 
-                             .default = .default, .name_step = .name_step, 
-                             ordered = ordered, use_copy = use_copy, 
-                             comment = comment, .to_factor = .to_factor, 
-                             .call = .call, ast_params = ast_params))
+    return(step_recode_survey(svy, as.character(substitute(new_var)), ...,
+      .default = .default, .name_step = .name_step,
+      ordered = ordered, use_copy = use_copy,
+      comment = comment, .to_factor = .to_factor,
+      .call = .call, ast_params = ast_params
+    ))
   }
 
   # Create standalone step with AST configuration
@@ -790,7 +807,7 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
     call = .call
   )
   class(standalone_step) <- c("metasurvey_step", "list")
-  
+
   return(standalone_step)
 }
 
@@ -807,10 +824,10 @@ step_recode <- function(svy = survey_empty(), new_var, ..., .default = NA_charac
 #' @noRd
 #' @keywords internal
 
-step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL, 
-                              ordered = FALSE, use_copy = use_copy_default(), 
-                              comment = "AST Recode step", .to_factor = FALSE, 
-                              .call = .call, ast_params = list()) {
+step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .name_step = NULL,
+                               ordered = FALSE, use_copy = use_copy_default(),
+                               comment = "AST Recode step", .to_factor = FALSE,
+                               .call = .call, ast_params = list()) {
   new_var <- as.character(new_var)
   check_svy <- is.null(get_data(svy))
   if (check_svy) {
@@ -824,23 +841,26 @@ step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .nam
   # **CORE AST PROCESSING** - Parse all recoding conditions as AST
   conditions <- list(...)
   ast_dependencies <- character()
-  
+
   # Extract dependencies using AST analysis from each condition
   for (i in seq_along(conditions)) {
     condition_formula <- conditions[[i]]
     if (inherits(condition_formula, "formula")) {
       lhs_expr <- condition_formula[[2]]
-      
-      tryCatch({
-        # Parse condition as AST and extract dependencies
-        ast_condition <- parse_ast(lhs_expr)
-        deps <- get_ast_dependencies(ast_condition)
-        ast_dependencies <- unique(c(ast_dependencies, deps))
-      }, error = function(e) {
-        # Fallback to traditional dependency detection
-        traditional_deps <- find_dependencies(call_expr = lhs_expr, survey = get_data(svy))
-        ast_dependencies <- unique(c(ast_dependencies, traditional_deps))
-      })
+
+      tryCatch(
+        {
+          # Parse condition as AST and extract dependencies
+          ast_condition <- parse_ast(lhs_expr)
+          deps <- get_ast_dependencies(ast_condition)
+          ast_dependencies <- unique(c(ast_dependencies, deps))
+        },
+        error = function(e) {
+          # Fallback to traditional dependency detection
+          traditional_deps <- find_dependencies(call_expr = lhs_expr, survey = get_data(svy))
+          ast_dependencies <- unique(c(ast_dependencies, traditional_deps))
+        }
+      )
     }
   }
 
@@ -848,13 +868,15 @@ step_recode_survey <- function(svy, new_var, ..., .default = NA_character_, .nam
 
   if (use_copy) {
     # **CORE AST EVALUATION** - Use AST system for recoding
-    .svy_after <- recode_with_ast_survey(svy = svy, new_var = new_var, 
-                                        conditions = conditions, 
-                                        default_value = .default, 
-                                        use_copy = use_copy, 
-                                        to_factor = .to_factor,
-                                        ast_params = ast_params)
-    
+    .svy_after <- recode_with_ast_survey(
+      svy = svy, new_var = new_var,
+      conditions = conditions,
+      default_value = .default,
+      use_copy = use_copy,
+      to_factor = .to_factor,
+      ast_params = ast_params
+    )
+
     step <- Step$new(
       name = .name_step,
       edition = get_edition(.svy_after),
@@ -1020,17 +1042,17 @@ get_comments <- function(steps) {
 #' \dontrun{
 #' # With data.frame
 #' s <- Survey$new(
-#'   data = data.table::data.table(id = 1:3, w = 1, a = c("x","y","z")),
+#'   data = data.table::data.table(id = 1:3, w = 1, a = c("x", "y", "z")),
 #'   edition = "2023", type = "ech", psu = NULL, engine = "data.table",
 #'   weight = add_weight(annual = "w")
 #' )
-#' info <- data.frame(id = c(1,2), b = c(10,20))
+#' info <- data.frame(id = c(1, 2), b = c(10, 20))
 #' s2 <- step_join(s, info, by = "id", type = "left")
 #' s2 <- bake_steps(s2)
 #'
 #' # With another Survey
 #' s_right <- Survey$new(
-#'   data = data.table::data.table(id = c(2,3), b = c(200, 300), w2 = 1),
+#'   data = data.table::data.table(id = c(2, 3), b = c(200, 300), w2 = 1),
 #'   edition = "2023", type = "ech", psu = NULL, engine = "data.table",
 #'   weight = add_weight(annual = "w2")
 #' )
@@ -1043,15 +1065,15 @@ get_comments <- function(steps) {
 #' @keywords Steps
 #' @export
 step_join <- function(
-  svy = survey_empty(),
-  x,
-  by = NULL,
-  type = c("left", "inner", "right", "full"),
-  suffixes = c("", ".y"),
-  use_copy = use_copy_default(),
-  comment = "Join step",
-  lazy = lazy_default(),
-  record = TRUE) {
+    svy = survey_empty(),
+    x,
+    by = NULL,
+    type = c("left", "inner", "right", "full"),
+    suffixes = c("", ".y"),
+    use_copy = use_copy_default(),
+    comment = "Join step",
+    lazy = lazy_default(),
+    record = TRUE) {
   .call <- match.call()
   type <- match.arg(type)
 
@@ -1073,7 +1095,9 @@ step_join <- function(
   }
 
   # If no data yet, return the call (pipeline build)
-  if (is.null(get_data(svy))) return(.call)
+  if (is.null(get_data(svy))) {
+    return(.call)
+  }
 
   lhs_data <- get_data(svy)
 
@@ -1147,7 +1171,7 @@ step_join <- function(
   if (isTRUE(record)) {
     depends_on <- unique(by.x)
     step <- Step$new(
-      name = paste0("Join (", type, "): ", paste(by.x, collapse = ", ")), 
+      name = paste0("Join (", type, "): ", paste(by.x, collapse = ", ")),
       edition = get_edition(out),
       survey_type = get_type(out),
       type = "step_join",
@@ -1212,16 +1236,18 @@ step_remove <- function(svy = survey_empty(), ..., vars = NULL, use_copy = use_c
     return(svy)
   }
 
-  if (is.null(get_data(svy))) return(.call)
+  if (is.null(get_data(svy))) {
+    return(.call)
+  }
 
   out <- if (use_copy) svy$clone(deep = TRUE) else svy
-  
+
   data <- get_data(svy) # Check against original data
   missing <- setdiff(var_names, names(data))
   if (length(missing) > 0) {
     warning(sprintf("Variables not found and cannot be removed: %s", paste(missing, collapse = ", ")))
   }
-  
+
   # Apply change only if not lazy
   if (!lazy) {
     cols_to_remove <- intersect(var_names, names(out$data))
@@ -1276,7 +1302,9 @@ step_rename <- function(svy = survey_empty(), ..., mapping = NULL, use_copy = us
     map <- mapping
   } else {
     pairs <- as.list(substitute(list(...)))[-1]
-    if (length(pairs) == 0) return(svy)
+    if (length(pairs) == 0) {
+      return(svy)
+    }
     # Drop injected 'lazy' and 'record' arguments if present
     if (length(pairs) > 0) {
       is_arg <- vapply(pairs, function(x) !is.null(names(x)) && names(x) %in% c("lazy", "record"), logical(1))
@@ -1294,10 +1322,12 @@ step_rename <- function(svy = survey_empty(), ..., mapping = NULL, use_copy = us
     return(svy)
   }
 
-  if (is.null(get_data(svy))) return(.call)
-  
+  if (is.null(get_data(svy))) {
+    return(.call)
+  }
+
   out <- if (use_copy) svy$clone(deep = TRUE) else svy
-  
+
   data <- get_data(svy) # Check against original data
   missing <- setdiff(unname(map), names(data))
   if (length(missing) > 0) {
@@ -1432,31 +1462,31 @@ view_graph <- function(svy, init_step = "Load survey") {
 
       if (step$type == "step_join") {
         rhs <- step$exprs$x
-        
+
         if (methods::is(rhs, "Survey")) {
           rhs_steps <- get_steps(rhs)
           rhs_steps_type <- get_type_step(rhs_steps)
           rhs_formulas <- get_formulas(rhs_steps)
           rhs_comments <- get_comments(rhs_steps)
-          
+
           node_id_counter <- node_id_counter + 1
           rhs_init_node_id <- node_id_counter
-          
+
           rhs_init_title <- glue::glue_col(
-              "Type: {type}\nEdition: {edition}\nWeight: {weight}",
-              type = get_type(rhs), edition = get_edition(rhs), weight = get_info_weight(rhs)
+            "Type: {type}\nEdition: {edition}\nWeight: {weight}",
+            type = get_type(rhs), edition = get_edition(rhs), weight = get_info_weight(rhs)
           )
-          
+
           extra_nodes_list[[length(extra_nodes_list) + 1]] <- data.frame(
-              id = rhs_init_node_id, label = "Load survey (join)", title = rhs_init_title, group = "Load survey", stringsAsFactors = FALSE
+            id = rhs_init_node_id, label = "Load survey (join)", title = rhs_init_title, group = "Load survey", stringsAsFactors = FALSE
           )
-          
+
           prev_rhs_node_id <- rhs_init_node_id
-          
+
           if (length(rhs_steps) > 0) {
             for (j in 1:length(rhs_steps)) {
               node_id_counter <- node_id_counter + 1
-              
+
               extra_nodes_list[[length(extra_nodes_list) + 1]] <- data.frame(
                 id = node_id_counter,
                 label = names(rhs_steps)[j],
@@ -1464,20 +1494,19 @@ view_graph <- function(svy, init_step = "Load survey") {
                 group = rhs_steps_type[j],
                 stringsAsFactors = FALSE
               )
-              
+
               extra_edges_list[[length(extra_edges_list) + 1]] <- data.frame(from = prev_rhs_node_id, to = node_id_counter)
               prev_rhs_node_id <- node_id_counter
             }
           }
-          
+
           extra_edges_list[[length(extra_edges_list) + 1]] <- data.frame(from = prev_rhs_node_id, to = current_step_node_id)
-          
         } else if (is.data.frame(rhs)) {
           node_id_counter <- node_id_counter + 1
           df_node_id <- node_id_counter
-          
+
           df_name <- deparse(step$call$x)
-          
+
           extra_nodes_list[[length(extra_nodes_list) + 1]] <- data.frame(
             id = df_node_id,
             label = paste("Data:", df_name),
@@ -1485,7 +1514,7 @@ view_graph <- function(svy, init_step = "Load survey") {
             group = "dataframe",
             stringsAsFactors = FALSE
           )
-          
+
           extra_edges_list[[length(extra_edges_list) + 1]] <- data.frame(from = df_node_id, to = current_step_node_id)
         }
       }

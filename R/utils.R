@@ -137,7 +137,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' This function downloads example data from the official metasurvey data
 #' repository on GitHub. The data is cached locally in a temporary file to
 #' avoid repeated downloads in the same session.
-#' 
+#'
 #' Available survey types and editions can be found at:
 #' https://github.com/metasurveyr/metasurvey_data
 #'
@@ -145,7 +145,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' \dontrun{
 #' # Load ECH 2023 example data
 #' ech_path <- load_survey_example("ech", "2023")
-#' 
+#'
 #' # Use with load_survey
 #' ech_data <- load_survey(
 #'   path = load_survey_example("ech", "2023"),
@@ -225,7 +225,7 @@ use_copy_default <- function() {
 #'   \item TRUE (default): Operations create data copies, preserving original data
 #'   \item FALSE: Operations modify data in place, reducing memory usage
 #' }
-#' 
+#'
 #' Use FALSE for large datasets where memory is a concern, but ensure you
 #' don't need the original data after operations.
 #'
@@ -233,11 +233,11 @@ use_copy_default <- function() {
 #' # Set to use copies (default behavior)
 #' set_use_copy(TRUE)
 #' use_copy_default()
-#' 
+#'
 #' # Set to modify in place for better performance
 #' set_use_copy(FALSE)
 #' use_copy_default()
-#' 
+#'
 #' # Reset to default
 #' set_use_copy(TRUE)
 #'
@@ -607,14 +607,14 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' This function is fundamental for surveys that require different weights
 #' according to temporal estimation type. For example, Uruguay's ECH has
 #' specific weights for monthly, quarterly, and annual estimations.
-#' 
+#'
 #' Each parameter can be:
 #' \itemize{
 #'   \item A simple string with the weight variable name
 #'   \item A replicate structure created with \code{add_replicate()}
 #'     for bootstrap or jackknife estimations
 #' }
-#' 
+#'
 #' Weights are automatically selected in \code{workflow()} according to the
 #' specified \code{estimation_type} parameter.
 #'
@@ -623,7 +623,7 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' # Basic configuration with simple weight variables
 #' ech_weights <- add_weight(
 #'   monthly = "pesomes",
-#'   quarterly = "pesotri", 
+#'   quarterly = "pesotri",
 #'   annual = "pesoano"
 #' )
 #'
@@ -643,7 +643,7 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' ech <- load_survey(
 #'   path = "ech_2023.dta",
 #'   svy_type = "ech",
-#'   svy_edition = "2023", 
+#'   svy_edition = "2023",
 #'   svy_weight = add_weight(
 #'     monthly = "pesomes",
 #'     annual = "pesoano"
@@ -705,11 +705,11 @@ add_weight <- function(
 #'   \item Obtaining reliable coefficients of variation
 #'   \item Performing valid statistical tests
 #' }
-#' 
+#'
 #' The regex pattern must exactly match the replicate weight column names
 #' in the file. For example, if columns are named "wr001", "wr002", etc.,
 #' use the pattern "wr\\\\d+".
-#' 
+#'
 #' This function is typically used within \code{add_weight()} for more
 #' complex weight configurations.
 #'
@@ -726,7 +726,7 @@ add_weight <- function(
 #'
 #' # With replicates in same dataset
 #' integrated_replicates <- add_replicate(
-#'   weight = "main_weight", 
+#'   weight = "main_weight",
 #'   replicate_pattern = "rep_\\\\d{3}",
 #'   replicate_type = "jackknife"
 #' )
@@ -735,12 +735,12 @@ add_weight <- function(
 #' weight_config <- add_weight(
 #'   annual = add_replicate(
 #'     weight = "pesoano",
-#'     replicate_pattern = "wr\\\\d+", 
+#'     replicate_pattern = "wr\\\\d+",
 #'     replicate_path = "bootstrap_annual.xlsx",
 #'     replicate_id = c("numero" = "ID_HOGAR"),
 #'     replicate_type = "bootstrap"
 #'   ),
-#'   monthly = "pesomes"  # No replicates for monthly
+#'   monthly = "pesomes" # No replicates for monthly
 #' )
 #'
 #' # In load_survey
@@ -752,7 +752,7 @@ add_weight <- function(
 #'     annual = add_replicate(
 #'       weight = "pesoano",
 #'       replicate_pattern = "wr\\\\d+",
-#'       replicate_path = "bootstrap_weights.xlsx", 
+#'       replicate_path = "bootstrap_weights.xlsx",
 #'       replicate_id = c("numero" = "ID"),
 #'       replicate_type = "bootstrap"
 #'     )

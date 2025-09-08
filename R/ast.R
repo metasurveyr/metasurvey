@@ -49,21 +49,22 @@ NULL
 #' \dontrun{
 #' # Parse simple expression
 #' ast <- parse_ast(quote(x + y))
-#' 
+#'
 #' # Parse complex expression
 #' complex_ast <- parse_ast(quote(
-#'   ifelse(age >= 18, 
-#'          case_when(
-#'            income > 50000 ~ "high",
-#'            income > 25000 ~ "medium",
-#'            TRUE ~ "low"
-#'          ),
-#'          "minor")
+#'   ifelse(age >= 18,
+#'     case_when(
+#'       income > 50000 ~ "high",
+#'       income > 25000 ~ "medium",
+#'       TRUE ~ "low"
+#'     ),
+#'     "minor"
+#'   )
 #' ))
-#' 
+#'
 #' # Get dependencies
 #' deps <- get_ast_dependencies(complex_ast)
-#' print(deps)  # c("age", "income")
+#' print(deps) # c("age", "income")
 #' }
 #'
 #' @seealso \code{\link{evaluate_ast}} to execute parsed expressions
@@ -72,7 +73,7 @@ parse_ast <- function(expr, env = parent.frame()) {
   if (missing(expr)) {
     stop("Expression cannot be missing")
   }
-  
+
   # Handle different expression types
   if (is.call(expr)) {
     parse_call_ast(expr, env)
@@ -93,7 +94,7 @@ parse_ast <- function(expr, env = parent.frame()) {
 parse_call_ast <- function(call_expr, env) {
   func_name <- as.character(call_expr[[1]])
   args <- as.list(call_expr[-1])
-  
+
   # Parse arguments recursively
   children <- lapply(args, function(arg) {
     if (is.null(arg)) {
@@ -102,10 +103,10 @@ parse_call_ast <- function(call_expr, env) {
       parse_ast(arg, env)
     }
   })
-  
+
   # Collect dependencies from all children
   dependencies <- unique(unlist(lapply(children, function(child) child$dependencies)))
-  
+
   list(
     type = "call",
     value = func_name,
@@ -122,7 +123,7 @@ parse_call_ast <- function(call_expr, env) {
 #' @keywords internal
 parse_symbol_ast <- function(symbol_expr, env) {
   symbol_name <- as.character(symbol_expr)
-  
+
   list(
     type = "symbol",
     value = symbol_name,
@@ -158,7 +159,7 @@ parse_literal_ast <- function(literal_expr) {
 #' \dontrun{
 #' ast <- parse_ast(quote(income * tax_rate + bonus))
 #' deps <- get_ast_dependencies(ast)
-#' print(deps)  # c("income", "tax_rate", "bonus")
+#' print(deps) # c("income", "tax_rate", "bonus")
 #' }
 #'
 #' @noRd
@@ -166,7 +167,7 @@ get_ast_dependencies <- function(ast) {
   if (is.null(ast) || !is.list(ast)) {
     return(character(0))
   }
-  
+
   unique(ast$dependencies)
 }
 
@@ -197,7 +198,7 @@ get_ast_dependencies <- function(ast) {
 #'   age = c(25, 30, 45, 60),
 #'   income = c(30000, 45000, 70000, 55000)
 #' )
-#' 
+#'
 #' # Parse and evaluate expression
 #' ast <- parse_ast(quote(ifelse(age >= 30, income * 1.1, income)))
 #' result <- evaluate_ast(ast, dt)
@@ -209,19 +210,19 @@ evaluate_ast <- function(ast, data, env = parent.frame()) {
   if (!is.data.frame(data)) {
     stop("Data must be a data.frame or data.table")
   }
-  
+
   # Check dependencies
   deps <- get_ast_dependencies(ast)
   missing_vars <- setdiff(deps, names(data))
   if (length(missing_vars) > 0) {
     stop("Missing variables in data: ", paste(missing_vars, collapse = ", "))
   }
-  
+
   # Convert to data.table if needed
   if (!data.table::is.data.table(data)) {
     data <- data.table::as.data.table(data)
   }
-  
+
   # Evaluate AST recursively
   evaluate_ast_node(ast, data, env)
 }
@@ -252,15 +253,15 @@ evaluate_ast_node <- function(node, data, env) {
       args <- lapply(node$children, function(child) {
         evaluate_ast_node(child, data, env)
       })
-      
+
       # Set argument names if available
       if (!is.null(node$arg_names)) {
         names(args) <- node$arg_names
       }
-      
+
       # Get function
       func <- get(node$value, envir = env)
-      
+
       # Call function with evaluated arguments
       do.call(func, args)
     },
@@ -301,16 +302,16 @@ optimize_ast <- function(ast, data = NULL) {
   if (!is.list(ast)) {
     return(ast)
   }
-  
+
   # Apply optimizations recursively
   optimized_children <- lapply(ast$children, optimize_ast, data)
-  
+
   # Update the node with optimized children
   ast$children <- optimized_children
-  
+
   # Apply node-specific optimizations
   ast <- optimize_node(ast, data)
-  
+
   return(ast)
 }
 
@@ -331,7 +332,7 @@ optimize_node <- function(node, data = NULL) {
           "-" = if (length(values) == 1) -values else values[1] - sum(values[-1]),
           "*" = prod(values),
           "/" = values[1] / prod(values[-1]),
-          "^" = values[1] ^ values[2]
+          "^" = values[1]^values[2]
         )
         return(list(
           type = "literal",
@@ -342,7 +343,7 @@ optimize_node <- function(node, data = NULL) {
       }
     }
   }
-  
+
   return(node)
 }
 
@@ -369,7 +370,7 @@ optimize_node <- function(node, data = NULL) {
 #'   comment = "Categorize age groups",
 #'   optimize = TRUE
 #' )
-#' 
+#'
 #' # Use in pipeline
 #' survey_data %>%
 #'   step_compute(age_category = age_category_step) %>%
@@ -380,12 +381,12 @@ optimize_node <- function(node, data = NULL) {
 ast_step <- function(expr, comment = NULL, optimize = TRUE) {
   # Parse expression to AST
   ast <- parse_ast(substitute(expr))
-  
+
   # Optimize if requested
   if (optimize) {
     ast <- optimize_ast(ast)
   }
-  
+
   # Return function that evaluates AST
   function(data) {
     evaluate_ast(ast, data)
@@ -422,9 +423,9 @@ ast_step <- function(expr, comment = NULL, optimize = TRUE) {
 #' # Use AST-enhanced step_compute
 #' survey_data %>%
 #'   step_compute_ast(
-#'     complex_score = (income / median_income) * 
-#'                    ifelse(education > 12, education_weight, 1) +
-#'                    age_factor * region_adjustment,
+#'     complex_score = (income / median_income) *
+#'       ifelse(education > 12, education_weight, 1) +
+#'       age_factor * region_adjustment,
 #'     use_ast = TRUE,
 #'     optimize_ast = TRUE,
 #'     comment = "Complex scoring with AST optimization"
@@ -432,13 +433,12 @@ ast_step <- function(expr, comment = NULL, optimize = TRUE) {
 #' }
 #'
 #' @noRd
-step_compute_ast <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(), 
-                            comment = NULL, .level = "auto", use_ast = TRUE, 
-                            optimize_ast = TRUE) {
-  
+step_compute_ast <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_default(),
+                             comment = NULL, .level = "auto", use_ast = TRUE,
+                             optimize_ast = TRUE) {
   # Capture expressions
   exprs <- substitute(list(...))[-1]
-  
+
   if (use_ast) {
     # Parse expressions to AST
     ast_exprs <- lapply(exprs, function(expr) {
@@ -448,7 +448,7 @@ step_compute_ast <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_de
       }
       ast
     })
-    
+
     # Create enhanced step
     step <- list(
       type = "ast_compute",
@@ -460,15 +460,19 @@ step_compute_ast <- function(svy = NULL, ..., .by = NULL, use_copy = use_copy_de
     )
   } else {
     # Fall back to regular step_compute
-    return(step_compute(svy, ..., .by = .by, use_copy = use_copy, 
-                       comment = comment, .level = .level))
+    return(step_compute(svy, ...,
+      .by = .by, use_copy = use_copy,
+      comment = comment, .level = .level
+    ))
   }
-  
+
   # Return standalone step or delegate to step_compute for adding to survey
   if (is.null(svy)) {
     return(step)
   } else {
-    return(step_compute(svy, ..., .by = .by, use_copy = use_copy, 
-                       comment = comment, .level = .level))
+    return(step_compute(svy, ...,
+      .by = .by, use_copy = use_copy,
+      comment = comment, .level = .level
+    ))
   }
 }

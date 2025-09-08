@@ -131,7 +131,7 @@ RotativePanelSurvey <- R6Class(
 #'
 #' @param RotativePanelSurvey Objeto `RotativePanelSurvey` que contiene las
 #'   encuestas del panel rotativo organizadas temporalmente
-#' @param index Vector de enteros que especifica índices específicos de 
+#' @param index Vector de enteros que especifica índices específicos de
 #'   encuestas a extraer. Si es un solo valor, devuelve esa encuesta;
 #'   si es un vector, devuelve una lista
 #' @param monthly Vector de enteros que especifica qué meses extraer para
@@ -160,12 +160,12 @@ RotativePanelSurvey <- R6Class(
 #'     análisis comparativos
 #'   \item Soporta paralelización: Para operaciones con grandes volúmenes de datos
 #' }
-#' 
+#'
 #' Los criterios de extracción se interpretan según la frecuencia de la encuesta:
 #' - Para ECH mensual: monthly=c(1,3,6) extrae enero, marzo y junio
 #' - Para análisis anual: annual=1 típicamente extrae el primer año disponible
 #' - Para análisis trimestral: quarterly=c(1,4) extrae Q1 y Q4
-#' 
+#'
 #' Si no se especifica ningún criterio, la función devuelve la encuesta de
 #' implantación con una advertencia.
 #'
@@ -181,7 +181,7 @@ RotativePanelSurvey <- R6Class(
 #' # Extraer encuestas mensuales específicas
 #' ech_trimestre1 <- extract_surveys(
 #'   panel_ech,
-#'   monthly = c(1, 2, 3)  # Enero, febrero, marzo
+#'   monthly = c(1, 2, 3) # Enero, febrero, marzo
 #' )
 #'
 #' # Extraer por índice
@@ -206,7 +206,7 @@ RotativePanelSurvey <- R6Class(
 #'   monthly = 1:12,
 #'   use.parallel = TRUE
 #' )
-#' 
+#'
 #' # Usar en workflow
 #' resultados <- workflow(
 #'   survey = extract_surveys(panel_ech, quarterly = c(1, 2)),
@@ -376,7 +376,7 @@ PoolSurvey <- R6Class(
 #' \dontrun{
 #' # Cargar panel rotativo de ECH
 #' panel_ech <- load_panel_survey(
-#'   path = "ech_panel_2023.dta", 
+#'   path = "ech_panel_2023.dta",
 #'   svy_type = "ech_panel",
 #'   svy_edition = "2023"
 #' )
@@ -397,7 +397,7 @@ PoolSurvey <- R6Class(
 #'
 #' # Comparar con follow-up
 #' followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-#' 
+#'
 #' # Análisis de cambios desde implantación
 #' panel_comparison <- list(
 #'   implantacion = ech_implantacion,
@@ -466,7 +466,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' # Cargar panel rotativo
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
-#'   svy_type = "ech_panel", 
+#'   svy_type = "ech_panel",
 #'   svy_edition = "2023"
 #' )
 #'
@@ -492,9 +492,9 @@ get_implantation <- function(RotativePanelSurvey) {
 #'   survey = implantacion,
 #'   svymean(~tasa_desempleo, na.rm = TRUE)
 #' )
-#' 
+#'
 #' tasa_final <- workflow(
-#'   survey = seguimiento_final, 
+#'   survey = seguimiento_final,
 #'   svymean(~tasa_desempleo, na.rm = TRUE)
 #' )
 #'
