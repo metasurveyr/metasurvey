@@ -44,19 +44,19 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
-  #' @description
-  #' Create a Recipe object
-  #' @param name Descriptive name of the recipe (character)
-  #' @param edition Target edition/period (character or Date)
-  #' @param survey_type Survey type (character), e.g., "ech", "eaii"
-  #' @param default_engine Default evaluation engine (character)
-  #' @param depends_on Vector or list of declared dependencies
-  #' @param user Author or owner of the recipe (character)
-  #' @param description Detailed description of the recipe (character)
-  #' @param steps List of step calls that make up the workflow
-  #' @param id Unique identifier (character or numeric)
-  #' @param doi DOI or external identifier (character or NULL)
-  #' @param topic Recipe topic (character or NULL)
+    #' @description
+    #' Create a Recipe object
+    #' @param name Descriptive name of the recipe (character)
+    #' @param edition Target edition/period (character or Date)
+    #' @param survey_type Survey type (character), e.g., "ech", "eaii"
+    #' @param default_engine Default evaluation engine (character)
+    #' @param depends_on Vector or list of declared dependencies
+    #' @param user Author or owner of the recipe (character)
+    #' @param description Detailed description of the recipe (character)
+    #' @param steps List of step calls that make up the workflow
+    #' @param id Unique identifier (character or numeric)
+    #' @param doi DOI or external identifier (character or NULL)
+    #' @param topic Recipe topic (character or NULL)
     initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
       self$name <- name
       self$edition <- edition
