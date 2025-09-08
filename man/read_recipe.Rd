@@ -19,8 +19,10 @@ Reads a Recipe object from a JSON file.
 This function reads a JSON file and decodes it into a Recipe object.
 }
 \examples{
+\dontrun{
 # Example of reading a Recipe object
 recipe_obj <- read_recipe("recipe.json")
 print(recipe_obj)
+}
 }
 \keyword{utils}

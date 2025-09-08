@@ -2,16 +2,47 @@
 % Please edit documentation in R/utils.R
 \name{load_survey_example}
 \alias{load_survey_example}
-\title{Load survey example}
+\title{Load survey example data}
 \usage{
 load_survey_example(svy_type, svy_edition)
 }
 \arguments{
-\item{svy_type}{Survey type}
+\item{svy_type}{Character string specifying the survey type (e.g., "ech")}
 
-\item{svy_edition}{Survey edition}
+\item{svy_edition}{Character string specifying the survey edition/year (e.g., "2023")}
+}
+\value{
+Character string with the path to the downloaded CSV file containing
+the example survey data
 }
 \description{
-Load survey example
+Downloads and loads example survey data from the metasurvey data repository.
+This function provides access to sample datasets for testing and demonstration
+purposes, including ECH (Continuous Household Survey) and other survey types.
+}
+\details{
+This function downloads example data from the official metasurvey data
+repository on GitHub. The data is cached locally in a temporary file to
+avoid repeated downloads in the same session.
+
+Available survey types and editions can be found at:
+https://github.com/metasurveyr/metasurvey_data
+}
+\examples{
+\dontrun{
+# Load ECH 2023 example data
+ech_path <- load_survey_example("ech", "2023")
+
+# Use with load_survey
+ech_data <- load_survey(
+  path = load_survey_example("ech", "2023"),
+  svy_type = "ech",
+  svy_edition = "2023"
+)
+}
+
+}
+\seealso{
+\code{\link{load_survey}} for loading the downloaded data
 }
 \keyword{utils}

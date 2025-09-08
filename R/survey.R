@@ -1,17 +1,85 @@
-#' @title Survey Class
-#' @description This class represents a survey object with various attributes and methods to manage survey data, design, steps, recipes, and workflows.
-#' @field data The survey data.
-#' @field edition The edition of the survey.
-#' @field type The type´ of the survey.
-#' @field periodicity The periodicity of the survey.
-#' @field default_engine The default engine used for the survey.
-#' @field weight The weight(s) associated with the survey.
-#' @field steps A list of steps applied to the survey.
-#' @field recipes A list of recipes associated with the survey.
-#' @field workflows A list of workflows associated with the survey.
-#' @field design The survey design object(s).
-#' @field active A list of active bindings for dynamic properties of the survey.
+#' Survey R6 class
+#'
+#' R6 class that encapsulates survey data, metadata (type, edition,
+#' periodicity), sampling design (simple/replicate), steps/recipes/workflows,
+#' and utilities to manage them.
+#'
+#' @format An R6 class with public fields: `data`, `edition`, `type`,
+#' `periodicity`, `default_engine`, `weight`, `steps`, `recipes`, `workflows`,
+#' `design`; and methods such as `initialize()`, `get_data()`, `set_data()`,
+#' `add_step()`, `add_recipe()`, `bake()`, `head()`, `str()`, `update_design()`.
+#'
+#' @section Methods:
+#' \describe{
+#'   \item{initialize(data, edition, type, psu, engine, weight, design, steps, recipes)}{Create a Survey object}
+#'   \item{get_data(), get_edition(), get_type()}{Basic accessors}
+#'   \item{set_data(), set_edition(), set_type(), set_weight()}{Mutators}
+#'   \item{add_step(step), add_recipe(recipe), add_workflow(wf)}{Pipeline management}
+#'   \item{bake()}{Bake associated recipes}
+#' }
+#'
+#' @seealso \code{\link{survey_empty}}, \code{\link{bake_recipes}},
+#'   \code{\link{cat_design}}, \code{\link{cat_recipes}}
 #' @keywords Survey
+#'
+#' R6 class that encapsulates survey data, its sampling design, metadata
+#' (type, edition, periodicity) and associated structures (steps, recipes,
+#' workflows). Provides methods to update data, weights and design, and to
+#' apply recipes.
+#'
+#' @name Survey
+#' @docType class
+#' @format An R6 class generator (R6ClassGenerator)
+#'
+#' @field data Survey data (data.frame/data.table).
+#' @field edition Reference edition or period.
+#' @field type Survey type, e.g., "ech" (character).
+#' @field periodicity Periodicity detected by validate_time_pattern.
+#' @field default_engine Default engine (character).
+#' @field weight List with weight specifications per estimation type.
+#' @field steps List of steps applied to the survey.
+#' @field recipes List of \link{Recipe} objects associated.
+#' @field workflows List of workflows.
+#' @field design List of survey design objects (survey/surveyrep).
+#' @field design_active Active binding that recomputes design on-demand from current data and weights.
+#'
+#' @section Active bindings:
+#' \describe{
+#'   \item{design_active}{Recompute design on-demand from current data and weights.}
+#' }
+#'
+#' @section Main methods:
+#' \describe{
+#'   \item{$new(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = list())}{Constructor.}
+#'   \item{$get_data()}{Return data.}
+#'   \item{$get_edition()}{Return edition.}
+#'   \item{$get_type()}{Return type.}
+#'   \item{$set_data(data)}{Set data.}
+#'   \item{$set_edition(edition)}{Set edition.}
+#'   \item{$set_type(type)}{Set type.}
+#'   \item{$set_weight(weight)}{Set weight specification.}
+#'   \item{$print()}{Print summarized metadata.}
+#'   \item{$add_step(step)}{Add a step and update design.}
+#'   \item{$add_recipe(recipe, bake = lazy_default())}{Add a recipe.}
+#'   \item{$add_workflow(workflow)}{Add a workflow.}
+#'   \item{$bake()}{Apply recipes and return updated Survey.}
+#'   \item{$head()}{Return data head.}
+#'   \item{$str()}{Structure of data.}
+#'   \item{$set_design(design)}{Set design.}
+#'   \item{$update_design()}{Update design variables with current data.}
+#' }
+#'
+#' @param data Survey data.
+#' @param edition Edition or period.
+#' @param type Survey type (character).
+#' @param psu PSU variable or formula (optional).
+#' @param engine Default engine.
+#' @param weight Weight specification(s) per estimation type.
+#' @param design Pre-built design (optional).
+#' @param steps Initial steps list (optional).
+#' @param recipes List of \link{Recipe} (optional).
+#'
+#' @return R6 class generator for Survey.
 #' @export
 Survey <- R6Class(
   "Survey",
@@ -27,16 +95,16 @@ Survey <- R6Class(
     workflows = list(),
     design = NULL,
 
-    #' @description Initialize a new Survey object.
-    #' @param data The survey data.
-    #' @param edition The edition of the survey.
-    #' @param type The type of the survey.
-    #' @param psu Primary sampling unit (PSU).
-    #' @param engine The engine used for the survey.
-    #' @param weight The weight(s) for the survey.
-    #' @param design Optional survey design.
-    #' @param steps Optional list of steps.
-    #' @param recipes Optional list of recipes.
+    #' @description Create a Survey object
+    #' @param data Survey data
+    #' @param edition Edition or period
+    #' @param type Survey type (character)
+    #' @param psu PSU variable or formula (optional)
+    #' @param engine Default engine
+    #' @param weight Weight specification(s) per estimation type
+    #' @param design Pre-built design (optional)
+    #' @param steps Initial steps list (optional)
+    #' @param recipes List of Recipe (optional)
     initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = list()) {
       self$data <- data
 
@@ -64,36 +132,29 @@ Survey <- R6Class(
               calibrate.formula = ~1
             )
           } else {
-            data_merged <- merge(
-              data,
-              x$replicate_file,
+            aux_vars <- c(x$weight, x$replicate_id)
+            data_aux <- data[, aux_vars, with = FALSE]
+            data_aux <- merge(
+              data_aux,
+              x$replicate_file[, 1:11],
               by.x = names(x$replicate_id),
-              by.y = names(x$replicate_id),
-              sort = TRUE # Conserva el orden original, si es necesario
+              by.y = x$replicate_id
             )
 
-            all_rep_cols <- names(data_merged)[grepl(x$replicate_pattern, names(data_merged))]
-
-            initial_rep_cols <- all_rep_cols[1:10]
-
-            setDT(data_merged)
-
             design <- survey::svrepdesign(
+              id = psu,
               weights = as.formula(paste("~", x$weight)),
-              data = data_merged[, c(x$weight, names(x$replicate_id), initial_rep_cols), with = FALSE],
-              repweights = data_merged[, ..initial_rep_cols],
+              data = data_aux,
+              repweights = x$replicate_pattern,
               type = x$replicate_type
             )
 
-            design_full <- update(design, repweights = data_merged[, ..all_rep_cols])
-
-            design_full$degf <- length(all_rep_cols) - 1
-            design_full$repweights <- data_merged[, ..all_rep_cols]
-            # design_full$scale <- 0.001001001
-            design_full$scale <- 1 / length(all_rep_cols)
-            design_full$rscales <- rep(1, length(all_rep_cols))
-
-            return(design_full)
+            data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
+            design$variables <- data
+            vars <- grepl(x$replicate_pattern, names(data))
+            rep_weights <- data[, vars, with = FALSE]
+            design$repweights <- data.table(rep_weights)
+            return(design)
           }
         }
       )
@@ -118,44 +179,41 @@ Survey <- R6Class(
       self$periodicity <- time_pattern$svy_periodicity
     },
 
-    #' @description Get the survey data.
-    #' @return The survey data.
+    #' @description Return the underlying data
     get_data = function() {
       return(self$data)
     },
 
-    #' @description Get the edition of the survey.
-    #' @return The survey edition.
+    #' @description Return the survey edition/period
     get_edition = function() {
       return(self$edition)
     },
 
-    #' @description Get the type of the survey.
-    #' @return The survey type.
+    #' @description Return the survey type identifier
     get_type = function() {
       return(self$type)
     },
 
-    #' @description Set the survey data.
-    #' @param data The new survey data.
+    #' @description Set the underlying data
+    #' @param data New survey data
     set_data = function(data) {
       self$data <- data
     },
 
-    #' @description Set the edition of the survey.
-    #' @param edition The new survey edition.
+    #' @description Set the survey edition/period
+    #' @param edition New edition or period
     set_edition = function(edition) {
       self$edition <- edition
     },
 
-    #' @description Set the type of the survey.
-    #' @param type The new survey type.
+    #' @description Set the survey type
+    #' @param type New type identifier
     set_type = function(type) {
       self$type <- type
     },
 
-    #' @description Set the weight(s) for the survey.
-    #' @param weight The new weight(s).
+    #' @description Set weight specification(s) per estimation type
+    #' @param weight Weight specification list or character
     set_weight = function(weight) {
       message("Setting weight")
       data <- self$data
@@ -163,13 +221,13 @@ Survey <- R6Class(
       self$weight <- weight_list
     },
 
-    #' @description Print metadata of the survey.
+    #' @description Print summarized metadata to console
     print = function() {
       get_metadata(self)
     },
 
-    #' @description Add a step to the survey.
-    #' @param step The step to add.
+    #' @description Add a step and update design
+    #' @param step Step object
     add_step = function(step) {
       name_index <- length(self$steps) + 1
       name_index <- paste0("step_", name_index, " ", step$name)
@@ -178,9 +236,9 @@ Survey <- R6Class(
       self$update_design()
     },
 
-    #' @description Add a recipe to the survey.
-    #' @param recipe The recipe to add.
-    #' @param bake Whether to bake the recipe immediately.
+    #' @description Add a recipe
+    #' @param recipe Recipe object
+    #' @param bake Whether to bake lazily (internal flag)
     add_recipe = function(recipe, bake = lazy_default()) {
       if ((self$edition != recipe$edition)) {
         stop("Invalid Recipe: \n", recipe$name, "\nEdition of survey: ", self$edition, "\nEdition of recipe: ", recipe$edition)
@@ -189,34 +247,33 @@ Survey <- R6Class(
       self$recipes[[index_recipe]] <- recipe
     },
 
-    #' @description Add a workflow to the survey.
-    #' @param workflow The workflow to add.
+    #' @description Add a workflow to the survey
+    #' @param workflow Workflow object
     add_workflow = function(workflow) {
       self$workflows[[workflow$name]] <- workflow
     },
 
-    #' @description Bake all recipes in the survey.
+    #' @description Apply recipes and return updated Survey
     bake = function() {
       bake_recipes(self)
     },
 
-    #' @description Display the first few rows of the survey data.
+    #' @description Return the head of the underlying data
     head = function() {
       head(self$data)
     },
 
-    #' @description Display the structure of the survey data.
+    #' @description Display the structure of the underlying data
     str = function() {
       str(self$data)
     },
 
-    #' @description Set the survey design.
-    #' @param design The new survey design.
+    #' @description Set the survey design object
+    #' @param design Survey design object or list
     set_design = function(design) {
       self$design <- design
     },
-
-    #' @description Update the survey design based on the current data and weights.
+    #' @description Update design variables using current data and weight
     update_design = function() {
       weight_list <- self$weight
 
@@ -226,7 +283,6 @@ Survey <- R6Class(
         if (is.character(weight_list[[i]])) {
           self$design[[i]]$variables <- self$data
         } else {
-          temp <- self$get_data()
           self$design[[i]]$variables <- merge(
             data_now,
             weight_list[[i]]$replicate_file,
@@ -235,108 +291,97 @@ Survey <- R6Class(
           )
         }
       }
-    },
-    active = list(
-      design = function() {
-        weight_list <- self$weight
-
-        design_list <- lapply(
-          weight_list,
-          function(x) {
-            if (is.character(x)) {
-              survey::svydesign(
-                id = ~1,
-                weights = as.formula(paste("~", x)),
-                data = self$data,
-                calibrate.formula = ~1
-              )
-            } else {
-              survey::svrepdesign(
-                weights = as.formula(paste("~", x$weight)),
-                data = merge(self$data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
-                repweights = x$replicate_pattern,
-                type = x$replicate_type
-              )
-            }
+    }
+  ),
+  active = list(
+    design_active = function() {
+      weight_list <- self$weight
+      design_list <- lapply(
+        weight_list,
+        function(x) {
+          if (is.character(x)) {
+            survey::svydesign(
+              id = ~1,
+              weights = as.formula(paste("~", x)),
+              data = self$data,
+              calibrate.formula = ~1
+            )
+          } else {
+            survey::svrepdesign(
+              weights = as.formula(paste("~", x$weight)),
+              data = merge(self$data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id),
+              repweights = x$replicate_pattern,
+              type = x$replicate_type
+            )
           }
-        )
+        }
+      )
 
-        names(design_list) <- names(weight_list)
+      names(design_list) <- names(weight_list)
 
-        return(design_list)
-      }
-    )
+      return(design_list)
+    }
   )
 )
 
+
 #' @title survey_to_data_frame
-#' @description Convert a Survey object to a data.frame.
-#' @param svy A Survey object.
+#' @description Convert survey to data.frame
 #' @keywords Surveymethods
+#' @param svy Survey object
+
 #' @export
-#' @return A data.frame containing the survey data.
+#' @return data.frame
 survey_to_data_frame <- function(svy) {
   data.frame(svy$get_data())
 }
 
 #' @title survey_to_tibble
-#' @description Convert a Survey object to a tibble.
-#' @param svy A Survey object.
 #' @keywords Surveymethods
+#' @description Convert survey to tibble
+#' @param svy Survey object
 #' @export
-#' @return A tibble containing the survey data.
+#' @return tibble
+
+
 survey_to_tibble <- function(svy) {
   tibble::as_tibble(svy$get_data())
 }
 
 #' @title survey_to_data.table
-#' @description Convert a Survey object to a data.table.
-#' @param svy A Survey object.
 #' @keywords Surveymethods
+#' @description Convert survey to data.table
+#' @param svy Survey object
 #' @export
+
 #' @importFrom data.table data.table
-#' @return A data.table containing the survey data.
+#' @return data.table
+#'
+
 survey_to_data.table <- function(svy) {
   data.table::data.table(svy$get_data())
 }
 
 #' @title get_data
-#' @description Retrieve the data from a Survey object.
-#' @param svy A Survey object.
+#' @description Get data from survey
+#' @param svy Survey object
 #' @keywords Surveymethods
 #' @export
-#' @return The survey data.
+#' @return Data
+#'
+
 get_data <- function(svy) {
   svy$get_data()
 }
 
-#' @title get_edition
-#' @description Retrieve the edition of a Survey object.
-#' @param svy A Survey object.
-#' @keywords Surveymethods
-#' @export
-#' @return The survey edition.
 get_edition <- function(svy) {
   svy$get_edition()
 }
 
-#' @title get_weight
-#' @description Retrieve the weight(s) of a Survey object.
-#' @param svy A Survey object.
-#' @keywords Surveymethods
-#' @param estimation_type The type of estimation (default: all weights).
-#' @export
-#' @return The weight(s) of the survey.
 get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
   svy$weight[[estimation_type]]
 }
 
-#' @title get_info_weight
-#' @description Retrieve detailed information about the weights of a Survey object.
-#' @param svy A Survey object.
-#' @keywords Surveymethods
-#' @export
-#' @return A string with detailed weight information.
 get_info_weight <- function(svy) {
   info_weight <- c("")
 
@@ -367,24 +412,14 @@ get_info_weight <- function(svy) {
   )
 }
 
-#' @title get_type
-#' @description Retrieve the type of a Survey object.
-#' @param svy A Survey object.
-#' @keywords Surveymethods
-#' @export
-#' @return The survey type.
 get_type <- function(svy) {
   svy$get_type()
 }
 
-#' @title set_data
-#' @description Set new data for a Survey object.
-#' @param svy A Survey object.
-#' @param data The new data.
-#' @param .copy Whether to return a copy of the Survey object (default: TRUE).
-#' @keywords Surveymethods
-#' @export
-#' @return The updated Survey object.
+get_design <- function(self) {
+  self$active$design_active()
+}
+
 set_data <- function(svy, data, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
@@ -396,14 +431,6 @@ set_data <- function(svy, data, .copy = use_copy_default()) {
   }
 }
 
-#' @title set_edition
-#' @description Set a new edition for a Survey object.
-#' @param svy A Survey object.
-#' @param new_edition The new edition.
-#' @param .copy Whether to return a copy of the Survey object (default: TRUE).
-#' @keywords Surveymethods
-#' @export
-#' @return The updated Survey object.
 set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
@@ -415,14 +442,6 @@ set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
   }
 }
 
-#' @title set_type
-#' @description Set a new type for a Survey object.
-#' @param svy A Survey object.
-#' @param new_type The new type.
-#' @param .copy Whether to return a copy of the Survey object (default: TRUE).
-#' @keywords Surveymethods
-#' @export
-#' @return The updated Survey object.
 set_type <- function(svy, new_type, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
@@ -434,14 +453,6 @@ set_type <- function(svy, new_type, .copy = use_copy_default()) {
   }
 }
 
-#' @title set_weight
-#' @description Set new weight(s) for a Survey object.
-#' @param svy A Survey object.
-#' @param new_weight The new weight(s).
-#' @param .copy Whether to return a copy of the Survey object (default: TRUE).
-#' @keywords Surveymethods
-#' @export
-#' @return The updated Survey object.
 set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
@@ -458,12 +469,12 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 }
 
 #' @title get_metadata
-#' @description Retrieve metadata from a Survey object.
-#' @param self A Survey object.
+#' @description Get metadata from survey
 #' @keywords Surveymethods
-#' @export
 #' @importFrom glue glue glue_col
-#' @return Metadata as a list.
+#' @param self Object of class Survey
+#' @export
+
 get_metadata <- function(self) {
   if (is(self, "Survey")) {
     message(
@@ -630,15 +641,48 @@ get_metadata <- function(self) {
   }
 }
 
-#' @title cat_design
-#' @description Cast design from survey
+#' Display survey design information
+#'
+#' Pretty-prints the sampling design configuration for each estimation type
+#' in a Survey object, showing PSU, strata, weights, and other design elements
+#' in a color-coded, readable format.
+#'
+#' @param self Survey object containing design information
+#'
+#' @return Invisibly returns NULL; called for side effect of printing design info
+#'
+#' @details
+#' This function displays design information including:
+#' \itemize{
+#'   \item Primary Sampling Units (PSU/clusters)
+#'   \item Stratification variables
+#'   \item Weight variables for each estimation type
+#'   \item Finite Population Correction (FPC) if used
+#'   \item Calibration formulas if applied
+#'   \item Overall design type classification
+#' }
+#'
+#' Output is color-coded for better readability in supporting terminals.
+#'
+#' @examples
+#' \dontrun{
+#' # Display design for survey with multiple estimation types
+#' ech_survey <- load_survey("ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023"
+#' )
+#' cat_design(ech_survey)
+#' }
+#'
+#' @seealso \code{\link{cat_design_type}} for design type classification
 #' @keywords Surveymethods
-#' @param self Object of class Survey
 #' @export
 #'
 #'
+
 cat_design <- function(self) {
   design_list <- self$design
+
 
   green <- "\033[32m"
   reset <- "\033[39m"
@@ -678,6 +722,12 @@ cat_design <- function(self) {
   return(output)
 }
 
+
+
+
+
+
+
 #' @title cat_design_type
 #' @description Cast design type from survey
 #' @keywords Surveymethods
@@ -686,6 +736,7 @@ cat_design <- function(self) {
 #' @export
 #'
 #'
+
 cat_design_type <- function(self, design_name) {
   design_engine <- list(
     "survey.design2" = list(
@@ -728,12 +779,14 @@ cat_design_type <- function(self, design_name) {
   }
 }
 
+
 #' @title cat_recipes
 #' @description Cast recipes from survey
 #' @keywords Surveymethods
 #' @param self Object of class Survey
 #' @export
 #'
+
 cat_recipes <- function(self) {
   if (is.null(self$recipes) || length(self$recipes) == 0) {
     return("None")
@@ -776,19 +829,23 @@ cat_recipes <- function(self) {
 #' @keywords Steps
 #' @export
 #' @return List
+
 get_steps <- function(svy) {
   svy$steps
 }
 
 #' @title survey_empty
-#' @description Create an empty Survey object.
-#' @param edition The edition of the survey.
-#' @param type The type of the survey.
-#' @param weight The weight(s) of the survey.
-#' @param engine The engine of the survey.
+#' @description Create an empty survey
 #' @keywords Surveymethods
+#' @param edition Edition of survey
+#' @param type Type of survey
+#' @param weight Weight of survey
+#' @param engine Engine of survey
 #' @export
-#' @return An empty Survey object.
+
+#' @return Survey object
+#'
+
 survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL) {
   Survey$new(
     data = NULL,
@@ -799,12 +856,12 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
   )
 }
 
-#' @title bake_recipes
-#' @description Bake all recipes in a Survey object.
-#' @param svy A Survey object with recipes to bake.
+
+#' Bake recipes
+#' @param svy Survey object
 #' @keywords Surveymethods
 #' @export
-#' @return A Survey object with baked recipes.
+#' @return Survey object
 bake_recipes <- function(svy) {
   recipes <- svy$recipes
 

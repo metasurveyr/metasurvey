@@ -7,12 +7,12 @@
 survey_to_tibble(svy)
 }
 \arguments{
-\item{svy}{A Survey object.}
+\item{svy}{Survey object}
 }
 \value{
-A tibble containing the survey data.
+tibble
 }
 \description{
-Convert a Survey object to a tibble.
+Convert survey to tibble
 }
 \keyword{Surveymethods}

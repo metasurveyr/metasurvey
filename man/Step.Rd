@@ -56,6 +56,12 @@ print(step)
 \item{\code{comments}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
+
+\item{\code{expressions}}{Optional list of AST expressions used by this step (for AST-backed steps).}
+
+\item{\code{names}}{Optional character vector with the variable names associated to \code{expressions}.}
+
+\item{\code{ast_info}}{Optional list with AST metadata (original expressions, optimized versions, dependencies, flags).}
 }
 \if{html}{\out{</div>}}
 }
@@ -70,7 +76,7 @@ print(step)
 \if{html}{\out{<a id="method-Step-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Step-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes a new Step object with the provided attributes.
+Create a new Step object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Step$new(
   name,
@@ -83,8 +89,12 @@ Initializes a new Step object with the provided attributes.
   svy_before,
   default_engine,
   depends_on,
-  comments,
-  bake = !lazy_default()
+  comments = NULL,
+  bake = !lazy_default(),
+  comment = NULL,
+  expressions = NULL,
+  names = NULL,
+  ast_info = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -97,7 +107,7 @@ Initializes a new Step object with the provided attributes.
 
 \item{\code{survey_type}}{The type of survey associated with the step.}
 
-\item{\code{type}}{The type of operation performed by the step (e.g., "compute", "recode").}
+\item{\code{type}}{The type of operation performed by the step (e.g., "compute" or "recode").}
 
 \item{\code{new_var}}{The name of the new variable created by the step, if applicable.}
 
@@ -114,6 +124,14 @@ Initializes a new Step object with the provided attributes.
 \item{\code{comments}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
+
+\item{\code{comment}}{Optional alias of \code{comments} for backwards compatibility.}
+
+\item{\code{expressions}}{Optional list of AST expressions for AST compute steps.}
+
+\item{\code{names}}{Optional character vector of variable names for AST compute steps.}
+
+\item{\code{ast_info}}{Optional list with AST-related metadata for this step.}
 }
 \if{html}{\out{</div>}}
 }

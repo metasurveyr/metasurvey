@@ -70,6 +70,7 @@ ech_2023 <- load_panel_survey(
   )
 )
 }
+\dontrun{
 # Example of loading a panel survey
 panel_survey <- load_panel_survey(
   path_implantation = "path/to/implantation.csv",
@@ -79,5 +80,6 @@ panel_survey <- load_panel_survey(
   svy_weight_follow_up = add_weight(monthly = "w_monthly")
 )
 print(panel_survey)
+}
 }
 \keyword{preprocessing}

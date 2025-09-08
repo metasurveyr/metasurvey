@@ -7,12 +7,12 @@
 get_data(svy)
 }
 \arguments{
-\item{svy}{A Survey object.}
+\item{svy}{Survey object}
 }
 \value{
-The survey data.
+Data
 }
 \description{
-Retrieve the data from a Survey object.
+Get data from survey
 }
 \keyword{Surveymethods}

@@ -19,7 +19,9 @@ Publishes a Recipe object to the API.
 This function sends a Recipe object to the API for publication.
 }
 \examples{
+\dontrun{
 # Example of publishing a Recipe object to the API
 publish_recipe(recipe_obj)
+}
 }
 \keyword{utils}

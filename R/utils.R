@@ -46,7 +46,6 @@ validate_weight <- function(svy, weight) {
 #' @param svy Survey
 #' @param replicate Replicate
 #' @return Replicate
-#' @keywords utils
 #' @keywords internal
 #' @noRd
 
@@ -122,9 +121,40 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 }
 
 
-#' Load survey example
-#' @param svy_type Survey type
-#' @param svy_edition Survey edition
+#' Load survey example data
+#'
+#' Downloads and loads example survey data from the metasurvey data repository.
+#' This function provides access to sample datasets for testing and demonstration
+#' purposes, including ECH (Continuous Household Survey) and other survey types.
+#'
+#' @param svy_type Character string specifying the survey type (e.g., "ech")
+#' @param svy_edition Character string specifying the survey edition/year (e.g., "2023")
+#'
+#' @return Character string with the path to the downloaded CSV file containing
+#'   the example survey data
+#'
+#' @details
+#' This function downloads example data from the official metasurvey data
+#' repository on GitHub. The data is cached locally in a temporary file to
+#' avoid repeated downloads in the same session.
+#'
+#' Available survey types and editions can be found at:
+#' https://github.com/metasurveyr/metasurvey_data
+#'
+#' @examples
+#' \dontrun{
+#' # Load ECH 2023 example data
+#' ech_path <- load_survey_example("ech", "2023")
+#'
+#' # Use with load_survey
+#' ech_data <- load_survey(
+#'   path = load_survey_example("ech", "2023"),
+#'   svy_type = "ech",
+#'   svy_edition = "2023"
+#' )
+#' }
+#'
+#' @seealso \code{\link{load_survey}} for loading the downloaded data
 #' @keywords utils
 #' @export
 
@@ -152,8 +182,27 @@ load_survey_example <- function(svy_type, svy_edition) {
   return(file.path(tempdir(), paste0(svy_type, paste0(svy_edition, ".csv"), sep = "/")))
 }
 
-#' Get use_copy option
-#' @return Use copy
+#' Get data copy option
+#'
+#' Retrieves the current setting for the use_copy option, which controls
+#' whether survey operations create copies of the data or modify in place.
+#'
+#' @return Logical value indicating whether to use data copies (TRUE) or
+#'   modify data in place (FALSE). Default is TRUE.
+#'
+#' @details
+#' The use_copy option affects memory usage and performance:
+#' \itemize{
+#'   \item TRUE: Creates copies, safer but uses more memory
+#'   \item FALSE: Modifies in place, more efficient but requires caution
+#' }
+#'
+#' @examples
+#' # Check current setting
+#' current_setting <- use_copy_default()
+#' print(current_setting)
+#'
+#' @seealso \code{\link{set_use_copy}} to change the setting
 #' @keywords utils
 #' @export
 
@@ -161,15 +210,40 @@ use_copy_default <- function() {
   getOption("use_copy", default = TRUE)
 }
 
-#' Set use_copy option
-#' @param use_copy Use copy
-#' @export
-#' @keywords utils
+#' Set data copy option
+#'
+#' Configures whether survey operations should create copies of the data or
+#' modify existing data in place. This setting affects memory usage and
+#' performance across the metasurvey package.
+#'
+#' @param use_copy Logical value: TRUE to create data copies (safer),
+#'   FALSE to modify data in place (more efficient)
+#'
+#' @details
+#' Setting use_copy affects all subsequent survey operations:
+#' \itemize{
+#'   \item TRUE (default): Operations create data copies, preserving original data
+#'   \item FALSE: Operations modify data in place, reducing memory usage
+#' }
+#'
+#' Use FALSE for large datasets where memory is a concern, but ensure you
+#' don't need the original data after operations.
+#'
 #' @examples
-#' set_use_copy(FALSE)
-#' use_copy_default()
+#' # Set to use copies (default behavior)
 #' set_use_copy(TRUE)
 #' use_copy_default()
+#'
+#' # Set to modify in place for better performance
+#' set_use_copy(FALSE)
+#' use_copy_default()
+#'
+#' # Reset to default
+#' set_use_copy(TRUE)
+#'
+#' @seealso \code{\link{use_copy_default}} to check current setting
+#' @export
+#' @keywords utils
 set_use_copy <- function(use_copy) {
   if (!is.logical(use_copy)) {
     stop("use_copy must be a logical")
@@ -249,7 +323,6 @@ get_api_key <- function() {
 #' @return Public Key
 #' @keywords utils
 #' @keywords internal
-#' @importFrom httr POST content
 #' @noRd
 
 public_key <- function() {
@@ -511,27 +584,79 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 }
 
 
-#' Add Weight time pattern
-#' @param monthly String or replicate list with weight monthly pattern
-#' @param annual String or replicate list with weight annual pattern
-#' @param quarterly String or replicate list with weight quarterly pattern
-#' @param biannual String or replicate list with weight biannual pattern
-#' @keywords utils
+#' Configure weights by periodicity for Survey objects
+#'
+#' This function creates a weight structure that allows specifying different
+#' weight variables according to estimation periodicity. It is essential for
+#' proper functioning of workflows with multiple temporal estimation types.
+#'
+#' @param monthly String with monthly weight variable name, or replicate list
+#'   created with \code{\link{add_replicate}} for monthly weights
+#' @param annual String with annual weight variable name, or replicate list
+#'   for annual weights
+#' @param quarterly String with quarterly weight variable name, or replicate
+#'   list for quarterly weights
+#' @param biannual String with biannual weight variable name, or replicate
+#'   list for biannual weights
+#'
+#' @return Named list with weight configuration by periodicity, which will be
+#'   used by \code{\link{load_survey}} and \code{\link{workflow}} to
+#'   automatically select the appropriate weight
+#'
+#' @details
+#' This function is fundamental for surveys that require different weights
+#' according to temporal estimation type. For example, Uruguay's ECH has
+#' specific weights for monthly, quarterly, and annual estimations.
+#'
+#' Each parameter can be:
+#' \itemize{
+#'   \item A simple string with the weight variable name
+#'   \item A replicate structure created with \code{add_replicate()}
+#'     for bootstrap or jackknife estimations
+#' }
+#'
+#' Weights are automatically selected in \code{workflow()} according to the
+#' specified \code{estimation_type} parameter.
+#'
 #' @examples
-#' add_weight(
+#' \dontrun{
+#' # Basic configuration with simple weight variables
+#' ech_weights <- add_weight(
+#'   monthly = "pesomes",
+#'   quarterly = "pesotri",
+#'   annual = "pesoano"
+#' )
+#'
+#' # With bootstrap replicates for variance estimation
+#' weights_with_replicates <- add_weight(
 #'   monthly = add_replicate(
-#'     weight = "W",
-#'     replicate_pattern = "wr[0-9]+",
-#'     replicate_path = here::here(
-#'       "example-data",
-#'       "ech",
-#'       "ech_2023",
-#'       "pesos_replicados_01-2023.xlsx"
-#'     ),
-#'     replicate_id = c("ID" = "ID"),
+#'     weight = "pesomes",
+#'     replicate_pattern = "wr\\\\d+",
+#'     replicate_path = "monthly_replicate_weights.xlsx",
+#'     replicate_id = c("ID_HOGAR" = "ID"),
 #'     replicate_type = "bootstrap"
+#'   ),
+#'   annual = "pesoano"
+#' )
+#'
+#' # Usage in load_survey
+#' ech <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(
+#'     monthly = "pesomes",
+#'     annual = "pesoano"
 #'   )
 #' )
+#' }
+#'
+#' @seealso
+#' \code{\link{add_replicate}} to configure bootstrap/jackknife replicates
+#' \code{\link{load_survey}} where this configuration is used
+#' \code{\link{workflow}} that automatically selects weights
+#'
+#' @keywords utils
 #' @export
 #'
 add_weight <- function(
@@ -551,29 +676,97 @@ add_weight <- function(
   return(weight_list_clean)
 }
 
-#' @title Add replicate pattern in survey design with weight and replicate files
-#' @param weight String with name of weight in survey
-#' @param replicate_pattern String with replicate pattern for columns names regex expression
-#' @param replicate_path String with replicate file path
-#' @param replicate_id String with replicate ID use to join with survey
-#' @param replicate_type String with replicate type, e.g. "bootstrap", "jackknife"
-#' @keywords utils
-#' @export
+#' Configure replicate weights for variance estimation
+#'
+#' This function configures replicate weights (bootstrap, jackknife, etc.) that
+#' allow estimation of variance for complex statistics in surveys with complex
+#' sampling designs. It is essential for obtaining correct standard errors in
+#' population estimates.
+#'
+#' @param weight String with the name of the main weight variable in the
+#'   survey (e.g., "pesoano", "pesomes")
+#' @param replicate_pattern String with regex pattern to identify replicate
+#'   weight columns. Examples: "wr\\d+" for columns wr1, wr2, etc.
+#' @param replicate_path Path to the file containing replicate weights.
+#'   If NULL, assumes they are in the same main dataset
+#' @param replicate_id Named vector specifying how to join between the main
+#'   dataset and replicate file. Format: c("main_var" = "replicate_var")
+#' @param replicate_type Type of replication used. Options:
+#'   "bootstrap", "jackknife", "BRR" (Balanced Repeated Replication)
+#'
+#' @return List with replicate configuration that will be used by the
+#'   sampling design for variance estimation
+#'
+#' @details
+#' Replicate weights are essential for:
+#' \itemize{
+#'   \item Correctly estimating variance in complex designs
+#'   \item Calculating appropriate confidence intervals
+#'   \item Obtaining reliable coefficients of variation
+#'   \item Performing valid statistical tests
+#' }
+#'
+#' The regex pattern must exactly match the replicate weight column names
+#' in the file. For example, if columns are named "wr001", "wr002", etc.,
+#' use the pattern "wr\\\\d+".
+#'
+#' This function is typically used within \code{add_weight()} for more
+#' complex weight configurations.
+#'
 #' @examples
-#' add_replicate(
-#'   weight = "W",
-#'   replicate_pattern = "wr[0-9]+",
-#'   replicate_path = here::here(
-#'     "example-data",
-#'     "ech",
-#'     "ech_2023",
-#'     "pesos replicados Bootstrap anual 2023.xlsx"
-#'   ),
-#'   replicate_id = c("ID" = "ID"),
+#' \dontrun{
+#' # Basic configuration with external file
+#' annual_replicates <- add_replicate(
+#'   weight = "pesoano",
+#'   replicate_pattern = "wr\\\\d+",
+#'   replicate_path = "bootstrap_weights_2023.xlsx",
+#'   replicate_id = c("ID_HOGAR" = "ID"),
 #'   replicate_type = "bootstrap"
 #' )
 #'
-#' @return List of replicate parameters. It will be used to create a replicate object in the survey design.
+#' # With replicates in same dataset
+#' integrated_replicates <- add_replicate(
+#'   weight = "main_weight",
+#'   replicate_pattern = "rep_\\\\d{3}",
+#'   replicate_type = "jackknife"
+#' )
+#'
+#' # Use within add_weight
+#' weight_config <- add_weight(
+#'   annual = add_replicate(
+#'     weight = "pesoano",
+#'     replicate_pattern = "wr\\\\d+",
+#'     replicate_path = "bootstrap_annual.xlsx",
+#'     replicate_id = c("numero" = "ID_HOGAR"),
+#'     replicate_type = "bootstrap"
+#'   ),
+#'   monthly = "pesomes" # No replicates for monthly
+#' )
+#'
+#' # In load_survey
+#' ech <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(
+#'     annual = add_replicate(
+#'       weight = "pesoano",
+#'       replicate_pattern = "wr\\\\d+",
+#'       replicate_path = "bootstrap_weights.xlsx",
+#'       replicate_id = c("numero" = "ID"),
+#'       replicate_type = "bootstrap"
+#'     )
+#'   )
+#' )
+#' }
+#'
+#' @seealso
+#' \code{\link{add_weight}} for complete weight configuration
+#' \code{\link[survey]{svrepdesign}} for replicate design in survey package
+#' \code{\link{load_survey}} where this configuration is used
+#'
+#' @keywords utils
+#' @export
 
 add_replicate <- function(
     weight,
@@ -601,10 +794,6 @@ add_replicate <- function(
 #' @export
 
 evaluate_cv <- function(cv) {
-  if (cv <= 1) {
-    cv <- cv * 100
-  }
-
   if (cv < 5) {
     return("Excelente")
   } else if (cv >= 5 && cv < 10) {

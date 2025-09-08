@@ -2,7 +2,7 @@
 % Please edit documentation in R/PanelSurvey.R
 \name{extract_surveys}
 \alias{extract_surveys}
-\title{Extract surveys}
+\title{Extraer encuestas por periodicidad de panel rotativo}
 \usage{
 extract_surveys(
   RotativePanelSurvey,
@@ -15,25 +15,113 @@ extract_surveys(
 )
 }
 \arguments{
-\item{RotativePanelSurvey}{A RotativePanelSurvey object}
+\item{RotativePanelSurvey}{Objeto \code{RotativePanelSurvey} que contiene las
+encuestas del panel rotativo organizadas temporalmente}
 
-\item{index}{An integer}
+\item{index}{Vector de enteros que especifica índices específicos de
+encuestas a extraer. Si es un solo valor, devuelve esa encuesta;
+si es un vector, devuelve una lista}
 
-\item{monthly}{A vector of integers}
+\item{monthly}{Vector de enteros que especifica qué meses extraer para
+análisis mensual (1-12)}
 
-\item{annual}{A vector of integers}
+\item{annual}{Vector de enteros que especifica qué años extraer para
+análisis anual}
 
-\item{quarterly}{A vector of integers}
+\item{quarterly}{Vector de enteros que especifica qué trimestres extraer
+para análisis trimestral (1-4)}
 
-\item{biannual}{A vector of integers}
+\item{biannual}{Vector de enteros que especifica qué semestres extraer
+para análisis semestral (1-2)}
 
-\item{use.parallel}{A logical}
+\item{use.parallel}{Lógico que indica si usar procesamiento en paralelo
+para operaciones intensivas. Por defecto FALSE}
 }
 \value{
-A list of surveys
+Lista de objetos \code{Survey} que corresponden a los criterios
+especificados, o un solo objeto \code{Survey} si se especifica un índice único
 }
 \description{
-Extract surveys
+Esta función extrae subconjuntos de encuestas de un objeto RotativePanelSurvey
+basándose en criterios temporales específicos. Permite obtener encuestas para
+diferentes tipos de análisis (mensual, trimestral, anual) respetando la
+estructura temporal del panel rotativo.
+}
+\details{
+Esta función es esencial para trabajar con paneles rotativos porque:
+\itemize{
+\item Facilita análisis por periodicidad: Permite extraer datos para
+diferentes tipos de estimaciones temporales
+\item Mantiene estructura temporal: Respeta las relaciones temporales
+entre las diferentes ondas del panel
+\item Optimiza memoria: Solo carga las encuestas necesarias para el análisis
+\item Facilita comparaciones: Permite extraer períodos específicos para
+análisis comparativos
+\item Soporta paralelización: Para operaciones con grandes volúmenes de datos
+}
+
+Los criterios de extracción se interpretan según la frecuencia de la encuesta:
+\itemize{
+\item Para ECH mensual: monthly=c(1,3,6) extrae enero, marzo y junio
+\item Para análisis anual: annual=1 típicamente extrae el primer año disponible
+\item Para análisis trimestral: quarterly=c(1,4) extrae Q1 y Q4
+}
+
+Si no se especifica ningún criterio, la función devuelve la encuesta de
+implantación con una advertencia.
+}
+\examples{
+\dontrun{
+# Cargar panel rotativo
+panel_ech <- load_panel_survey(
+  path = "ech_panel_2023.dta",
+  svy_type = "ech_panel",
+  svy_edition = "2023"
+)
+
+# Extraer encuestas mensuales específicas
+ech_trimestre1 <- extract_surveys(
+  panel_ech,
+  monthly = c(1, 2, 3)  # Enero, febrero, marzo
+)
+
+# Extraer por índice
+ech_primera <- extract_surveys(panel_ech, index = 1)
+ech_varias <- extract_surveys(panel_ech, index = c(1, 3, 6))
+
+# Análisis trimestral
+ech_Q1_Q4 <- extract_surveys(
+  panel_ech,
+  quarterly = c(1, 4)
+)
+
+# Para análisis anual (típicamente todas las encuestas del año)
+ech_anual <- extract_surveys(
+  panel_ech,
+  annual = 1
+)
+
+# Con procesamiento paralelo para grandes volúmenes
+ech_completo <- extract_surveys(
+  panel_ech,
+  monthly = 1:12,
+  use.parallel = TRUE
+)
+
+# Usar en workflow
+resultados <- workflow(
+  survey = extract_surveys(panel_ech, quarterly = c(1, 2)),
+  svymean(~desocupado, na.rm = TRUE),
+  estimation_type = "quarterly"
+)
+}
+
+}
+\seealso{
+\code{\link{load_panel_survey}} para cargar paneles rotativos
+\code{\link{get_implantation}} para obtener datos de implantación
+\code{\link{get_follow_up}} para obtener datos de seguimiento
+\code{\link{workflow}} para usar las encuestas extraídas en análisis
 }
 \keyword{RotativePanelSurvey}
 \keyword{Surveymethods}

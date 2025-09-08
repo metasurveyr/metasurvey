@@ -7,12 +7,9 @@
 get_metadata(self)
 }
 \arguments{
-\item{self}{A Survey object.}
-}
-\value{
-Metadata as a list.
+\item{self}{Object of class Survey}
 }
 \description{
-Retrieve metadata from a Survey object.
+Get metadata from survey
 }
 \keyword{Surveymethods}

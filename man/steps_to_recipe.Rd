@@ -35,8 +35,7 @@ A Recipe object
 \description{
 Convert a list of steps to a recipe
 }
-\keyword{Recipes,}
+\keyword{Recipes}
 \keyword{Steps}
 \keyword{Survey}
 \keyword{methods}
-\keyword{utils}

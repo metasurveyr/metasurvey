@@ -1,10 +1,83 @@
-#' @title Workflow
-#' @description Workflow
+#' Execute estimation workflow for surveys
+#'
+#' This function executes a sequence of statistical estimations on Survey
+#' objects, applying functions from the R survey package with appropriate
+#' metadata. Automatically handles different survey types and periodicities.
+#'
+#' @param survey Survey object, list of Survey objects, or PoolSurvey. Must
+#'   contain properly configured sample design
+#' @param ... Calls to survey package functions (such as \code{svymean},
+#'   \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially
+#' @param estimation_type Type of estimation that determines which weight to use.
+#'   Options: "monthly", "quarterly", "annual", or vector with multiple types
+#'
+#' @return \code{data.table} with results from all estimations, including columns:
+#'   \itemize{
+#'     \item \code{stat}: Name of estimated statistic
+#'     \item \code{value}: Estimation value
+#'     \item \code{se}: Standard error
+#'     \item \code{cv}: Coefficient of variation
+#'     \item \code{estimation_type}: Type of estimation used
+#'     \item \code{survey_edition}: Survey edition
+#'     \item Other columns depending on estimation type
+#'   }
+#'
+#' @details
+#' The function automatically selects the appropriate sample design according
+#' to the specified \code{estimation_type}. For each Survey in the input list,
+#' it executes all functions specified in \code{...} and combines the results.
+#'
+#' Supported estimation types:
+#' \itemize{
+#'   \item "monthly": Monthly estimations
+#'   \item "quarterly": Quarterly estimations
+#'   \item "annual": Annual estimations
+#' }
+#'
+#' For PoolSurvey objects, it uses a specialized methodology that handles
+#' pooling of multiple surveys.
+#'
+#' @examples
+#' \dontrun{
+#' # Basic estimations
+#' result <- workflow(
+#'   survey = list(ech_2023),
+#'   svymean(~unemployed, na.rm = TRUE),
+#'   svytotal(~active_population, na.rm = TRUE),
+#'   estimation_type = "annual"
+#' )
+#'
+#' # Multiple periods
+#' result_multiple <- workflow(
+#'   survey = list(ech_jan, ech_feb, ech_mar),
+#'   svymean(~labor_income, na.rm = TRUE),
+#'   svyratio(~total_income, ~persons, na.rm = TRUE),
+#'   estimation_type = "monthly"
+#' )
+#'
+#' # Domain estimations
+#' result_domains <- workflow(
+#'   survey = list(ech_2023),
+#'   svyby(~unemployed, ~region_4, svymean, na.rm = TRUE),
+#'   estimation_type = "annual"
+#' )
+#'
+#' # Multiple estimation types
+#' result_complete <- workflow(
+#'   survey = list(ech_quarter),
+#'   svymean(~activity_rate, na.rm = TRUE),
+#'   estimation_type = c("monthly", "quarterly")
+#' )
+#' }
+#'
+#' @seealso
+#' \code{\link[survey]{svymean}} for population means
+#' \code{\link[survey]{svytotal}} for population totals
+#' \code{\link[survey]{svyratio}} for ratios
+#' \code{\link[survey]{svyby}} for domain estimations
+#' \code{\link{PoolSurvey}} for survey pooling
+#'
 #' @keywords Surveymethods
-#' @param survey Survey object
-#' @param ... Calls
-#' @param estimation_type Estimation type
-#' @importFrom data.table rbindlist
 #' @export
 #' @return Data
 
