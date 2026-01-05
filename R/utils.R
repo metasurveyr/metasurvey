@@ -496,14 +496,6 @@ extract_time_pattern <- function(svy_edition) {
 }
 
 
-
-
-
-
-
-
-
-
 #' Validate time pattern
 #' @param svy_edition Survey edition
 #' @param svy_type Survey type
@@ -544,7 +536,6 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
       }
     )
   }
-
 
 
   return(
@@ -660,10 +651,11 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' @export
 #'
 add_weight <- function(
-    monthly = NULL,
-    annual = NULL,
-    quarterly = NULL,
-    biannual = NULL) {
+  monthly = NULL,
+  annual = NULL,
+  quarterly = NULL,
+  biannual = NULL
+) {
   weight_list <- list(
     monthly = monthly,
     annual = annual,
@@ -769,11 +761,12 @@ add_weight <- function(
 #' @export
 
 add_replicate <- function(
-    weight,
-    replicate_pattern,
-    replicate_path = NULL,
-    replicate_id = NULL,
-    replicate_type) {
+  weight,
+  replicate_pattern,
+  replicate_path = NULL,
+  replicate_id = NULL,
+  replicate_type
+) {
   replicate_list <- list(
     weight = weight,
     replicate_pattern = replicate_pattern,

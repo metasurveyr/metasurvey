@@ -309,9 +309,6 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     )
 
 
-
-
-
     if (.to_factor) {
       .data[
         ,
@@ -617,14 +614,11 @@ step_compute_rotative <- function(svy, ..., .by = NULL, use_copy = use_copy_defa
   }
 
 
-
   if (length(implantation_processed$steps) > 0) {
     steps <- implantation_processed$steps
   } else {
     steps <- follow_up_processed[[1]]$steps
   }
-
-
 
 
   result <- RotativePanelSurvey$new(
@@ -1065,15 +1059,16 @@ get_comments <- function(steps) {
 #' @keywords Steps
 #' @export
 step_join <- function(
-    svy = survey_empty(),
-    x,
-    by = NULL,
-    type = c("left", "inner", "right", "full"),
-    suffixes = c("", ".y"),
-    use_copy = use_copy_default(),
-    comment = "Join step",
-    lazy = lazy_default(),
-    record = TRUE) {
+  svy = survey_empty(),
+  x,
+  by = NULL,
+  type = c("left", "inner", "right", "full"),
+  suffixes = c("", ".y"),
+  use_copy = use_copy_default(),
+  comment = "Join step",
+  lazy = lazy_default(),
+  record = TRUE
+) {
   .call <- match.call()
   type <- match.arg(type)
 

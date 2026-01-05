@@ -95,13 +95,14 @@
 #' @keywords preprocessing
 #' @export
 load_survey <- function(
-    path = NULL,
-    svy_type = NULL,
-    svy_edition = NULL,
-    svy_weight = NULL,
-    svy_psu = NULL,
-    ..., bake = FALSE,
-    recipes = NULL) {
+  path = NULL,
+  svy_type = NULL,
+  svy_edition = NULL,
+  svy_weight = NULL,
+  svy_psu = NULL,
+  ..., bake = FALSE,
+  recipes = NULL
+) {
   path_null <- missing(path)
 
   svy_args_null <- missing(svy_type) || missing(svy_edition) || missing(svy_weight)
@@ -135,7 +136,6 @@ load_survey <- function(
     recipes = recipes,
     ...
   )
-
 
 
   .call_engine <- paste0(
@@ -213,12 +213,13 @@ load_survey <- function(
 #' @export
 
 load_panel_survey <- function(
-    path_implantation,
-    path_follow_up,
-    svy_type,
-    svy_weight_implantation,
-    svy_weight_follow_up,
-    ...) {
+  path_implantation,
+  path_follow_up,
+  svy_type,
+  svy_weight_implantation,
+  svy_weight_follow_up,
+  ...
+) {
   names_survey <- gsub(
     "\\..*",
     "",
@@ -240,8 +241,6 @@ load_panel_survey <- function(
   path_survey <- list.files(path_follow_up, full.names = TRUE, pattern = ".csv")
 
   names(path_survey) <- names_survey
-
-
 
 
   implantation <- load_survey(
@@ -432,7 +431,6 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
   .names_args <- .names_args[!.names_args %in% .metadata_args]
 
 
-
   df <- do.call(.read_function$read_function, args = .args[.names_args])
   return(data.table::data.table(df))
 }
@@ -488,7 +486,6 @@ load_survey.data.table <- function(...) {
         )
 
 
-
         .args$recipes <- NULL
       }
     }
@@ -513,7 +510,6 @@ load_survey.data.table <- function(...) {
 }
 
 
-
 #' Config survey
 #' @inheritDotParams load_survey
 #' @noRd
@@ -536,7 +532,6 @@ validate_recipe <- function(svy_type, svy_edition, recipe_svy_edition, recipe_sv
   equal_type <- svy_type == recipe_svy_type
 
   equal_edition <- svy_edition == recipe_svy_edition
-
 
 
   return(equal_type & equal_edition)

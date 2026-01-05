@@ -313,7 +313,6 @@ cat_estimation.svyratio <- function(estimation, call) {
   confint_estimation <- confint(estimation)
 
 
-
   dt <- data.table(
     stat = paste0(call, ": ", names(SE(estimation))),
     value = coef(estimation),

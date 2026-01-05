@@ -723,11 +723,6 @@ cat_design <- function(self) {
 }
 
 
-
-
-
-
-
 #' @title cat_design_type
 #' @description Cast design type from survey
 #' @keywords Surveymethods

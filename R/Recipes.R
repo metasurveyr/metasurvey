@@ -434,10 +434,11 @@ read_recipe <- function(file) {
 #' @export
 
 get_recipe <- function(
-    svy_type = NULL,
-    svy_edition = NULL,
-    topic = NULL,
-    allowMultiple = TRUE) {
+  svy_type = NULL,
+  svy_edition = NULL,
+  topic = NULL,
+  allowMultiple = TRUE
+) {
   filterList <- list(
     svy_type = svy_type,
     svy_edition = svy_edition,
@@ -529,11 +530,12 @@ get_recipe <- function(
 #' @export
 
 steps_to_recipe <- function(
-    name,
-    user,
-    svy = survey_empty(type = "eaii", edition = "2019-2021"),
-    description,
-    steps, doi = NULL, topic = NULL) {
+  name,
+  user,
+  svy = survey_empty(type = "eaii", edition = "2019-2021"),
+  description,
+  steps, doi = NULL, topic = NULL
+) {
   return(
     recipe(
       name = name,
