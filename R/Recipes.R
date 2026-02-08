@@ -4,7 +4,8 @@
 #' surveys. It encapsulates metadata, declared dependencies, and a list of
 #' transformation steps to be applied to a Survey object.
 #'
-#' @name Recipe
+#' @name Recipe-class
+#' @aliases Recipe
 #' @docType class
 #' @format An R6 class generator (R6ClassGenerator)
 #'
