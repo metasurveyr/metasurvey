@@ -52,7 +52,7 @@ A recipe contains:
 # Essential metadata for every recipe
 metadata_example <- list(
   name = "Labor Force Indicators",
-  user = "Survey Methodologist", 
+  user = "Survey Methodologist",
   description = "Standard ILO-compatible labor force indicators",
   svy = survey_empty(type = "household_survey", edition = "2023"),
   topic = "employment",
@@ -69,9 +69,9 @@ metadata_example <- list(
 demographic_recipe <- recipe(
   name = "Basic Demographics",
   user = "Data Team",
-  svy = survey_empty(type = "household_survey", edition = "2023"), 
+  svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Standard demographic categories and indicators",
-  
+
   # Steps are added as arguments to recipe()
   step_recode(
     "age_group",
@@ -80,16 +80,14 @@ demographic_recipe <- recipe(
     .default = "Elderly",
     comment = "Standard age groups for analysis"
   ),
-  
   step_recode(
     "education_level",
-    years_education >= 16 ~ "University", 
+    years_education >= 16 ~ "University",
     years_education >= 12 ~ "Secondary",
     years_education >= 6 ~ "Primary",
     .default = "Less than Primary",
     comment = "Educational attainment levels"
   ),
-  
   step_compute(
     adult = ifelse(age >= 18, 1, 0),
     elderly = ifelse(age >= 65, 1, 0),
@@ -111,38 +109,37 @@ labor_force_recipe <- recipe(
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Standard labor force indicators following ILO definitions",
   topic = "employment",
-  
+
   # Labor force status (requires age variable)
   step_recode(
     "labor_force_status",
     employed == 1 ~ "Employed",
-    unemployed == 1 ~ "Unemployed", 
+    unemployed == 1 ~ "Unemployed",
     .default = "Not in Labor Force",
     comment = "Primary labor force status categories"
   ),
-  
+
   # Computed indicators
   step_compute(
     # Core indicators
     in_labor_force = employed + unemployed,
-    employment_rate = employed / adult,  # depends on adult from demographic recipe
+    employment_rate = employed / adult, # depends on adult from demographic recipe
     unemployment_rate = unemployed / in_labor_force,
     participation_rate = in_labor_force / adult,
-    
+
     # Additional indicators
     youth_unemployed = ifelse(age < 25 & unemployed == 1, 1, 0),
     youth_neet = ifelse(age < 25 & employed == 0 & in_school == 0, 1, 0),
-    
     comment = "Core labor force indicators and youth-specific measures"
   ),
-  
+
   # Industry and occupation recoding
   step_recode(
     "industry_major",
     industry_code %in% 1:3 ~ "Agriculture",
     industry_code %in% 10:33 ~ "Manufacturing",
     industry_code %in% 35:39 ~ "Utilities",
-    industry_code %in% 41:43 ~ "Construction", 
+    industry_code %in% 41:43 ~ "Construction",
     industry_code %in% 45:47 ~ "Trade",
     industry_code %in% 49:53 ~ "Transportation",
     industry_code %in% 55:56 ~ "Accommodation",
@@ -170,31 +167,27 @@ cat("Recipe dependencies:", paste(labor_force_recipe$depends_on, collapse = ", "
 ```{r recipe-families}
 # Create related recipes for different analysis purposes
 poverty_recipe <- recipe(
-  name = "Poverty and Income Indicators", 
+  name = "Poverty and Income Indicators",
   user = "Social Statistics Team",
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Poverty measurement following national methodology",
   topic = "poverty",
-  
   step_compute(
     # Per capita income
     per_capita_income = household_income / household_size,
-    
+
     # Equivalized income (OECD scale)
     equivalence_scale = 1 + (adults - 1) * 0.5 + children * 0.3,
     equivalized_income = household_income / equivalence_scale,
-    
     comment = "Income standardization measures"
   ),
-  
   step_recode(
     "poverty_status",
     per_capita_income < poverty_line ~ "Poor",
-    per_capita_income < poverty_line * 2 ~ "Vulnerable", 
+    per_capita_income < poverty_line * 2 ~ "Vulnerable",
     .default = "Non-poor",
     comment = "Poverty classification based on national poverty line"
   ),
-  
   step_compute(
     poor = ifelse(poverty_status == "Poor", 1, 0),
     extreme_poor = ifelse(per_capita_income < extreme_poverty_line, 1, 0),
@@ -206,24 +199,22 @@ poverty_recipe <- recipe(
 # Housing conditions recipe
 housing_recipe <- recipe(
   name = "Housing Quality Indicators",
-  user = "Housing Statistics Team", 
+  user = "Housing Statistics Team",
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Housing quality and access indicators",
   topic = "housing",
-  
   step_recode(
     "housing_tenure",
     tenure_type == 1 ~ "Owner",
     tenure_type == 2 ~ "Renter",
-    tenure_type == 3 ~ "Free", 
+    tenure_type == 3 ~ "Free",
     .default = "Other",
     comment = "Housing tenure classification"
   ),
-  
   step_compute(
     overcrowded = persons_per_room > 2.5,
-    adequate_water = water_source %in% c(1, 2),  # piped water
-    adequate_sanitation = sanitation_type %in% c(1, 2),  # flush toilet
+    adequate_water = water_source %in% c(1, 2), # piped water
+    adequate_sanitation = sanitation_type %in% c(1, 2), # flush toilet
     adequate_housing = !overcrowded & adequate_water & adequate_sanitation,
     comment = "Housing adequacy indicators"
   )
@@ -236,7 +227,7 @@ household_analysis_recipe <- recipe(
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Complete household-level indicators for poverty and living conditions analysis",
   topic = "household_welfare",
-  
+
   # Include steps from component recipes
   demographic_recipe$steps,
   labor_force_recipe$steps,
@@ -254,7 +245,7 @@ household_analysis_recipe <- recipe(
 household_survey <- load_survey(
   data = "household_data.csv",
   svy_edition = "2023",
-  svy_type = "household_survey", 
+  svy_type = "household_survey",
   svy_weight = add_weight(main = "sample_weight")
 )
 
@@ -275,7 +266,7 @@ head(processed_survey$data[, .(age, age_group, years_education, education_level)
 # Apply multiple recipes in sequence
 fully_processed_survey <- household_survey %>%
   add_recipe(demographic_recipe) %>%
-  add_recipe(labor_force_recipe) %>%  # depends on demographics
+  add_recipe(labor_force_recipe) %>% # depends on demographics
   add_recipe(poverty_recipe) %>%
   add_recipe(housing_recipe)
 
@@ -358,7 +349,7 @@ save_recipe(
 )
 
 save_recipe(
-  labor_force_recipe, 
+  labor_force_recipe,
   path = file.path(recipe_repo_path, "household_survey", "labor_force_v1.json")
 )
 ```
@@ -372,36 +363,36 @@ demographic_recipe_v2 <- recipe(
   user = "Data Team",
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Enhanced demographic categories with additional detail",
-  
+
   # Enhanced age groups
   step_recode(
     "age_group_detailed",
     age < 5 ~ "Early Childhood",
     age < 13 ~ "School Age",
-    age < 18 ~ "Adolescent", 
+    age < 18 ~ "Adolescent",
     age < 25 ~ "Young Adult",
     age < 40 ~ "Adult",
     age < 65 ~ "Mature Adult",
     .default = "Elderly",
     comment = "Detailed age groups for lifecycle analysis"
   ),
-  
+
   # Keep original groups for backward compatibility
   step_recode(
     "age_group",
     age < 18 ~ "Child",
     age < 65 ~ "Working Age",
-    .default = "Elderly", 
+    .default = "Elderly",
     comment = "Standard age groups (backward compatible)"
   ),
-  
+
   # Enhanced education
   step_recode(
     "education_level_detailed",
     years_education >= 18 ~ "Post-graduate",
     years_education >= 16 ~ "University",
     years_education >= 13 ~ "Technical/Vocational",
-    years_education >= 12 ~ "Secondary Complete", 
+    years_education >= 12 ~ "Secondary Complete",
     years_education >= 9 ~ "Secondary Incomplete",
     years_education >= 6 ~ "Primary Complete",
     years_education >= 1 ~ "Primary Incomplete",
@@ -441,22 +432,20 @@ comprehensive_recipe <- recipe(
   ),
   topic = "labor_statistics",
   doi = "10.1000/ilo.statistical.methods.2023",
-  
+
   # Detailed step documentation
   step_compute(
     # Working age population (15+ years)
     working_age = ifelse(age >= 15, 1, 0),
-    
-    # Youth population (15-24 years) 
+
+    # Youth population (15-24 years)
     youth = ifelse(age >= 15 & age <= 24, 1, 0),
-    
     comment = paste(
       "Working age and youth population indicators.",
       "Working age defined as 15+ following ILO convention.",
       "Youth defined as 15-24 age group for NEET calculations."
     )
   ),
-  
   step_recode(
     "employment_status_ilo",
     current_activity == 1 ~ "Employed",
@@ -469,18 +458,16 @@ comprehensive_recipe <- recipe(
       "Follows ICLS-19 resolution definitions."
     )
   ),
-  
   step_compute(
     # Core indicators
     employed = ifelse(employment_status_ilo == "Employed", 1, 0),
     unemployed = ifelse(employment_status_ilo == "Unemployed", 1, 0),
     labor_force = employed + unemployed,
-    
+
     # Rates (computed as proportions)
     employment_to_population = employed / working_age,
     unemployment_rate = unemployed / labor_force,
     labor_force_participation = labor_force / working_age,
-    
     comment = paste(
       "Core labor market indicators as binary variables and rates.",
       "Employment-to-population ratio = employed / working age population.",
@@ -488,14 +475,12 @@ comprehensive_recipe <- recipe(
       "Labor force participation rate = labor force / working age population."
     )
   ),
-  
   step_compute(
     # Youth-specific indicators
     youth_employed = youth * employed,
-    youth_unemployed = youth * unemployed,  
+    youth_unemployed = youth * unemployed,
     youth_not_in_education = youth * (1 - in_education),
     youth_neet = youth * (1 - employed) * (1 - in_education),
-    
     comment = paste(
       "Youth labor market indicators.",
       "NEET = Not in Employment, Education, or Training.",
@@ -507,7 +492,7 @@ comprehensive_recipe <- recipe(
 # Add methodology documentation
 attr(comprehensive_recipe, "methodology") <- list(
   reference_period = "One week",
-  age_coverage = "15 years and above", 
+  age_coverage = "15 years and above",
   geographical_coverage = "National",
   data_source = "Labor Force Survey",
   frequency = "Quarterly",
@@ -530,20 +515,20 @@ attr(comprehensive_recipe, "methodology") <- list(
 # Function to validate recipe completeness
 validate_recipe <- function(recipe) {
   checks <- list()
-  
+
   # Check required metadata
   checks$has_name <- !is.null(recipe$name) && nchar(recipe$name) > 0
   checks$has_user <- !is.null(recipe$user) && nchar(recipe$user) > 0
   checks$has_description <- !is.null(recipe$description) && nchar(recipe$description) > 10
   checks$has_survey_type <- !is.null(recipe$survey_type)
-  
+
   # Check steps
   checks$has_steps <- length(recipe$steps) > 0
   checks$steps_have_comments <- all(sapply(recipe$steps, function(s) !is.null(s$comments)))
-  
+
   # Summary
   checks$all_passed <- all(unlist(checks[1:6]))
-  
+
   return(checks)
 }
 
@@ -566,7 +551,7 @@ adaptive_poverty_recipe <- recipe(
   user = "Poverty Analysis Team",
   svy = survey_empty(type = "household_survey", edition = "2023"),
   description = "Poverty indicators that adapt to available income/consumption data",
-  
+
   # Use consumption if available, otherwise income
   step_compute(
     welfare_measure = ifelse(
@@ -577,7 +562,7 @@ adaptive_poverty_recipe <- recipe(
     welfare_per_capita = welfare_measure / household_size,
     comment = "Welfare measure selection: consumption preferred, income as fallback"
   ),
-  
+
   # Poverty line selection
   step_compute(
     applicable_poverty_line = ifelse(
@@ -587,7 +572,6 @@ adaptive_poverty_recipe <- recipe(
     ),
     comment = "Poverty line matching welfare measure type"
   ),
-  
   step_recode(
     "poverty_status_adaptive",
     welfare_per_capita < applicable_poverty_line ~ "Poor",
@@ -607,7 +591,6 @@ base_demographic_recipe <- recipe(
   user = "Methods Team",
   svy = survey_empty(type = "survey", edition = "2023"),
   description = "Core demographic variables for all surveys",
-  
   step_compute(
     adult = ifelse(age >= 18, 1, 0),
     elderly = ifelse(age >= 65, 1, 0),
@@ -618,24 +601,23 @@ base_demographic_recipe <- recipe(
 # Extended recipe that builds on base
 extended_demographic_recipe <- recipe(
   name = "Extended Demographics",
-  user = "Analysis Team", 
+  user = "Analysis Team",
   svy = survey_empty(type = "survey", edition = "2023"),
   description = "Extended demographic analysis building on base demographics",
-  
+
   # Include base recipe steps
   base_demographic_recipe$steps,
-  
+
   # Add additional steps
   step_recode(
     "lifecycle_stage",
     age < 18 ~ "Child",
     age < 25 ~ "Young Adult",
-    age < 45 ~ "Adult", 
+    age < 45 ~ "Adult",
     age < 65 ~ "Mature Adult",
     .default = "Elderly",
     comment = "Detailed lifecycle stages"
   ),
-  
   step_compute(
     dependency_ratio = (children + elderly) / working_age_population,
     comment = "Age dependency ratio calculation"
@@ -650,15 +632,15 @@ extended_demographic_recipe <- recipe(
 ```{r bp-naming}
 # Good naming practices
 employment_indicators_ilo_2023 <- recipe(
-  name = "Employment Indicators (ILO Standards) - 2023",  # Descriptive and versioned
-  user = "Labor Statistics Division",                      # Clear authorship
+  name = "Employment Indicators (ILO Standards) - 2023", # Descriptive and versioned
+  user = "Labor Statistics Division", # Clear authorship
   # ... rest of recipe
 )
 
 # Variable naming in steps should be consistent
 step_recode(
-  "emp_status_main",      # prefix indicates domain, suffix indicates type
-  "unemp_rate_youth",     # clear abbreviations
+  "emp_status_main", # prefix indicates domain, suffix indicates type
+  "unemp_rate_youth", # clear abbreviations
   "lf_participation_rate" # consistent naming pattern
 )
 ```
@@ -671,7 +653,7 @@ step_compute(
   employment_rate = employed_persons / working_age_population,
   comment = paste(
     "Employment-to-population ratio.",
-    "Numerator: Employed persons (ILO definition).", 
+    "Numerator: Employed persons (ILO definition).",
     "Denominator: Working age population (15+ years).",
     "Reference period: Survey reference week."
   )
@@ -704,7 +686,7 @@ versioned_recipe <- recipe(
   description = paste(
     "Version 3.1 changes:",
     "- Updated poverty lines based on 2023 CPI",
-    "- Added regional poverty line adjustments", 
+    "- Added regional poverty line adjustments",
     "- Fixed calculation error in poverty gap measure"
   )
 )
@@ -717,17 +699,17 @@ versioned_recipe <- recipe(
 test_recipe_on_data <- function(recipe, test_data) {
   # Apply recipe to test data
   test_survey <- load_survey(test_data, svy_type = "test", svy_edition = "test")
-  test_result <- test_survey %>% 
+  test_result <- test_survey %>%
     add_recipe(recipe) %>%
     bake_recipes()
-  
+
   # Validate results
   validation <- list(
     variables_created = setdiff(names(test_result$data), names(test_data)),
     missing_values_check = sapply(test_result$data, function(x) sum(is.na(x))),
-    value_ranges_check = sapply(test_result$data, function(x) if(is.numeric(x)) range(x, na.rm=TRUE))
+    value_ranges_check = sapply(test_result$data, function(x) if (is.numeric(x)) range(x, na.rm = TRUE))
   )
-  
+
   return(validation)
 }
 ```

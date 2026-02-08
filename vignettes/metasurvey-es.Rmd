@@ -105,13 +105,15 @@ ech <- ech |>
 # Tabla de lookup
 deptos <- data.frame(
   dpto = 1:19,
-  nombre_dpto = c("Montevideo", "Artigas", "Canelones",
-                   "Cerro Largo", "Colonia", "Durazno",
-                   "Flores", "Florida", "Lavalleja",
-                   "Maldonado", "Paysandu", "Rio Negro",
-                   "Rivera", "Rocha", "Salto",
-                   "San Jose", "Soriano", "Tacuarembo",
-                   "Treinta y Tres")
+  nombre_dpto = c(
+    "Montevideo", "Artigas", "Canelones",
+    "Cerro Largo", "Colonia", "Durazno",
+    "Flores", "Florida", "Lavalleja",
+    "Maldonado", "Paysandu", "Rio Negro",
+    "Rivera", "Rocha", "Salto",
+    "San Jose", "Soriano", "Tacuarembo",
+    "Treinta y Tres"
+  )
 )
 
 ech <- ech |>
@@ -144,7 +146,6 @@ receta_laboral <- recipe(
   user = "Equipo de Trabajo",
   svy = survey_empty(type = "ech", edition = "2023"),
   description = "Crea indicadores del mercado laboral para ECH 2023",
-
   step_recode(
     survey_empty(type = "ech", edition = "2023"),
     condicion,
@@ -196,8 +197,8 @@ show_engines()
 set_engine("data.table")
 
 # Opciones de copia
-set_use_copy(TRUE)   # Mas seguro
-set_use_copy(FALSE)  # Mas eficiente en memoria
+set_use_copy(TRUE) # Mas seguro
+set_use_copy(FALSE) # Mas eficiente en memoria
 ```
 
 ## Recursos adicionales

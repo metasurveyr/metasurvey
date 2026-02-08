@@ -25,4 +25,3 @@ library(survey)
 library(magrittr)
 library(gt)
 ```
-

@@ -75,8 +75,10 @@ When building complex pipelines, verify each step independently:
 
 ```{r validate-steps}
 # Step 1: Compute new variable
-svy1 <- step_compute(svy, api_diff = api00 - api99,
-                     comment = "API score difference")
+svy1 <- step_compute(svy,
+  api_diff = api00 - api99,
+  comment = "API score difference"
+)
 
 # Verify step was recorded
 steps <- get_steps(svy1)

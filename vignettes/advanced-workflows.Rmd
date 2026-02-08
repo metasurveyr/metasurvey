@@ -47,14 +47,22 @@ Combining multiple cross-sectional surveys for increased precision:
 ```{r pooled-analysis}
 # Load multiple years of cross-sectional data
 surveys_2020_2023 <- list(
-  "2020" = load_survey("survey_2020.csv", svy_edition = "2020", 
-                       svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")),
-  "2021" = load_survey("survey_2021.csv", svy_edition = "2021",
-                       svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")),
-  "2022" = load_survey("survey_2022.csv", svy_edition = "2022", 
-                       svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")),
-  "2023" = load_survey("survey_2023.csv", svy_edition = "2023",
-                       svy_type = "annual_survey", svy_weight = add_weight(annual = "weight"))
+  "2020" = load_survey("survey_2020.csv",
+    svy_edition = "2020",
+    svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")
+  ),
+  "2021" = load_survey("survey_2021.csv",
+    svy_edition = "2021",
+    svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")
+  ),
+  "2022" = load_survey("survey_2022.csv",
+    svy_edition = "2022",
+    svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")
+  ),
+  "2023" = load_survey("survey_2023.csv",
+    svy_edition = "2023",
+    svy_type = "annual_survey", svy_weight = add_weight(annual = "weight")
+  )
 )
 
 # Apply consistent processing to all surveys
@@ -63,15 +71,13 @@ common_recipe <- recipe(
   user = "Time Series Team",
   svy = survey_empty(type = "annual_survey", edition = "2020-2023"),
   description = "Harmonized variables for time series analysis",
-  
   step_recode(
     "employment_status",
     activity_code == 1 ~ "Employed",
-    activity_code == 2 ~ "Unemployed", 
+    activity_code == 2 ~ "Unemployed",
     .default = "Not in Labor Force",
     comment = "Standardized employment status"
   ),
-  
   step_compute(
     employed = ifelse(employment_status == "Employed", 1, 0),
     unemployed = ifelse(employment_status == "Unemployed", 1, 0),
@@ -98,7 +104,7 @@ pooled_results <- workflow(
 )
 
 # Add time dimension
-pooled_results[, year := rep(2020:2023, each = .N/4)]
+pooled_results[, year := rep(2020:2023, each = .N / 4)]
 
 print(pooled_results)
 ```
@@ -111,7 +117,7 @@ Combining different survey types for comprehensive analysis:
 # Household and establishment surveys integration
 household_survey <- load_survey(
   "household_2023.csv",
-  svy_edition = "2023", 
+  svy_edition = "2023",
   svy_type = "household_survey",
   svy_weight = add_weight(annual = "hh_weight")
 )
@@ -119,7 +125,7 @@ household_survey <- load_survey(
 establishment_survey <- load_survey(
   "establishment_2023.csv",
   svy_edition = "2023",
-  svy_type = "establishment_survey", 
+  svy_type = "establishment_survey",
   svy_weight = add_weight(annual = "est_weight")
 )
 
@@ -132,7 +138,7 @@ hh_processed <- household_survey %>%
   ) %>%
   bake_steps()
 
-# Process establishment data  
+# Process establishment data
 est_processed <- establishment_survey %>%
   step_compute(
     formal_jobs = total_employees * formality_rate,
@@ -250,8 +256,8 @@ adjusted_results <- workflow(
   survey::svymean(~unemployment_rate, na.rm = TRUE),
   survey::svyratio(~unemployed, ~labor_force),
   estimation_type = "quarterly:monthly",
-  rho = 0.6,  # estimated correlation between quarters
-  R = 5/6     # overlap ratio (5 months overlap in 6-month period)
+  rho = 0.6, # estimated correlation between quarters
+  R = 5 / 6 # overlap ratio (5 months overlap in 6-month period)
 )
 
 # Compare with unadjusted results
@@ -286,7 +292,7 @@ small_area_survey <- load_survey(
   step_recode(
     "region",
     region_code %in% 1:5 ~ "North",
-    region_code %in% 6:10 ~ "Central", 
+    region_code %in% 6:10 ~ "Central",
     region_code %in% 11:15 ~ "South",
     .default = "Other",
     comment = "Regional classification"
@@ -324,20 +330,20 @@ print(domain_quality)
 
 ```{r seasonal-adjustment}
 # Monthly time series with seasonal patterns
-monthly_surveys <- lapply(1:24, function(i) {  # 2 years of monthly data
+monthly_surveys <- lapply(1:24, function(i) { # 2 years of monthly data
   load_survey(
     paste0("monthly_", i, ".csv"),
-    svy_edition = paste0("2022_", sprintf("%02d", ((i-1) %% 12) + 1)),
+    svy_edition = paste0("2022_", sprintf("%02d", ((i - 1) %% 12) + 1)),
     svy_type = "monthly_survey",
     svy_weight = add_weight(monthly = "weight")
   ) %>%
-  step_compute(
-    month = ((i-1) %% 12) + 1,
-    year = 2022 + floor((i-1) / 12),
-    quarter = ceiling(month / 3),
-    comment = "Time identifiers"
-  ) %>%
-  bake_steps()
+    step_compute(
+      month = ((i - 1) %% 12) + 1,
+      year = 2022 + floor((i - 1) / 12),
+      quarter = ceiling(month / 3),
+      comment = "Time identifiers"
+    ) %>%
+    bake_steps()
 })
 
 # Time series estimation workflow
@@ -381,16 +387,16 @@ trend_workflow <- function(survey_list, reference_periods) {
     survey::svymean(~labor_force_participation, na.rm = TRUE),
     estimation_type = "monthly"
   )
-  
+
   # Add time dimension
   results[, period := rep(reference_periods, each = .N / length(reference_periods))]
-  
+
   # Calculate period-to-period changes
   for (var in unique(results$stat)) {
     subset_data <- results[stat == var]
     subset_data[, `:=`(
       change = value - shift(value, 1),
-      change_se = sqrt(se^2 + shift(se, 1)^2),  # approximate
+      change_se = sqrt(se^2 + shift(se, 1)^2), # approximate
       change_significant = abs(change) > 1.96 * change_se
     )]
     results[stat == var, `:=`(
@@ -399,7 +405,7 @@ trend_workflow <- function(survey_list, reference_periods) {
       change_significant = subset_data$change_significant
     )]
   }
-  
+
   return(results)
 }
 
@@ -419,17 +425,19 @@ print(significant_changes[, .(period, stat, change, change_se)])
 # Quality assessment workflow
 quality_assessment <- function(survey, estimation_calls) {
   # Run base estimation
-  results <- do.call(workflow, c(list(survey = list(survey)), estimation_calls, 
-                                list(estimation_type = "main")))
-  
+  results <- do.call(workflow, c(
+    list(survey = list(survey)), estimation_calls,
+    list(estimation_type = "main")
+  ))
+
   # Add quality metrics
   results[, `:=`(
     quality_cv = sapply(cv, evaluate_cv),
     effective_n = (value / se)^2,
-    design_effect = se^2 / (value / sqrt(nrow(survey$data)))^2,  # approximate
+    design_effect = se^2 / (value / sqrt(nrow(survey$data)))^2, # approximate
     publishable = cv < 0.25 & (value / se)^2 >= 30
   )]
-  
+
   # Flag potential issues
   results[, `:=`(
     high_cv = cv > 0.15,
@@ -437,17 +445,16 @@ quality_assessment <- function(survey, estimation_calls) {
     high_deff = design_effect > 3,
     extreme_value = abs(value - median(value, na.rm = TRUE)) > 3 * mad(value, na.rm = TRUE)
   )]
-  
+
   # Overall quality score
-  results[, quality_score := 
+  results[, quality_score :=
     5 * (cv < 0.05) +
     4 * (cv >= 0.05 & cv < 0.10) +
     3 * (cv >= 0.10 & cv < 0.15) +
     2 * (cv >= 0.15 & cv < 0.25) +
     1 * (cv >= 0.25 & cv < 0.35) +
-    0 * (cv >= 0.35)
-  ]
-  
+    0 * (cv >= 0.35)]
+
   return(results)
 }
 
@@ -482,20 +489,20 @@ outlier_detection <- function(results_series) {
   # Time series outlier detection
   for (var in unique(results_series$stat)) {
     subset_data <- results_series[stat == var]
-    
+
     # Calculate rolling statistics
     subset_data[, `:=`(
       rolling_mean = frollmean(value, n = 3, align = "center"),
       rolling_sd = frollapply(value, n = 3, FUN = sd, align = "center")
     )]
-    
+
     # Outlier flags
     subset_data[, `:=`(
       statistical_outlier = abs(value - rolling_mean) > 2 * rolling_sd,
       trend_break = abs(value - shift(value, 1)) > 3 * se,
       level_shift = abs(value - rolling_mean) > 3 * se
     )]
-    
+
     # Update main results
     results_series[stat == var, `:=`(
       statistical_outlier = subset_data$statistical_outlier,
@@ -503,7 +510,7 @@ outlier_detection <- function(results_series) {
       level_shift = subset_data$level_shift
     )]
   }
-  
+
   return(results_series)
 }
 
@@ -537,17 +544,17 @@ parallel_survey_processing <- function(survey_paths, recipe, n_cores = 4) {
   # Set up cluster
   cl <- parallel::makeCluster(n_cores)
   on.exit(parallel::stopCluster(cl))
-  
+
   # Load required packages on workers
   parallel::clusterEvalQ(cl, {
     library(metasurvey)
     library(survey)
     library(magrittr)
   })
-  
+
   # Export objects to workers
   parallel::clusterExport(cl, c("recipe"), envir = environment())
-  
+
   # Process surveys in parallel
   results <- parallel::parLapply(cl, survey_paths, function(path) {
     survey <- load_survey(
@@ -556,11 +563,11 @@ parallel_survey_processing <- function(survey_paths, recipe, n_cores = 4) {
       svy_type = "parallel_survey",
       svy_weight = add_weight(main = "weight")
     )
-    
+
     processed <- survey %>%
       add_recipe(recipe) %>%
       bake_recipes()
-    
+
     # Run workflow
     result <- workflow(
       survey = list(processed),
@@ -568,10 +575,10 @@ parallel_survey_processing <- function(survey_paths, recipe, n_cores = 4) {
       survey::svytotal(~employed),
       estimation_type = "main"
     )
-    
+
     return(result)
   })
-  
+
   # Combine results
   combined_results <- rbindlist(results)
   return(combined_results)
@@ -589,15 +596,15 @@ parallel_survey_processing <- function(survey_paths, recipe, n_cores = 4) {
 large_survey_workflow <- function(data_path, chunk_size = 10000) {
   # Process data in chunks
   chunk_results <- list()
-  
+
   # Read data info without loading full dataset
   data_info <- data.table::fread(data_path, nrows = 0)
   total_rows <- data.table::fread(data_path, select = 1L, showProgress = FALSE)[, .N]
   n_chunks <- ceiling(total_rows / chunk_size)
-  
+
   for (i in 1:n_chunks) {
     skip_rows <- (i - 1) * chunk_size
-    
+
     # Read chunk
     chunk_data <- data.table::fread(
       data_path,
@@ -605,9 +612,9 @@ large_survey_workflow <- function(data_path, chunk_size = 10000) {
       nrows = chunk_size,
       showProgress = FALSE
     )
-    
+
     if (nrow(chunk_data) == 0) break
-    
+
     # Process chunk
     chunk_survey <- load_survey(
       data = chunk_data,
@@ -620,24 +627,24 @@ large_survey_workflow <- function(data_path, chunk_size = 10000) {
         comment = "Employment indicator"
       ) %>%
       bake_steps()
-    
+
     # Estimate for chunk
     chunk_result <- workflow(
       survey = list(chunk_survey),
       survey::svytotal(~employed),
       estimation_type = "main"
     )
-    
+
     chunk_results[[i]] <- chunk_result
-    
+
     # Clean up
     rm(chunk_data, chunk_survey)
     gc()
   }
-  
+
   # Combine chunk results (weighted average)
   combined_results <- rbindlist(chunk_results)
-  
+
   return(combined_results)
 }
 ```
@@ -648,7 +655,7 @@ large_survey_workflow <- function(data_path, chunk_size = 10000) {
 # Caching system for expensive operations
 create_workflow_cache <- function() {
   cache <- new.env(parent = emptyenv())
-  
+
   cached_workflow <- function(survey, ..., cache_key = NULL) {
     # Generate cache key if not provided
     if (is.null(cache_key)) {
@@ -658,22 +665,22 @@ create_workflow_cache <- function() {
         survey_metadata = list(survey$type, survey$edition)
       ))
     }
-    
+
     # Check cache
     if (exists(cache_key, envir = cache)) {
       message("Using cached result")
       return(get(cache_key, envir = cache))
     }
-    
+
     # Compute result
     result <- workflow(survey = list(survey), ..., estimation_type = "main")
-    
+
     # Store in cache
     assign(cache_key, result, envir = cache)
-    
+
     return(result)
   }
-  
+
   # Cache management functions
   list(
     workflow = cached_workflow,
@@ -696,7 +703,7 @@ workflow_cache <- create_workflow_cache()
 # Second call - cached
 # result2 <- workflow_cache$workflow(
 #   survey_data,
-#   survey::svymean(~income), 
+#   survey::svymean(~income),
 #   cache_key = "income_analysis_2023"
 # )
 ```
@@ -710,45 +717,47 @@ workflow_cache <- create_workflow_cache()
 robust_workflow <- function(survey, estimation_calls, max_retries = 3) {
   results <- list()
   errors <- list()
-  
+
   for (i in seq_along(estimation_calls)) {
     call_name <- paste0("call_", i)
     retry_count <- 0
-    
+
     while (retry_count < max_retries) {
-      tryCatch({
-        # Attempt estimation
-        result <- workflow(
-          survey = list(survey),
-          estimation_calls[[i]],
-          estimation_type = "main"
-        )
-        
-        # Validate result
-        if (any(is.na(result$value)) || any(result$se <= 0)) {
-          stop("Invalid estimation result")
-        }
-        
-        results[[call_name]] <- result
-        break
-        
-      }, error = function(e) {
-        retry_count <<- retry_count + 1
-        
-        if (retry_count >= max_retries) {
-          errors[[call_name]] <- list(
-            error = e$message,
-            call = deparse(estimation_calls[[i]]),
-            retries = retry_count
+      tryCatch(
+        {
+          # Attempt estimation
+          result <- workflow(
+            survey = list(survey),
+            estimation_calls[[i]],
+            estimation_type = "main"
           )
-        } else {
-          # Wait before retry
-          Sys.sleep(0.1 * retry_count)
+
+          # Validate result
+          if (any(is.na(result$value)) || any(result$se <= 0)) {
+            stop("Invalid estimation result")
+          }
+
+          results[[call_name]] <- result
+          break
+        },
+        error = function(e) {
+          retry_count <<- retry_count + 1
+
+          if (retry_count >= max_retries) {
+            errors[[call_name]] <- list(
+              error = e$message,
+              call = deparse(estimation_calls[[i]]),
+              retries = retry_count
+            )
+          } else {
+            # Wait before retry
+            Sys.sleep(0.1 * retry_count)
+          }
         }
-      })
+      )
     }
   }
-  
+
   return(list(results = results, errors = errors))
 }
 
@@ -768,7 +777,7 @@ estimation_calls <- list(
 # Validation framework for survey results
 validate_survey_results <- function(results) {
   validation_report <- list()
-  
+
   # Range checks
   validation_report$range_checks <- results[, .(
     stat = stat,
@@ -779,34 +788,34 @@ validate_survey_results <- function(results) {
     ),
     reasonable_cv = cv > 0 & cv < 1
   )]
-  
+
   # Consistency checks
-  if (any(grepl("unemployment_rate", results$stat)) && 
-      any(grepl("employment_rate", results$stat))) {
+  if (any(grepl("unemployment_rate", results$stat)) &&
+    any(grepl("employment_rate", results$stat))) {
     unemp_rate <- results[stat == "unemployment_rate", value]
     emp_rate <- results[stat == "employment_rate", value]
-    
+
     validation_report$consistency_checks <- data.table(
       check = "Employment + Unemployment rates",
-      consistent = (unemp_rate + emp_rate) <= 1.01,  # Allow small tolerance
+      consistent = (unemp_rate + emp_rate) <= 1.01, # Allow small tolerance
       actual_sum = unemp_rate + emp_rate
     )
   }
-  
+
   # Statistical significance tests
   validation_report$significance_tests <- results[, .(
     stat = stat,
     significantly_different_from_zero = abs(value) > 1.96 * se,
     t_statistic = value / se
   )]
-  
+
   # Overall validation status
   validation_report$overall_status <- list(
     all_range_checks_passed = all(validation_report$range_checks$within_bounds, na.rm = TRUE),
     all_cv_reasonable = all(validation_report$range_checks$reasonable_cv, na.rm = TRUE),
     any_consistency_issues = any(!validation_report$consistency_checks$consistent, na.rm = TRUE)
   )
-  
+
   return(validation_report)
 }
 
@@ -822,7 +831,7 @@ validate_survey_results <- function(results) {
 # Generate comprehensive quality report
 generate_quality_report <- function(results, survey_metadata) {
   report <- list()
-  
+
   # Executive summary
   report$executive_summary <- list(
     total_estimates = nrow(results),
@@ -831,7 +840,7 @@ generate_quality_report <- function(results, survey_metadata) {
     avg_cv = mean(results$cv, na.rm = TRUE),
     max_cv = max(results$cv, na.rm = TRUE)
   )
-  
+
   # Detailed quality metrics
   report$quality_metrics <- results[, .(
     stat = stat,
@@ -842,13 +851,13 @@ generate_quality_report <- function(results, survey_metadata) {
     effective_n = (value / se)^2,
     publishable = cv < 0.25
   )]
-  
+
   # Quality distribution
   report$quality_distribution <- report$quality_metrics[, .N, by = quality_level]
-  
+
   # Recommendations
   problematic_estimates <- report$quality_metrics[cv >= 0.25]
-  
+
   if (nrow(problematic_estimates) > 0) {
     report$recommendations <- list(
       action_required = "Some estimates have high coefficients of variation",
@@ -866,7 +875,7 @@ generate_quality_report <- function(results, survey_metadata) {
       status = "All estimates meet quality standards"
     )
   }
-  
+
   return(report)
 }
 
@@ -881,18 +890,18 @@ generate_quality_report <- function(results, survey_metadata) {
 publication_workflow <- function(survey_data, recipes, output_path) {
   # Initialize results storage
   publication_results <- list()
-  
+
   # Step 1: Data processing
   message("Step 1: Processing survey data...")
   processed_survey <- survey_data
-  
+
   for (recipe in recipes) {
     processed_survey <- processed_survey %>%
       add_recipe(recipe)
   }
-  
+
   processed_survey <- bake_recipes(processed_survey)
-  
+
   # Step 2: Core estimations
   message("Step 2: Running core estimations...")
   core_results <- workflow(
@@ -903,11 +912,11 @@ publication_workflow <- function(survey_data, recipes, output_path) {
     survey::svymean(~labor_force_participation, na.rm = TRUE),
     estimation_type = "main"
   )
-  
+
   # Step 3: Quality assessment
   message("Step 3: Quality assessment...")
   quality_assessment <- validate_survey_results(core_results)
-  
+
   # Step 4: Domain estimates
   message("Step 4: Domain estimates...")
   domain_results <- workflow(
@@ -916,10 +925,10 @@ publication_workflow <- function(survey_data, recipes, output_path) {
     survey::svyby(~unemployment_rate, ~age_group, survey::svymean),
     estimation_type = "main"
   )
-  
+
   # Step 5: Generate outputs
   message("Step 5: Generating outputs...")
-  
+
   # Main estimates table
   main_table <- core_results[, .(
     Indicator = stat,
@@ -930,18 +939,19 @@ publication_workflow <- function(survey_data, recipes, output_path) {
     `95% CI Upper` = round(confint_upper, 4),
     Quality = sapply(cv, evaluate_cv)
   )]
-  
+
   # Save outputs
   data.table::fwrite(main_table, file.path(output_path, "main_estimates.csv"))
   data.table::fwrite(domain_results, file.path(output_path, "domain_estimates.csv"))
-  
+
   # Save quality report
   quality_report <- generate_quality_report(core_results, list())
-  jsonlite::write_json(quality_report, file.path(output_path, "quality_report.json"), 
-                      pretty = TRUE, auto_unbox = TRUE)
-  
+  jsonlite::write_json(quality_report, file.path(output_path, "quality_report.json"),
+    pretty = TRUE, auto_unbox = TRUE
+  )
+
   message("Publication workflow completed successfully!")
-  
+
   return(list(
     main_estimates = main_table,
     domain_estimates = domain_results,
