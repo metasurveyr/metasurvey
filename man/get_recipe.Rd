@@ -62,7 +62,7 @@ ech_recipe <- get_recipe(
 
 # Recipe for specific topic
 labor_recipe <- get_recipe(
-  svy_type = "ech", 
+  svy_type = "ech",
   svy_edition = "2023",
   topic = "labor_market"
 )
@@ -78,7 +78,7 @@ available_recipes <- get_recipe(
 ech_with_recipe <- load_survey(
   path = "ech_2023.dta",
   svy_type = "ech",
-  svy_edition = "2023", 
+  svy_edition = "2023",
   recipes = get_recipe("ech", "2023"),
   bake = TRUE
 )

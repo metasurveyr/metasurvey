@@ -58,7 +58,7 @@ receta_completa <- recipe(
   user = "Equipo Laboral",
   svy = survey_empty(type = "ech", edition = "2023"),
   description = "Análisis completo del mercado laboral uruguayo",
-  
+
   # Steps de transformación
   step_recode(
     condicion_actividad,
@@ -67,7 +67,6 @@ receta_completa <- recipe(
     POBPCOAC \%in\% 6:8 ~ "Inactivo",
     .default = "Sin dato"
   ),
-  
   step_compute(
     tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
     tasa_empleo = ocupados / poblacion_14_mas * 100,
@@ -78,7 +77,7 @@ receta_completa <- recipe(
 # Aplicar receta a datos
 ech_procesada <- load_survey(
   path = "ech_2023.dta",
-  svy_type = "ech", 
+  svy_type = "ech",
   svy_edition = "2023",
   recipes = receta_completa,
   bake = TRUE

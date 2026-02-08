@@ -1,0 +1,28 @@
+---
+title: "Estimación de niños y niñas de 0 a 2 años y beneficiarios de AFAM-PE"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Estimación de niños y niñas de 0 a 2 años y beneficiarios de AFAM-PE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = requireNamespace("gt", quietly = TRUE) &&
+    requireNamespace("magrittr", quietly = TRUE)
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(data.table)
+library(survey)
+library(magrittr)
+library(gt)
+```
+

@@ -10,6 +10,7 @@
 ^\\.RData$
 ^\\.Rhistory$
 ^\\.Rproj\\.user$
+^\\.claude$
 ^\\.git$
 ^\\.github$
 ^\\.lintr$
@@ -32,6 +33,8 @@
 ^revdep$
 ^test\\.json$
 ^test_.*\\.R$
-^vignettes/.*\\.R$
-^vignettes/.*\\.Rmd$
 ^vignettes/.*\\.html$
+^codemeta\.json$
+^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
+^\.Rproj\.user$

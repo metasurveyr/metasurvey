@@ -1,0 +1,727 @@
+---
+title: "Working with Real Survey Data: ECH Uruguay Case Study"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with Real Survey Data: ECH Uruguay Case Study}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(survey)
+library(magrittr)
+library(data.table)
+library(ggplot2)
+library(here)
+```
+
+## Introduction
+
+This vignette demonstrates a complete real-world analysis using the Encuesta Continua de Hogares (ECH) from Uruguay. The ECH is a rotating panel household survey that provides official labor statistics and social indicators for Uruguay.
+
+We'll cover:
+- Loading and understanding ECH data structure
+- Working with the rotating panel design
+- Creating standard labor force indicators
+- Handling bootstrap replicate weights
+- Producing official-quality estimates
+- Quality assessment and validation
+
+## Understanding ECH Structure
+
+The ECH uses a rotating panel design where:
+- **Implantation**: Quarterly entry of new households (January, April, July, October)
+- **Follow-up**: Monthly interviews for 6 consecutive months
+- **Bootstrap replicates**: For robust variance estimation
+- **Multiple weight structures**: Annual, monthly, and specialized weights
+
+### Data Organization
+
+```{r data-structure}
+# Typical ECH data structure
+# ech_2023/
+#   ├── ECH_implantacion_2023.csv          # Implantation interviews
+#   ├── seguimiento/                        # Follow-up interviews
+#   │   ├── ECH_2023_01.csv                # January
+#   │   ├── ECH_2023_02.csv                # February  
+#   │   ├── ...                            # ...
+#   │   └── ECH_2023_12.csv                # December
+#   └── pesos_replicados/                  # Bootstrap weights
+#       ├── bootstrap_annual_2023.csv      # Annual weights
+#       ├── bootstrap_monthly_jan_jun.csv  # Monthly weights (first half)
+#       └── bootstrap_monthly_jul_dec.csv  # Monthly weights (second half)
+
+# Load ECH panel survey
+path_dir <- here::here("example-data", "ech", "ech_2023")
+
+ech_2023 <- load_panel_survey(
+  path_implantation = file.path(path_dir, "ECH_implantacion_2023.csv"),
+  path_follow_up = file.path(path_dir, "seguimiento"),
+  svy_type = "ECH_2023",
+  svy_weight_implantation = add_weight(
+    annual = add_replicate(
+      "W_ANO",
+      replicate_path = file.path(path_dir, "anual", "pesos replicados Bootstrap anual 2023.csv"),
+      replicate_id = c("ID" = "ID"),
+      replicate_pattern = "wr[0-9]+",
+      replicate_type = "bootstrap"
+    )
+  ),
+  svy_weight_follow_up = add_weight(
+    monthly = add_replicate(
+      "W",
+      replicate_path = file.path(
+        path_dir,
+        c(
+          "Pesos replicados Bootstrap mensuales enero_junio 2023",
+          "Pesos replicados Bootstrap mensuales julio_diciembre 2023"
+        ),
+        c(
+          "Pesos replicados mensuales enero_junio 2023", 
+          "Pesos replicados mensuales Julio_diciembre 2023"
+        )
+      ),
+      replicate_id = c("ID" = "ID"),
+      replicate_pattern = "wr[0-9]+",
+      replicate_type = "bootstrap"
+    )
+  )
+)
+
+# Examine the loaded structure
+print(ech_2023)
+```
+
+## Creating Standard Labor Force Variables
+
+Following ILO and OECD standards for labor force statistics:
+
+```{r labor-force-recipe}
+# Create comprehensive labor force recipe for ECH
+ech_labor_force_recipe <- recipe(
+  name = "ECH Labor Force Indicators - ILO Standard",
+  user = "National Statistics Office",
+  svy = survey_empty(type = "ECH_2023", edition = "2023"),
+  description = paste(
+    "Standard labor force indicators for ECH following ILO conventions.",
+    "Includes employment, unemployment, labor force participation,",
+    "and demographic breakdowns. Compatible with OECD reporting."
+  ),
+  topic = "labor_statistics",
+  
+  # Basic labor force status
+  step_recode(
+    "pea", 
+    POBPCOAC %in% 2:5 ~ 1,  # Economically active population
+    .default = 0,
+    comment = "Economically Active Population (PEA) - ILO definition",
+    .level = "follow_up"
+  ),
+  
+  step_recode(
+    "pet",
+    e27 >= 14 ~ 1,  # Working age population
+    .default = 0, 
+    comment = "Working Age Population (PET) - 14+ years",
+    .level = "follow_up"
+  ),
+  
+  step_recode(
+    "po",
+    POBPCOAC == 2 ~ 1,  # Employed population
+    .default = 0,
+    comment = "Employed Population (PO) - ILO definition",
+    .level = "follow_up"  
+  ),
+  
+  step_recode(
+    "pd", 
+    POBPCOAC %in% 3:5 ~ 1,  # Unemployed population
+    .default = 0,
+    comment = "Unemployed Population (PD) - ILO definition",
+    .level = "follow_up"
+  ),
+  
+  # Core rates
+  step_compute(
+    employment_rate = po / pet,
+    unemployment_rate = pd / pea,  
+    participation_rate = pea / pet,
+    comment = "Core labor force rates following ILO standards",
+    .level = "follow_up"
+  ),
+  
+  # Demographic indicators for implantation
+  step_recode(
+    "age_group",
+    e27 < 25 ~ "Youth (14-24)",
+    e27 < 45 ~ "Adult (25-44)", 
+    e27 < 65 ~ "Mature (45-64)",
+    .default = "Elderly (65+)",
+    comment = "Age groups for labor force analysis",
+    .level = "implantation"
+  ),
+  
+  step_recode(
+    "education_level",
+    e51 %in% 1:6 ~ "Primary or less",
+    e51 %in% 7:9 ~ "Secondary",
+    e51 %in% 10:14 ~ "Tertiary",
+    .default = "Not classified",
+    comment = "Educational attainment levels",
+    .level = "implantation"
+  ),
+  
+  step_recode(
+    "gender",
+    e26 == 1 ~ "Male",
+    e26 == 2 ~ "Female", 
+    .default = "Other",
+    comment = "Gender classification",
+    .level = "implantation"
+  ),
+  
+  # Regional classification
+  step_recode(
+    "region",
+    dpto == 1 ~ "Montevideo",
+    .default = "Interior",
+    comment = "Geographic regions",
+    .level = "implantation"
+  )
+)
+
+# Apply the recipe
+ech_processed <- ech_2023 %>%
+  add_recipe(ech_labor_force_recipe) %>%
+  bake_recipes()
+
+print("Labor force variables created successfully")
+```
+
+## Annual Cross-Sectional Analysis
+
+Using implantation data for annual estimates:
+
+```{r annual-analysis}
+# Annual labor force estimates using implantation data
+annual_results <- workflow(
+  survey = list(ech_processed$implantation),
+  survey::svymean(~employment_rate, na.rm = TRUE),
+  survey::svymean(~unemployment_rate, na.rm = TRUE), 
+  survey::svymean(~participation_rate, na.rm = TRUE),
+  survey::svytotal(~po, na.rm = TRUE),
+  survey::svytotal(~pd, na.rm = TRUE),
+  survey::svytotal(~pea, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Add quality assessment
+annual_results[, quality := sapply(cv, evaluate_cv)]
+
+# Display main indicators
+main_indicators <- annual_results[, .(
+  Indicator = case_when(
+    stat == "employment_rate" ~ "Employment Rate",
+    stat == "unemployment_rate" ~ "Unemployment Rate", 
+    stat == "participation_rate" ~ "Labor Force Participation Rate",
+    stat == "po" ~ "Employed Population (thousands)",
+    stat == "pd" ~ "Unemployed Population (thousands)",
+    stat == "pea" ~ "Labor Force (thousands)"
+  ),
+  Value = ifelse(grepl("rate", stat), 
+                round(value * 100, 2), 
+                round(value / 1000, 1)),
+  Unit = ifelse(grepl("rate", stat), "%", "thousands"),
+  `Standard Error` = ifelse(grepl("rate", stat),
+                           round(se * 100, 2),
+                           round(se / 1000, 1)),
+  `CV (%)` = round(cv * 100, 2),
+  Quality = quality
+)]
+
+print("URUGUAY - ANNUAL LABOR FORCE INDICATORS 2023")
+print(main_indicators)
+```
+
+## Domain Analysis
+
+Estimates by demographic and geographic subgroups:
+
+```{r domain-analysis}
+# Gender breakdown
+gender_results <- workflow(
+  survey = list(ech_processed$implantation),
+  survey::svyby(~unemployment_rate, ~gender, survey::svymean, na.rm = TRUE),
+  survey::svyby(~employment_rate, ~gender, survey::svymean, na.rm = TRUE),
+  survey::svyby(~participation_rate, ~gender, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Age group breakdown
+age_results <- workflow(
+  survey = list(ech_processed$implantation),
+  survey::svyby(~unemployment_rate, ~age_group, survey::svymean, na.rm = TRUE),
+  survey::svyby(~employment_rate, ~age_group, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Education breakdown
+education_results <- workflow(
+  survey = list(ech_processed$implantation),
+  survey::svyby(~unemployment_rate, ~education_level, survey::svymean, na.rm = TRUE),
+  survey::svyby(~employment_rate, ~education_level, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Regional breakdown
+regional_results <- workflow(
+  survey = list(ech_processed$implantation),
+  survey::svyby(~unemployment_rate, ~region, survey::svymean, na.rm = TRUE),
+  survey::svyby(~employment_rate, ~region, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Combine and assess quality
+all_domain_results <- rbind(
+  gender_results[, domain_type := "Gender"],
+  age_results[, domain_type := "Age Group"], 
+  education_results[, domain_type := "Education"],
+  regional_results[, domain_type := "Region"]
+)
+
+all_domain_results[, quality := sapply(cv, evaluate_cv)]
+
+# Summary by domain type
+domain_quality_summary <- all_domain_results[, .(
+  estimates = .N,
+  publishable = sum(cv < 0.25),
+  high_quality = sum(cv < 0.15),
+  avg_cv = round(mean(cv) * 100, 2)
+), by = domain_type]
+
+print("Domain Analysis Quality Summary:")
+print(domain_quality_summary)
+
+# Detailed unemployment rates by domain
+unemployment_by_domain <- all_domain_results[
+  stat == "unemployment_rate",
+  .(
+    Domain = paste(domain_type, "-", 
+                  sapply(strsplit(as.character(subgroup), "\\.|="), function(x) x[length(x)])),
+    `Unemployment Rate (%)` = round(value * 100, 2),
+    `CV (%)` = round(cv * 100, 2),
+    Quality = quality
+  )
+]
+
+print("Unemployment Rates by Demographic Groups:")
+print(unemployment_by_domain)
+```
+
+## Monthly Time Series Analysis
+
+Using follow-up data for monthly labor force trends:
+
+```{r monthly-analysis}
+# Extract monthly surveys from panel
+monthly_surveys <- extract_surveys(ech_processed, monthly = 1:12)
+
+# Monthly unemployment rate time series
+monthly_results <- workflow(
+  survey = monthly_surveys,
+  survey::svymean(~unemployment_rate, na.rm = TRUE),
+  survey::svymean(~employment_rate, na.rm = TRUE),
+  survey::svymean(~participation_rate, na.rm = TRUE),
+  estimation_type = "monthly"
+)
+
+# Add time identifiers
+monthly_results[, `:=`(
+  month = rep(1:12, each = .N/12),
+  month_name = rep(month.name[1:12], each = .N/12)
+)]
+
+# Quality assessment for monthly estimates
+monthly_results[, quality := sapply(cv, evaluate_cv)]
+
+# Unemployment rate time series
+unemployment_ts <- monthly_results[stat == "unemployment_rate", .(
+  Month = month_name,
+  `Unemployment Rate (%)` = round(value * 100, 2),
+  `Standard Error` = round(se * 100, 2),
+  `CV (%)` = round(cv * 100, 2),
+  `95% CI Lower` = round(confint_lower * 100, 2),
+  `95% CI Upper` = round(confint_upper * 100, 2),
+  Quality = quality
+)]
+
+print("MONTHLY UNEMPLOYMENT RATE TREND - 2023")
+print(unemployment_ts)
+
+# Plot unemployment rate trend
+unemployment_plot_data <- monthly_results[stat == "unemployment_rate"]
+
+ggplot(unemployment_plot_data, aes(x = month, y = value * 100)) +
+  geom_line(size = 1.2, color = "steelblue") +
+  geom_point(size = 3, color = "steelblue") +
+  geom_ribbon(aes(ymin = confint_lower * 100, ymax = confint_upper * 100), 
+              alpha = 0.3, fill = "steelblue") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "Uruguay - Monthly Unemployment Rate 2023",
+    subtitle = "ECH Panel Survey with 95% Confidence Intervals", 
+    x = "Month",
+    y = "Unemployment Rate (%)",
+    caption = "Source: ECH-INE, processed with metasurvey package"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 12)
+  )
+```
+
+## Quarterly-to-Monthly Estimation
+
+A key feature for official statistics - producing monthly estimates from quarterly samples:
+
+```{r quarterly-monthly}
+# Extract quarterly surveys (implantation months)
+quarterly_surveys <- extract_surveys(ech_processed, quarterly = 1:4)
+
+# Quarterly-to-monthly estimation with correlation adjustment
+qm_results <- workflow(
+  survey = quarterly_surveys,
+  survey::svymean(~unemployment_rate, na.rm = TRUE),
+  survey::svymean(~employment_rate, na.rm = TRUE),
+  survey::svyratio(~pd, ~pea, na.rm = TRUE),
+  estimation_type = "quarterly:monthly",
+  rho = 0.5,  # correlation between quarters (estimated)
+  R = 5/6     # overlap ratio (5 months overlap in 6-month panel)
+)
+
+# Add time identifiers  
+qm_results[, quarter := rep(1:4, each = .N/4)]
+
+# Compare quarterly-monthly vs direct monthly estimates
+comparison_unemployment <- data.table(
+  quarter = 1:4,
+  quarterly_monthly = qm_results[stat == "unemployment_rate", value * 100],
+  qm_se = qm_results[stat == "unemployment_rate", se * 100],
+  direct_monthly = sapply(c(1,4,7,10), function(m) 
+    monthly_results[stat == "unemployment_rate" & month == m, value * 100]),
+  direct_se = sapply(c(1,4,7,10), function(m)
+    monthly_results[stat == "unemployment_rate" & month == m, se * 100])
+)
+
+comparison_unemployment[, `:=`(
+  difference = quarterly_monthly - direct_monthly,
+  efficiency_gain = (direct_se^2) / (qm_se^2)
+)]
+
+print("Quarterly-to-Monthly vs Direct Monthly Estimates:")
+print(comparison_unemployment)
+```
+
+## Youth Labor Market Analysis
+
+Specialized analysis for youth (15-24) following OECD standards:
+
+```{r youth-analysis}
+# Create youth-specific indicators
+ech_youth <- ech_processed %>%
+  step_compute(
+    youth = ifelse(e27 >= 14 & e27 <= 24, 1, 0),
+    youth_employed = youth * po,
+    youth_unemployed = youth * pd,
+    youth_labor_force = youth * pea,
+    youth_not_in_education = youth * (1 - ifelse(is.na(e214), 0, e214)),
+    youth_neet = youth * (1 - po) * youth_not_in_education,
+    comment = "Youth labor market indicators (14-24 years)",
+    .level = "follow_up"
+  ) %>%
+  bake_steps()
+
+# Youth-specific estimates
+youth_results <- workflow(
+  survey = list(ech_youth$implantation),
+  survey::svyratio(~youth_unemployed, ~youth_labor_force, na.rm = TRUE),  # Youth unemployment rate
+  survey::svyratio(~youth_employed, ~youth, na.rm = TRUE),                # Youth employment ratio
+  survey::svyratio(~youth_labor_force, ~youth, na.rm = TRUE),             # Youth participation rate
+  survey::svyratio(~youth_neet, ~youth, na.rm = TRUE),                    # Youth NEET rate
+  survey::svytotal(~youth_unemployed, na.rm = TRUE),                      # Youth unemployed total
+  estimation_type = "annual"
+)
+
+# Quality assessment for youth indicators
+youth_results[, quality := sapply(cv, evaluate_cv)]
+
+youth_summary <- youth_results[, .(
+  Indicator = case_when(
+    grepl("youth_unemployed.*youth_labor_force", stat) ~ "Youth Unemployment Rate",
+    grepl("youth_employed.*youth", stat) ~ "Youth Employment Ratio",
+    grepl("youth_labor_force.*youth", stat) ~ "Youth Labor Force Participation",
+    grepl("youth_neet.*youth", stat) ~ "Youth NEET Rate", 
+    stat == "youth_unemployed" ~ "Youth Unemployed (thousands)"
+  ),
+  Value = ifelse(grepl("thousands", Indicator), 
+                round(value / 1000, 1),
+                round(value * 100, 2)),
+  Unit = ifelse(grepl("thousands", Indicator), "thousands", "%"),
+  `CV (%)` = round(cv * 100, 2),
+  Quality = quality
+)]
+
+print("YOUTH LABOR MARKET INDICATORS (14-24 years) - 2023:")
+print(youth_summary)
+```
+
+## Quality Assessment and Validation
+
+Comprehensive quality control following international standards:
+
+```{r quality-assessment}
+# Comprehensive quality assessment
+quality_assessment_ech <- function(results, survey_metadata) {
+  # Basic quality metrics
+  quality_metrics <- results[, .(
+    stat = stat,
+    estimate = value,
+    se = se,
+    cv = cv,
+    quality_level = sapply(cv, evaluate_cv),
+    effective_n = (value / se)^2,
+    publishable = cv < 0.25,
+    confidential = cv >= 0.35
+  )]
+  
+  # Distribution of quality levels
+  quality_distribution <- quality_metrics[, .N, by = quality_level][
+    order(factor(quality_level, levels = c("Excellent", "Very Good", "Good", 
+                                          "Acceptable", "Use with Caution", "Do Not Publish")))
+  ]
+  
+  # Problematic estimates
+  problematic <- quality_metrics[cv >= 0.25, .(
+    stat, cv = round(cv * 100, 2), quality_level, effective_n = round(effective_n)
+  )]
+  
+  # Summary statistics
+  summary_stats <- list(
+    total_estimates = nrow(quality_metrics),
+    publishable_estimates = sum(quality_metrics$publishable),
+    high_quality_estimates = sum(quality_metrics$cv < 0.10),
+    confidential_estimates = sum(quality_metrics$confidential),
+    avg_cv = round(mean(quality_metrics$cv) * 100, 2),
+    max_cv = round(max(quality_metrics$cv) * 100, 2),
+    min_effective_n = round(min(quality_metrics$effective_n))
+  )
+  
+  return(list(
+    metrics = quality_metrics,
+    distribution = quality_distribution,
+    problematic = problematic,
+    summary = summary_stats
+  ))
+}
+
+# Apply quality assessment to annual results
+annual_quality <- quality_assessment_ech(annual_results, list(survey = "ECH", year = 2023))
+
+print("QUALITY ASSESSMENT SUMMARY:")
+print(annual_quality$summary)
+
+print("\nQUALITY DISTRIBUTION:")
+print(annual_quality$distribution)
+
+if (nrow(annual_quality$problematic) > 0) {
+  print("\nPROBLEMATIC ESTIMATES:")
+  print(annual_quality$problematic)
+}
+
+# Monthly estimates quality  
+monthly_quality <- quality_assessment_ech(monthly_results, list(survey = "ECH", year = 2023))
+
+monthly_quality_summary <- monthly_results[, .(
+  publishable = sum(cv < 0.25),
+  high_quality = sum(cv < 0.15), 
+  avg_cv = round(mean(cv) * 100, 2)
+), by = .(stat)]
+
+print("\nMONTHLY ESTIMATES QUALITY BY INDICATOR:")
+print(monthly_quality_summary)
+```
+
+## Comparison with Official Statistics
+
+Validate results against published official statistics:
+
+```{r validation}
+# Official statistics for comparison (hypothetical values)
+official_stats_2023 <- data.table(
+  indicator = c("unemployment_rate", "employment_rate", "participation_rate"),
+  official_value = c(8.8, 57.2, 62.7),  # Official published values (%)
+  official_note = c("Annual average", "Annual average", "Annual average")
+)
+
+# Compare with our estimates
+our_estimates <- annual_results[grepl("rate", stat), .(
+  indicator = stat,
+  our_value = round(value * 100, 2),
+  our_se = round(se * 100, 2),
+  our_cv = round(cv * 100, 2)
+)]
+
+validation_comparison <- merge(official_stats_2023, our_estimates, by = "indicator")
+validation_comparison[, `:=`(
+  difference = our_value - official_value,
+  within_2se = abs(difference) <= 2 * our_se,
+  relative_difference = round((difference / official_value) * 100, 2)
+)]
+
+print("VALIDATION AGAINST OFFICIAL STATISTICS:")
+print(validation_comparison[, .(
+  Indicator = indicator,
+  Official = official_value,
+  Estimated = our_value,
+  Difference = difference,
+  `Within 2 SE` = within_2se,
+  `Relative Diff (%)` = relative_difference
+)])
+
+# Statistical tests for differences
+validation_tests <- validation_comparison[, .(
+  indicator = indicator,
+  z_statistic = difference / our_se,
+  p_value = 2 * (1 - pnorm(abs(difference / our_se))),
+  significant_difference = abs(difference / our_se) > 1.96
+)]
+
+print("\nSTATISTICAL SIGNIFICANCE OF DIFFERENCES:")
+print(validation_tests)
+```
+
+## Production-Ready Output
+
+Generate publication-quality tables and reports:
+
+```{r production-output}
+# Main indicators table for publication
+publication_table <- annual_results[grepl("rate", stat), .(
+  Indicator = case_when(
+    stat == "unemployment_rate" ~ "Unemployment rate",
+    stat == "employment_rate" ~ "Employment rate", 
+    stat == "participation_rate" ~ "Labor force participation rate"
+  ),
+  `2023` = paste0(round(value * 100, 1), "%"),
+  `Standard Error` = paste0("±", round(se * 100, 1), "pp"),
+  `95% Confidence Interval` = paste0("[", round(confint_lower * 100, 1), "%, ", 
+                                    round(confint_upper * 100, 1), "%]"),
+  `Coefficient of Variation` = paste0(round(cv * 100, 1), "%"),
+  Quality = quality
+)]
+
+print("URUGUAY - MAIN LABOR FORCE INDICATORS 2023")
+print("Source: Encuesta Continua de Hogares (ECH) - Instituto Nacional de Estadística")
+print(publication_table)
+
+# Monthly trend table (quarterly months)
+monthly_trend_table <- monthly_results[
+  stat == "unemployment_rate" & month %in% c(1,4,7,10),
+  .(
+    Quarter = paste0("Q", ceiling(month/3)),
+    Month = month.name[month],
+    `Unemployment Rate` = paste0(round(value * 100, 1), "%"),
+    `Standard Error` = paste0("±", round(se * 100, 1), "pp"),
+    Quality = quality
+  )
+]
+
+print("\nQUARTERLY UNEMPLOYMENT TREND 2023:")
+print(monthly_trend_table)
+
+# Domain analysis table (gender breakdown)
+gender_table <- gender_results[stat == "unemployment_rate", .(
+  Gender = sapply(strsplit(as.character(subgroup), "="), function(x) x[2]),
+  `Unemployment Rate` = paste0(round(value * 100, 1), "%"),
+  `Standard Error` = paste0("±", round(se * 100, 1), "pp"),
+  Quality = quality
+)]
+
+print("\nUNEMPLOYMENT RATE BY GENDER:")
+print(gender_table)
+```
+
+## Best Practices for ECH Analysis
+
+### 1. Weight Selection
+```{r bp-weights}
+# Annual analysis: Use implantation with annual weights
+# Monthly analysis: Use follow-up with monthly weights
+# Quarterly-to-monthly: Use implantation with correlation adjustment
+```
+
+### 2. Variable Definitions
+```{r bp-variables}
+# Follow ILO standards for international comparability
+# Use POBPCOAC variable for labor force status
+# Apply working age definition consistently (14+ in Uruguay)
+```
+
+### 3. Quality Control
+```{r bp-quality}
+# Always assess coefficient of variation
+# Use bootstrap replicates for robust standard errors
+# Validate against official published statistics
+```
+
+### 4. Temporal Analysis
+```{r bp-temporal}
+# Account for seasonal patterns in monthly data
+# Use correlation adjustments for overlapping samples
+# Consider rotation group effects in panel analysis
+```
+
+### 5. Domain Analysis
+```{r bp-domains}
+# Ensure adequate sample sizes for subgroup analysis
+# Consider combining small domains when necessary
+# Apply appropriate disclosure control measures
+```
+
+## Conclusion
+
+This case study demonstrates the complete workflow for analyzing real survey data with `metasurvey`:
+
+1. **Data Loading**: Handling complex panel structures with multiple weight types
+2. **Variable Creation**: Following international standards for labor force indicators
+3. **Multiple Analysis Types**: Annual, monthly, and quarterly-to-monthly estimation
+4. **Quality Assessment**: Comprehensive evaluation of estimation quality
+5. **Validation**: Comparison with official statistics
+6. **Production Outputs**: Publication-ready tables and reports
+
+The ECH example showcases how `metasurvey` handles real-world complexity while maintaining statistical rigor and reproducibility. The package's design allows analysts to focus on substantive analysis while ensuring technical quality and methodological consistency.
+
+Key advantages demonstrated:
+- **Standardized workflows** for consistent analysis across time periods
+- **Automatic quality assessment** following international best practices  
+- **Flexible estimation procedures** accommodating different analysis needs
+- **Integration with survey package** for full statistical functionality
+- **Reproducible research** through documented processing steps
+
+This approach is applicable to other household surveys worldwide, with appropriate adaptation of variable definitions and quality criteria to national contexts.

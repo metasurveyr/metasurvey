@@ -76,22 +76,22 @@ and each step's AST expressions can reference variables created by previous step
 ech <- load_survey("ech_2023.dta", svy_type = "ech", svy_edition = "2023") |>
   step_compute(
     employed = ifelse(POBPCOAC == 2, 1, 0),
-    optimize_ast = TRUE,  # AST optimization enabled
+    optimize_ast = TRUE, # AST optimization enabled
     comment = "Employment indicator - AST optimized"
   ) |>
   step_recode(
     age_group,
-    e27 < 18 ~ "Minor",              # AST validates e27 exists
-    e27 >= 18 & e27 < 65 ~ "Adult",  # AST optimizes conditions
+    e27 < 18 ~ "Minor", # AST validates e27 exists
+    e27 >= 18 & e27 < 65 ~ "Adult", # AST optimizes conditions
     e27 >= 65 ~ "Senior",
-    validate_deps = TRUE,  # AST dependency validation
+    validate_deps = TRUE, # AST dependency validation
     comment = "Age groups - AST powered"
   )
 
 # Execute all steps with AST engine
-processed_ech <- bake_steps(ech)  # AST processes all steps optimally
+processed_ech <- bake_steps(ech) # AST processes all steps optimally
 
-# Verify AST-created variables exist  
+# Verify AST-created variables exist
 print(names(processed_ech$data))
 
 # AST RotativePanelSurvey execution
@@ -104,13 +104,14 @@ panel <- load_panel_survey("panel_2023.dta") |>
     comment = "Quarterly activity rate - AST optimized"
   )
 
-processed_panel <- bake_steps(panel)  # AST handles multi-level execution
+processed_panel <- bake_steps(panel) # AST handles multi-level execution
 
-# AST-optimized pipeline with recipes  
-result <- load_survey("data.dta", 
-                     svy_type = "ech", 
-                     svy_edition = "2023",
-                     recipes = my_ast_recipe) |>
-  bake_steps()  # Apply recipe with AST
+# AST-optimized pipeline with recipes
+result <- load_survey("data.dta",
+  svy_type = "ech",
+  svy_edition = "2023",
+  recipes = my_ast_recipe
+) |>
+  bake_steps() # Apply recipe with AST
 }
 }
