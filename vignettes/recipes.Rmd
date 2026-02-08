@@ -1,0 +1,753 @@
+---
+title: "Creating and Using Recipes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating and Using Recipes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(survey)
+library(magrittr)
+library(data.table)
+library(jsonlite)
+```
+
+## Introduction
+
+Recipes are one of the most powerful features of `metasurvey`. They allow you to:
+
+- **Encapsulate** data processing workflows in reusable objects
+- **Share** standardized variable definitions across teams and time periods
+- **Document** the methodology behind derived variables
+- **Version control** changes to variable definitions
+- **Reproduce** exact analysis steps across different datasets
+
+This vignette demonstrates how to create, save, share, and use recipes effectively.
+
+## Understanding Recipe Components
+
+A recipe contains:
+
+1. **Metadata**: Name, author, description, survey type compatibility
+2. **Steps**: The actual data processing operations
+3. **Dependencies**: Variables or other recipes required
+4. **Documentation**: Comments, methodology notes, references
+
+### Recipe Metadata
+
+```{r recipe-metadata}
+# Essential metadata for every recipe
+metadata_example <- list(
+  name = "Labor Force Indicators",
+  user = "Survey Methodologist", 
+  description = "Standard ILO-compatible labor force indicators",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  topic = "employment",
+  doi = "10.1000/example.doi.123"
+)
+```
+
+## Creating Basic Recipes
+
+### Simple Recipe with Recoding
+
+```{r basic-recipe}
+# Create a recipe for basic demographic indicators
+demographic_recipe <- recipe(
+  name = "Basic Demographics",
+  user = "Data Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"), 
+  description = "Standard demographic categories and indicators",
+  
+  # Steps are added as arguments to recipe()
+  step_recode(
+    "age_group",
+    age < 18 ~ "Child",
+    age < 65 ~ "Working Age",
+    .default = "Elderly",
+    comment = "Standard age groups for analysis"
+  ),
+  
+  step_recode(
+    "education_level",
+    years_education >= 16 ~ "University", 
+    years_education >= 12 ~ "Secondary",
+    years_education >= 6 ~ "Primary",
+    .default = "Less than Primary",
+    comment = "Educational attainment levels"
+  ),
+  
+  step_compute(
+    adult = ifelse(age >= 18, 1, 0),
+    elderly = ifelse(age >= 65, 1, 0),
+    comment = "Binary age indicators"
+  )
+)
+
+# View recipe details
+print(demographic_recipe)
+```
+
+### Complex Recipe with Dependencies
+
+```{r complex-recipe}
+# Create a labor force recipe that depends on demographics
+labor_force_recipe <- recipe(
+  name = "ILO Labor Force Indicators",
+  user = "Labor Statistics Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Standard labor force indicators following ILO definitions",
+  topic = "employment",
+  
+  # Labor force status (requires age variable)
+  step_recode(
+    "labor_force_status",
+    employed == 1 ~ "Employed",
+    unemployed == 1 ~ "Unemployed", 
+    .default = "Not in Labor Force",
+    comment = "Primary labor force status categories"
+  ),
+  
+  # Computed indicators
+  step_compute(
+    # Core indicators
+    in_labor_force = employed + unemployed,
+    employment_rate = employed / adult,  # depends on adult from demographic recipe
+    unemployment_rate = unemployed / in_labor_force,
+    participation_rate = in_labor_force / adult,
+    
+    # Additional indicators
+    youth_unemployed = ifelse(age < 25 & unemployed == 1, 1, 0),
+    youth_neet = ifelse(age < 25 & employed == 0 & in_school == 0, 1, 0),
+    
+    comment = "Core labor force indicators and youth-specific measures"
+  ),
+  
+  # Industry and occupation recoding
+  step_recode(
+    "industry_major",
+    industry_code %in% 1:3 ~ "Agriculture",
+    industry_code %in% 10:33 ~ "Manufacturing",
+    industry_code %in% 35:39 ~ "Utilities",
+    industry_code %in% 41:43 ~ "Construction", 
+    industry_code %in% 45:47 ~ "Trade",
+    industry_code %in% 49:53 ~ "Transportation",
+    industry_code %in% 55:56 ~ "Accommodation",
+    industry_code %in% 58:63 ~ "Information",
+    industry_code %in% 64:66 ~ "Finance",
+    industry_code %in% 68:75 ~ "Professional Services",
+    industry_code %in% 77:82 ~ "Administrative",
+    industry_code %in% 84:84 ~ "Public Administration",
+    industry_code %in% 85:85 ~ "Education",
+    industry_code %in% 86:88 ~ "Health",
+    industry_code %in% 90:99 ~ "Other Services",
+    .default = "Unknown",
+    comment = "Major industry categories (ISIC Rev. 4)"
+  )
+)
+
+# View dependencies
+cat("Recipe dependencies:", paste(labor_force_recipe$depends_on, collapse = ", "))
+```
+
+## Working with Recipe Collections
+
+### Creating Recipe Families
+
+```{r recipe-families}
+# Create related recipes for different analysis purposes
+poverty_recipe <- recipe(
+  name = "Poverty and Income Indicators", 
+  user = "Social Statistics Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Poverty measurement following national methodology",
+  topic = "poverty",
+  
+  step_compute(
+    # Per capita income
+    per_capita_income = household_income / household_size,
+    
+    # Equivalized income (OECD scale)
+    equivalence_scale = 1 + (adults - 1) * 0.5 + children * 0.3,
+    equivalized_income = household_income / equivalence_scale,
+    
+    comment = "Income standardization measures"
+  ),
+  
+  step_recode(
+    "poverty_status",
+    per_capita_income < poverty_line ~ "Poor",
+    per_capita_income < poverty_line * 2 ~ "Vulnerable", 
+    .default = "Non-poor",
+    comment = "Poverty classification based on national poverty line"
+  ),
+  
+  step_compute(
+    poor = ifelse(poverty_status == "Poor", 1, 0),
+    extreme_poor = ifelse(per_capita_income < extreme_poverty_line, 1, 0),
+    poverty_gap = pmax(0, poverty_line - per_capita_income) / poverty_line,
+    comment = "Binary poverty indicators and poverty gap"
+  )
+)
+
+# Housing conditions recipe
+housing_recipe <- recipe(
+  name = "Housing Quality Indicators",
+  user = "Housing Statistics Team", 
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Housing quality and access indicators",
+  topic = "housing",
+  
+  step_recode(
+    "housing_tenure",
+    tenure_type == 1 ~ "Owner",
+    tenure_type == 2 ~ "Renter",
+    tenure_type == 3 ~ "Free", 
+    .default = "Other",
+    comment = "Housing tenure classification"
+  ),
+  
+  step_compute(
+    overcrowded = persons_per_room > 2.5,
+    adequate_water = water_source %in% c(1, 2),  # piped water
+    adequate_sanitation = sanitation_type %in% c(1, 2),  # flush toilet
+    adequate_housing = !overcrowded & adequate_water & adequate_sanitation,
+    comment = "Housing adequacy indicators"
+  )
+)
+
+# Combine into a comprehensive household recipe
+household_analysis_recipe <- recipe(
+  name = "Comprehensive Household Analysis",
+  user = "Household Survey Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Complete household-level indicators for poverty and living conditions analysis",
+  topic = "household_welfare",
+  
+  # Include steps from component recipes
+  demographic_recipe$steps,
+  labor_force_recipe$steps,
+  poverty_recipe$steps,
+  housing_recipe$steps
+)
+```
+
+## Applying Recipes to Surveys
+
+### Single Recipe Application
+
+```{r apply-single}
+# Load survey data
+household_survey <- load_survey(
+  data = "household_data.csv",
+  svy_edition = "2023",
+  svy_type = "household_survey", 
+  svy_weight = add_weight(main = "sample_weight")
+)
+
+# Apply demographic recipe
+survey_with_demographics <- household_survey %>%
+  add_recipe(demographic_recipe)
+
+# Bake the recipe
+processed_survey <- bake_recipes(survey_with_demographics)
+
+# Check results
+head(processed_survey$data[, .(age, age_group, years_education, education_level)])
+```
+
+### Multiple Recipe Application
+
+```{r apply-multiple}
+# Apply multiple recipes in sequence
+fully_processed_survey <- household_survey %>%
+  add_recipe(demographic_recipe) %>%
+  add_recipe(labor_force_recipe) %>%  # depends on demographics
+  add_recipe(poverty_recipe) %>%
+  add_recipe(housing_recipe)
+
+# Bake all recipes
+final_survey <- bake_recipes(fully_processed_survey)
+
+# Verify all variables were created
+new_vars <- setdiff(names(final_survey$data), names(household_survey$data))
+cat("Variables created by recipes:", length(new_vars))
+cat("\nSample variables:", head(new_vars, 10))
+```
+
+## Saving and Loading Recipes
+
+### Saving Recipes to Files
+
+```{r save-recipes}
+# Save individual recipe
+save_recipe(demographic_recipe, path = "recipes/demographic_recipe.json")
+
+# Save recipe collection
+recipe_collection <- list(
+  demographics = demographic_recipe,
+  labor_force = labor_force_recipe,
+  poverty = poverty_recipe,
+  housing = housing_recipe
+)
+
+# Save entire collection
+save_recipe(recipe_collection, path = "recipes/household_recipe_collection.json")
+
+# Save with metadata
+save_recipe(
+  labor_force_recipe,
+  path = "recipes/labor_force_v2.json",
+  metadata = list(
+    version = "2.0",
+    created_date = Sys.Date(),
+    methodology_reference = "ILO ICLS Guidelines 2013",
+    last_updated_by = "Survey Methodologist"
+  )
+)
+```
+
+### Loading Saved Recipes
+
+```{r load-recipes}
+# Load individual recipe
+loaded_demographic <- read_recipe("recipes/demographic_recipe.json")
+
+# Load recipe collection
+loaded_collection <- read_recipe("recipes/household_recipe_collection.json")
+
+# Access individual recipes from collection
+demographic_from_collection <- loaded_collection$demographics
+labor_force_from_collection <- loaded_collection$labor_force
+
+# Verify loaded recipe
+identical(demographic_recipe$steps, loaded_demographic$steps)
+```
+
+## Recipe Repositories
+
+### Local Recipe Repository
+
+```{r local-repository}
+# Set up local recipe repository
+recipe_repo_path <- "survey_recipes/"
+dir.create(recipe_repo_path, recursive = TRUE)
+
+# Organize by survey type and topic
+dir.create(file.path(recipe_repo_path, "household_survey"))
+dir.create(file.path(recipe_repo_path, "labor_force_survey"))
+dir.create(file.path(recipe_repo_path, "establishment_survey"))
+
+# Save recipes with organized structure
+save_recipe(
+  demographic_recipe,
+  path = file.path(recipe_repo_path, "household_survey", "demographics_v1.json")
+)
+
+save_recipe(
+  labor_force_recipe, 
+  path = file.path(recipe_repo_path, "household_survey", "labor_force_v1.json")
+)
+```
+
+### Recipe Versioning
+
+```{r recipe-versions}
+# Create updated version of recipe
+demographic_recipe_v2 <- recipe(
+  name = "Basic Demographics v2",
+  user = "Data Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Enhanced demographic categories with additional detail",
+  
+  # Enhanced age groups
+  step_recode(
+    "age_group_detailed",
+    age < 5 ~ "Early Childhood",
+    age < 13 ~ "School Age",
+    age < 18 ~ "Adolescent", 
+    age < 25 ~ "Young Adult",
+    age < 40 ~ "Adult",
+    age < 65 ~ "Mature Adult",
+    .default = "Elderly",
+    comment = "Detailed age groups for lifecycle analysis"
+  ),
+  
+  # Keep original groups for backward compatibility
+  step_recode(
+    "age_group",
+    age < 18 ~ "Child",
+    age < 65 ~ "Working Age",
+    .default = "Elderly", 
+    comment = "Standard age groups (backward compatible)"
+  ),
+  
+  # Enhanced education
+  step_recode(
+    "education_level_detailed",
+    years_education >= 18 ~ "Post-graduate",
+    years_education >= 16 ~ "University",
+    years_education >= 13 ~ "Technical/Vocational",
+    years_education >= 12 ~ "Secondary Complete", 
+    years_education >= 9 ~ "Secondary Incomplete",
+    years_education >= 6 ~ "Primary Complete",
+    years_education >= 1 ~ "Primary Incomplete",
+    .default = "No Formal Education",
+    comment = "Detailed educational attainment"
+  )
+)
+
+# Save versioned recipe
+save_recipe(
+  demographic_recipe_v2,
+  path = file.path(recipe_repo_path, "household_survey", "demographics_v2.json"),
+  metadata = list(
+    version = "2.0",
+    changes = "Added detailed age and education categories",
+    backward_compatible = TRUE,
+    supersedes = "demographics_v1.json"
+  )
+)
+```
+
+## Recipe Documentation and Metadata
+
+### Comprehensive Documentation
+
+```{r recipe-documentation}
+# Well-documented recipe with full metadata
+comprehensive_recipe <- recipe(
+  name = "Comprehensive Labor Market Analysis",
+  user = "ILO Statistical Methods Team",
+  svy = survey_empty(type = "labor_force_survey", edition = "2023"),
+  description = paste(
+    "Complete labor market indicator set following ILO standards.",
+    "Includes employment, unemployment, underemployment, and",
+    "labor force participation measures with demographic breakdowns.",
+    "Compatible with ICLS-20 definitions."
+  ),
+  topic = "labor_statistics",
+  doi = "10.1000/ilo.statistical.methods.2023",
+  
+  # Detailed step documentation
+  step_compute(
+    # Working age population (15+ years)
+    working_age = ifelse(age >= 15, 1, 0),
+    
+    # Youth population (15-24 years) 
+    youth = ifelse(age >= 15 & age <= 24, 1, 0),
+    
+    comment = paste(
+      "Working age and youth population indicators.",
+      "Working age defined as 15+ following ILO convention.",
+      "Youth defined as 15-24 age group for NEET calculations."
+    )
+  ),
+  
+  step_recode(
+    "employment_status_ilo",
+    current_activity == 1 ~ "Employed",
+    current_activity == 2 ~ "Unemployed",
+    current_activity == 3 ~ "Not in Labor Force",
+    .default = "Not Stated",
+    comment = paste(
+      "ILO labor force status classification.",
+      "Based on reference week activity status.",
+      "Follows ICLS-19 resolution definitions."
+    )
+  ),
+  
+  step_compute(
+    # Core indicators
+    employed = ifelse(employment_status_ilo == "Employed", 1, 0),
+    unemployed = ifelse(employment_status_ilo == "Unemployed", 1, 0),
+    labor_force = employed + unemployed,
+    
+    # Rates (computed as proportions)
+    employment_to_population = employed / working_age,
+    unemployment_rate = unemployed / labor_force,
+    labor_force_participation = labor_force / working_age,
+    
+    comment = paste(
+      "Core labor market indicators as binary variables and rates.",
+      "Employment-to-population ratio = employed / working age population.",
+      "Unemployment rate = unemployed / labor force.",
+      "Labor force participation rate = labor force / working age population."
+    )
+  ),
+  
+  step_compute(
+    # Youth-specific indicators
+    youth_employed = youth * employed,
+    youth_unemployed = youth * unemployed,  
+    youth_not_in_education = youth * (1 - in_education),
+    youth_neet = youth * (1 - employed) * (1 - in_education),
+    
+    comment = paste(
+      "Youth labor market indicators.",
+      "NEET = Not in Employment, Education, or Training.",
+      "Key indicator for youth policy monitoring."
+    )
+  )
+)
+
+# Add methodology documentation
+attr(comprehensive_recipe, "methodology") <- list(
+  reference_period = "One week",
+  age_coverage = "15 years and above", 
+  geographical_coverage = "National",
+  data_source = "Labor Force Survey",
+  frequency = "Quarterly",
+  classification_systems = list(
+    industry = "ISIC Rev. 4",
+    occupation = "ISCO-08",
+    education = "ISCED 2011"
+  ),
+  quality_measures = list(
+    min_sample_size = 1000,
+    max_coefficient_variation = 0.15,
+    confidence_level = 0.95
+  )
+)
+```
+
+### Recipe Validation
+
+```{r recipe-validation}
+# Function to validate recipe completeness
+validate_recipe <- function(recipe) {
+  checks <- list()
+  
+  # Check required metadata
+  checks$has_name <- !is.null(recipe$name) && nchar(recipe$name) > 0
+  checks$has_user <- !is.null(recipe$user) && nchar(recipe$user) > 0
+  checks$has_description <- !is.null(recipe$description) && nchar(recipe$description) > 10
+  checks$has_survey_type <- !is.null(recipe$survey_type)
+  
+  # Check steps
+  checks$has_steps <- length(recipe$steps) > 0
+  checks$steps_have_comments <- all(sapply(recipe$steps, function(s) !is.null(s$comments)))
+  
+  # Summary
+  checks$all_passed <- all(unlist(checks[1:6]))
+  
+  return(checks)
+}
+
+# Validate our recipes
+validation_demographic <- validate_recipe(demographic_recipe)
+validation_comprehensive <- validate_recipe(comprehensive_recipe)
+
+cat("Demographic recipe validation:", validation_demographic$all_passed)
+cat("Comprehensive recipe validation:", validation_comprehensive$all_passed)
+```
+
+## Advanced Recipe Techniques
+
+### Conditional Recipe Application
+
+```{r conditional-recipes}
+# Recipe that adapts based on available variables
+adaptive_poverty_recipe <- recipe(
+  name = "Adaptive Poverty Measurement",
+  user = "Poverty Analysis Team",
+  svy = survey_empty(type = "household_survey", edition = "2023"),
+  description = "Poverty indicators that adapt to available income/consumption data",
+  
+  # Use consumption if available, otherwise income
+  step_compute(
+    welfare_measure = ifelse(
+      !is.na(household_consumption),
+      household_consumption,
+      household_income
+    ),
+    welfare_per_capita = welfare_measure / household_size,
+    comment = "Welfare measure selection: consumption preferred, income as fallback"
+  ),
+  
+  # Poverty line selection
+  step_compute(
+    applicable_poverty_line = ifelse(
+      !is.na(consumption_poverty_line) & !is.na(household_consumption),
+      consumption_poverty_line,
+      income_poverty_line
+    ),
+    comment = "Poverty line matching welfare measure type"
+  ),
+  
+  step_recode(
+    "poverty_status_adaptive",
+    welfare_per_capita < applicable_poverty_line ~ "Poor",
+    welfare_per_capita < applicable_poverty_line * 1.25 ~ "Near Poor",
+    .default = "Non-poor",
+    comment = "Poverty status using appropriate welfare measure and poverty line"
+  )
+)
+```
+
+### Recipe Inheritance
+
+```{r recipe-inheritance}
+# Base recipe for all demographic analysis
+base_demographic_recipe <- recipe(
+  name = "Base Demographics",
+  user = "Methods Team",
+  svy = survey_empty(type = "survey", edition = "2023"),
+  description = "Core demographic variables for all surveys",
+  
+  step_compute(
+    adult = ifelse(age >= 18, 1, 0),
+    elderly = ifelse(age >= 65, 1, 0),
+    comment = "Basic age indicators"
+  )
+)
+
+# Extended recipe that builds on base
+extended_demographic_recipe <- recipe(
+  name = "Extended Demographics",
+  user = "Analysis Team", 
+  svy = survey_empty(type = "survey", edition = "2023"),
+  description = "Extended demographic analysis building on base demographics",
+  
+  # Include base recipe steps
+  base_demographic_recipe$steps,
+  
+  # Add additional steps
+  step_recode(
+    "lifecycle_stage",
+    age < 18 ~ "Child",
+    age < 25 ~ "Young Adult",
+    age < 45 ~ "Adult", 
+    age < 65 ~ "Mature Adult",
+    .default = "Elderly",
+    comment = "Detailed lifecycle stages"
+  ),
+  
+  step_compute(
+    dependency_ratio = (children + elderly) / working_age_population,
+    comment = "Age dependency ratio calculation"
+  )
+)
+```
+
+## Recipe Best Practices
+
+### 1. Clear Naming Conventions
+
+```{r bp-naming}
+# Good naming practices
+employment_indicators_ilo_2023 <- recipe(
+  name = "Employment Indicators (ILO Standards) - 2023",  # Descriptive and versioned
+  user = "Labor Statistics Division",                      # Clear authorship
+  # ... rest of recipe
+)
+
+# Variable naming in steps should be consistent
+step_recode(
+  "emp_status_main",      # prefix indicates domain, suffix indicates type
+  "unemp_rate_youth",     # clear abbreviations
+  "lf_participation_rate" # consistent naming pattern
+)
+```
+
+### 2. Comprehensive Documentation
+
+```{r bp-documentation}
+# Every step should have meaningful comments
+step_compute(
+  employment_rate = employed_persons / working_age_population,
+  comment = paste(
+    "Employment-to-population ratio.",
+    "Numerator: Employed persons (ILO definition).", 
+    "Denominator: Working age population (15+ years).",
+    "Reference period: Survey reference week."
+  )
+)
+```
+
+### 3. Dependency Management
+
+```{r bp-dependencies}
+# Clearly specify and document dependencies
+labor_market_recipe <- recipe(
+  name = "Labor Market Analysis",
+  # ... metadata
+  description = paste(
+    "Labor market indicators requiring:",
+    "- Age variable for working age definition",
+    "- Employment status variables",
+    "- Education variables for skills analysis"
+  )
+)
+```
+
+### 4. Version Control
+
+```{r bp-versions}
+# Include version information in recipe metadata
+versioned_recipe <- recipe(
+  name = "Poverty Indicators v3.1",
+  # ... other metadata
+  description = paste(
+    "Version 3.1 changes:",
+    "- Updated poverty lines based on 2023 CPI",
+    "- Added regional poverty line adjustments", 
+    "- Fixed calculation error in poverty gap measure"
+  )
+)
+```
+
+### 5. Testing and Validation
+
+```{r bp-testing}
+# Test recipes on sample data before deployment
+test_recipe_on_data <- function(recipe, test_data) {
+  # Apply recipe to test data
+  test_survey <- load_survey(test_data, svy_type = "test", svy_edition = "test")
+  test_result <- test_survey %>% 
+    add_recipe(recipe) %>%
+    bake_recipes()
+  
+  # Validate results
+  validation <- list(
+    variables_created = setdiff(names(test_result$data), names(test_data)),
+    missing_values_check = sapply(test_result$data, function(x) sum(is.na(x))),
+    value_ranges_check = sapply(test_result$data, function(x) if(is.numeric(x)) range(x, na.rm=TRUE))
+  )
+  
+  return(validation)
+}
+```
+
+## Conclusion
+
+Recipes are essential for reproducible survey analysis. They:
+
+- **Standardize** variable definitions across surveys and time
+- **Document** methodology and decision-making processes  
+- **Enable collaboration** through shared analysis components
+- **Ensure consistency** in large-scale statistical production
+- **Facilitate quality control** through systematic approach to variable creation
+
+Key principles for effective recipe use:
+
+1. **Plan recipe structure** before coding
+2. **Document everything** - future you will thank you
+3. **Test thoroughly** on representative data
+4. **Version systematically** to track changes
+5. **Share and collaborate** to leverage team knowledge
+
+The next vignette will cover advanced workflow techniques that build on recipes for complex estimation procedures.

@@ -1,0 +1,306 @@
+---
+title: "Getting Started with metasurvey"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with metasurvey}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(survey)
+library(magrittr)
+library(data.table)
+```
+
+## Introduction
+
+The `metasurvey` package provides a comprehensive framework for analyzing complex survey data using meta-programming techniques. This vignette introduces the core concepts and demonstrates how to get started with the package.
+
+### Key Concepts
+
+**metasurvey** is built around several key concepts:
+
+- **Survey Objects**: Encapsulate survey data, weights, design, and processing steps
+- **Steps**: Individual data transformation operations that are reproducible and documentable
+- **Recipes**: Collections of steps that can be reused across surveys or time periods
+- **Workflows**: Estimation procedures that handle variance calculation and quality assessment
+- **Meta-programming**: Dynamic code generation based on survey metadata
+
+## Basic Survey Objects
+
+### Creating a Simple Survey
+
+The foundation of metasurvey is the `Survey` class, which wraps survey data along with metadata:
+
+```{r basic-survey}
+# Load example data (this would be your actual survey data)
+data("api", package = "survey")
+
+# Create a basic survey object
+basic_survey <- load_survey(
+  data = apistrat,
+  svy_edition = "2000",
+  svy_type = "api_example",
+  svy_weight = add_weight(stratum = "pw")  # sampling weights
+)
+
+# View survey metadata
+print(basic_survey)
+```
+
+### Survey Types and Editions
+
+Surveys are classified by type and edition to enable:
+- Consistent variable definitions across time
+- Automated quality checks
+- Recipe sharing between similar surveys
+
+```{r survey-metadata}
+# Access survey properties
+get_type(basic_survey)      # Survey type
+get_edition(basic_survey)   # Survey edition
+get_weight(basic_survey)    # Weight configuration
+```
+
+## Working with Steps
+
+Steps are the building blocks of survey processing. They document and execute data transformations.
+
+### Step Compute
+
+Create new variables using `step_compute()`:
+
+```{r step-compute-example}
+# Create performance indicators
+api_with_indicators <- basic_survey %>%
+  step_compute(
+    high_performer = api00 > 700,
+    performance_category = case_when(
+      api00 >= 800 ~ "Excellent",
+      api00 >= 700 ~ "Good", 
+      api00 >= 600 ~ "Average",
+      TRUE ~ "Below Average"
+    ),
+    comment = "Performance indicators based on API 2000 scores"
+  )
+
+# View the created variables
+head(api_with_indicators$data[, c("api00", "high_performer", "performance_category")])
+```
+
+### Step Recode
+
+Recode variables with multiple conditions:
+
+```{r step-recode-example}
+# Recode school type into simplified categories
+api_recoded <- api_with_indicators %>%
+  step_recode(
+    "school_category",
+    stype == "E" ~ "Elementary",
+    stype == "M" ~ "Middle", 
+    stype == "H" ~ "High",
+    .default = "Other",
+    comment = "Simplified school type categories"
+  )
+
+# Check the recoding
+table(api_recoded$data$stype, api_recoded$data$school_category)
+```
+
+### Chaining Steps
+
+Steps can be chained together using the pipe operator:
+
+```{r chaining-steps}
+processed_api <- basic_survey %>%
+  step_compute(
+    api_growth = api00 - api99,
+    enrollment_category = cut(enroll, 
+                             breaks = c(0, 300, 600, Inf),
+                             labels = c("Small", "Medium", "Large")),
+    comment = "Growth and enrollment indicators"
+  ) %>%
+  step_recode(
+    "high_growth",
+    api_growth > 50 ~ "High Growth",
+    api_growth > 0 ~ "Positive Growth",
+    api_growth == 0 ~ "No Change",
+    .default = "Decline",
+    comment = "Growth categories"
+  )
+
+# View processing steps
+names(processed_api$steps)
+```
+
+## Baking Steps
+
+Before running estimations, steps need to be "baked" (applied to the data):
+
+```{r baking}
+# Apply all steps to the data
+baked_survey <- bake_steps(processed_api)
+
+# Verify new variables exist
+names(baked_survey$data)[grepl("api_growth|enrollment_category|high_growth", 
+                               names(baked_survey$data))]
+```
+
+## Running Workflows
+
+Workflows execute estimation procedures with proper variance calculation:
+
+```{r workflows}
+# Run estimations using the survey package functions
+results <- workflow(
+  survey = list(baked_survey),
+  survey::svytotal(~high_performer),
+  survey::svymean(~api00),
+  survey::svymean(~api_growth),
+  estimation_type = "stratum"  # corresponds to weight type
+)
+
+# View results
+print(results)
+```
+
+### Quality Assessment
+
+Workflows automatically assess estimation quality:
+
+```{r quality}
+# Add quality evaluation
+results[, quality := sapply(cv, evaluate_cv)]
+
+# View quality assessment
+results[, .(stat, value, cv, quality)]
+```
+
+Quality categories:
+- **Excellent**: CV < 5%
+- **Very Good**: 5% ≤ CV < 10% 
+- **Good**: 10% ≤ CV < 15%
+- **Acceptable**: 15% ≤ CV < 25%
+- **Use with Caution**: 25% ≤ CV < 35%
+- **Do Not Publish**: CV ≥ 35%
+
+## Working with Recipes
+
+Recipes encapsulate reusable processing workflows:
+
+```{r recipes}
+# Create a recipe
+api_recipe <- recipe(
+  name = "API Performance Analysis",
+  user = "Survey Analyst",
+  svy = survey_empty(type = "api_example", edition = "2000"),
+  description = "Standard performance indicators for API surveys",
+  step_compute(
+    high_performer = api00 > 700,
+    api_growth = api00 - api99,
+    comment = "Core performance metrics"
+  ),
+  step_recode(
+    "performance_tier",
+    api00 >= 800 ~ "Top Tier",
+    api00 >= 650 ~ "High Performing", 
+    .default = "Needs Improvement",
+    comment = "Performance tiers"
+  )
+)
+
+# Apply recipe to survey
+survey_with_recipe <- basic_survey %>%
+  add_recipe(api_recipe) %>%
+  bake_recipes()
+
+# View recipe metadata
+cat_recipes(survey_with_recipe)
+```
+
+## Advanced Features
+
+### Bootstrap Replicates
+
+For robust variance estimation:
+
+```{r bootstrap, eval=FALSE}
+# Add bootstrap replicate weights
+survey_with_bootstrap <- load_survey(
+  data = your_data,
+  svy_edition = "2023",
+  svy_type = "complex_survey",
+  svy_weight = add_weight(
+    annual = add_replicate(
+      weight_var = "main_weight",
+      replicate_path = "bootstrap_weights.csv",
+      replicate_pattern = "rep_[0-9]+",
+      replicate_type = "bootstrap"
+    )
+  )
+)
+```
+
+### Panel Surveys
+
+For longitudinal analysis:
+
+```{r panel, eval=FALSE}
+# Load panel survey data
+panel_survey <- load_panel_survey(
+  path_implantation = "implantation_data.csv",
+  path_follow_up = "follow_up_data/",
+  svy_type = "panel_survey",
+  svy_weight_implantation = add_weight(annual = "weight_imp"),
+  svy_weight_follow_up = add_weight(monthly = "weight_fu")
+)
+```
+
+## Next Steps
+
+Now that you understand the basics:
+
+1. **Explore Complex Surveys**: See the "Working with Complex Survey Designs" vignette
+2. **Learn Panel Analysis**: Check the "Panel Survey Analysis" vignette  
+3. **Master Recipes**: Read the "Creating and Using Recipes" vignette
+4. **Advanced Workflows**: Study the "Advanced Workflow Techniques" vignette
+
+## Best Practices
+
+### Documentation
+- Always add meaningful comments to your steps
+- Use descriptive names for variables and recipes
+- Document data sources and methodology
+
+### Reproducibility  
+- Save recipes for reuse across time periods
+- Use consistent variable naming conventions
+- Version control your analysis scripts
+
+### Quality Control
+- Always check coefficient of variation for estimates
+- Validate step results before proceeding
+- Test recipes on subset data first
+
+### Performance
+- Bake steps only when needed
+- Use appropriate survey designs for your data structure
+- Consider computational resources for large bootstrap samples
+
+```{r cleanup, include=FALSE}
+# Clean up
+rm(list = ls())
+```

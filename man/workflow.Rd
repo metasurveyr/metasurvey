@@ -56,7 +56,7 @@ pooling of multiple surveys.
 result <- workflow(
   survey = list(ech_2023),
   svymean(~unemployed, na.rm = TRUE),
-  svytotal(~active_population, na.rm = TRUE), 
+  svytotal(~active_population, na.rm = TRUE),
   estimation_type = "annual"
 )
 

@@ -89,7 +89,7 @@ ech_2023 <- load_survey(
 
 # Load monthly survey
 ech_january <- load_survey(
-  path = "data/ech_202301.dta", 
+  path = "data/ech_202301.dta",
   svy_type = "ech",
   svy_edition = "202301",
   svy_weight = add_weight(monthly = "pesomes")
@@ -105,7 +105,7 @@ pipeline <- load_survey(
 # With included example data
 ech_example <- load_survey(
   metasurvey::load_survey_example("ech", "ech_2022"),
-  svy_type = "ech", 
+  svy_type = "ech",
   svy_edition = "2022",
   svy_weight = add_weight(annual = "pesoano")
 )

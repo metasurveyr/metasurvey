@@ -1,0 +1,208 @@
+---
+title: "Introduccion a metasurvey"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduccion a metasurvey}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(data.table)
+```
+
+## Que es metasurvey?
+
+`metasurvey` es un paquete de R que facilita el procesamiento de datos de
+encuestas complejas usando meta-programacion. Integra con el paquete `survey`
+y provee un sistema de **recetas reproducibles** para analisis de encuestas.
+
+### Conceptos clave
+
+- **Survey**: Objeto que encapsula datos, pesos, diseno muestral y pasos de
+  procesamiento
+- **Steps**: Operaciones individuales de transformacion (recodificar, calcular,
+  unir, renombrar, eliminar)
+- **Recipes**: Colecciones de steps reutilizables entre encuestas y periodos
+- **Workflows**: Procedimientos de estimacion con calculo de varianza
+
+## Crear un objeto Survey
+
+```{r crear-survey}
+# Cargar datos de ejemplo
+data("api", package = "survey")
+dt <- data.table(apistrat)
+
+# Crear el objeto Survey
+ech <- Survey$new(
+  data = dt,
+  edition = "2023",
+  type = "ech",
+  psu = NULL,
+  engine = "data.table",
+  weight = add_weight(annual = "pw")
+)
+
+# Ver metadata
+print(ech)
+```
+
+## Cargar datos desde archivo
+
+```{r cargar-datos}
+# Desde archivo CSV
+ech <- load_survey(
+  path = "datos/ech_2023.csv",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(
+    monthly = "pesomes",
+    annual = "pesoano"
+  )
+)
+```
+
+## Pasos de transformacion (Steps)
+
+### Calcular nuevas variables
+
+```{r step-compute}
+ech <- ech |>
+  step_compute(
+    ingreso_doble = ht11 * 2,
+    comment = "Duplicar ingreso para ejemplo"
+  )
+```
+
+### Recodificar variables
+
+```{r step-recode}
+ech <- ech |>
+  step_recode(
+    condicion_actividad,
+    POBPCOAC == 2 ~ "Ocupado",
+    POBPCOAC %in% 3:5 ~ "Desocupado",
+    POBPCOAC %in% 6:8 ~ "Inactivo",
+    .default = "Sin dato",
+    comment = "Condicion de actividad economica"
+  )
+```
+
+### Unir con datos externos
+
+```{r step-join}
+# Tabla de lookup
+deptos <- data.frame(
+  dpto = 1:19,
+  nombre_dpto = c("Montevideo", "Artigas", "Canelones",
+                   "Cerro Largo", "Colonia", "Durazno",
+                   "Flores", "Florida", "Lavalleja",
+                   "Maldonado", "Paysandu", "Rio Negro",
+                   "Rivera", "Rocha", "Salto",
+                   "San Jose", "Soriano", "Tacuarembo",
+                   "Treinta y Tres")
+)
+
+ech <- ech |>
+  step_join(deptos, by = "dpto", type = "left")
+```
+
+### Eliminar y renombrar variables
+
+```{r step-remove-rename}
+ech <- ech |>
+  step_remove(variable_temporal) |>
+  step_rename(edad = e27, sexo = e26)
+```
+
+### Aplicar todos los pasos
+
+```{r bake}
+ech <- bake_steps(ech)
+```
+
+## Sistema de Recetas
+
+Las recetas permiten documentar y compartir flujos de trabajo reproducibles.
+
+### Crear una receta
+
+```{r crear-receta}
+receta_laboral <- recipe(
+  name = "Indicadores laborales ECH",
+  user = "Equipo de Trabajo",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Crea indicadores del mercado laboral para ECH 2023",
+
+  step_recode(
+    survey_empty(type = "ech", edition = "2023"),
+    condicion,
+    POBPCOAC == 2 ~ "Ocupado",
+    POBPCOAC %in% 3:5 ~ "Desocupado",
+    .default = "Inactivo"
+  )
+)
+```
+
+### Guardar y cargar recetas
+
+```{r guardar-receta}
+# Guardar en archivo JSON
+save_recipe(receta_laboral, "receta_laboral.json")
+
+# Cargar desde archivo
+pasos <- read_recipe("receta_laboral.json")
+```
+
+### Obtener recetas del repositorio
+
+```{r obtener-receta}
+# Buscar recetas disponibles para ECH 2023
+recetas_disponibles <- get_recipe(
+  svy_type = "ech",
+  svy_edition = "2023"
+)
+```
+
+## Workflows de estimacion
+
+```{r workflow}
+# Estimaciones basicas
+resultados <- workflow(
+  survey = list(ech),
+  survey::svymean(~condicion_actividad, na.rm = TRUE),
+  estimation_type = "annual"
+)
+```
+
+## Configuracion del motor
+
+```{r motor}
+# Ver motores disponibles
+show_engines()
+
+# Configurar motor
+set_engine("data.table")
+
+# Opciones de copia
+set_use_copy(TRUE)   # Mas seguro
+set_use_copy(FALSE)  # Mas eficiente en memoria
+```
+
+## Recursos adicionales
+
+- `vignette("getting-started")`: Guia completa en ingles
+- `vignette("recipes")`: Sistema de recetas en detalle
+- `vignette("complex-designs")`: Disenos muestrales complejos
+- `vignette("panel-analysis")`: Analisis de encuestas panel

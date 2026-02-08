@@ -67,7 +67,7 @@ annual_replicates <- add_replicate(
 
 # With replicates in same dataset
 integrated_replicates <- add_replicate(
-  weight = "main_weight", 
+  weight = "main_weight",
   replicate_pattern = "rep_\\\\\\\\d{3}",
   replicate_type = "jackknife"
 )
@@ -76,12 +76,12 @@ integrated_replicates <- add_replicate(
 weight_config <- add_weight(
   annual = add_replicate(
     weight = "pesoano",
-    replicate_pattern = "wr\\\\\\\\d+", 
+    replicate_pattern = "wr\\\\\\\\d+",
     replicate_path = "bootstrap_annual.xlsx",
     replicate_id = c("numero" = "ID_HOGAR"),
     replicate_type = "bootstrap"
   ),
-  monthly = "pesomes"  # No replicates for monthly
+  monthly = "pesomes" # No replicates for monthly
 )
 
 # In load_survey
@@ -93,7 +93,7 @@ ech <- load_survey(
     annual = add_replicate(
       weight = "pesoano",
       replicate_pattern = "wr\\\\\\\\d+",
-      replicate_path = "bootstrap_weights.xlsx", 
+      replicate_path = "bootstrap_weights.xlsx",
       replicate_id = c("numero" = "ID"),
       replicate_type = "bootstrap"
     )

@@ -58,17 +58,17 @@ Works with a data.frame/data.table or another Survey as the right-hand side.
 \dontrun{
 # With data.frame
 s <- Survey$new(
-  data = data.table::data.table(id = 1:3, w = 1, a = c("x","y","z")),
+  data = data.table::data.table(id = 1:3, w = 1, a = c("x", "y", "z")),
   edition = "2023", type = "ech", psu = NULL, engine = "data.table",
   weight = add_weight(annual = "w")
 )
-info <- data.frame(id = c(1,2), b = c(10,20))
+info <- data.frame(id = c(1, 2), b = c(10, 20))
 s2 <- step_join(s, info, by = "id", type = "left")
 s2 <- bake_steps(s2)
 
 # With another Survey
 s_right <- Survey$new(
-  data = data.table::data.table(id = c(2,3), b = c(200, 300), w2 = 1),
+  data = data.table::data.table(id = c(2, 3), b = c(200, 300), w2 = 1),
   edition = "2023", type = "ech", psu = NULL, engine = "data.table",
   weight = add_weight(annual = "w2")
 )
