@@ -53,7 +53,7 @@ basic_survey <- load_survey(
   data = apistrat,
   svy_edition = "2000",
   svy_type = "api_example",
-  svy_weight = add_weight(stratum = "pw")  # sampling weights
+  svy_weight = add_weight(stratum = "pw") # sampling weights
 )
 
 # View survey metadata
@@ -69,9 +69,9 @@ Surveys are classified by type and edition to enable:
 
 ```{r survey-metadata}
 # Access survey properties
-get_type(basic_survey)      # Survey type
-get_edition(basic_survey)   # Survey edition
-get_weight(basic_survey)    # Weight configuration
+get_type(basic_survey) # Survey type
+get_edition(basic_survey) # Survey edition
+get_weight(basic_survey) # Weight configuration
 ```
 
 ## Working with Steps
@@ -89,7 +89,7 @@ api_with_indicators <- basic_survey %>%
     high_performer = api00 > 700,
     performance_category = case_when(
       api00 >= 800 ~ "Excellent",
-      api00 >= 700 ~ "Good", 
+      api00 >= 700 ~ "Good",
       api00 >= 600 ~ "Average",
       TRUE ~ "Below Average"
     ),
@@ -110,7 +110,7 @@ api_recoded <- api_with_indicators %>%
   step_recode(
     "school_category",
     stype == "E" ~ "Elementary",
-    stype == "M" ~ "Middle", 
+    stype == "M" ~ "Middle",
     stype == "H" ~ "High",
     .default = "Other",
     comment = "Simplified school type categories"
@@ -128,9 +128,10 @@ Steps can be chained together using the pipe operator:
 processed_api <- basic_survey %>%
   step_compute(
     api_growth = api00 - api99,
-    enrollment_category = cut(enroll, 
-                             breaks = c(0, 300, 600, Inf),
-                             labels = c("Small", "Medium", "Large")),
+    enrollment_category = cut(enroll,
+      breaks = c(0, 300, 600, Inf),
+      labels = c("Small", "Medium", "Large")
+    ),
     comment = "Growth and enrollment indicators"
   ) %>%
   step_recode(
@@ -155,8 +156,10 @@ Before running estimations, steps need to be "baked" (applied to the data):
 baked_survey <- bake_steps(processed_api)
 
 # Verify new variables exist
-names(baked_survey$data)[grepl("api_growth|enrollment_category|high_growth", 
-                               names(baked_survey$data))]
+names(baked_survey$data)[grepl(
+  "api_growth|enrollment_category|high_growth",
+  names(baked_survey$data)
+)]
 ```
 
 ## Running Workflows
@@ -170,7 +173,7 @@ results <- workflow(
   survey::svytotal(~high_performer),
   survey::svymean(~api00),
   survey::svymean(~api_growth),
-  estimation_type = "stratum"  # corresponds to weight type
+  estimation_type = "stratum" # corresponds to weight type
 )
 
 # View results
@@ -216,7 +219,7 @@ api_recipe <- recipe(
   step_recode(
     "performance_tier",
     api00 >= 800 ~ "Top Tier",
-    api00 >= 650 ~ "High Performing", 
+    api00 >= 650 ~ "High Performing",
     .default = "Needs Improvement",
     comment = "Performance tiers"
   )

@@ -42,10 +42,13 @@ test_that("step_recode applies conditions with use_copy=FALSE", {
   old_lazy <- lazy_default()
   set_use_copy(FALSE)
   set_lazy_processing(FALSE)
-  on.exit({
-    set_use_copy(old_copy)
-    set_lazy_processing(old_lazy)
-  }, add = TRUE)
+  on.exit(
+    {
+      set_use_copy(old_copy)
+      set_lazy_processing(old_lazy)
+    },
+    add = TRUE
+  )
 
   df <- data.table::data.table(id = 1:4, val = c(1, 2, 3, 99), w = 1)
   s <- Survey$new(

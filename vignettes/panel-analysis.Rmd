@@ -65,10 +65,10 @@ panel_survey <- load_panel_survey(
   path_follow_up = "data/seguimiento/",
   svy_type = "ECH_2023",
   svy_weight_implantation = add_weight(
-    annual = "W_ANO"  # annual weights for cross-sectional analysis
+    annual = "W_ANO" # annual weights for cross-sectional analysis
   ),
   svy_weight_follow_up = add_weight(
-    monthly = "W"     # monthly weights for timely estimates
+    monthly = "W" # monthly weights for timely estimates
   )
 )
 
@@ -126,7 +126,7 @@ processed_panel <- panel_survey %>%
     years_education >= 6 ~ "Primary",
     .default = "Less than Primary",
     comment = "Educational attainment categories",
-    .level = "implantation"  # only available in implantation
+    .level = "implantation" # only available in implantation
   ) %>%
   # Monthly labor force variables (follow-up level)
   step_recode(
@@ -134,10 +134,10 @@ processed_panel <- panel_survey %>%
     employment_status == 1 ~ 1,
     .default = 0,
     comment = "Employment indicator",
-    .level = "follow_up"  # available in all follow-up periods
+    .level = "follow_up" # available in all follow-up periods
   ) %>%
   step_recode(
-    "unemployed", 
+    "unemployed",
     employment_status == 2 ~ 1,
     .default = 0,
     comment = "Unemployment indicator",
@@ -173,7 +173,7 @@ auto_processed <- panel_survey %>%
     age >= 18 ~ 1,
     .default = 0,
     comment = "Adult indicator",
-    .level = "auto"  # applied to appropriate level(s)
+    .level = "auto" # applied to appropriate level(s)
   )
 ```
 
@@ -216,7 +216,7 @@ monthly_results <- workflow(
 )
 
 # Add time identifiers
-monthly_results[, month := rep(1:12, each = .N/12)]
+monthly_results[, month := rep(1:12, each = .N / 12)]
 
 # Plot unemployment rate over time
 unemployment_trend <- monthly_results[stat == "unemployment_rate"]
@@ -247,9 +247,9 @@ qm_results <- workflow(
   survey = quarterly_surveys,
   survey::svymean(~unemployment_rate, na.rm = TRUE),
   survey::svyratio(~unemployed, ~labor_force),
-  estimation_type = "quarterly:monthly",  # special notation
-  rho = 0.5,  # correlation between quarters
-  R = 5/6     # overlap ratio
+  estimation_type = "quarterly:monthly", # special notation
+  rho = 0.5, # correlation between quarters
+  R = 5 / 6 # overlap ratio
 )
 
 print(qm_results)
@@ -266,7 +266,7 @@ Analyzing changes between time periods:
 transition_panel <- baked_panel %>%
   step_compute(
     # Compare employment status between periods
-    employed_t1 = employed_january,  # employment in period 1
+    employed_t1 = employed_january, # employment in period 1
     employed_t2 = employed_february, # employment in period 2
     # Transition categories
     job_to_job = employed_t1 == 1 & employed_t2 == 1,
@@ -279,7 +279,7 @@ transition_panel <- baked_panel %>%
 
 # Estimate transition probabilities
 transition_results <- workflow(
-  survey = list(transition_panel$follow_up$february),  # use second period
+  survey = list(transition_panel$follow_up$february), # use second period
   survey::svymean(~job_to_job, na.rm = TRUE),
   survey::svymean(~job_to_unemployed, na.rm = TRUE),
   survey::svymean(~unemployed_to_job, na.rm = TRUE),
@@ -292,7 +292,7 @@ transition_matrix <- matrix(
   c(
     transition_results[stat == "job_to_job", value],
     transition_results[stat == "job_to_unemployed", value],
-    transition_results[stat == "unemployed_to_job", value], 
+    transition_results[stat == "unemployed_to_job", value],
     transition_results[stat == "unemployed_to_unemployed", value]
   ),
   nrow = 2, byrow = TRUE,
@@ -353,8 +353,8 @@ adjusted_results <- workflow(
   survey = quarterly_surveys,
   survey::svymean(~unemployment_rate, na.rm = TRUE),
   estimation_type = "quarterly:monthly",
-  rho = 0.6,  # estimated correlation
-  R = 5/6     # overlap ratio
+  rho = 0.6, # estimated correlation
+  R = 5 / 6 # overlap ratio
 )
 
 # Compare standard errors
@@ -378,7 +378,7 @@ between_var <- workflow(
   estimation_type = "annual"
 )
 
-# Within-individual variance component  
+# Within-individual variance component
 within_var <- workflow(
   survey = monthly_surveys,
   survey::svyvar(~unemployment_rate),
@@ -438,7 +438,7 @@ rotation_panel <- panel_survey %>%
   step_recode(
     "rotation_group",
     quarter_entered == 1 ~ "Q1",
-    quarter_entered == 2 ~ "Q2", 
+    quarter_entered == 2 ~ "Q2",
     quarter_entered == 3 ~ "Q3",
     quarter_entered == 4 ~ "Q4",
     comment = "Rotation group classification",
@@ -498,7 +498,7 @@ cohort_panel <- baked_panel %>%
   step_recode(
     "birth_cohort",
     birth_year >= 1990 ~ "Millennials",
-    birth_year >= 1980 ~ "Gen X", 
+    birth_year >= 1980 ~ "Gen X",
     birth_year >= 1960 ~ "Baby Boomers",
     .default = "Silent Generation",
     comment = "Birth cohort classification",
@@ -523,7 +523,7 @@ print(head(cohort_results))
 ```{r bp-weights}
 # Use appropriate weights for analysis type:
 # - Cross-sectional: implantation weights
-# - Time series: follow-up weights  
+# - Time series: follow-up weights
 # - Transitions: follow-up weights with adjustments
 ```
 
