@@ -2,7 +2,7 @@ Package: metasurvey
 Title: Survey Processing with Meta-Programming
 Version: 0.0.3
 Author: Mauro Loprete [aut, cre], Natalia da Silva [aut], Fabricio Machado [aut]
-Maintainer: Mauro Loprete <mauroloprete1@gmail.com>
+Maintainer: Mauro Loprete <mauro.loprete@icloud.com>
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
