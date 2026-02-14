@@ -87,7 +87,16 @@ Recipe <- R6Class("Recipe",
         # Extract output variables based on step type
         step_outputs <- switch(
           step$type,
-          "compute" = , "ast_compute" = names(step$exprs),
+          "compute" = , "ast_compute" = {
+            # For AST compute, use the names field if available
+            if (!is.null(step$names)) {
+              step$names
+            } else if (is.list(step$exprs) && !is.null(names(step$exprs))) {
+              names(step$exprs)
+            } else {
+              character(0)
+            }
+          },
           "recode" = step$new_var,
           "step_rename" = names(step$exprs),  # new names
           "step_remove" = character(0),
