@@ -47,6 +47,7 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
+    step_objects = NULL,
     #' @description
     #' Create a Recipe object
     #' @param name Descriptive name of the recipe (character)
@@ -60,7 +61,9 @@ Recipe <- R6Class("Recipe",
     #' @param id Unique identifier (character or numeric)
     #' @param doi DOI or external identifier (character or NULL)
     #' @param topic Recipe topic (character or NULL)
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
+    #' @param step_objects List of Step R6 objects (optional, used for doc generation)
+    #' @param cached_doc Pre-computed documentation (optional, used when loading from JSON)
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic, step_objects = NULL, cached_doc = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -72,85 +75,103 @@ Recipe <- R6Class("Recipe",
       self$id <- id
       self$doi <- doi
       self$topic <- topic
+      self$step_objects <- step_objects
+      private$.cached_doc <- cached_doc
     },
-    
+
     #' @description
     #' Auto-generate documentation from recipe steps
     #' @return A list with metadata, input_variables, output_variables, and pipeline information
     doc = function() {
-      all_outputs <- character(0)
-      all_inputs <- character(0)
-      pipeline <- list()
-      
-      for (i in seq_along(self$steps)) {
-        step <- self$steps[[i]]
-        
-        # Extract output variables based on step type
-        step_outputs <- switch(
-          step$type,
-          "compute" = , "ast_compute" = {
-            # For AST compute, use the names field if available
-            if (!is.null(step$names)) {
-              step$names
-            } else if (is.list(step$exprs) && !is.null(names(step$exprs))) {
-              names(step$exprs)
-            } else {
-              character(0)
-            }
-          },
-          "recode" = step$new_var,
-          "step_rename" = names(step$exprs),  # new names
-          "step_remove" = character(0),
-          "step_join" = character(0),
-          character(0)
-        )
-        
-        # Input variables from depends_on (already calculated by AST engine)
-        step_inputs <- unlist(step$depends_on)
-        
-        # Infer variable type based on step type
-        inferred_type <- switch(
-          step$type,
-          "recode" = "categorical",
-          "compute" = , "ast_compute" = "numeric",
-          "step_rename" = "inherited",
-          NA_character_
-        )
-        
-        # Variables that are external inputs (not created by previous steps)
-        external_inputs <- setdiff(step_inputs, all_outputs)
-        all_inputs <- union(all_inputs, external_inputs)
-        all_outputs <- union(all_outputs, step_outputs)
-        
-        # Build pipeline entry
-        pipeline[[i]] <- list(
-          index = i,
-          type = step$type,
-          outputs = step_outputs,
-          inputs = step_inputs,
-          inferred_type = inferred_type,
-          comment = step$comments
-        )
+      meta <- list(
+        name = self$name,
+        user = self$user,
+        edition = self$edition,
+        survey_type = self$survey_type,
+        description = self$description,
+        topic = self$topic,
+        doi = self$doi,
+        id = self$id
+      )
+
+      # If we have Step objects, generate doc from them
+      if (!is.null(self$step_objects) && length(self$step_objects) > 0) {
+        all_outputs <- character(0)
+        all_inputs <- character(0)
+        pipeline <- list()
+
+        for (i in seq_along(self$step_objects)) {
+          step <- self$step_objects[[i]]
+
+          step_outputs <- switch(
+            step$type,
+            "compute" = , "ast_compute" = {
+              if (!is.null(step$names)) {
+                step$names
+              } else if (is.list(step$exprs) && !is.null(names(step$exprs))) {
+                names(step$exprs)
+              } else {
+                character(0)
+              }
+            },
+            "recode" = step$new_var,
+            "step_rename" = names(step$exprs),
+            "step_remove" = character(0),
+            "step_join" = character(0),
+            character(0)
+          )
+
+          step_inputs <- unlist(step$depends_on)
+
+          inferred_type <- switch(
+            step$type,
+            "recode" = "categorical",
+            "compute" = , "ast_compute" = "numeric",
+            "step_rename" = "inherited",
+            NA_character_
+          )
+
+          external_inputs <- setdiff(step_inputs, all_outputs)
+          all_inputs <- union(all_inputs, external_inputs)
+          all_outputs <- union(all_outputs, step_outputs)
+
+          pipeline[[i]] <- list(
+            index = i,
+            type = step$type,
+            outputs = step_outputs,
+            inputs = step_inputs,
+            inferred_type = inferred_type,
+            comment = step$comments
+          )
+        }
+
+        return(list(
+          meta = meta,
+          input_variables = all_inputs,
+          output_variables = all_outputs,
+          pipeline = pipeline
+        ))
       }
-      
-      # Return structured documentation
+
+      # If we have cached doc (loaded from JSON), return it with current meta
+      if (!is.null(private$.cached_doc)) {
+        return(list(
+          meta = meta,
+          input_variables = private$.cached_doc$input_variables %||% character(0),
+          output_variables = private$.cached_doc$output_variables %||% character(0),
+          pipeline = private$.cached_doc$pipeline %||% list()
+        ))
+      }
+
+      # Fallback: no step objects and no cached doc
       list(
-        meta = list(
-          name = self$name,
-          user = self$user,
-          edition = self$edition,
-          survey_type = self$survey_type,
-          description = self$description,
-          topic = self$topic,
-          doi = self$doi,
-          id = self$id
-        ),
-        input_variables = all_inputs,
-        output_variables = all_outputs,
-        pipeline = pipeline
+        meta = meta,
+        input_variables = character(0),
+        output_variables = character(0),
+        pipeline = list()
       )
     },
-    
+
     #' @description
     #' Validate that a survey has all required input variables
     #' @param svy A Survey object
@@ -158,13 +179,10 @@ Recipe <- R6Class("Recipe",
     validate = function(svy) {
       doc_info <- self$doc()
       required_vars <- doc_info$input_variables
-      
-      # Get survey variable names
+
       survey_vars <- names(get_data(svy))
-      
-      # Find missing variables
       missing_vars <- setdiff(required_vars, survey_vars)
-      
+
       if (length(missing_vars) > 0) {
         stop(
           sprintf(
@@ -174,9 +192,12 @@ Recipe <- R6Class("Recipe",
           )
         )
       }
-      
+
       return(TRUE)
     }
+  ),
+  private = list(
+    .cached_doc = NULL
   )
 )
 
@@ -327,7 +348,8 @@ recipe <- function(...) {
         description = dots$description,
         steps = dots$steps_call,
         doi = dots$doi %||% NULL,
-        topic = dots$topic
+        topic = dots$topic,
+        step_objects = dots$steps
       )
     )
   } else {
@@ -464,13 +486,44 @@ recipe_to_json <- function(recipe) {
 
 read_recipe <- function(file) {
   json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
-  
-  # Decode steps from JSON
-  steps <- decode_step(json_data$steps)
-  
+
+  # Decode steps from JSON (handle errors gracefully)
+  steps <- tryCatch(
+    decode_step(json_data$steps),
+    error = function(e) {
+      # Fallback: store raw step strings as a list
+      as.list(json_data$steps)
+    }
+  )
+
   # Check if this is a new format (with metadata) or old format (just steps)
   if ("name" %in% names(json_data)) {
-    # New format - return a full Recipe object
+    # Reconstruct pipeline from doc if available
+    cached_doc <- NULL
+    if (!is.null(json_data$doc)) {
+      pipeline <- list()
+      raw_pipeline <- json_data$doc$pipeline
+      if (!is.null(raw_pipeline)) {
+        # Handle both list-of-lists and data.frame forms from JSON
+        if (is.data.frame(raw_pipeline)) {
+          for (i in seq_len(nrow(raw_pipeline))) {
+            row <- as.list(raw_pipeline[i, ])
+            # Ensure outputs/inputs are character vectors
+            row$outputs <- as.character(unlist(row$outputs))
+            row$inputs <- as.character(unlist(row$inputs))
+            pipeline[[i]] <- row
+          }
+        } else if (is.list(raw_pipeline)) {
+          pipeline <- raw_pipeline
+        }
+      }
+      cached_doc <- list(
+        input_variables = as.character(unlist(json_data$doc$input_variables)),
+        output_variables = as.character(unlist(json_data$doc$output_variables)),
+        pipeline = pipeline
+      )
+    }
+
     Recipe$new(
       name = json_data$name %||% "Unnamed Recipe",
       user = json_data$user %||% "Unknown",
@@ -482,7 +535,8 @@ read_recipe <- function(file) {
       steps = steps,
       id = json_data$id %||% stats::runif(1, 0, 1),
       doi = json_data$doi %||% NULL,
-      topic = json_data$topic %||% NULL
+      topic = json_data$topic %||% NULL,
+      cached_doc = cached_doc
     )
   } else {
     # Old format - just return steps for backward compatibility
@@ -950,10 +1004,12 @@ publish_recipe <- function(recipe) {
 #' @export
 print.Recipe <- function(x, ...) {
   doc_info <- x$doc()
-  
+
   # Header
-  cat(crayon::bold(crayon::blue("\n── Recipe: ", x$name, " ──\n")))
-  
+  cat(crayon::bold(crayon::blue(paste0(
+    "\n\u2500\u2500 Recipe: ", x$name, " \u2500\u2500\n"
+  ))))
+
   # Metadata
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
   cat(crayon::silver("Survey:  "), x$survey_type, " / ", x$edition, "\n", sep = "")
@@ -963,47 +1019,54 @@ print.Recipe <- function(x, ...) {
   if (!is.null(x$doi)) {
     cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
   }
-  if (!is.null(x$description)) {
+  if (!is.null(x$description) && nzchar(x$description)) {
     cat(crayon::silver("Description: "), x$description, "\n", sep = "")
   }
-  
+
   # Input variables
   if (length(doc_info$input_variables) > 0) {
-    cat(crayon::bold(crayon::blue("\n── Requires (", length(doc_info$input_variables), " variables) ──\n")))
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Requires (", length(doc_info$input_variables), " variables) \u2500\u2500\n"
+    ))))
     cat("  ", paste(doc_info$input_variables, collapse = ", "), "\n", sep = "")
   }
-  
+
   # Pipeline
   if (length(doc_info$pipeline) > 0) {
-    cat(crayon::bold(crayon::blue("\n── Pipeline (", length(doc_info$pipeline), " steps) ──\n")))
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Pipeline (", length(doc_info$pipeline), " steps) \u2500\u2500\n"
+    ))))
     for (step_info in doc_info$pipeline) {
       outputs_str <- if (length(step_info$outputs) > 0) {
         paste(step_info$outputs, collapse = ", ")
       } else {
         "(no output)"
       }
-      
-      comment_str <- if (!is.null(step_info$comment) && nchar(step_info$comment) > 0) {
-        paste0("  \"", step_info$comment, "\"")
-      } else {
-        ""
+
+      comment_str <- ""
+      if (!is.null(step_info$comment) && length(step_info$comment) == 1 &&
+          nzchar(step_info$comment)) {
+        comment_str <- paste0("  \"", step_info$comment, "\"")
       }
-      
-      cat(sprintf("  %d. [%s] → %s%s\n",
+
+      step_type <- step_info$type %||% "unknown"
+      cat(sprintf("  %d. [%s] -> %s%s\n",
                   step_info$index,
-                  step_info$type,
+                  step_type,
                   outputs_str,
                   comment_str))
     }
   }
-  
+
   # Output variables
   if (length(doc_info$output_variables) > 0) {
-    cat(crayon::bold(crayon::blue("\n── Produces (", length(doc_info$output_variables), " variables) ──\n")))
-    
-    # Group by type if available
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Produces (", length(doc_info$output_variables), " variables) \u2500\u2500\n"
+    ))))
+
     output_details <- lapply(doc_info$pipeline, function(step) {
-      if (length(step$outputs) > 0 && !is.na(step$inferred_type)) {
+      if (length(step$outputs) > 0 && !is.null(step$inferred_type) &&
+          !is.na(step$inferred_type)) {
         data.frame(
           var = step$outputs,
           type = step$inferred_type,
@@ -1014,9 +1077,8 @@ print.Recipe <- function(x, ...) {
       }
     })
     output_details <- do.call(rbind, output_details)
-    
+
     if (!is.null(output_details) && nrow(output_details) > 0) {
-      # Display variables with types
       vars_by_type <- split(output_details$var, output_details$type)
       output_parts <- sapply(names(vars_by_type), function(type) {
         vars <- vars_by_type[[type]]
@@ -1027,7 +1089,12 @@ print.Recipe <- function(x, ...) {
       cat("  ", paste(doc_info$output_variables, collapse = ", "), "\n", sep = "")
     }
   }
-  
+
+  # Steps count if no pipeline doc available
+  if (length(doc_info$pipeline) == 0 && length(x$steps) > 0) {
+    cat(crayon::silver(paste0("\n  (", length(x$steps), " steps)\n")))
+  }
+
   cat("\n")
   invisible(x)
 }
