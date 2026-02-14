@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(metasurvey)
 library(survey)
-library(magrittr)
 library(data.table)
 library(ggplot2)
 library(here)
@@ -203,9 +202,8 @@ ech_labor_force_recipe <- recipe(
 )
 
 # Apply the recipe
-ech_processed <- ech_2023 %>%
-  add_recipe(ech_labor_force_recipe) %>%
-  bake_recipes()
+ech_2023$add_recipe(ech_labor_force_recipe)
+ech_processed <- bake_recipes(ech_2023)
 
 print("Labor force variables created successfully")
 ```
@@ -232,13 +230,13 @@ annual_results[, quality := sapply(cv, evaluate_cv)]
 
 # Display main indicators
 main_indicators <- annual_results[, .(
-  Indicator = case_when(
-    stat == "employment_rate" ~ "Employment Rate",
-    stat == "unemployment_rate" ~ "Unemployment Rate", 
-    stat == "participation_rate" ~ "Labor Force Participation Rate",
-    stat == "po" ~ "Employed Population (thousands)",
-    stat == "pd" ~ "Unemployed Population (thousands)",
-    stat == "pea" ~ "Labor Force (thousands)"
+  Indicator = fcase(
+    stat == "employment_rate", "Employment Rate",
+    stat == "unemployment_rate", "Unemployment Rate",
+    stat == "participation_rate", "Labor Force Participation Rate",
+    stat == "po", "Employed Population (thousands)",
+    stat == "pd", "Unemployed Population (thousands)",
+    stat == "pea", "Labor Force (thousands)"
   ),
   Value = ifelse(grepl("rate", stat), 
                 round(value * 100, 2), 
@@ -374,7 +372,7 @@ print(unemployment_ts)
 unemployment_plot_data <- monthly_results[stat == "unemployment_rate"]
 
 ggplot(unemployment_plot_data, aes(x = month, y = value * 100)) +
-  geom_line(size = 1.2, color = "steelblue") +
+  geom_line(linewidth = 1.2, color = "steelblue") +
   geom_point(size = 3, color = "steelblue") +
   geom_ribbon(aes(ymin = confint_lower * 100, ymax = confint_upper * 100), 
               alpha = 0.3, fill = "steelblue") +
@@ -444,18 +442,17 @@ Specialized analysis for youth (15-24) following OECD standards:
 
 ```{r youth-analysis}
 # Create youth-specific indicators
-ech_youth <- ech_processed %>%
-  step_compute(
-    youth = ifelse(e27 >= 14 & e27 <= 24, 1, 0),
-    youth_employed = youth * po,
-    youth_unemployed = youth * pd,
-    youth_labor_force = youth * pea,
-    youth_not_in_education = youth * (1 - ifelse(is.na(e214), 0, e214)),
-    youth_neet = youth * (1 - po) * youth_not_in_education,
-    comment = "Youth labor market indicators (14-24 years)",
-    .level = "follow_up"
-  ) %>%
-  bake_steps()
+ech_youth <- step_compute(ech_processed,
+  youth = ifelse(e27 >= 14 & e27 <= 24, 1, 0),
+  youth_employed = youth * po,
+  youth_unemployed = youth * pd,
+  youth_labor_force = youth * pea,
+  youth_not_in_education = youth * (1 - ifelse(is.na(e214), 0, e214)),
+  youth_neet = youth * (1 - po) * youth_not_in_education,
+  comment = "Youth labor market indicators (14-24 years)",
+  .level = "follow_up"
+)
+ech_youth <- bake_steps(ech_youth)
 
 # Youth-specific estimates
 youth_results <- workflow(
@@ -472,12 +469,12 @@ youth_results <- workflow(
 youth_results[, quality := sapply(cv, evaluate_cv)]
 
 youth_summary <- youth_results[, .(
-  Indicator = case_when(
-    grepl("youth_unemployed.*youth_labor_force", stat) ~ "Youth Unemployment Rate",
-    grepl("youth_employed.*youth", stat) ~ "Youth Employment Ratio",
-    grepl("youth_labor_force.*youth", stat) ~ "Youth Labor Force Participation",
-    grepl("youth_neet.*youth", stat) ~ "Youth NEET Rate", 
-    stat == "youth_unemployed" ~ "Youth Unemployed (thousands)"
+  Indicator = fcase(
+    grepl("youth_unemployed.*youth_labor_force", stat), "Youth Unemployment Rate",
+    grepl("youth_employed.*youth", stat), "Youth Employment Ratio",
+    grepl("youth_labor_force.*youth", stat), "Youth Labor Force Participation",
+    grepl("youth_neet.*youth", stat), "Youth NEET Rate",
+    stat == "youth_unemployed", "Youth Unemployed (thousands)"
   ),
   Value = ifelse(grepl("thousands", Indicator), 
                 round(value / 1000, 1),
@@ -623,10 +620,10 @@ Generate publication-quality tables and reports:
 ```{r production-output}
 # Main indicators table for publication
 publication_table <- annual_results[grepl("rate", stat), .(
-  Indicator = case_when(
-    stat == "unemployment_rate" ~ "Unemployment rate",
-    stat == "employment_rate" ~ "Employment rate", 
-    stat == "participation_rate" ~ "Labor force participation rate"
+  Indicator = fcase(
+    stat == "unemployment_rate", "Unemployment rate",
+    stat == "employment_rate", "Employment rate",
+    stat == "participation_rate", "Labor force participation rate"
   ),
   `2023` = paste0(round(value * 100, 1), "%"),
   `Standard Error` = paste0("±", round(se * 100, 1), "pp"),

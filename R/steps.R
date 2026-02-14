@@ -1200,6 +1200,14 @@ step_join <- function(
 #' @param vars Character vector of variable names to remove.
 #' @param lazy Logical, whether to delay execution.
 #' @param record Logical, whether to record the step.
+#' @return Survey object with the specified variables removed (or queued for removal).
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy2 <- step_remove(svy, age)
+#' svy2 <- bake_steps(svy2)
+#' "age" %in% names(get_data(svy2)) # FALSE
 #' @export
 step_remove <- function(svy = survey_empty(), ..., vars = NULL, use_copy = use_copy_default(), comment = "Remove variables", lazy = lazy_default(), record = TRUE) {
   .call <- match.call()
@@ -1291,6 +1299,14 @@ step_remove <- function(svy = survey_empty(), ..., vars = NULL, use_copy = use_c
 #' @param mapping A named character vector of the form `c(new_name = "old_name")`.
 #' @param lazy Logical, whether to delay execution.
 #' @param record Logical, whether to record the step.
+#' @return Survey object with the specified variables renamed (or queued for renaming).
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy2 <- step_rename(svy, edad = age)
+#' svy2 <- bake_steps(svy2)
+#' "edad" %in% names(get_data(svy2)) # TRUE
 #' @export
 step_rename <- function(svy = survey_empty(), ..., mapping = NULL, use_copy = use_copy_default(), comment = "Rename variables", lazy = lazy_default(), record = TRUE) {
   .call <- match.call()
@@ -1380,10 +1396,18 @@ get_type_step <- function(steps) {
 
 #' View graph
 #' @param svy Survey object
-#' @param init_step Initial step
-#' @return Graph
+#' @param init_step Initial step label (default: "Load survey")
+#' @return A visNetwork interactive graph of the survey processing steps.
 #' @keywords Survey methods
 #' @keywords Steps
+#' @examples
+#' \dontrun{
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- step_compute(svy, age2 = age * 2)
+#' view_graph(svy)
+#' }
 #' @export
 view_graph <- function(svy, init_step = "Load survey") {
   steps <- get_steps(svy)

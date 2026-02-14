@@ -12,198 +12,163 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
-```
-
-```{r setup}
-library(metasurvey)
-library(data.table)
 ```
 
 ## Que es metasurvey?
 
-`metasurvey` es un paquete de R que facilita el procesamiento de datos de
-encuestas complejas usando meta-programacion. Integra con el paquete `survey`
-y provee un sistema de **recetas reproducibles** para analisis de encuestas.
-
-### Conceptos clave
-
-- **Survey**: Objeto que encapsula datos, pesos, diseno muestral y pasos de
-  procesamiento
-- **Steps**: Operaciones individuales de transformacion (recodificar, calcular,
-  unir, renombrar, eliminar)
-- **Recipes**: Colecciones de steps reutilizables entre encuestas y periodos
-- **Workflows**: Procedimientos de estimacion con calculo de varianza
+**metasurvey** es un framework para procesar datos de encuestas complejas en R.
+Combina el paquete `survey` con un sistema de *pasos* (transformaciones),
+*recetas* (colecciones reutilizables de pasos) y *workflows* (estimaciones
+estadisticas), todo impulsado por un motor de Arboles de Sintaxis Abstracta
+(AST) que valida dependencias y optimiza expresiones automaticamente.
 
 ## Crear un objeto Survey
 
-```{r crear-survey}
-# Cargar datos de ejemplo
-data("api", package = "survey")
-dt <- data.table(apistrat)
+Un objeto `Survey` encapsula los microdatos junto con la edicion, tipo, diseno
+muestral y configuracion de ponderadores.
 
-# Crear el objeto Survey
-ech <- Survey$new(
-  data = dt,
+```{r crear-encuesta}
+library(metasurvey)
+library(data.table)
+
+set.seed(42)
+n <- 200
+
+dt <- data.table(
+  id       = 1:n,
+  edad     = sample(18:80, n, replace = TRUE),
+  sexo     = sample(c(1, 2), n, replace = TRUE),
+  ingreso  = round(runif(n, 500, 8000)),
+  ocupado  = sample(0:1, n, replace = TRUE),
+  region   = sample(1:5, n, replace = TRUE),
+  peso     = round(runif(n, 0.5, 3.0), 4)
+)
+
+encuesta <- Survey$new(
+  data    = dt,
   edition = "2023",
-  type = "ech",
-  psu = NULL,
-  engine = "data.table",
-  weight = add_weight(annual = "pw")
-)
-
-# Ver metadata
-print(ech)
-```
-
-## Cargar datos desde archivo
-
-```{r cargar-datos}
-# Desde archivo CSV
-ech <- load_survey(
-  path = "datos/ech_2023.csv",
-  svy_type = "ech",
-  svy_edition = "2023",
-  svy_weight = add_weight(
-    monthly = "pesomes",
-    annual = "pesoano"
-  )
+  type    = "ech",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "peso")
 )
 ```
 
-## Pasos de transformacion (Steps)
+`add_weight()` asigna nombres de columnas de ponderadores por periodicidad.
+
+## Pasos de transformacion
+
+Los pasos son *lazy* por defecto: se registran pero no se ejecutan hasta llamar
+a `bake_steps()`.
 
 ### Calcular nuevas variables
 
-```{r step-compute}
-ech <- ech |>
-  step_compute(
-    ingreso_doble = ht11 * 2,
-    comment = "Duplicar ingreso para ejemplo"
-  )
-```
+`step_compute()` crea columnas nuevas usando expresiones de R:
 
-### Recodificar variables
-
-```{r step-recode}
-ech <- ech |>
-  step_recode(
-    condicion_actividad,
-    POBPCOAC == 2 ~ "Ocupado",
-    POBPCOAC %in% 3:5 ~ "Desocupado",
-    POBPCOAC %in% 6:8 ~ "Inactivo",
-    .default = "Sin dato",
-    comment = "Condicion de actividad economica"
-  )
-```
-
-### Unir con datos externos
-
-```{r step-join}
-# Tabla de lookup
-deptos <- data.frame(
-  dpto = 1:19,
-  nombre_dpto = c(
-    "Montevideo", "Artigas", "Canelones",
-    "Cerro Largo", "Colonia", "Durazno",
-    "Flores", "Florida", "Lavalleja",
-    "Maldonado", "Paysandu", "Rio Negro",
-    "Rivera", "Rocha", "Salto",
-    "San Jose", "Soriano", "Tacuarembo",
-    "Treinta y Tres"
-  )
-)
-
-ech <- ech |>
-  step_join(deptos, by = "dpto", type = "left")
-```
-
-### Eliminar y renombrar variables
-
-```{r step-remove-rename}
-ech <- ech |>
-  step_remove(variable_temporal) |>
-  step_rename(edad = e27, sexo = e26)
-```
-
-### Aplicar todos los pasos
-
-```{r bake}
-ech <- bake_steps(ech)
-```
-
-## Sistema de Recetas
-
-Las recetas permiten documentar y compartir flujos de trabajo reproducibles.
-
-### Crear una receta
-
-```{r crear-receta}
-receta_laboral <- recipe(
-  name = "Indicadores laborales ECH",
-  user = "Equipo de Trabajo",
-  svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Crea indicadores del mercado laboral para ECH 2023",
-  step_recode(
-    survey_empty(type = "ech", edition = "2023"),
-    condicion,
-    POBPCOAC == 2 ~ "Ocupado",
-    POBPCOAC %in% 3:5 ~ "Desocupado",
-    .default = "Inactivo"
-  )
+```{r paso-compute}
+encuesta <- step_compute(encuesta,
+  ingreso_miles = ingreso / 1000,
+  es_joven      = ifelse(edad < 30, 1L, 0L)
 )
 ```
 
-### Guardar y cargar recetas
+### Recodificar en categorias
 
-```{r guardar-receta}
-# Guardar en archivo JSON
-save_recipe(receta_laboral, "receta_laboral.json")
+`step_recode()` crea variables categoricas a partir de condiciones:
 
-# Cargar desde archivo
-pasos <- read_recipe("receta_laboral.json")
+```{r paso-recode, eval = FALSE}
+encuesta <- step_recode(encuesta, grupo_edad,
+  edad < 30              ~ "Joven",
+  edad >= 30 & edad < 60 ~ "Adulto",
+  edad >= 60             ~ "Mayor",
+  .default = "Desconocido"
+)
 ```
 
-### Obtener recetas del repositorio
+### Renombrar y eliminar columnas
 
-```{r obtener-receta}
-# Buscar recetas disponibles para ECH 2023
-recetas_disponibles <- get_recipe(
-  svy_type = "ech",
-  svy_edition = "2023"
+```{r paso-rename-remove}
+encuesta <- step_rename(encuesta, genero = sexo)
+```
+
+### Unir datos externos
+
+```{r paso-join}
+regiones <- data.table(
+  region = 1:5,
+  nombre_region = c("Norte", "Sur", "Este", "Oeste", "Centro")
 )
+encuesta <- step_join(encuesta, regiones, by = "region", type = "left")
+```
+
+### Ejecutar todos los pasos
+
+```{r hornear}
+encuesta <- bake_steps(encuesta)
+head(get_data(encuesta), 3)
 ```
 
 ## Workflows de estimacion
 
+`workflow()` ejecuta funciones del paquete `survey` y devuelve un `data.table`
+con resultados, errores estandar y coeficientes de variacion.
+
 ```{r workflow}
-# Estimaciones basicas
-resultados <- workflow(
-  survey = list(ech),
-  survey::svymean(~condicion_actividad, na.rm = TRUE),
+resultado <- workflow(
+  list(encuesta),
+  survey::svymean(~ingreso, na.rm = TRUE),
+  survey::svytotal(~ocupado, na.rm = TRUE),
   estimation_type = "annual"
 )
+
+resultado
 ```
 
-## Configuracion del motor
+## Evaluacion de calidad
 
-```{r motor}
-# Ver motores disponibles
-show_engines()
+`evaluate_cv()` clasifica el coeficiente de variacion:
 
-# Configurar motor
-set_engine("data.table")
-
-# Opciones de copia
-set_use_copy(TRUE) # Mas seguro
-set_use_copy(FALSE) # Mas eficiente en memoria
+```{r cv}
+evaluate_cv(resultado$cv[1] * 100)
 ```
 
-## Recursos adicionales
+## Recetas
 
-- `vignette("getting-started")`: Guia completa en ingles
-- `vignette("recipes")`: Sistema de recetas en detalle
-- `vignette("complex-designs")`: Disenos muestrales complejos
-- `vignette("panel-analysis")`: Analisis de encuestas panel
+Las recetas empaquetan pasos para reutilizarlos en distintas encuestas:
+
+```{r receta}
+rec <- recipe(
+  name        = "indicadores_laborales",
+  user        = "analista",
+  svy         = survey_empty(type = "ech", edition = "2023"),
+  description = "Indicadores estandar del mercado laboral"
+)
+
+class(rec)
+```
+
+Guardar en JSON:
+
+```{r guardar-receta}
+tf <- tempfile(fileext = ".json")
+save_recipe(rec, tf)
+```
+
+## Configuracion
+
+```{r config}
+lazy_default()       # procesamiento lazy actual
+use_copy_default()   # copia de datos actual
+show_engines()       # motores disponibles
+```
+
+## Proximos pasos
+
+- **[Panel Survey Analysis](panel-analysis.html)** -- paneles rotativos y
+  PoolSurvey.
+- **[Creating and Using Recipes](recipes.html)** -- flujos avanzados con
+  recetas.
+- **[ECH Case Study](ech-case-study.html)** -- analisis de la Encuesta
+  Continua de Hogares de Uruguay.

@@ -9,13 +9,22 @@ view_graph(svy, init_step = "Load survey")
 \arguments{
 \item{svy}{Survey object}
 
-\item{init_step}{Initial step}
+\item{init_step}{Initial step label (default: "Load survey")}
 }
 \value{
-Graph
+A visNetwork interactive graph of the survey processing steps.
 }
 \description{
 View graph
+}
+\examples{
+\dontrun{
+dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- step_compute(svy, age2 = age * 2)
+view_graph(svy)
+}
 }
 \keyword{Steps}
 \keyword{Survey}

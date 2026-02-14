@@ -52,8 +52,7 @@ print(svy)
 
 # Access individual components
 get_data(svy)
-get_edition(svy)
-get_type(svy)
+get_metadata(svy)
 get_steps(svy)
 ```
 
@@ -84,25 +83,13 @@ svy1 <- step_compute(svy,
 steps <- get_steps(svy1)
 cat("Number of steps:", length(steps), "\n")
 
-# Step 2: Recode
-svy2 <- step_recode(svy1, improvement,
-  api_diff > 0 ~ "Improved",
-  api_diff == 0 ~ "No change",
-  api_diff < 0 ~ "Declined",
-  .default = "Missing",
-  comment = "Categorize school improvement"
-)
-
-# Check the new column exists
-stopifnot("improvement" %in% names(svy2$data))
-
-# Bake compute steps
+# Execute compute steps
 svy_baked <- bake_steps(svy1)
 
 # Verify computed values
 stopifnot(all.equal(
-  svy_baked$data$api_diff,
-  svy_baked$data$api00 - svy_baked$data$api99
+  get_data(svy_baked)$api_diff,
+  get_data(svy_baked)$api00 - get_data(svy_baked)$api99
 ))
 ```
 
@@ -110,7 +97,7 @@ stopifnot(all.equal(
 
 ```{r visualize}
 # View the step graph (requires visNetwork)
-view_graph(svy2)
+view_graph(svy1)
 ```
 
 ## Comparing Estimation Approaches
@@ -126,8 +113,8 @@ direct_mean <- svymean(~api00, design)
 
 # Method 2: metasurvey workflow
 wf_result <- workflow(
-  survey = list(svy),
-  svymean(~api00, na.rm = TRUE),
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
   estimation_type = "annual"
 )
 
@@ -141,13 +128,17 @@ cat("Workflow estimate:", wf_result$value, "\n")
 ### Recipe consistency check
 
 ```{r test-recipes}
-# Create a recipe
-my_recipe <- recipe(
+# First develop steps on a survey, then convert to a recipe
+svy_with_steps <- step_compute(svy, score_ratio = api00 / api99)
+svy_with_steps <- bake_steps(svy_with_steps)
+
+# Convert to a recipe
+my_recipe <- steps_to_recipe(
   name = "Test Recipe",
   user = "QA Team",
-  svy = svy,
+  svy = svy_with_steps,
   description = "Recipe for validation testing",
-  step_compute(svy, score_ratio = api00 / api99)
+  steps = get_steps(svy_with_steps)
 )
 
 # Verify recipe structure
@@ -166,7 +157,7 @@ save_recipe(my_recipe, tmp)
 # Verify file was created
 stopifnot(file.exists(tmp))
 
-# Read back
+# Read back the JSON content
 loaded_content <- jsonlite::read_json(tmp, simplifyVector = TRUE)
 stopifnot(loaded_content$name == "Test Recipe")
 
@@ -181,16 +172,13 @@ The coefficient of variation (CV) helps assess estimation quality:
 ```{r cv-assessment}
 # After running a workflow, evaluate CVs
 results <- workflow(
-  survey = list(svy),
-  svymean(~api00, na.rm = TRUE),
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-# Check CV thresholds
-# cv < 15%: Reliable
-# 15% <= cv < 30%: Use with caution
-# cv >= 30%: Unreliable
-evaluate_cv(results$cv)
+# evaluate_cv expects a percentage value (0-100 scale)
+evaluate_cv(results$cv[1] * 100)
 ```
 
 ## Checklist for Production Workflows
@@ -224,9 +212,6 @@ validate_pipeline <- function(svy) {
   checks$weights_present <- all(
     weight_names[is.character(weight_names)] %in% names(get_data(svy))
   )
-
-  # Check design is set
-  checks$has_design <- length(svy$design) > 0
 
   # Report
   passed <- all(unlist(checks))

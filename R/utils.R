@@ -287,6 +287,12 @@ url_api_host <- function() {
 #' Get API Key
 #' @return API Key
 #' @keywords utils
+#' @examples
+#' \dontrun{
+#' # Retrieve the current API authentication payload
+#' auth <- get_api_key()
+#' print(auth$methodAuth)
+#' }
 #' @export
 
 get_api_key <- function() {
@@ -341,6 +347,10 @@ public_key <- function() {
 #' Set API Key
 #' @param api_key API Key
 #' @keywords utils
+#' @examples
+#' \dontrun{
+#' set_api_key("my-secret-key")
+#' }
 #' @export
 
 set_api_key <- function(api_key) {
@@ -349,8 +359,11 @@ set_api_key <- function(api_key) {
 
 
 #' Lazy processing
-#' @return Value
+#' @return Logical indicating the current lazy processing setting.
 #' @keywords utils
+#' @examples
+#' # Check current lazy processing default
+#' lazy_default()
 #' @export
 
 lazy_default <- function() {
@@ -358,8 +371,13 @@ lazy_default <- function() {
 }
 
 #' Set lazy processing
-#' @param lazy Lazy processing
+#' @param lazy Logical. If TRUE, steps are deferred until bake_steps() is called.
 #' @keywords utils
+#' @examples
+#' old <- lazy_default()
+#' set_lazy_processing(FALSE)
+#' lazy_default() # now FALSE
+#' set_lazy_processing(old) # restore
 #' @export
 
 set_lazy_processing <- function(lazy) {
@@ -372,9 +390,15 @@ set_lazy_processing <- function(lazy) {
 
 
 #' Extract time pattern
-#' @param svy_edition Survey edition
-#' @return List
+#' @param svy_edition Survey edition string (e.g. "2023", "2023-06", "2023_Q1").
+#' @return List with components: periodicity, year, month (when applicable).
 #' @keywords utils
+#' @examples
+#' # Annual edition
+#' extract_time_pattern("2023")
+#'
+#' # Monthly edition
+#' extract_time_pattern("2023-06")
 #' @export
 
 extract_time_pattern <- function(svy_edition) {
@@ -505,11 +529,13 @@ extract_time_pattern <- function(svy_edition) {
 
 
 #' Validate time pattern
-#' @param svy_edition Survey edition
-#' @param svy_type Survey type
-#' @return Logical
+#' @param svy_type Survey type (e.g. "ech").
+#' @param svy_edition Survey edition string (e.g. "2023", "2023-06").
+#' @return List with components: svy_type, svy_edition (parsed), svy_periodicity.
 #' @keywords utils
-#' @return List
+#' @examples
+#' validate_time_pattern(svy_type = "ech", svy_edition = "2023")
+#' validate_time_pattern(svy_type = "ech", svy_edition = "2023-06")
 #' @export
 
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
@@ -558,10 +584,14 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
 
 #' Group dates
-#' @param dates Dates
-#' @param type Type
-#' @return Group
+#' @param dates Vector of Date objects.
+#' @param type Grouping type: "monthly", "quarterly", or "biannual".
+#' @return Integer vector of group indices (e.g. 1-12 for monthly, 1-4 for quarterly).
 #' @keywords utils
+#' @examples
+#' dates <- as.Date(c("2023-01-15", "2023-04-20", "2023-07-10", "2023-11-05"))
+#' group_dates(dates, "quarterly")
+#' group_dates(dates, "biannual")
 #' @export
 
 group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
@@ -787,10 +817,14 @@ add_replicate <- function(
   return(replicate_list_clean)
 }
 
-#' Evaluate estimation with Coeficient of Variation
-#' @param cv Coeficient of Variation
-#' @return character
+#' Evaluate estimation with Coefficient of Variation
+#' @param cv Numeric coefficient of variation value.
+#' @return Character string with the quality category (e.g. "Excelente", "Bueno").
 #' @keywords utils
+#' @examples
+#' evaluate_cv(3)   # "Excelente"
+#' evaluate_cv(12)  # "Bueno"
+#' evaluate_cv(30)  # "Utilizar con precaucion"
 #' @export
 
 evaluate_cv <- function(cv) {

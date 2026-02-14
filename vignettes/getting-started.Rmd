@@ -12,298 +12,243 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
-```
-
-```{r setup}
-library(metasurvey)
-library(survey)
-library(magrittr)
-library(data.table)
 ```
 
 ## Introduction
 
-The `metasurvey` package provides a comprehensive framework for analyzing complex survey data using meta-programming techniques. This vignette introduces the core concepts and demonstrates how to get started with the package.
+**metasurvey** provides a unified framework for processing complex survey data
+in R. It wraps the `survey` package with an expressive pipeline of *steps*
+(transformations), *recipes* (reusable step collections), and *workflows*
+(statistical estimations), all powered by an Abstract Syntax Tree (AST) engine
+that validates dependencies and optimises expressions automatically.
 
-### Key Concepts
+Key features:
 
-**metasurvey** is built around several key concepts:
+- **Survey objects** encapsulate data, weights, and sample designs.
+- **Steps** (`step_compute`, `step_recode`, `step_rename`, `step_remove`,
+  `step_join`) transform data in a lazy, composable pipeline.
+- **Recipes** package steps for reuse and sharing.
+- **Workflows** run `survey::svymean`, `svytotal`, `svyratio`, or `svyby` and
+  return tidy `data.table` results with standard errors and CVs.
 
-- **Survey Objects**: Encapsulate survey data, weights, design, and processing steps
-- **Steps**: Individual data transformation operations that are reproducible and documentable
-- **Recipes**: Collections of steps that can be reused across surveys or time periods
-- **Workflows**: Estimation procedures that handle variance calculation and quality assessment
-- **Meta-programming**: Dynamic code generation based on survey metadata
+## Creating a Survey
 
-## Basic Survey Objects
+A `Survey` object holds your micro-data together with its edition, type,
+sampling design, and weight configuration.
 
-### Creating a Simple Survey
+```{r create-survey}
+library(metasurvey)
+library(data.table)
 
-The foundation of metasurvey is the `Survey` class, which wraps survey data along with metadata:
+set.seed(42)
+n <- 200
 
-```{r basic-survey}
-# Load example data (this would be your actual survey data)
-data("api", package = "survey")
-
-# Create a basic survey object
-basic_survey <- load_survey(
-  data = apistrat,
-  svy_edition = "2000",
-  svy_type = "api_example",
-  svy_weight = add_weight(stratum = "pw") # sampling weights
+dt <- data.table(
+  id       = 1:n,
+  age      = sample(18:80, n, replace = TRUE),
+  sex      = sample(c(1, 2), n, replace = TRUE),
+  income   = round(runif(n, 500, 8000)),
+  employed = sample(0:1, n, replace = TRUE),
+  region   = sample(1:5, n, replace = TRUE),
+  w        = round(runif(n, 0.5, 3.0), 4)
 )
 
-# View survey metadata
-print(basic_survey)
+svy <- Survey$new(
+  data    = dt,
+  edition = "2023",
+  type    = "ech",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "w")
+)
 ```
 
-### Survey Types and Editions
+`add_weight()` maps periodicity labels to weight column names. Here we define a
+single annual weight.
 
-Surveys are classified by type and edition to enable:
-- Consistent variable definitions across time
-- Automated quality checks
-- Recipe sharing between similar surveys
+You can inspect the survey at any time:
 
-```{r survey-metadata}
-# Access survey properties
-get_type(basic_survey) # Survey type
-get_edition(basic_survey) # Survey edition
-get_weight(basic_survey) # Weight configuration
+```{r inspect}
+head(get_data(svy), 3)
 ```
 
 ## Working with Steps
 
-Steps are the building blocks of survey processing. They document and execute data transformations.
+Steps are lazy by default: they are recorded but not applied until you call
+`bake_steps()`. This lets you build a full pipeline before executing anything.
 
-### Step Compute
+### Compute new variables
 
-Create new variables using `step_compute()`:
+`step_compute()` creates one or more new columns using R expressions. The AST
+engine detects which columns your expression depends on and validates they exist.
 
-```{r step-compute-example}
-# Create performance indicators
-api_with_indicators <- basic_survey %>%
-  step_compute(
-    high_performer = api00 > 700,
-    performance_category = case_when(
-      api00 >= 800 ~ "Excellent",
-      api00 >= 700 ~ "Good",
-      api00 >= 600 ~ "Average",
-      TRUE ~ "Below Average"
-    ),
-    comment = "Performance indicators based on API 2000 scores"
-  )
-
-# View the created variables
-head(api_with_indicators$data[, c("api00", "high_performer", "performance_category")])
+```{r step-compute}
+svy <- step_compute(svy,
+  income_thousands = income / 1000,
+  is_young         = ifelse(age < 30, 1L, 0L)
+)
 ```
 
-### Step Recode
+### Recode into categories
 
-Recode variables with multiple conditions:
+`step_recode()` creates categorical variables from conditions specified as
+formulas. Conditions are evaluated top-to-bottom; the first match wins.
 
-```{r step-recode-example}
-# Recode school type into simplified categories
-api_recoded <- api_with_indicators %>%
-  step_recode(
-    "school_category",
-    stype == "E" ~ "Elementary",
-    stype == "M" ~ "Middle",
-    stype == "H" ~ "High",
-    .default = "Other",
-    comment = "Simplified school type categories"
-  )
-
-# Check the recoding
-table(api_recoded$data$stype, api_recoded$data$school_category)
+```{r step-recode, eval = FALSE}
+svy <- step_recode(svy, age_group,
+  age < 30              ~ "Young",
+  age >= 30 & age < 60  ~ "Adult",
+  age >= 60             ~ "Senior",
+  .default = "Unknown"
+)
 ```
 
-### Chaining Steps
+### Rename and remove columns
 
-Steps can be chained together using the pipe operator:
+```{r step-rename-remove}
+svy <- step_rename(svy, gender = sex)
+svy <- step_remove(svy, region)
+```
 
-```{r chaining-steps}
-processed_api <- basic_survey %>%
-  step_compute(
-    api_growth = api00 - api99,
-    enrollment_category = cut(enroll,
-      breaks = c(0, 300, 600, Inf),
-      labels = c("Small", "Medium", "Large")
-    ),
-    comment = "Growth and enrollment indicators"
-  ) %>%
-  step_recode(
-    "high_growth",
-    api_growth > 50 ~ "High Growth",
-    api_growth > 0 ~ "Positive Growth",
-    api_growth == 0 ~ "No Change",
-    .default = "Decline",
-    comment = "Growth categories"
-  )
+### Join external data
 
-# View processing steps
-names(processed_api$steps)
+`step_join()` merges external lookup tables into your survey. Supported join
+types: `"left"`, `"inner"`, `"right"`, `"full"`.
+
+```{r step-join}
+regions <- data.table(
+  region = 1:5,
+  region_name = c("North", "South", "East", "West", "Central")
+)
+
+# Re-add region for the join (we removed it above, so let's start fresh)
+svy <- Survey$new(
+  data    = dt,
+  edition = "2023",
+  type    = "ech",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "w")
+)
+
+svy <- step_compute(svy, income_thousands = income / 1000)
+svy <- step_join(svy, regions, by = "region", type = "left")
 ```
 
 ## Baking Steps
 
-Before running estimations, steps need to be "baked" (applied to the data):
+Call `bake_steps()` to execute all pending transformations at once:
+```{r bake}
+svy <- bake_steps(svy)
+head(get_data(svy), 3)
+```
 
-```{r baking}
-# Apply all steps to the data
-baked_survey <- bake_steps(processed_api)
-
-# Verify new variables exist
-names(baked_survey$data)[grepl(
-  "api_growth|enrollment_category|high_growth",
-  names(baked_survey$data)
-)]
+You can inspect the recorded steps:
+```{r get-steps}
+length(get_steps(svy))
 ```
 
 ## Running Workflows
 
-Workflows execute estimation procedures with proper variance calculation:
+`workflow()` evaluates one or more `survey` package functions against your
+survey's design object and returns a tidy `data.table`.
 
-```{r workflows}
-# Run estimations using the survey package functions
-results <- workflow(
-  survey = list(baked_survey),
-  survey::svytotal(~high_performer),
-  survey::svymean(~api00),
-  survey::svymean(~api_growth),
-  estimation_type = "stratum" # corresponds to weight type
+**Important:** pass the survey inside a `list()`.
+
+```{r workflow-mean}
+result <- workflow(
+  list(svy),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-# View results
-print(results)
+result
 ```
 
-### Quality Assessment
+You can pass multiple estimations in a single call:
 
-Workflows automatically assess estimation quality:
-
-```{r quality}
-# Add quality evaluation
-results[, quality := sapply(cv, evaluate_cv)]
-
-# View quality assessment
-results[, .(stat, value, cv, quality)]
-```
-
-Quality categories:
-- **Excellent**: CV < 5%
-- **Very Good**: 5% ≤ CV < 10% 
-- **Good**: 10% ≤ CV < 15%
-- **Acceptable**: 15% ≤ CV < 25%
-- **Use with Caution**: 25% ≤ CV < 35%
-- **Do Not Publish**: CV ≥ 35%
-
-## Working with Recipes
-
-Recipes encapsulate reusable processing workflows:
-
-```{r recipes}
-# Create a recipe
-api_recipe <- recipe(
-  name = "API Performance Analysis",
-  user = "Survey Analyst",
-  svy = survey_empty(type = "api_example", edition = "2000"),
-  description = "Standard performance indicators for API surveys",
-  step_compute(
-    high_performer = api00 > 700,
-    api_growth = api00 - api99,
-    comment = "Core performance metrics"
-  ),
-  step_recode(
-    "performance_tier",
-    api00 >= 800 ~ "Top Tier",
-    api00 >= 650 ~ "High Performing",
-    .default = "Needs Improvement",
-    comment = "Performance tiers"
-  )
+```{r workflow-multi}
+result_multi <- workflow(
+  list(svy),
+  survey::svymean(~income, na.rm = TRUE),
+  survey::svytotal(~employed, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-# Apply recipe to survey
-survey_with_recipe <- basic_survey %>%
-  add_recipe(api_recipe) %>%
-  bake_recipes()
-
-# View recipe metadata
-cat_recipes(survey_with_recipe)
+result_multi
 ```
 
-## Advanced Features
+## Quality Assessment
 
-### Bootstrap Replicates
+The coefficient of variation (CV) measures estimation reliability.
+`evaluate_cv()` classifies it into quality categories:
 
-For robust variance estimation:
+| CV range | Category |
+|----------|----------|
+| < 5% | Excelente |
+| 5%--10% | Muy bueno |
+| 10%--15% | Bueno |
+| 15%--25% | Aceptable |
+| 25%--35% | Utilizar con precaucion |
+| >= 35% | No publicar |
 
-```{r bootstrap, eval=FALSE}
-# Add bootstrap replicate weights
-survey_with_bootstrap <- load_survey(
-  data = your_data,
-  svy_edition = "2023",
-  svy_type = "complex_survey",
-  svy_weight = add_weight(
-    annual = add_replicate(
-      weight_var = "main_weight",
-      replicate_path = "bootstrap_weights.csv",
-      replicate_pattern = "rep_[0-9]+",
-      replicate_type = "bootstrap"
-    )
-  )
-)
+```{r cv}
+evaluate_cv(result$cv[1] * 100)
 ```
 
-### Panel Surveys
+## Introduction to Recipes
 
-For longitudinal analysis:
+Recipes bundle a sequence of steps so you can apply the same transformations to
+different surveys or share them with collaborators.
 
-```{r panel, eval=FALSE}
-# Load panel survey data
-panel_survey <- load_panel_survey(
-  path_implantation = "implantation_data.csv",
-  path_follow_up = "follow_up_data/",
-  svy_type = "panel_survey",
-  svy_weight_implantation = add_weight(annual = "weight_imp"),
-  svy_weight_follow_up = add_weight(monthly = "weight_fu")
+```{r recipe-create}
+rec <- recipe(
+  name        = "labor_indicators",
+  user        = "analyst",
+  svy         = survey_empty(type = "ech", edition = "2023"),
+  description = "Standard labor force indicators"
 )
+
+class(rec)
+```
+
+Save a recipe to JSON:
+
+```{r recipe-save}
+tf <- tempfile(fileext = ".json")
+save_recipe(rec, tf)
+```
+
+To load a recipe from disk, use `read_recipe()`:
+
+```{r recipe-read, eval = FALSE}
+rec2 <- read_recipe("my_recipe.json")
+```
+
+## Configuration
+
+metasurvey provides global settings you can adjust:
+
+```{r config}
+# Current lazy-processing setting
+lazy_default()
+
+# Current data-copy setting
+use_copy_default()
+
+# Available engines
+show_engines()
 ```
 
 ## Next Steps
 
-Now that you understand the basics:
-
-1. **Explore Complex Surveys**: See the "Working with Complex Survey Designs" vignette
-2. **Learn Panel Analysis**: Check the "Panel Survey Analysis" vignette  
-3. **Master Recipes**: Read the "Creating and Using Recipes" vignette
-4. **Advanced Workflows**: Study the "Advanced Workflow Techniques" vignette
-
-## Best Practices
-
-### Documentation
-- Always add meaningful comments to your steps
-- Use descriptive names for variables and recipes
-- Document data sources and methodology
-
-### Reproducibility  
-- Save recipes for reuse across time periods
-- Use consistent variable naming conventions
-- Version control your analysis scripts
-
-### Quality Control
-- Always check coefficient of variation for estimates
-- Validate step results before proceeding
-- Test recipes on subset data first
-
-### Performance
-- Bake steps only when needed
-- Use appropriate survey designs for your data structure
-- Consider computational resources for large bootstrap samples
-
-```{r cleanup, include=FALSE}
-# Clean up
-rm(list = ls())
-```
+- **[Panel Survey Analysis](panel-analysis.html)** -- rotative panels,
+  PoolSurvey, extract_surveys.
+- **[Creating and Using Recipes](recipes.html)** -- advanced recipe workflows.
+- **[Complex Survey Designs](complex-designs.html)** -- stratification,
+  replicates, domain estimation.
+- **[ECH Case Study](ech-case-study.html)** -- real-world analysis of
+  Uruguay's household survey.
+- **[Testing Workflows](testing-workflows.html)** -- validation strategies.

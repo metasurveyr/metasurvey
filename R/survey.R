@@ -329,7 +329,12 @@ Survey <- R6Class(
 #' @description Convert survey to data.frame
 #' @keywords Surveymethods
 #' @param svy Survey object
-
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' df <- survey_to_data_frame(svy)
+#' class(df) # "data.frame"
 #' @export
 #' @return data.frame
 survey_to_data_frame <- function(svy) {
@@ -340,9 +345,16 @@ survey_to_data_frame <- function(svy) {
 #' @keywords Surveymethods
 #' @description Convert survey to tibble
 #' @param svy Survey object
+#' @examples
+#' \dontrun{
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' tbl <- survey_to_tibble(svy)
+#' class(tbl)
+#' }
 #' @export
 #' @return tibble
-
 
 survey_to_tibble <- function(svy) {
   tibble::as_tibble(svy$get_data())
@@ -352,11 +364,15 @@ survey_to_tibble <- function(svy) {
 #' @keywords Surveymethods
 #' @description Convert survey to data.table
 #' @param svy Survey object
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' result <- survey_to_data.table(svy)
+#' data.table::is.data.table(result) # TRUE
 #' @export
-
 #' @importFrom data.table data.table
 #' @return data.table
-#'
 
 survey_to_data.table <- function(svy) {
   data.table::data.table(svy$get_data())
@@ -366,9 +382,13 @@ survey_to_data.table <- function(svy) {
 #' @description Get data from survey
 #' @param svy Survey object
 #' @keywords Surveymethods
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' head(get_data(svy))
 #' @export
 #' @return Data
-#'
 
 get_data <- function(svy) {
   svy$get_data()
@@ -473,6 +493,11 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @keywords Surveymethods
 #' @importFrom glue glue glue_col
 #' @param self Object of class Survey
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' get_metadata(svy)
 #' @export
 
 get_metadata <- function(self) {
@@ -733,9 +758,13 @@ cat_design <- function(self) {
 #' @keywords Surveymethods
 #' @param self Object of class Survey
 #' @param design_name Name of design
+#' @return Character string describing the design type, or "None".
+#' @examples
+#' \dontrun{
+#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' cat_design_type(svy, "annual")
+#' }
 #' @export
-#'
-#'
 
 cat_design_type <- function(self, design_name) {
   design_engine <- list(
@@ -784,8 +813,13 @@ cat_design_type <- function(self, design_name) {
 #' @description Cast recipes from survey
 #' @keywords Surveymethods
 #' @param self Object of class Survey
+#' @return Character string listing recipe names, or "None".
+#' @examples
+#' \dontrun{
+#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' cat_recipes(svy)
+#' }
 #' @export
-#'
 
 cat_recipes <- function(self) {
   if (is.null(self$recipes) || length(self$recipes) == 0) {
@@ -827,8 +861,14 @@ cat_recipes <- function(self) {
 #' @param svy Survey object
 #' @keywords Survey methods
 #' @keywords Steps
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- step_compute(svy, age2 = age * 2)
+#' get_steps(svy) # list of Step objects
 #' @export
-#' @return List
+#' @return List of Step objects
 
 get_steps <- function(svy) {
   svy$steps
@@ -841,10 +881,13 @@ get_steps <- function(svy) {
 #' @param type Type of survey
 #' @param weight Weight of survey
 #' @param engine Engine of survey
+#' @examples
+#' \dontrun{
+#' empty <- survey_empty()
+#' empty_typed <- survey_empty(edition = "2023", type = "ech")
+#' }
 #' @export
-
 #' @return Survey object
-#'
 
 survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL) {
   Survey$new(
@@ -860,8 +903,14 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
 #' Bake recipes
 #' @param svy Survey object
 #' @keywords Surveymethods
+#' @examples
+#' \dontrun{
+#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023",
+#'   recipes = my_recipe)
+#' processed <- bake_recipes(svy)
+#' }
 #' @export
-#' @return Survey object
+#' @return Survey object with all recipes applied
 bake_recipes <- function(svy) {
   recipes <- svy$recipes
 

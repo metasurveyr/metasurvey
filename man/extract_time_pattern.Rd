@@ -7,12 +7,19 @@
 extract_time_pattern(svy_edition)
 }
 \arguments{
-\item{svy_edition}{Survey edition}
+\item{svy_edition}{Survey edition string (e.g. "2023", "2023-06", "2023_Q1").}
 }
 \value{
-List
+List with components: periodicity, year, month (when applicable).
 }
 \description{
 Extract time pattern
+}
+\examples{
+# Annual edition
+extract_time_pattern("2023")
+
+# Monthly edition
+extract_time_pattern("2023-06")
 }
 \keyword{utils}
