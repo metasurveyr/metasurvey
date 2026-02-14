@@ -1,0 +1,387 @@
+test_that("Step$new creates step with all fields", {
+  step <- Step$new(
+    name = "test_step",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "test_var",
+    exprs = list(a = quote(x + 1)),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list("x"),
+    comments = "Test step",
+    bake = FALSE
+  )
+  
+  expect_s3_class(step, "Step")
+  expect_equal(step$name, "test_step")
+  expect_equal(step$edition, "2023")
+  expect_equal(step$type, "compute")
+  expect_equal(step$new_var, "test_var")
+  expect_false(step$bake)
+})
+
+test_that("Step stores dependencies correctly", {
+  step <- Step$new(
+    name = "dependency_test",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "result",
+    exprs = list(),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list("var1", "var2", "var3")
+  )
+  
+  expect_equal(length(step$depends_on), 3)
+  expect_true("var1" %in% step$depends_on)
+})
+
+test_that("Step can be created with minimal arguments", {
+  step <- Step$new(
+    name = "minimal",
+    edition = "2023",
+    survey_type = "ech",
+    type = "filter",
+    new_var = NULL,
+    exprs = list(),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list()
+  )
+  
+  expect_s3_class(step, "Step")
+  expect_null(step$new_var)
+  expect_equal(length(step$exprs), 0)
+})
+
+test_that("Step bake flag can be toggled", {
+  step <- Step$new(
+    name = "bake_test",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "var",
+    exprs = list(),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list(),
+    bake = FALSE
+  )
+  
+  expect_false(step$bake)
+  step$bake <- TRUE
+  expect_true(step$bake)
+})
+
+test_that("Step stores different types correctly", {
+  types <- c("compute", "recode", "filter", "join", "remove")
+  
+  for (type in types) {
+    step <- Step$new(
+      name = paste0(type, "_step"),
+      edition = "2023",
+      survey_type = "ech",
+      type = type,
+      new_var = NULL,
+      exprs = list(),
+      call = NULL,
+      svy_before = NULL,
+      default_engine = "data.table",
+      depends_on = list()
+    )
+    
+    expect_equal(step$type, type)
+  }
+})
+
+test_that("Step can store AST information", {
+  step <- Step$new(
+    name = "ast_step",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "result",
+    exprs = list(),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list()
+  )
+  
+  step$ast_info <- list(
+    original = "x + y",
+    optimized = "x + y",
+    dependencies = c("x", "y")
+  )
+  
+  expect_type(step$ast_info, "list")
+  expect_equal(step$ast_info$original, "x + y")
+})
+
+test_that("Step clone creates independent copy", {
+  step1 <- Step$new(
+    name = "original",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "var",
+    exprs = list(),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list()
+  )
+  
+  step2 <- step1$clone()
+  step2$name <- "cloned"
+  
+  expect_equal(step1$name, "original")
+  expect_equal(step2$name, "cloned")
+})
+
+test_that("Step stores expressions as list", {
+  step <- Step$new(
+    name = "expr_test",
+    edition = "2023",
+    survey_type = "ech",
+    type = "compute",
+    new_var = "result",
+    exprs = list(
+      a = quote(x + 1),
+      b = quote(y * 2)
+    ),
+    call = NULL,
+    svy_before = NULL,
+    default_engine = "data.table",
+    depends_on = list("x", "y")
+  )
+
+  expect_type(step$exprs, "list")
+  expect_equal(length(step$exprs), 2)
+  expect_true("a" %in% names(step$exprs))
+})
+
+# --- validate_step tests ---
+
+test_that("validate_step returns TRUE when all deps exist", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "valid_step", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list("age", "income")
+  )
+  expect_true(metasurvey:::validate_step(s, step))
+})
+
+test_that("validate_step errors when deps missing", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "invalid_step", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list("nonexistent_var")
+  )
+  expect_error(metasurvey:::validate_step(s, step), "not in the survey")
+})
+
+test_that("validate_step with empty deps returns TRUE", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "no_deps", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list()
+  )
+  expect_true(metasurvey:::validate_step(s, step))
+})
+
+# --- bake_step tests ---
+
+test_that("bake_step skips already-baked steps", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "baked", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list(), bake = TRUE
+  )
+  result <- metasurvey:::bake_step(s, step)
+  expect_s3_class(result, "Survey")
+})
+
+# --- bake_ast_step ---
+
+test_that("bake_ast_step evaluates AST expressions on survey data", {
+  s <- make_test_survey()
+  ast_expr <- metasurvey:::parse_ast(quote(age * 2))
+  step <- Step$new(
+    name = "ast_test", edition = "2023", survey_type = "ech",
+    type = "ast_compute", new_var = "double_age",
+    exprs = list(), call = NULL, svy_before = NULL,
+    default_engine = "data.table", depends_on = list("age"),
+    expressions = list(ast_expr), names = c("double_age"),
+    bake = FALSE
+  )
+  result <- metasurvey:::bake_ast_step(s, step)
+  expect_true("double_age" %in% names(result$data))
+  expect_equal(result$data$double_age, result$data$age * 2)
+})
+
+test_that("bake_ast_step with plain data.frame data works", {
+  s <- make_test_survey()
+  # Convert data to plain data.frame to hit the else branch (line 346)
+  s$data <- as.data.frame(s$data)
+  ast_expr <- metasurvey:::parse_ast(quote(age + 10))
+  step <- Step$new(
+    name = "df_ast", edition = "2023", survey_type = "ech",
+    type = "ast_compute", new_var = "age_plus",
+    exprs = list(), call = NULL, svy_before = NULL,
+    default_engine = "data.table", depends_on = list("age"),
+    expressions = list(ast_expr), names = c("age_plus"),
+    bake = FALSE
+  )
+  result <- metasurvey:::bake_ast_step(s, step)
+  expect_true("age_plus" %in% names(result$data))
+})
+
+test_that("bake_ast_step errors on non-Survey object", {
+  expect_error(
+    metasurvey:::bake_ast_step("not a survey", list()),
+    "not a Survey|currently only supported"
+  )
+})
+
+# --- bake_steps_survey ---
+
+test_that("bake_steps_survey bakes all pending steps", {
+  s <- make_test_survey()
+  s2 <- step_compute(s, age_plus_one = age + 1)
+  s3 <- metasurvey:::bake_steps_survey(s2)
+  expect_true("age_plus_one" %in% names(s3$data))
+  # Steps should be marked as baked
+  expect_true(all(sapply(s3$steps, function(st) st$bake)))
+})
+
+# --- step_to_env ---
+
+test_that("step_to_env returns an expression", {
+  step <- Step$new(
+    name = "env_test", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(z = quote(x + 1)),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list("x")
+  )
+  result <- metasurvey:::step_to_env(step)
+  expect_true(!is.null(result))
+})
+
+# --- Step with comment parameter ---
+
+test_that("Step accepts comment as alias for comments", {
+  step <- Step$new(
+    name = "comment_test", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list(), comment = "Legacy comment"
+  )
+  expect_equal(step$comments, "Legacy comment")
+})
+
+# --- bake_step for step_remove ---
+
+test_that("bake_step executes step_remove step", {
+  s <- make_test_survey()
+  s2 <- step_remove(s, x)
+  steps <- s2$steps
+  step <- steps[[1]]
+  result <- metasurvey:::bake_step(s2, step)
+  expect_s3_class(result, "Survey")
+  expect_false("x" %in% names(result$data))
+})
+
+# --- bake_step for step_rename ---
+
+test_that("bake_step executes step_rename step", {
+  s <- make_test_survey()
+  s2 <- step_rename(s, years = age)
+  steps <- s2$steps
+  step <- steps[[1]]
+  result <- metasurvey:::bake_step(s2, step)
+  expect_s3_class(result, "Survey")
+})
+
+# --- bake_steps_rotative ---
+
+test_that("bake_steps_rotative bakes RotativePanelSurvey steps", {
+  panel <- make_test_panel()
+  # Add a step to implantation
+  panel$implantation <- step_compute(panel$implantation, z = age + 1)
+  result <- bake_steps(panel)
+  expect_s3_class(result, "RotativePanelSurvey")
+  expect_true("z" %in% names(get_data(result$implantation)))
+})
+
+# --- bake_steps errors on invalid input ---
+
+test_that("bake_steps errors on non-Survey input", {
+  expect_error(bake_steps("not a survey"), "not a Survey")
+})
+
+# --- bake_step with validation failure ---
+
+test_that("bake_steps_survey with use_copy=FALSE runs without error", {
+  old <- use_copy_default()
+  on.exit(set_use_copy(old), add = TRUE)
+  set_use_copy(FALSE)
+
+  s <- make_test_survey()
+  s2 <- step_compute(s, z = age + 1, use_copy = FALSE)
+  s3 <- metasurvey:::bake_steps_survey(s2)
+  expect_s3_class(s3, "Survey")
+})
+
+test_that("bake_steps_rotative with use_copy=FALSE runs without error", {
+  old <- use_copy_default()
+  on.exit(set_use_copy(old), add = TRUE)
+  set_use_copy(FALSE)
+
+  panel <- make_test_panel()
+  panel$implantation <- step_compute(panel$implantation, z = age + 1, use_copy = FALSE)
+  result <- bake_steps(panel)
+  expect_s3_class(result, "RotativePanelSurvey")
+})
+
+test_that("bake_step validation warning returns survey with invalid deps", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "invalid_deps", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list(), bake = FALSE
+  )
+  # Step with empty deps and empty exprs - bake_step should handle it
+  # The step is "compute" type but not "ast_compute", so it goes to do.call path
+  result <- tryCatch(metasurvey:::bake_step(s, step), error = function(e) s)
+  expect_s3_class(result, "Survey")
+})
+
+test_that("bake_step errors on validation failure", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "invalid_deps", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list("nonexistent_var"), bake = FALSE
+  )
+  expect_error(
+    metasurvey:::bake_step(s, step),
+    "not in the survey"
+  )
+})

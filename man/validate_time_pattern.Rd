@@ -7,16 +7,18 @@
 validate_time_pattern(svy_type = NULL, svy_edition = NULL)
 }
 \arguments{
-\item{svy_type}{Survey type}
+\item{svy_type}{Survey type (e.g. "ech").}
 
-\item{svy_edition}{Survey edition}
+\item{svy_edition}{Survey edition string (e.g. "2023", "2023-06").}
 }
 \value{
-Logical
-
-List
+List with components: svy_type, svy_edition (parsed), svy_periodicity.
 }
 \description{
 Validate time pattern
+}
+\examples{
+validate_time_pattern(svy_type = "ech", svy_edition = "2023")
+validate_time_pattern(svy_type = "ech", svy_edition = "2023-06")
 }
 \keyword{utils}

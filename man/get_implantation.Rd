@@ -47,7 +47,7 @@ Esta función es esencial para análisis que requieren:
 \dontrun{
 # Cargar panel rotativo de ECH
 panel_ech <- load_panel_survey(
-  path = "ech_panel_2023.dta", 
+  path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )

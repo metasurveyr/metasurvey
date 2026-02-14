@@ -7,14 +7,19 @@
 group_dates(dates, type = c("monthly", "quarterly", "biannual"))
 }
 \arguments{
-\item{dates}{Dates}
+\item{dates}{Vector of Date objects.}
 
-\item{type}{Type}
+\item{type}{Grouping type: "monthly", "quarterly", or "biannual".}
 }
 \value{
-Group
+Integer vector of group indices (e.g. 1-12 for monthly, 1-4 for quarterly).
 }
 \description{
 Group dates
+}
+\examples{
+dates <- as.Date(c("2023-01-15", "2023-04-20", "2023-07-10", "2023-11-05"))
+group_dates(dates, "quarterly")
+group_dates(dates, "biannual")
 }
 \keyword{utils}

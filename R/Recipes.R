@@ -4,7 +4,8 @@
 #' surveys. It encapsulates metadata, declared dependencies, and a list of
 #' transformation steps to be applied to a Survey object.
 #'
-#' @name Recipe
+#' @name Recipe-class
+#' @aliases Recipe
 #' @docType class
 #' @format An R6 class generator (R6ClassGenerator)
 #'
@@ -524,8 +525,17 @@ get_recipe <- function(
 #' @keywords Steps
 #' @keywords Survey methods
 #' @return A Recipe object
-#' @keywords Survey methods
 #' @keywords Recipes
+#' @examples
+#' \dontrun{
+#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
+#' my_recipe <- steps_to_recipe(
+#'   name = "employment", user = "analyst",
+#'   svy = svy, description = "Employment indicators",
+#'   steps = get_steps(svy)
+#' )
+#' }
 #' @export
 
 steps_to_recipe <- function(

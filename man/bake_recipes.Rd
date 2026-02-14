@@ -10,9 +10,16 @@ bake_recipes(svy)
 \item{svy}{Survey object}
 }
 \value{
-Survey object
+Survey object with all recipes applied
 }
 \description{
 Bake recipes
+}
+\examples{
+\dontrun{
+svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023",
+  recipes = my_recipe)
+processed <- bake_recipes(svy)
+}
 }
 \keyword{Surveymethods}

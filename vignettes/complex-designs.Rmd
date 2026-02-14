@@ -1,0 +1,259 @@
+---
+title: "Working with Complex Survey Designs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with Complex Survey Designs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(metasurvey)
+library(survey)
+library(data.table)
+```
+
+## Introduction
+
+Complex survey designs require special handling for proper variance estimation.
+This vignette demonstrates how to work with various survey designs using
+metasurvey, including stratified sampling, clustering, and replicate weights.
+
+## Types of Survey Designs
+
+### Simple Random Sampling with Weights
+
+The simplest design uses probability weights without clustering or
+stratification:
+
+```{r simple}
+data("apistrat", package = "survey")
+dt <- data.table(apistrat)
+
+svy <- Survey$new(
+  data = dt,
+  edition = "2000",
+  type = "api",
+  psu = NULL,
+  engine = "data.table",
+  weight = add_weight(annual = "pw")
+)
+
+# View design details
+cat_design(svy)
+```
+
+### Loading from Files
+
+For real-world data stored in files, use `load_survey()`:
+
+```{r load-from-file}
+# Load from a CSV or Stata file
+svy_from_file <- load_survey(
+  path = "data/survey_2023.csv",
+  svy_type = "my_survey",
+  svy_edition = "2023",
+  svy_weight = add_weight(annual = "pw"),
+  svy_psu = ~1
+)
+```
+
+## Bootstrap Replicate Weights
+
+Bootstrap replicates provide robust variance estimation for complex designs:
+
+```{r bootstrap-setup}
+# Create survey with replicate weights loaded from a separate file
+bootstrap_survey <- load_survey(
+  path = "data/main_survey.csv",
+  svy_type = "national_survey",
+  svy_edition = "2023",
+  svy_weight = add_weight(
+    annual = add_replicate(
+      weight_var = "pw",
+      replicate_path = "data/bootstrap_replicates.csv",
+      replicate_id = c("respondent_id" = "id"),
+      replicate_pattern = "bsrep[0-9]+",
+      replicate_type = "bootstrap"
+    )
+  )
+)
+
+# View replicate information
+cat_design_type(bootstrap_survey, "annual")
+```
+
+## Working with Multiple Weight Types
+
+Many surveys provide different weights for different analysis purposes:
+
+```{r multiple-weights}
+# Survey with multiple weight options (e.g. ECH Uruguay)
+multi_weight_survey <- load_survey(
+  path = "data/ech_2023.csv",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(
+    annual = "pesoano",
+    monthly = "pesomes"
+  )
+)
+
+# Access different designs by estimation_type in workflow()
+annual_result <- workflow(
+  list(multi_weight_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+monthly_result <- workflow(
+  list(multi_weight_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "monthly"
+)
+```
+
+## Variance Estimation Methods
+
+### Design-Based Variance
+
+Standard design-based variance estimation using `workflow()`:
+
+```{r design-variance}
+results <- workflow(
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
+  survey::svytotal(~enroll, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+results[, .(stat, value, se)]
+```
+
+### Replicate-Based Variance
+
+When replicate weights are available, metasurvey uses them automatically:
+
+```{r replicate-variance}
+# workflow() detects the replicate design and uses it for variance estimation
+results_rep <- workflow(
+  list(bootstrap_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+results_rep[, .(stat, value, se)]
+```
+
+## Domain Estimation
+
+Estimating for subgroups (domains) of the population using `survey::svyby()`:
+
+```{r domains}
+# Compute domain indicators first
+svy_with_domain <- step_compute(svy,
+  large_school = ifelse(enroll >= 600, 1L, 0L)
+)
+svy_with_domain <- bake_steps(svy_with_domain)
+
+# Estimate by domains using svyby
+domain_results <- workflow(
+  list(svy_with_domain),
+  survey::svyby(~api00, ~stype, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+print(domain_results)
+```
+
+## Complex Estimation Procedures
+
+### Ratios
+
+```{r ratios}
+# Calculate ratios between variables
+ratio_results <- workflow(
+  list(svy),
+  survey::svyratio(~api00, ~api99),
+  estimation_type = "annual"
+)
+
+print(ratio_results)
+```
+
+### Regression Models
+
+Survey-weighted regression models can be fit using the survey design object
+directly:
+
+```{r regression}
+# Compute derived variables
+svy_reg <- step_compute(svy,
+  api_change = api00 - api99,
+  enrollment_log = log(enroll)
+)
+svy_reg <- bake_steps(svy_reg)
+
+# Access the design object for regression
+model_fit <- survey::svyglm(
+  api00 ~ api99 + enroll,
+  design = svy_reg$design$annual
+)
+
+summary(model_fit)
+```
+
+## Quality Assessment
+
+### Design Effects
+
+Understanding the impact of complex design on variance:
+
+```{r design-effects}
+# Compare estimates from the survey design
+results <- workflow(
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Evaluate coefficient of variation (expects percentage)
+evaluate_cv(results$cv[1] * 100)
+```
+
+## Best Practices for Complex Designs
+
+1. **Always use appropriate weights** -- never compute unweighted statistics
+   from survey data.
+2. **Check design effects** -- high design effects (>2) indicate substantial
+   clustering or stratification impact on variance.
+3. **Use replicate weights when available** -- they provide more robust
+   variance estimates for complex procedures.
+4. **Ensure adequate domain sample sizes** -- consider combining small
+   domains when CVs are too high.
+5. **Document your design** -- include the survey design specification,
+   weight construction details, and variance estimation method.
+
+## Troubleshooting Common Issues
+
+### Singular Variance Matrices
+This can happen with small domains or insufficient variation. Consider
+combining categories or using a different variance estimation approach.
+
+### Memory Issues with Large Bootstrap Samples
+For large datasets with many replicates, consider using fewer replicates
+for preliminary analysis or processing in chunks.
+
+### Negative Variance Estimates
+Rare but possible with some complex designs. May indicate model
+misspecification or extreme values in the data.
