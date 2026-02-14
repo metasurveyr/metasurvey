@@ -2,17 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{evaluate_cv}
 \alias{evaluate_cv}
-\title{Evaluate estimation with Coeficient of Variation}
+\title{Evaluate estimation with Coefficient of Variation}
 \usage{
 evaluate_cv(cv)
 }
 \arguments{
-\item{cv}{Coeficient of Variation}
+\item{cv}{Numeric coefficient of variation value.}
 }
 \value{
-character
+Character string with the quality category (e.g. "Excelente", "Bueno").
 }
 \description{
-Evaluate estimation with Coeficient of Variation
+Evaluate estimation with Coefficient of Variation
+}
+\examples{
+evaluate_cv(3)   # "Excelente"
+evaluate_cv(12)  # "Bueno"
+evaluate_cv(30)  # "Utilizar con precaucion"
 }
 \keyword{utils}

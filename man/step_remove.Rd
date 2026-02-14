@@ -29,6 +29,17 @@ step_remove(
 
 \item{record}{Logical, whether to record the step.}
 }
+\value{
+Survey object with the specified variables removed (or queued for removal).
+}
 \description{
 Creates a step that removes one or more variables from the survey data when baked.
+}
+\examples{
+dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+svy <- Survey$new(data = dt, edition = "2023", type = "ech",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy2 <- step_remove(svy, age)
+svy2 <- bake_steps(svy2)
+"age" \%in\% names(get_data(svy2)) # FALSE
 }

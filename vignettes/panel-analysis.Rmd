@@ -12,557 +12,195 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
-```
-
-```{r setup}
-library(metasurvey)
-library(survey)
-library(magrittr)
-library(data.table)
-library(ggplot2)
 ```
 
 ## Introduction
 
-Panel surveys follow the same respondents over time, providing rich data for analyzing change and trends. The `metasurvey` package provides specialized tools for working with rotative panel surveys, which are common in official statistics.
+Many national household surveys use **rotative panel designs**, where a sample
+of respondents is interviewed in an initial wave (*implantation*) and then
+followed up over successive periods. metasurvey provides two classes for this
+setting:
+- `RotativePanelSurvey` -- a panel with an implantation survey and a list of
+  follow-up surveys.
+- `PoolSurvey` -- a collection of surveys pooled together for combined
+  estimation.
 
-This vignette demonstrates:
-- Loading and structuring panel survey data
-- Working with implantation and follow-up periods
-- Handling different weight structures for different time periods
-- Analyzing transitions and changes over time
-- Managing complex variance estimation with panel data
+## Creating a RotativePanelSurvey
 
-## Understanding Rotative Panel Surveys
+A `RotativePanelSurvey` requires an implantation `Survey` and one or more
+follow-up `Survey` objects. Each component survey must have its `periodicity`
+field set.
 
-Rotative panel surveys have two main components:
+```{r create-panel}
+library(metasurvey)
+library(data.table)
 
-1. **Implantation**: Initial interviews establishing the panel
-2. **Follow-up**: Subsequent interviews tracking changes
+set.seed(42)
+n <- 100
 
-The Uruguayan ECH (Encuesta Continua de Hogares) is a typical example with quarterly implantation and monthly follow-ups.
-
-## Loading Panel Survey Data
-
-### Basic Panel Structure
-
-```{r basic-panel}
-# Example directory structure for panel data
-# ech_2023/
-#   ├── ECH_implantacion_2023.csv
-#   └── seguimiento/
-#       ├── ECH_2023_01.csv
-#       ├── ECH_2023_02.csv
-#       ├── ...
-#       └── ECH_2023_12.csv
-
-# Load panel survey with different weights for each component
-panel_survey <- load_panel_survey(
-  path_implantation = "data/ECH_implantacion_2023.csv",
-  path_follow_up = "data/seguimiento/",
-  svy_type = "ECH_2023",
-  svy_weight_implantation = add_weight(
-    annual = "W_ANO" # annual weights for cross-sectional analysis
-  ),
-  svy_weight_follow_up = add_weight(
-    monthly = "W" # monthly weights for timely estimates
+make_survey <- function(edition) {
+  dt <- data.table(
+    id       = 1:n,
+    age      = sample(18:80, n, replace = TRUE),
+    income   = round(runif(n, 500, 8000)),
+    employed = sample(0:1, n, replace = TRUE),
+    w        = round(runif(n, 0.5, 3.0), 4)
   )
-)
-
-# Examine panel structure
-print(panel_survey)
-```
-
-### Panel with Bootstrap Replicates
-
-For robust variance estimation, especially important with panel data:
-
-```{r panel-bootstrap}
-panel_with_bootstrap <- load_panel_survey(
-  path_implantation = "data/ECH_implantacion_2023.csv",
-  path_follow_up = "data/seguimiento/",
-  svy_type = "ECH_2023",
-  svy_weight_implantation = add_weight(
-    annual = add_replicate(
-      "W_ANO",
-      replicate_path = "data/bootstrap_annual_2023.csv",
-      replicate_id = c("ID" = "ID"),
-      replicate_pattern = "wr[0-9]+",
-      replicate_type = "bootstrap"
-    )
-  ),
-  svy_weight_follow_up = add_weight(
-    monthly = add_replicate(
-      "W",
-      replicate_path = c(
-        "data/bootstrap_monthly_jan_jun_2023.csv",
-        "data/bootstrap_monthly_jul_dec_2023.csv"
-      ),
-      replicate_id = c("ID" = "ID"),
-      replicate_pattern = "wr[0-9]+",
-      replicate_type = "bootstrap"
-    )
+  svy <- Survey$new(
+    data = dt, edition = edition, type = "ech",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
   )
+  svy$periodicity <- "monthly"
+  svy
+}
+
+# Implantation: January 2023
+impl <- make_survey("2023-01-01")
+
+# Follow-ups: February and March 2023
+fu_feb <- make_survey("2023-02-01")
+fu_mar <- make_survey("2023-03-01")
+
+panel <- RotativePanelSurvey$new(
+  implantation   = impl,
+  follow_up      = list(fu_feb, fu_mar),
+  type           = "ech",
+  default_engine = "data.table",
+  steps          = list(),
+  recipes        = list(),
+  workflows      = list(),
+  design         = NULL
 )
 ```
 
-## Working with Panel Data Levels
+## Accessing Panel Components
 
-Panel surveys require specifying which level of data to use for each operation:
+Use `get_implantation()` and `get_follow_up()` to retrieve the individual
+surveys:
 
-### Level-Specific Operations
+```{r access-panel}
+# Implantation survey
+imp <- get_implantation(panel)
+class(imp)
+head(get_data(imp), 3)
 
-```{r level-operations}
-# Create variables for different analysis levels
-processed_panel <- panel_survey %>%
-  # Annual variables (implantation level)
-  step_recode(
-    "education_level",
-    years_education >= 16 ~ "University",
-    years_education >= 12 ~ "Secondary",
-    years_education >= 6 ~ "Primary",
-    .default = "Less than Primary",
-    comment = "Educational attainment categories",
-    .level = "implantation" # only available in implantation
-  ) %>%
-  # Monthly labor force variables (follow-up level)
-  step_recode(
-    "employed",
-    employment_status == 1 ~ 1,
-    .default = 0,
-    comment = "Employment indicator",
-    .level = "follow_up" # available in all follow-up periods
-  ) %>%
-  step_recode(
-    "unemployed",
-    employment_status == 2 ~ 1,
-    .default = 0,
-    comment = "Unemployment indicator",
-    .level = "follow_up"
-  ) %>%
-  # Computed variables
-  step_compute(
-    labor_force = employed + unemployed,
-    unemployment_rate = unemployed / labor_force,
-    comment = "Labor force indicators",
-    .level = "follow_up"
-  )
-
-# View processing steps by level
-processed_panel$get_steps()
+# Follow-up surveys
+follow_ups <- get_follow_up(panel)
+length(follow_ups)
 ```
 
-### Auto-Level Detection
+## Working with Panel Data
 
-The package can automatically determine the appropriate level:
+You can apply transformations directly on the component surveys. For example,
+compute a derived variable on the implantation:
 
-```{r auto-level}
-# Using .level = "auto" (default)
-auto_processed <- panel_survey %>%
-  step_compute(
-    # Available in both levels - applied to both
-    age_squared = age^2,
-    comment = "Age squared for modeling",
-    .level = "auto"
-  ) %>%
-  step_recode(
-    "adult",
-    age >= 18 ~ 1,
-    .default = 0,
-    comment = "Adult indicator",
-    .level = "auto" # applied to appropriate level(s)
-  )
+```{r panel-compute}
+panel$implantation <- step_compute(panel$implantation,
+  income_k = income / 1000
+)
+panel$implantation <- bake_steps(panel$implantation)
+
+head(get_data(panel$implantation)[, .(id, income, income_k)], 3)
 ```
 
-## Panel Data Analysis Patterns
+Apply the same transformation to each follow-up:
 
-### Cross-Sectional Analysis
+```{r panel-follow-up}
+panel$follow_up <- lapply(panel$follow_up, function(svy) {
+  svy <- step_compute(svy, income_k = income / 1000)
+  bake_steps(svy)
+})
 
-Using implantation data for annual estimates:
+head(get_data(panel$follow_up[[1]])[, .(id, income, income_k)], 3)
+```
 
-```{r cross-sectional}
-# Apply steps and analyze implantation data
-baked_panel <- bake_steps(processed_panel)
+## Running Estimations
 
-# Annual cross-sectional estimates
-annual_results <- workflow(
-  survey = list(baked_panel$implantation),
-  survey::svymean(~education_level, na.rm = TRUE),
-  survey::svytotal(~adult),
+Use `workflow()` on individual panel components for cross-sectional or time
+series analysis.
+
+### Cross-sectional analysis (implantation)
+
+```{r workflow-impl}
+result_impl <- workflow(
+  list(panel$implantation),
+  survey::svymean(~income, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-print(annual_results)
+result_impl
 ```
 
-### Time Series Analysis
+### Comparing across follow-ups
 
-Using follow-up data for monthly trends:
-
-```{r time-series}
-# Extract monthly surveys for time series
-monthly_surveys <- extract_surveys(baked_panel, monthly = 1:12)
-
-# Monthly labor force estimates
-monthly_results <- workflow(
-  survey = monthly_surveys,
-  survey::svymean(~unemployment_rate, na.rm = TRUE),
-  survey::svytotal(~employed),
-  survey::svytotal(~unemployed),
-  estimation_type = "monthly"
-)
-
-# Add time identifiers
-monthly_results[, month := rep(1:12, each = .N / 12)]
-
-# Plot unemployment rate over time
-unemployment_trend <- monthly_results[stat == "unemployment_rate"]
-
-ggplot(unemployment_trend, aes(x = month, y = value)) +
-  geom_line(size = 1.2) +
-  geom_ribbon(aes(ymin = confint_lower, ymax = confint_upper), alpha = 0.3) +
-  scale_y_continuous(labels = scales::percent_format()) +
-  labs(
-    title = "Monthly Unemployment Rate",
-    subtitle = "With 95% confidence intervals",
-    x = "Month",
-    y = "Unemployment Rate"
-  ) +
-  theme_minimal()
-```
-
-### Quarterly to Monthly Estimation
-
-A key feature for official statistics - producing monthly estimates from quarterly samples:
-
-```{r quarterly-monthly}
-# Extract quarterly implantation surveys
-quarterly_surveys <- extract_surveys(baked_panel, quarterly = 1:4)
-
-# Quarterly to monthly estimation with correlation adjustment
-qm_results <- workflow(
-  survey = quarterly_surveys,
-  survey::svymean(~unemployment_rate, na.rm = TRUE),
-  survey::svyratio(~unemployed, ~labor_force),
-  estimation_type = "quarterly:monthly", # special notation
-  rho = 0.5, # correlation between quarters
-  R = 5 / 6 # overlap ratio
-)
-
-print(qm_results)
-```
-
-## Transition Analysis
-
-Analyzing changes between time periods:
-
-### Individual-Level Transitions
-
-```{r transitions}
-# Create transition indicators
-transition_panel <- baked_panel %>%
-  step_compute(
-    # Compare employment status between periods
-    employed_t1 = employed_january, # employment in period 1
-    employed_t2 = employed_february, # employment in period 2
-    # Transition categories
-    job_to_job = employed_t1 == 1 & employed_t2 == 1,
-    job_to_unemployed = employed_t1 == 1 & employed_t2 == 0,
-    unemployed_to_job = employed_t1 == 0 & employed_t2 == 1,
-    unemployed_to_unemployed = employed_t1 == 0 & employed_t2 == 0,
-    comment = "Employment transitions between months",
-    .level = "follow_up"
+```{r workflow-followup}
+results <- rbindlist(lapply(seq_along(panel$follow_up), function(i) {
+  r <- workflow(
+    list(panel$follow_up[[i]]),
+    survey::svymean(~income, na.rm = TRUE),
+    estimation_type = "annual"
   )
+  r$period <- paste0("follow_up_", i)
+  r
+}))
 
-# Estimate transition probabilities
-transition_results <- workflow(
-  survey = list(transition_panel$follow_up$february), # use second period
-  survey::svymean(~job_to_job, na.rm = TRUE),
-  survey::svymean(~job_to_unemployed, na.rm = TRUE),
-  survey::svymean(~unemployed_to_job, na.rm = TRUE),
-  survey::svymean(~unemployed_to_unemployed, na.rm = TRUE),
-  estimation_type = "monthly"
-)
-
-# Create transition matrix
-transition_matrix <- matrix(
-  c(
-    transition_results[stat == "job_to_job", value],
-    transition_results[stat == "job_to_unemployed", value],
-    transition_results[stat == "unemployed_to_job", value],
-    transition_results[stat == "unemployed_to_unemployed", value]
-  ),
-  nrow = 2, byrow = TRUE,
-  dimnames = list(
-    c("Employed", "Unemployed"),
-    c("Employed", "Unemployed")
-  )
-)
-
-print("Transition Matrix (rows = t1, columns = t2):")
-print(round(transition_matrix, 3))
+results[, .(period, stat, value, se, cv)]
 ```
 
-### Gross Flows Analysis
+## Creating a PoolSurvey
 
-```{r gross-flows}
-# Gross flows in the labor market
-flows_panel <- baked_panel %>%
-  step_compute(
-    # Entry and exit flows
-    entry_employment = employed_t2 == 1 & employed_t1 == 0,
-    exit_employment = employed_t2 == 0 & employed_t1 == 1,
-    entry_unemployment = unemployed_t2 == 1 & unemployed_t1 == 0,
-    exit_unemployment = unemployed_t2 == 0 & unemployed_t1 == 1,
-    comment = "Labor market entry and exit flows",
-    .level = "follow_up"
-  )
+A `PoolSurvey` pools multiple surveys together for combined estimation. The
+constructor takes a nested list: `list(estimation_type = list(group = list(surveys)))`.
 
-# Estimate gross flows
-flows_results <- workflow(
-  survey = list(flows_panel$follow_up$february),
-  survey::svytotal(~entry_employment),
-  survey::svytotal(~exit_employment),
-  survey::svytotal(~entry_unemployment),
-  survey::svytotal(~exit_unemployment),
-  estimation_type = "monthly"
+```{r pool-survey}
+s1 <- make_survey("2023-01-01")
+s1$edition <- "2023-01-01"
+
+s2 <- make_survey("2023-02-01")
+s2$edition <- "2023-02-01"
+
+pool <- PoolSurvey$new(
+  list(annual = list("group1" = list(s1, s2)))
 )
 
-print(flows_results)
+class(pool)
 ```
 
-## Variance Estimation in Panel Data
+Run a pooled estimation:
 
-### Accounting for Panel Correlation
-
-Panel data requires special variance estimation due to correlation between observations:
-
-```{r panel-variance}
-# Method 1: Using bootstrap replicates (recommended)
-bootstrap_results <- workflow(
-  survey = list(panel_with_bootstrap$follow_up$january),
-  survey::svymean(~unemployment_rate, na.rm = TRUE),
-  estimation_type = "monthly"
-)
-
-# Method 2: Adjusting for correlation in quarterly-to-monthly estimation
-adjusted_results <- workflow(
-  survey = quarterly_surveys,
-  survey::svymean(~unemployment_rate, na.rm = TRUE),
-  estimation_type = "quarterly:monthly",
-  rho = 0.6, # estimated correlation
-  R = 5 / 6 # overlap ratio
-)
-
-# Compare standard errors
-data.table(
-  method = c("Bootstrap", "Correlation Adjusted"),
-  se = c(bootstrap_results$se, adjusted_results$se),
-  cv = c(bootstrap_results$cv, adjusted_results$cv)
-)
-```
-
-### Longitudinal Variance Components
-
-```{r longitudinal-variance}
-# Variance decomposition for panel estimates
-# This would typically be done with specialized functions
-
-# Between-individual variance component
-between_var <- workflow(
-  survey = list(baked_panel$implantation),
-  survey::svyvar(~mean_unemployment_rate_individual),
+```{r workflow-pool}
+pool_result <- workflow(
+  pool,
+  survey::svymean(~income, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-# Within-individual variance component
-within_var <- workflow(
-  survey = monthly_surveys,
-  survey::svyvar(~unemployment_rate),
-  estimation_type = "monthly"
+pool_result
+```
+
+## Loading Panel Data from Files
+
+In practice, panel data is loaded from files using `load_panel_survey()`:
+
+```{r load-panel, eval = FALSE}
+panel <- load_panel_survey(
+  path_implantation = "data/ech_impl_2023.dta",
+  path_follow_up    = "data/ech_fu_2023/",
+  svy_type          = "ech",
+  svy_weight_implantation = add_weight(annual = "pesoano"),
+  svy_weight_follow_up    = add_weight(monthly = "pesomes")
 )
-
-# Total variance = between + within
-var_components <- data.table(
-  component = c("Between", "Within", "Total"),
-  variance = c(
-    between_var$value,
-    within_var$value,
-    between_var$value + within_var$value
-  )
-)
-
-print(var_components)
 ```
 
-## Quality Assessment for Panel Data
+## Best Practices
 
-### Panel Attrition Analysis
-
-```{r attrition}
-# Analyze response patterns across waves
-attrition_panel <- panel_survey %>%
-  step_compute(
-    responded_wave1 = !is.na(employment_status_jan),
-    responded_wave2 = !is.na(employment_status_feb),
-    responded_wave3 = !is.na(employment_status_mar),
-    # Attrition patterns
-    complete_panel = responded_wave1 & responded_wave2 & responded_wave3,
-    early_dropout = responded_wave1 & !responded_wave2,
-    late_dropout = responded_wave1 & responded_wave2 & !responded_wave3,
-    comment = "Panel response patterns",
-    .level = "follow_up"
-  )
-
-# Estimate attrition rates
-attrition_results <- workflow(
-  survey = list(attrition_panel$follow_up$march),
-  survey::svymean(~complete_panel),
-  survey::svymean(~early_dropout),
-  survey::svymean(~late_dropout),
-  estimation_type = "monthly"
-)
-
-print("Attrition Analysis:")
-print(attrition_results[, .(stat, rate = value, cv)])
-```
-
-### Rotation Group Effects
-
-```{r rotation-effects}
-# Analyze differences between rotation groups
-rotation_panel <- panel_survey %>%
-  step_recode(
-    "rotation_group",
-    quarter_entered == 1 ~ "Q1",
-    quarter_entered == 2 ~ "Q2",
-    quarter_entered == 3 ~ "Q3",
-    quarter_entered == 4 ~ "Q4",
-    comment = "Rotation group classification",
-    .level = "implantation"
-  )
-
-# Test for rotation group effects
-rotation_results <- workflow(
-  survey = list(rotation_panel$implantation),
-  survey::svyby(~unemployment_rate, ~rotation_group, survey::svymean),
-  estimation_type = "annual"
-)
-
-# Statistical test for differences would be done separately
-print("Unemployment by Rotation Group:")
-print(rotation_results)
-```
-
-## Advanced Panel Techniques
-
-### Seasonal Adjustment
-
-```{r seasonal}
-# Create seasonal indicators for adjustment
-seasonal_panel <- baked_panel %>%
-  step_recode(
-    "season",
-    month %in% c(12, 1, 2) ~ "Summer",
-    month %in% c(3, 4, 5) ~ "Autumn",
-    month %in% c(6, 7, 8) ~ "Winter",
-    month %in% c(9, 10, 11) ~ "Spring",
-    comment = "Seasonal classification",
-    .level = "follow_up"
-  )
-
-# Estimate seasonal patterns
-seasonal_results <- workflow(
-  survey = monthly_surveys,
-  survey::svyby(~unemployment_rate, ~season, survey::svymean),
-  estimation_type = "monthly"
-)
-
-print("Seasonal Unemployment Patterns:")
-print(seasonal_results)
-```
-
-### Cohort Analysis
-
-```{r cohort}
-# Define birth cohorts for analysis
-cohort_panel <- baked_panel %>%
-  step_compute(
-    birth_year = current_year - age,
-    comment = "Calculate birth year",
-    .level = "implantation"
-  ) %>%
-  step_recode(
-    "birth_cohort",
-    birth_year >= 1990 ~ "Millennials",
-    birth_year >= 1980 ~ "Gen X",
-    birth_year >= 1960 ~ "Baby Boomers",
-    .default = "Silent Generation",
-    comment = "Birth cohort classification",
-    .level = "implantation"
-  )
-
-# Analyze unemployment by cohort over time
-cohort_results <- workflow(
-  survey = monthly_surveys,
-  survey::svyby(~unemployment_rate, ~birth_cohort, survey::svymean),
-  estimation_type = "monthly"
-)
-
-# This would produce results for each month and cohort
-print("Cohort Analysis Results (sample):")
-print(head(cohort_results))
-```
-
-## Panel Data Best Practices
-
-### 1. Weight Selection
-```{r bp-weights}
-# Use appropriate weights for analysis type:
-# - Cross-sectional: implantation weights
-# - Time series: follow-up weights
-# - Transitions: follow-up weights with adjustments
-```
-
-### 2. Missing Data Handling
-```{r bp-missing}
-# Account for panel attrition in analysis
-# Consider weighting adjustments for nonresponse
-# Use multiple imputation for item nonresponse
-```
-
-### 3. Temporal Alignment
-```{r bp-temporal}
-# Ensure variables are measured at correct time points
-# Account for reference period differences
-# Consider lag structures in relationships
-```
-
-### 4. Variance Estimation
-```{r bp-variance}
-# Use bootstrap replicates when available
-# Adjust for correlation in overlapping samples
-# Consider design effects in panel context
-```
-
-### 5. Quality Monitoring
-```{r bp-quality}
-# Monitor response rates over time
-# Check for rotation group effects
-# Validate key estimates against external sources
-```
-
-## Conclusion
-
-Panel surveys provide rich opportunities for understanding change and dynamics in populations. The `metasurvey` package provides tools to handle the complexity of panel data while maintaining statistical rigor in estimation and inference.
-
-Key takeaways:
-- Use appropriate data levels for different analysis types
-- Account for panel correlation in variance estimation
-- Monitor data quality throughout the panel lifecycle
-- Leverage the full time dimension of the data for insights not available from cross-sections
-
-The next vignette will cover creating and using recipes to make panel analysis workflows reusable and reproducible.
+1. **Set periodicity** on each component survey before constructing the panel.
+2. **Apply transformations uniformly** -- ensure the same steps are applied to
+   implantation and follow-up surveys for comparability.
+3. **Use PoolSurvey** when combining surveys for variance reduction or
+   quarterly-to-monthly estimation.
+4. **Validate results** -- compare pooled estimates against direct estimates
+   to check for consistency.

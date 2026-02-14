@@ -12,4 +12,9 @@ set_api_key(api_key)
 \description{
 Set API Key
 }
+\examples{
+\dontrun{
+set_api_key("my-secret-key")
+}
+}
 \keyword{utils}

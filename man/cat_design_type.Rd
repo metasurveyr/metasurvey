@@ -11,7 +11,16 @@ cat_design_type(self, design_name)
 
 \item{design_name}{Name of design}
 }
+\value{
+Character string describing the design type, or "None".
+}
 \description{
 Cast design type from survey
+}
+\examples{
+\dontrun{
+svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+cat_design_type(svy, "annual")
+}
 }
 \keyword{Surveymethods}

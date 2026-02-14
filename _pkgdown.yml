@@ -14,7 +14,7 @@ url: https://metasurveyr.github.io/metasurvey
 navbar:
   bg: primary
   structure:
-    left:  [intro,articles, reference,tutorials, news]
+    left:  [intro, articles, reference, tutorials, news]
     right: [search, github]
   components:
     github:
@@ -35,7 +35,7 @@ reference:
   desc: Abstract Syntax Tree functions - the core evaluation engine
   contents:
   - has_keyword("AST")
- 
+
 - title: Engine
   contents:
     - has_keyword("engine")
@@ -68,17 +68,22 @@ reference:
     - has_keyword("Survey")
 
 articles:
-- title: "Getting started"
-  desc: "Tutorials that accompany the function documentation"
+- title: "Getting Started"
+  desc: "Learn the basics of metasurvey"
   contents:
   - getting-started
-  - advanced-workflows
-  - ast-core
-  - ech-case-study
-  - panel-analysis
-  - recipes
-  - complex-designs
-  - performance-optimization
-  - testing-workflows
   - metasurvey-es
-  - ninios
+- title: "Guides"
+  desc: "In-depth guides for specific topics"
+  contents:
+  - recipes
+  - panel-analysis
+  - complex-designs
+- title: "Case Studies"
+  desc: "Real-world examples and analysis workflows"
+  contents:
+  - ech-case-study
+- title: "Advanced"
+  desc: "Testing and validation strategies"
+  contents:
+  - testing-workflows

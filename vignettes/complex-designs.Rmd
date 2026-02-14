@@ -20,86 +20,52 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(metasurvey)
 library(survey)
-library(magrittr)
 library(data.table)
 ```
 
 ## Introduction
 
-Complex survey designs require special handling for proper variance estimation. This vignette demonstrates how to work with various survey designs using metasurvey, including stratified sampling, clustering, and replicate weights.
+Complex survey designs require special handling for proper variance estimation.
+This vignette demonstrates how to work with various survey designs using
+metasurvey, including stratified sampling, clustering, and replicate weights.
 
 ## Types of Survey Designs
 
-### Stratified Random Sampling
+### Simple Random Sampling with Weights
 
-Stratified sampling divides the population into homogeneous groups (strata) and samples from each:
+The simplest design uses probability weights without clustering or
+stratification:
 
-```{r stratified}
-# Load stratified sample data
+```{r simple}
 data("apistrat", package = "survey")
+dt <- data.table(apistrat)
 
-# Create stratified survey design
-strat_survey <- load_survey(
-  data = apistrat,
-  svy_edition = "2000",
-  svy_type = "api_stratified",
-  svy_weight = add_weight(
-    main = "pw"  # probability weights
-  ),
-  psu = ~1,  # no clustering, just stratification
-  strata = ~stype  # stratify by school type
+svy <- Survey$new(
+  data = dt,
+  edition = "2000",
+  type = "api",
+  psu = NULL,
+  engine = "data.table",
+  weight = add_weight(annual = "pw")
 )
 
 # View design details
-cat_design(strat_survey)
+cat_design(svy)
 ```
 
-### Cluster Sampling
+### Loading from Files
 
-Cluster sampling groups observations into clusters and samples entire clusters:
+For real-world data stored in files, use `load_survey()`:
 
-```{r cluster}
-# Load cluster sample data  
-data("apiclus1", package = "survey")
-
-# Create cluster survey design
-cluster_survey <- load_survey(
-  data = apiclus1,
-  svy_edition = "2000", 
-  svy_type = "api_cluster",
-  svy_weight = add_weight(
-    main = "pw"
-  ),
-  psu = ~dnum,  # district number as primary sampling unit
-  fpc = ~fpc    # finite population correction
+```{r load-from-file}
+# Load from a CSV or Stata file
+svy_from_file <- load_survey(
+  path = "data/survey_2023.csv",
+  svy_type = "my_survey",
+  svy_edition = "2023",
+  svy_weight = add_weight(annual = "pw"),
+  svy_psu = ~1
 )
-
-# Examine clustering effect
-cat_design(cluster_survey)
-```
-
-### Two-Stage Sampling
-
-Two-stage sampling combines clustering with subsampling within clusters:
-
-```{r twostage}
-# Load two-stage sample data
-data("apiclus2", package = "survey")
-
-# Create two-stage survey design
-twostage_survey <- load_survey(
-  data = apiclus2,
-  svy_edition = "2000",
-  svy_type = "api_twostage", 
-  svy_weight = add_weight(
-    main = "pw"
-  ),
-  psu = ~dnum + snum,  # district and school as sampling units
-  fpc = ~fpc1 + fpc2   # finite population corrections
-)
-
-# Check design complexity
-cat_design(twostage_survey)
 ```
 
 ## Bootstrap Replicate Weights
@@ -107,126 +73,24 @@ cat_design(twostage_survey)
 Bootstrap replicates provide robust variance estimation for complex designs:
 
 ```{r bootstrap-setup}
-# Simulate bootstrap replicate weights for demonstration
-set.seed(123)
-n_obs <- nrow(apistrat)
-n_reps <- 100
-
-# Create replicate weight matrix
-replicate_weights <- matrix(
-  data = rgamma(n_obs * n_reps, shape = 1, rate = 1),
-  nrow = n_obs,
-  ncol = n_reps
-)
-colnames(replicate_weights) <- paste0("rep", 1:n_reps)
-
-# Add to original data
-apistrat_with_reps <- cbind(apistrat, replicate_weights)
-
-# Create survey with bootstrap replicates
+# Create survey with replicate weights loaded from a separate file
 bootstrap_survey <- load_survey(
-  data = apistrat_with_reps,
-  svy_edition = "2000",
-  svy_type = "api_bootstrap",
+  path = "data/main_survey.csv",
+  svy_type = "national_survey",
+  svy_edition = "2023",
   svy_weight = add_weight(
-    main = add_replicate(
+    annual = add_replicate(
       weight_var = "pw",
-      replicate_data = replicate_weights,
+      replicate_path = "data/bootstrap_replicates.csv",
+      replicate_id = c("respondent_id" = "id"),
+      replicate_pattern = "bsrep[0-9]+",
       replicate_type = "bootstrap"
     )
   )
 )
 
 # View replicate information
-print(bootstrap_survey$design$main)
-```
-
-### Working with External Replicate Files
-
-In practice, replicate weights often come from separate files:
-
-```{r external-replicates, eval=FALSE}
-# Example with external replicate file
-survey_with_external_reps <- load_survey(
-  data = "main_survey_data.csv",
-  svy_edition = "2023",
-  svy_type = "national_survey",
-  svy_weight = add_weight(
-    annual = add_replicate(
-      weight_var = "sampling_weight",
-      replicate_path = "bootstrap_replicates.csv",
-      replicate_id = c("respondent_id" = "id"),  # matching variables
-      replicate_pattern = "bsrep[0-9]+",  # column pattern
-      replicate_type = "bootstrap"
-    )
-  )
-)
-```
-
-## Jackknife Replicates
-
-Jackknife replication is another variance estimation method:
-
-```{r jackknife}
-# Create jackknife replicate design
-data("scd", package = "survey")
-
-jackknife_survey <- load_survey(
-  data = scd,
-  svy_edition = "1987",
-  svy_type = "jackknife_example",
-  svy_weight = add_weight(
-    main = add_replicate(
-      weight_var = "pw",
-      replicate_pattern = "rep[0-9]+",
-      replicate_type = "JK1"  # jackknife type 1
-    )
-  )
-)
-
-# Jackknife designs handle variance differently
-cat_design(jackknife_survey)
-```
-
-## Post-Stratification
-
-Post-stratification adjusts weights to match population totals:
-
-```{r poststrat}
-# Population totals by school type (hypothetical)
-pop_totals <- data.frame(
-  stype = c("E", "H", "M"),
-  Freq = c(4421, 755, 1018)
-)
-
-# Create post-stratified design
-poststrat_survey <- load_survey(
-  data = apistrat,
-  svy_edition = "2000",
-  svy_type = "api_poststrat",
-  svy_weight = add_weight(main = "pw")
-)
-
-# Apply post-stratification (this would be done in survey design)
-# This is conceptual - actual implementation varies
-cat("Post-stratification applied to", get_type(poststrat_survey))
-```
-
-## Calibration and Raking
-
-Calibration adjusts weights to match multiple population margins:
-
-```{r calibration, eval=FALSE}
-# Calibration to multiple margins
-# This is typically done during weight construction
-calibrated_survey <- load_survey(
-  data = your_data,
-  svy_edition = "2023", 
-  svy_type = "calibrated_survey",
-  svy_weight = add_weight(
-    calibrated = "calibrated_weight"  # pre-calibrated weights
-  )
-)
+cat_design_type(bootstrap_survey, "annual")
 ```
 
 ## Working with Multiple Weight Types
@@ -234,88 +98,79 @@ calibrated_survey <- load_survey(
 Many surveys provide different weights for different analysis purposes:
 
 ```{r multiple-weights}
-# Survey with multiple weight options
+# Survey with multiple weight options (e.g. ECH Uruguay)
 multi_weight_survey <- load_survey(
-  data = apistrat,
-  svy_edition = "2000",
-  svy_type = "api_multi_weight",
+  path = "data/ech_2023.csv",
+  svy_type = "ech",
+  svy_edition = "2023",
   svy_weight = add_weight(
-    cross_sectional = "pw",
-    longitudinal = "pw",  # would be different in real data
-    calibrated = "pw"     # would be different in real data
+    annual = "pesoano",
+    monthly = "pesomes"
   )
 )
 
-# Access different designs
-names(multi_weight_survey$design)
+# Access different designs by estimation_type in workflow()
+annual_result <- workflow(
+  list(multi_weight_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+monthly_result <- workflow(
+  list(multi_weight_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "monthly"
+)
 ```
 
 ## Variance Estimation Methods
 
 ### Design-Based Variance
 
-Standard design-based variance estimation:
+Standard design-based variance estimation using `workflow()`:
 
 ```{r design-variance}
-# Using survey design for variance estimation
-results_design <- workflow(
-  survey = list(strat_survey),
-  survey::svymean(~api00),
-  survey::svytotal(~enroll),
-  estimation_type = "main"
+results <- workflow(
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
+  survey::svytotal(~enroll, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-# Check variance estimation method
-results_design[, .(stat, value, se, method = "design-based")]
+results[, .(stat, value, se)]
 ```
 
 ### Replicate-Based Variance
 
-Using bootstrap or jackknife replicates:
+When replicate weights are available, metasurvey uses them automatically:
 
 ```{r replicate-variance}
-# Using replicate weights for variance estimation
-results_replicate <- workflow(
-  survey = list(bootstrap_survey),
-  survey::svymean(~api00),
-  survey::svytotal(~enroll),
-  estimation_type = "main"
+# workflow() detects the replicate design and uses it for variance estimation
+results_rep <- workflow(
+  list(bootstrap_survey),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-# Compare standard errors
-results_replicate[, .(stat, value, se, method = "bootstrap")]
+results_rep[, .(stat, value, se)]
 ```
 
 ## Domain Estimation
 
-Estimating for subgroups (domains) of the population:
+Estimating for subgroups (domains) of the population using `survey::svyby()`:
 
 ```{r domains}
-# Add domain indicators
-domain_survey <- strat_survey %>%
-  step_recode(
-    "urban_rural",
-    comp.imp == "Yes" ~ "Urban",
-    .default = "Rural",
-    comment = "Urban/rural classification"
-  ) %>%
-  step_recode(
-    "size_category", 
-    enroll >= 600 ~ "Large",
-    enroll >= 300 ~ "Medium",
-    .default = "Small",
-    comment = "School size categories"
-  )
+# Compute domain indicators first
+svy_with_domain <- step_compute(svy,
+  large_school = ifelse(enroll >= 600, 1L, 0L)
+)
+svy_with_domain <- bake_steps(svy_with_domain)
 
-# Bake steps
-domain_survey_baked <- bake_steps(domain_survey)
-
-# Estimate by domains
+# Estimate by domains using svyby
 domain_results <- workflow(
-  survey = list(domain_survey_baked),
-  survey::svyby(~api00, ~urban_rural, survey::svymean),
-  survey::svyby(~api00, ~size_category, survey::svymean),
-  estimation_type = "main"
+  list(svy_with_domain),
+  survey::svyby(~api00, ~stype, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
 print(domain_results)
@@ -323,156 +178,82 @@ print(domain_results)
 
 ## Complex Estimation Procedures
 
-### Ratios and Proportions
+### Ratios
 
 ```{r ratios}
 # Calculate ratios between variables
 ratio_results <- workflow(
-  survey = list(strat_survey),
-  survey::svyratio(~api00, ~api99),  # ratio of 2000 to 1999 scores
-  survey::svyratio(~enroll, ~api00), # enrollment per API point
-  estimation_type = "main"
+  list(svy),
+  survey::svyratio(~api00, ~api99),
+  estimation_type = "annual"
 )
 
 print(ratio_results)
 ```
 
-### Quantiles and Percentiles
-
-```{r quantiles}
-# Estimate quantiles
-quantile_results <- workflow(
-  survey = list(strat_survey),
-  survey::svyquantile(~api00, quantiles = c(0.1, 0.25, 0.5, 0.75, 0.9)),
-  estimation_type = "main"
-)
-
-print(quantile_results)
-```
-
 ### Regression Models
 
+Survey-weighted regression models can be fit using the survey design object
+directly:
+
 ```{r regression}
-# Fit survey-weighted regression models
-regression_survey <- strat_survey %>%
-  step_compute(
-    api_change = api00 - api99,
-    enrollment_log = log(enroll),
-    comment = "Variables for regression analysis"
-  )
+# Compute derived variables
+svy_reg <- step_compute(svy,
+  api_change = api00 - api99,
+  enrollment_log = log(enroll)
+)
+svy_reg <- bake_steps(svy_reg)
 
-# Bake and fit model
-regression_baked <- bake_steps(regression_survey)
-
-# Fit regression (note: this returns model object, not workflow result)
+# Access the design object for regression
 model_fit <- survey::svyglm(
-  api00 ~ api99 + enroll + comp.imp,
-  design = regression_baked$design$main
+  api00 ~ api99 + enroll,
+  design = svy_reg$design$annual
 )
 
 summary(model_fit)
 ```
 
-## Quality Assessment for Complex Designs
+## Quality Assessment
 
 ### Design Effects
 
 Understanding the impact of complex design on variance:
 
 ```{r design-effects}
-# Compare different design assumptions
-simple_results <- workflow(
-  survey = list(load_survey(apistrat, svy_edition = "2000", 
-                           svy_type = "simple", svy_weight = add_weight(main = "pw"))),
-  survey::svymean(~api00),
-  estimation_type = "main"
+# Compare estimates from the survey design
+results <- workflow(
+  list(svy),
+  survey::svymean(~api00, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-complex_results <- workflow(
-  survey = list(strat_survey),
-  survey::svymean(~api00),
-  estimation_type = "main"
-)
-
-# Calculate design effect
-deff <- (complex_results$se^2) / (simple_results$se^2)
-cat("Design effect:", round(deff, 3))
-```
-
-### Effective Sample Size
-
-```{r effective-sample}
-# Effective sample size with complex design
-n_eff <- with(complex_results, (value / se)^2)
-n_actual <- nrow(strat_survey$data)
-
-cat("Actual sample size:", n_actual)
-cat("\nEffective sample size:", round(n_eff))
-cat("\nDesign efficiency:", round(n_eff / n_actual, 3))
+# Evaluate coefficient of variation (expects percentage)
+evaluate_cv(results$cv[1] * 100)
 ```
 
 ## Best Practices for Complex Designs
 
-### 1. Always Use Appropriate Weights
-```{r best-practice-weights}
-# Wrong: ignoring survey design
-# mean(data$variable)
-
-# Right: using survey design
-# survey::svymean(~variable, design = survey_design)
-```
-
-### 2. Check Design Effects
-```{r best-practice-deff}
-# Monitor design effects for key estimates
-# High design effects (>2) indicate substantial clustering/stratification impact
-```
-
-### 3. Use Replicate Weights When Available
-```{r best-practice-replicates}
-# Replicate weights often provide more robust variance estimates
-# than design-based methods for complex procedures
-```
-
-### 4. Domain Analysis Considerations
-```{r best-practice-domains}
-# Ensure adequate sample sizes in each domain
-# Consider combining small domains or using model-based methods
-```
-
-### 5. Document Your Design
-```{r best-practice-documentation}
-# Always document the survey design used
-# Include population definitions and weight construction details
-survey_metadata <- list(
-  design_type = get_type(strat_survey),
-  weight_description = "Probability weights adjusted for nonresponse",
-  stratification = "School type (Elementary, Middle, High)",
-  clustering = "None",
-  variance_method = "Design-based"
-)
-```
+1. **Always use appropriate weights** -- never compute unweighted statistics
+   from survey data.
+2. **Check design effects** -- high design effects (>2) indicate substantial
+   clustering or stratification impact on variance.
+3. **Use replicate weights when available** -- they provide more robust
+   variance estimates for complex procedures.
+4. **Ensure adequate domain sample sizes** -- consider combining small
+   domains when CVs are too high.
+5. **Document your design** -- include the survey design specification,
+   weight construction details, and variance estimation method.
 
 ## Troubleshooting Common Issues
 
 ### Singular Variance Matrices
-```{r troubleshooting-singular}
-# This can happen with small domains or insufficient variation
-# Solution: combine categories or use different variance estimation
-```
+This can happen with small domains or insufficient variation. Consider
+combining categories or using a different variance estimation approach.
 
 ### Memory Issues with Large Bootstrap Samples
-```{r troubleshooting-memory}
-# For large datasets with many replicates, consider:
-# - Using fewer replicates for preliminary analysis
-# - Processing in chunks
-# - Using more efficient data structures
-```
+For large datasets with many replicates, consider using fewer replicates
+for preliminary analysis or processing in chunks.
 
 ### Negative Variance Estimates
-```{r troubleshooting-negative}
-# Rare but possible with some complex designs
-# May indicate model misspecification or extreme values
-```
-
-This vignette covered the major aspects of working with complex survey designs in metasurvey. The package handles the complexity behind the scenes while giving you access to the full power of the survey package for variance estimation.
+Rare but possible with some complex designs. May indicate model
+misspecification or extreme values in the data.

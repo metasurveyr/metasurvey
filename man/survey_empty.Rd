@@ -21,4 +21,10 @@ Survey object
 \description{
 Create an empty survey
 }
+\examples{
+\dontrun{
+empty <- survey_empty()
+empty_typed <- survey_empty(edition = "2023", type = "ech")
+}
+}
 \keyword{Surveymethods}
