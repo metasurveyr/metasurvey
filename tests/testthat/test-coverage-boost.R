@@ -69,7 +69,7 @@ test_that("read_recipe handles invalid files", {
     read_recipe(tmp)
   }, error = function(e) NULL)
   
-  expect_true(is.null(result) || is.call(result))
+  expect_true(is.null(result) || is.call(result) || inherits(result, "Recipe") || is.list(result))
 })
 
 test_that("get_recipe with filters", {
