@@ -155,7 +155,7 @@ test_that("save_recipe() includes all metadata and doc", {
   expect_equal(json_data$description, "Testing save functionality")
   expect_equal(json_data$topic, "testing")
   expect_equal(json_data$doi, "10.1234/save_test")
-  expect_true(!is.null(json_data$id))
+  expect_false(is.null(json_data$id))
   
   # Check doc is auto-generated
   expect_true("doc" %in% names(json_data))
