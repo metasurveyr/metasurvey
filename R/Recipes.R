@@ -24,6 +24,8 @@
 #' @section Methods:
 #' \describe{
 #'   \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
+#'   \item{$doc()}{Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.}
+#'   \item{$validate(svy)}{Validate that a survey object has all required input variables.}
 #' }
 #'
 #' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
@@ -69,6 +71,101 @@ Recipe <- R6Class("Recipe",
       self$id <- id
       self$doi <- doi
       self$topic <- topic
+    },
+    
+    #' @description
+    #' Auto-generate documentation from recipe steps
+    #' @return A list with metadata, input_variables, output_variables, and pipeline information
+    doc = function() {
+      all_outputs <- character(0)
+      all_inputs <- character(0)
+      pipeline <- list()
+      
+      for (i in seq_along(self$steps)) {
+        step <- self$steps[[i]]
+        
+        # Extract output variables based on step type
+        step_outputs <- switch(
+          step$type,
+          "compute" = , "ast_compute" = names(step$exprs),
+          "recode" = step$new_var,
+          "step_rename" = names(step$exprs),  # new names
+          "step_remove" = character(0),
+          "step_join" = character(0),
+          character(0)
+        )
+        
+        # Input variables from depends_on (already calculated by AST engine)
+        step_inputs <- unlist(step$depends_on)
+        
+        # Infer variable type based on step type
+        inferred_type <- switch(
+          step$type,
+          "recode" = "categorical",
+          "compute" = , "ast_compute" = "numeric",
+          "step_rename" = "inherited",
+          NA_character_
+        )
+        
+        # Variables that are external inputs (not created by previous steps)
+        external_inputs <- setdiff(step_inputs, all_outputs)
+        all_inputs <- union(all_inputs, external_inputs)
+        all_outputs <- union(all_outputs, step_outputs)
+        
+        # Build pipeline entry
+        pipeline[[i]] <- list(
+          index = i,
+          type = step$type,
+          outputs = step_outputs,
+          inputs = step_inputs,
+          inferred_type = inferred_type,
+          comment = step$comments
+        )
+      }
+      
+      # Return structured documentation
+      list(
+        meta = list(
+          name = self$name,
+          user = self$user,
+          edition = self$edition,
+          survey_type = self$survey_type,
+          description = self$description,
+          topic = self$topic,
+          doi = self$doi,
+          id = self$id
+        ),
+        input_variables = all_inputs,
+        output_variables = all_outputs,
+        pipeline = pipeline
+      )
+    },
+    
+    #' @description
+    #' Validate that a survey has all required input variables
+    #' @param svy A Survey object
+    #' @return TRUE if valid, otherwise stops with error listing missing variables
+    validate = function(svy) {
+      doc_info <- self$doc()
+      required_vars <- doc_info$input_variables
+      
+      # Get survey variable names
+      survey_vars <- names(get_data(svy))
+      
+      # Find missing variables
+      missing_vars <- setdiff(required_vars, survey_vars)
+      
+      if (length(missing_vars) > 0) {
+        stop(
+          sprintf(
+            "Recipe '%s' requires variables not present in survey: %s",
+            self$name,
+            paste(missing_vars, collapse = ", ")
+          )
+        )
+      }
+      
+      return(TRUE)
     }
   )
 )
@@ -291,18 +388,29 @@ decode_step <- function(steps) {
 #' @export
 
 save_recipe <- function(recipe, file) {
-  recipe <- list(
+  # Auto-generate documentation
+  doc_info <- recipe$doc()
+  
+  recipe_data <- list(
     name = recipe$name,
     user = recipe$user,
     svy_type = recipe$survey_type,
     edition = recipe$edition,
     description = recipe$description,
+    topic = recipe$topic,
+    doi = recipe$doi,
+    id = recipe$id,
+    doc = list(
+      input_variables = doc_info$input_variables,
+      output_variables = doc_info$output_variables,
+      pipeline = doc_info$pipeline
+    ),
     steps = recipe$steps
   )
 
-  recipe |>
+  recipe_data |>
     encoding_recipe() |>
-    jsonlite::write_json(path = file, simplifyVector = TRUE)
+    jsonlite::write_json(path = file, simplifyVector = TRUE, auto_unbox = TRUE, pretty = TRUE)
 
   message(
     glue::glue("The recipe has been saved in {file}")
@@ -345,7 +453,31 @@ recipe_to_json <- function(recipe) {
 #' @export
 
 read_recipe <- function(file) {
-  decode_step(jsonlite::read_json(file, simplifyVector = TRUE)$steps)
+  json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
+  
+  # Decode steps from JSON
+  steps <- decode_step(json_data$steps)
+  
+  # Check if this is a new format (with metadata) or old format (just steps)
+  if ("name" %in% names(json_data)) {
+    # New format - return a full Recipe object
+    Recipe$new(
+      name = json_data$name %||% "Unnamed Recipe",
+      user = json_data$user %||% "Unknown",
+      edition = json_data$edition %||% json_data$svy_edition %||% "Unknown",
+      survey_type = json_data$svy_type %||% json_data$survey_type %||% "Unknown",
+      default_engine = default_engine(),
+      depends_on = json_data$depends_on %||% list(),
+      description = json_data$description %||% "",
+      steps = steps,
+      id = json_data$id %||% stats::runif(1, 0, 1),
+      doi = json_data$doi %||% NULL,
+      topic = json_data$topic %||% NULL
+    )
+  } else {
+    # Old format - just return steps for backward compatibility
+    steps
+  }
 }
 
 #' Get recipe from repository or API
@@ -786,4 +918,97 @@ publish_recipe <- function(recipe) {
       " - ", content(response, "text", encoding = "UTF-8")
     )
   }
+}
+
+#' Print method for Recipe objects
+#'
+#' Displays a formatted recipe card showing metadata, required variables,
+#' pipeline steps, and produced variables.
+#'
+#' @param x A Recipe object
+#' @param ... Additional arguments (currently unused)
+#' @return Invisibly returns the Recipe object
+#' @export
+print.Recipe <- function(x, ...) {
+  doc_info <- x$doc()
+  
+  # Header
+  cat(crayon::bold(crayon::blue("\n── Recipe: ", x$name, " ──\n")))
+  
+  # Metadata
+  cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
+  cat(crayon::silver("Survey:  "), x$survey_type, " / ", x$edition, "\n", sep = "")
+  if (!is.null(x$topic)) {
+    cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
+  }
+  if (!is.null(x$doi)) {
+    cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
+  }
+  if (!is.null(x$description)) {
+    cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+  }
+  
+  # Input variables
+  if (length(doc_info$input_variables) > 0) {
+    cat(crayon::bold(crayon::blue("\n── Requires (", length(doc_info$input_variables), " variables) ──\n")))
+    cat("  ", paste(doc_info$input_variables, collapse = ", "), "\n", sep = "")
+  }
+  
+  # Pipeline
+  if (length(doc_info$pipeline) > 0) {
+    cat(crayon::bold(crayon::blue("\n── Pipeline (", length(doc_info$pipeline), " steps) ──\n")))
+    for (step_info in doc_info$pipeline) {
+      outputs_str <- if (length(step_info$outputs) > 0) {
+        paste(step_info$outputs, collapse = ", ")
+      } else {
+        "(no output)"
+      }
+      
+      comment_str <- if (!is.null(step_info$comment) && nchar(step_info$comment) > 0) {
+        paste0("  \"", step_info$comment, "\"")
+      } else {
+        ""
+      }
+      
+      cat(sprintf("  %d. [%s] → %s%s\n",
+                  step_info$index,
+                  step_info$type,
+                  outputs_str,
+                  comment_str))
+    }
+  }
+  
+  # Output variables
+  if (length(doc_info$output_variables) > 0) {
+    cat(crayon::bold(crayon::blue("\n── Produces (", length(doc_info$output_variables), " variables) ──\n")))
+    
+    # Group by type if available
+    output_details <- lapply(doc_info$pipeline, function(step) {
+      if (length(step$outputs) > 0 && !is.na(step$inferred_type)) {
+        data.frame(
+          var = step$outputs,
+          type = step$inferred_type,
+          stringsAsFactors = FALSE
+        )
+      } else {
+        NULL
+      }
+    })
+    output_details <- do.call(rbind, output_details)
+    
+    if (!is.null(output_details) && nrow(output_details) > 0) {
+      # Display variables with types
+      vars_by_type <- split(output_details$var, output_details$type)
+      output_parts <- sapply(names(vars_by_type), function(type) {
+        vars <- vars_by_type[[type]]
+        paste0(vars, " [", type, "]")
+      })
+      cat("  ", paste(unlist(output_parts), collapse = ", "), "\n", sep = "")
+    } else {
+      cat("  ", paste(doc_info$output_variables, collapse = ", "), "\n", sep = "")
+    }
+  }
+  
+  cat("\n")
+  invisible(x)
 }
