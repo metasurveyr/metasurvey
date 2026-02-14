@@ -112,7 +112,7 @@ ech <- ech |>
   step_recode(
     labor_status,
     POBPCOAC == 2 ~ "Employed",
-    POBPCOAC \%in\% 3:5 ~ "Unemployed", 
+    POBPCOAC \%in\% 3:5 ~ "Unemployed",
     POBPCOAC \%in\% 6:8 ~ "Inactive",
     .default = "Missing",
     comment = "Labor force status from ECH"

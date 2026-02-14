@@ -56,7 +56,7 @@ En paneles rotativos como ECH:
 # Cargar panel rotativo
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
-  svy_type = "ech_panel", 
+  svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
@@ -84,7 +84,7 @@ tasa_inicial <- workflow(
 )
 
 tasa_final <- workflow(
-  survey = seguimiento_final, 
+  survey = seguimiento_final,
   svymean(~tasa_desempleo, na.rm = TRUE)
 )
 

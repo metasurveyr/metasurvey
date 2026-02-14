@@ -12,4 +12,11 @@ API Key
 \description{
 Get API Key
 }
+\examples{
+\dontrun{
+# Retrieve the current API authentication payload
+auth <- get_api_key()
+print(auth$methodAuth)
+}
+}
 \keyword{utils}

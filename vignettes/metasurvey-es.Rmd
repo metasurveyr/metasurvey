@@ -1,0 +1,174 @@
+---
+title: "Introduccion a metasurvey"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduccion a metasurvey}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Que es metasurvey?
+
+**metasurvey** es un framework para procesar datos de encuestas complejas en R.
+Combina el paquete `survey` con un sistema de *pasos* (transformaciones),
+*recetas* (colecciones reutilizables de pasos) y *workflows* (estimaciones
+estadisticas), todo impulsado por un motor de Arboles de Sintaxis Abstracta
+(AST) que valida dependencias y optimiza expresiones automaticamente.
+
+## Crear un objeto Survey
+
+Un objeto `Survey` encapsula los microdatos junto con la edicion, tipo, diseno
+muestral y configuracion de ponderadores.
+
+```{r crear-encuesta}
+library(metasurvey)
+library(data.table)
+
+set.seed(42)
+n <- 200
+
+dt <- data.table(
+  id       = 1:n,
+  edad     = sample(18:80, n, replace = TRUE),
+  sexo     = sample(c(1, 2), n, replace = TRUE),
+  ingreso  = round(runif(n, 500, 8000)),
+  ocupado  = sample(0:1, n, replace = TRUE),
+  region   = sample(1:5, n, replace = TRUE),
+  peso     = round(runif(n, 0.5, 3.0), 4)
+)
+
+encuesta <- Survey$new(
+  data    = dt,
+  edition = "2023",
+  type    = "ech",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "peso")
+)
+```
+
+`add_weight()` asigna nombres de columnas de ponderadores por periodicidad.
+
+## Pasos de transformacion
+
+Los pasos son *lazy* por defecto: se registran pero no se ejecutan hasta llamar
+a `bake_steps()`.
+
+### Calcular nuevas variables
+
+`step_compute()` crea columnas nuevas usando expresiones de R:
+
+```{r paso-compute}
+encuesta <- step_compute(encuesta,
+  ingreso_miles = ingreso / 1000,
+  es_joven      = ifelse(edad < 30, 1L, 0L)
+)
+```
+
+### Recodificar en categorias
+
+`step_recode()` crea variables categoricas a partir de condiciones:
+
+```{r paso-recode, eval = FALSE}
+encuesta <- step_recode(encuesta, grupo_edad,
+  edad < 30              ~ "Joven",
+  edad >= 30 & edad < 60 ~ "Adulto",
+  edad >= 60             ~ "Mayor",
+  .default = "Desconocido"
+)
+```
+
+### Renombrar y eliminar columnas
+
+```{r paso-rename-remove}
+encuesta <- step_rename(encuesta, genero = sexo)
+```
+
+### Unir datos externos
+
+```{r paso-join}
+regiones <- data.table(
+  region = 1:5,
+  nombre_region = c("Norte", "Sur", "Este", "Oeste", "Centro")
+)
+encuesta <- step_join(encuesta, regiones, by = "region", type = "left")
+```
+
+### Ejecutar todos los pasos
+
+```{r hornear}
+encuesta <- bake_steps(encuesta)
+head(get_data(encuesta), 3)
+```
+
+## Workflows de estimacion
+
+`workflow()` ejecuta funciones del paquete `survey` y devuelve un `data.table`
+con resultados, errores estandar y coeficientes de variacion.
+
+```{r workflow}
+resultado <- workflow(
+  list(encuesta),
+  survey::svymean(~ingreso, na.rm = TRUE),
+  survey::svytotal(~ocupado, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+resultado
+```
+
+## Evaluacion de calidad
+
+`evaluate_cv()` clasifica el coeficiente de variacion:
+
+```{r cv}
+evaluate_cv(resultado$cv[1] * 100)
+```
+
+## Recetas
+
+Las recetas empaquetan pasos para reutilizarlos en distintas encuestas:
+
+```{r receta}
+rec <- recipe(
+  name        = "indicadores_laborales",
+  user        = "analista",
+  svy         = survey_empty(type = "ech", edition = "2023"),
+  description = "Indicadores estandar del mercado laboral"
+)
+
+class(rec)
+```
+
+Guardar en JSON:
+
+```{r guardar-receta}
+tf <- tempfile(fileext = ".json")
+save_recipe(rec, tf)
+```
+
+## Configuracion
+
+```{r config}
+lazy_default()       # procesamiento lazy actual
+use_copy_default()   # copia de datos actual
+show_engines()       # motores disponibles
+```
+
+## Proximos pasos
+
+- **[Panel Survey Analysis](panel-analysis.html)** -- paneles rotativos y
+  PoolSurvey.
+- **[Creating and Using Recipes](recipes.html)** -- flujos avanzados con
+  recetas.
+- **[ECH Case Study](ech-case-study.html)** -- analisis de la Encuesta
+  Continua de Hogares de Uruguay.

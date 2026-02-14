@@ -7,9 +7,13 @@
 lazy_default()
 }
 \value{
-Value
+Logical indicating the current lazy processing setting.
 }
 \description{
 Lazy processing
+}
+\examples{
+# Check current lazy processing default
+lazy_default()
 }
 \keyword{utils}
