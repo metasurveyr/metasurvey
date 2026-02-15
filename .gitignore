@@ -95,3 +95,5 @@ temp
 lib/
 revdep/
 do_files_iecon/
+example-data/
+metaSurvey.Rproj

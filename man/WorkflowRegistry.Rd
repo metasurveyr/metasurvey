@@ -103,7 +103,7 @@ List of matching RecipeWorkflow objects
 Filter workflows by criteria
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WorkflowRegistry$filter(
-  svy_type = NULL,
+  survey_type = NULL,
   edition = NULL,
   recipe_id = NULL,
   certification_level = NULL
@@ -113,7 +113,7 @@ Filter workflows by criteria
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{svy_type}}{Character survey type or NULL}
+\item{\code{survey_type}}{Character survey type or NULL}
 
 \item{\code{edition}}{Character edition or NULL}
 

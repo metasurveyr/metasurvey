@@ -394,7 +394,7 @@ receta_laboral <- steps_to_recipe(
 )
 
 class(receta_laboral)
-receta_laboral$name
+receta_laboral
 ```
 
 O defina una receta desde cero:
@@ -424,37 +424,16 @@ receta_minima <- recipe(
 )
 ```
 
-### Guardar y Cargar Recetas
+### Aplicar Recetas a Nuevos Datos
 
-Guarde recetas como JSON para compartir y control de versiones:
+Una vez publicada, cualquier persona puede buscar una receta y aplicarla:
 
-```{r guardar-receta}
-tf <- tempfile(fileext = ".json")
-save_recipe(receta_laboral, tf)
-
-# La receta se guarda con:
-# - Todas las definiciones de pasos
-# - Metadatos (autor, descripción, tema)
-# - Documentación de variables de entrada/salida
-# - Información de dependencias
-```
-
-Cargar recetas desde disco:
-
-```{r cargar-receta, eval = FALSE}
-receta_cargada <- read_recipe("indicadores_laborales.json")
+```{r aplicar-receta, eval = FALSE}
+# Buscar recetas existentes
+encontradas <- search_recipes("labor")
 
 # Aplicar a una nueva encuesta
-nueva_encuesta <- Survey$new(
-  data = datos_nuevos,
-  edition = "2024",
-  type = "ech",
-  psu = NULL,
-  engine = "data.table",
-  weight = add_weight(annual = "pesoano")
-)
-
-nueva_encuesta$add_recipe(receta_cargada)
+nueva_encuesta <- add_recipe(nueva_encuesta, encontradas[[1]])
 procesada <- bake_recipes(nueva_encuesta)
 ```
 
@@ -464,8 +443,6 @@ Las recetas documentan automáticamente sus transformaciones:
 
 ```{r receta-doc}
 doc <- receta_laboral$doc()
-
-# Examinar estructura de documentación
 names(doc)
 
 # Variables de entrada requeridas
@@ -473,9 +450,6 @@ doc$input_variables
 
 # Variables de salida creadas
 doc$output_variables
-
-# Resumen del pipeline
-doc$pipeline  # Secuencia paso a paso de transformaciones
 ```
 
 ## Configuración del Paquete
@@ -509,13 +483,13 @@ set_use_copy(TRUE)
 
 ## Próximos Pasos
 
-Ahora que comprende los fundamentos, explore temas avanzados:
+Ahora que comprende los fundamentos, explore estas guías:
 
-- **[Recetas](recipes.html)** -- Workflows avanzados de recetas, publicación y compartir
-- **[Análisis de Paneles](panel-analysis.html)** -- Paneles rotativos, PoolSurvey, análisis longitudinal
-- **[Diseños Complejos](complex-designs.html)** -- Estratificación, conglomerados, ponderadores replicados
-- **[Estudio de Caso ECH](ech-case-study.html)** -- Análisis completo del mundo real de la encuesta de hogares de Uruguay
-- **[Workflows de Prueba](testing-workflows.html)** -- Estrategias de validación para pipelines de producción
+- **[Recetas](recipes.html)** -- Registro de recetas, certificación y descubrimiento
+- **[Workflows de Estimación](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow` y estimaciones publicables
+- **[Diseños y Validación](complex-designs.html)** -- Estratificación, conglomerados, ponderadores replicados, validación
+- **[Paneles Rotativos y PoolSurvey](panel-analysis.html)** -- Análisis longitudinal con `RotativePanelSurvey` y `PoolSurvey`
+- **[Estudio de Caso ECH](ech-case-study.html)** -- Análisis laboral completo con comparación STATA
 
 ## Referencias
 

@@ -47,10 +47,10 @@ test_that("WorkflowRegistry filter by survey type", {
   reg$register(RecipeWorkflow$new(id = "2", name = "WF2", survey_type = "eaii"))
   reg$register(RecipeWorkflow$new(id = "3", name = "WF3", survey_type = "ech"))
 
-  results <- reg$filter(svy_type = "ech")
+  results <- reg$filter(survey_type = "ech")
   expect_equal(length(results), 2)
 
-  results <- reg$filter(svy_type = "eaii")
+  results <- reg$filter(survey_type = "eaii")
   expect_equal(length(results), 1)
 })
 

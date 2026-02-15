@@ -1,8 +1,8 @@
 ---
-title: "Working with Complex Survey Designs"
+title: "Survey Designs and Validation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Working with Complex Survey Designs}
+  %\VignetteIndexEntry{Survey Designs and Validation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,248 +12,369 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
 ```
+
+## Introduction
+
+Complex survey designs require special handling for proper variance
+estimation. metasurvey manages the survey design automatically through the
+`Survey` object so you can focus on the analysis, not the plumbing.
+
+This vignette covers:
+
+1. Creating surveys with different design types
+2. Configuring weights and engines
+3. Validating your processing pipeline
+4. Cross-checking results with the `survey` package
+
+## Setup
+
+We use the Academic Performance Index (API) dataset from the `survey`
+package. It includes stratified, clustered, and simple random sample
+versions.
 
 ```{r setup}
 library(metasurvey)
 library(survey)
 library(data.table)
+
+data(api, package = "survey")
+dt_strat <- data.table(apistrat)
 ```
 
-## Introduction
+## Survey Design Types
 
-Complex survey designs require special handling for proper variance estimation.
-This vignette demonstrates how to work with various survey designs using
-metasurvey, including stratified sampling, clustering, and replicate weights.
-
-## Types of Survey Designs
-
-### Simple Random Sampling with Weights
+### Simple Weighted Design
 
 The simplest design uses probability weights without clustering or
 stratification:
 
 ```{r simple}
-data("apistrat", package = "survey")
-dt <- data.table(apistrat)
-
-svy <- Survey$new(
-  data = dt,
+svy_simple <- Survey$new(
+  data   = dt_strat,
   edition = "2000",
-  type = "api",
-  psu = NULL,
+  type   = "api",
+  psu    = NULL,
   engine = "data.table",
   weight = add_weight(annual = "pw")
 )
 
-# View design details
-cat_design(svy)
+cat_design(svy_simple)
 ```
 
-### Loading from Files
+### Inspecting the Design
 
-For real-world data stored in files, use `load_survey()`:
+```{r inspect-design}
+# Check design type
+cat_design_type(svy_simple, "annual")
 
-```{r load-from-file}
-# Load from a CSV or Stata file
-svy_from_file <- load_survey(
-  path = "data/survey_2023.csv",
-  svy_type = "my_survey",
-  svy_edition = "2023",
-  svy_weight = add_weight(annual = "pw"),
-  svy_psu = ~1
-)
+# View metadata
+get_metadata(svy_simple)
 ```
 
-## Bootstrap Replicate Weights
+### Multiple Weight Types
 
-Bootstrap replicates provide robust variance estimation for complex designs:
+Many surveys provide different weights for different analysis periods (e.g.,
+annual vs monthly). metasurvey maps periodicity labels to weight columns:
 
-```{r bootstrap-setup}
-# Create survey with replicate weights loaded from a separate file
-bootstrap_survey <- load_survey(
-  path = "data/main_survey.csv",
-  svy_type = "national_survey",
-  svy_edition = "2023",
-  svy_weight = add_weight(
-    annual = add_replicate(
-      weight_var = "pw",
-      replicate_path = "data/bootstrap_replicates.csv",
-      replicate_id = c("respondent_id" = "id"),
-      replicate_pattern = "bsrep[0-9]+",
-      replicate_type = "bootstrap"
-    )
-  )
+```{r multi-weight}
+set.seed(42)
+dt_multi <- copy(dt_strat)
+dt_multi[, pw_monthly := pw * runif(.N, 0.9, 1.1)]
+
+svy_multi <- Survey$new(
+  data    = dt_multi,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw", monthly = "pw_monthly")
 )
 
-# View replicate information
-cat_design_type(bootstrap_survey, "annual")
-```
-
-## Working with Multiple Weight Types
-
-Many surveys provide different weights for different analysis purposes:
-
-```{r multiple-weights}
-# Survey with multiple weight options (e.g. ECH Uruguay)
-multi_weight_survey <- load_survey(
-  path = "data/ech_2023.csv",
-  svy_type = "ech",
-  svy_edition = "2023",
-  svy_weight = add_weight(
-    annual = "pesoano",
-    monthly = "pesomes"
-  )
-)
-
-# Access different designs by estimation_type in workflow()
-annual_result <- workflow(
-  list(multi_weight_survey),
-  survey::svymean(~income, na.rm = TRUE),
+# Use different weight types in workflow()
+annual_est <- workflow(
+  list(svy_multi),
+  survey::svymean(~api00, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-monthly_result <- workflow(
-  list(multi_weight_survey),
-  survey::svymean(~income, na.rm = TRUE),
+monthly_est <- workflow(
+  list(svy_multi),
+  survey::svymean(~api00, na.rm = TRUE),
   estimation_type = "monthly"
+)
+
+cat("Annual estimate:", round(annual_est$value, 1), "\n")
+cat("Monthly estimate:", round(monthly_est$value, 1), "\n")
+```
+
+### Bootstrap Replicate Weights
+
+For surveys that provide bootstrap replicates (like Uruguay's ECH), use
+`add_replicate()` inside `add_weight()`:
+
+```{r bootstrap, eval = FALSE}
+# This example requires external files
+svy_boot <- load_survey(
+  path       = "data/main_survey.csv",
+  svy_type   = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(
+    annual = add_replicate(
+      weight_var       = "pesoano",
+      replicate_path   = "data/bootstrap_replicates.csv",
+      replicate_id     = c("numero" = "id"),
+      replicate_pattern = "bsrep[0-9]+",
+      replicate_type   = "bootstrap"
+    )
+  )
 )
 ```
 
-## Variance Estimation Methods
+When replicate weights are configured, `workflow()` automatically uses
+them for variance estimation via `survey::svrepdesign()`.
+
+## Engine and Processing Configuration
+
+### Data Engine
+
+metasurvey uses `data.table` by default for fast data manipulation:
+
+```{r engine}
+# Current engine
+get_engine()
+
+# Available engines
+show_engines()
+```
+
+### Lazy Processing
+
+By default, steps are recorded but not executed until `bake_steps()` is
+called. This enables validation before execution:
+
+```{r lazy}
+# Check current setting
+lazy_default()
+
+# Change for the session (not recommended for most workflows)
+# set_lazy_processing(FALSE)
+```
+
+### Copy Behavior
+
+Control whether step operations modify data in-place or work on copies:
+
+```{r copy}
+# Current setting
+use_copy_default()
+
+# In-place is faster but modifies the original
+# set_use_copy(FALSE)
+```
+
+## Variance Estimation
 
 ### Design-Based Variance
 
-Standard design-based variance estimation using `workflow()`:
+Standard variance estimation using the survey design:
 
-```{r design-variance}
+```{r variance}
 results <- workflow(
-  list(svy),
+  list(svy_simple),
   survey::svymean(~api00, na.rm = TRUE),
   survey::svytotal(~enroll, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-results[, .(stat, value, se)]
+results
 ```
 
-### Replicate-Based Variance
+### Domain Estimation
 
-When replicate weights are available, metasurvey uses them automatically:
+Compute estimates for subpopulations using `survey::svyby()`:
 
-```{r replicate-variance}
-# workflow() detects the replicate design and uses it for variance estimation
-results_rep <- workflow(
-  list(bootstrap_survey),
-  survey::svymean(~income, na.rm = TRUE),
-  estimation_type = "annual"
-)
-
-results_rep[, .(stat, value, se)]
-```
-
-## Domain Estimation
-
-Estimating for subgroups (domains) of the population using `survey::svyby()`:
-
-```{r domains}
-# Compute domain indicators first
-svy_with_domain <- step_compute(svy,
-  large_school = ifelse(enroll >= 600, 1L, 0L)
-)
-svy_with_domain <- bake_steps(svy_with_domain)
-
-# Estimate by domains using svyby
+```{r domain}
 domain_results <- workflow(
-  list(svy_with_domain),
+  list(svy_simple),
   survey::svyby(~api00, ~stype, survey::svymean, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-print(domain_results)
+domain_results
 ```
-
-## Complex Estimation Procedures
 
 ### Ratios
 
-```{r ratios}
-# Calculate ratios between variables
-ratio_results <- workflow(
-  list(svy),
+```{r ratio}
+ratio_result <- workflow(
+  list(svy_simple),
   survey::svyratio(~api00, ~api99),
   estimation_type = "annual"
 )
 
-print(ratio_results)
+ratio_result
 ```
 
-### Regression Models
+## Validating Your Pipeline
 
-Survey-weighted regression models can be fit using the survey design object
-directly:
+### Step-by-Step Verification
 
-```{r regression}
-# Compute derived variables
-svy_reg <- step_compute(svy,
-  api_change = api00 - api99,
-  enrollment_log = log(enroll)
-)
-svy_reg <- bake_steps(svy_reg)
+When building complex pipelines, verify each step independently:
 
-# Access the design object for regression
-model_fit <- survey::svyglm(
-  api00 ~ api99 + enroll,
-  design = svy_reg$design$annual
+```{r validate-steps}
+# Step 1: Compute new variable
+svy_v <- step_compute(svy_simple,
+  api_diff = api00 - api99,
+  comment = "API score difference"
 )
 
-summary(model_fit)
+# Check that the step was recorded
+steps <- get_steps(svy_v)
+cat("Pending steps:", length(steps), "\n")
 ```
 
-## Quality Assessment
+### Cross-Validation with the survey Package
 
-### Design Effects
+Compare metasurvey workflow results with direct `survey` package calls:
 
-Understanding the impact of complex design on variance:
+```{r cross-validate}
+# Method 1: Direct survey package
+design <- svydesign(id = ~1, weights = ~pw, data = dt_strat)
+direct_mean <- svymean(~api00, design)
 
-```{r design-effects}
-# Compare estimates from the survey design
-results <- workflow(
-  list(svy),
+# Method 2: metasurvey workflow
+wf_result <- workflow(
+  list(svy_simple),
   survey::svymean(~api00, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-# Evaluate coefficient of variation (expects percentage)
-evaluate_cv(results$cv[1] * 100)
+cat("Direct estimate:", round(coef(direct_mean), 2), "\n")
+cat("Workflow estimate:", round(wf_result$value, 2), "\n")
+cat("Match:", all.equal(
+  as.numeric(coef(direct_mean)),
+  wf_result$value,
+  tolerance = 1e-6
+), "\n")
 ```
 
-## Best Practices for Complex Designs
+### Visualizing the Pipeline
+
+Use `view_graph()` to visualize the step dependency graph:
+
+```{r view-graph, eval = FALSE}
+# Requires the visNetwork package
+svy_viz <- step_compute(svy_simple,
+  api_diff = api00 - api99,
+  high_growth = ifelse(api00 - api99 > 50, 1L, 0L)
+)
+view_graph(svy_viz, init_step = "Load API data")
+```
+
+### Quality Assessment
+
+Evaluate estimation quality using the coefficient of variation:
+
+```{r cv-check}
+results_quality <- workflow(
+  list(svy_simple),
+  survey::svymean(~api00, na.rm = TRUE),
+  survey::svymean(~enroll, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+for (i in seq_len(nrow(results_quality))) {
+  cv_pct <- results_quality$cv[i] * 100
+  cat(
+    results_quality$stat[i], ":",
+    round(cv_pct, 1), "% CV -",
+    evaluate_cv(cv_pct), "\n"
+  )
+}
+```
+
+### Recipe Validation
+
+Verify that recipes and their steps are consistent:
+
+```{r roundtrip}
+# Create steps and recipe
+svy_rt <- step_compute(svy_simple, api_diff = api00 - api99)
+
+my_recipe <- steps_to_recipe(
+  name        = "API Test",
+  user        = "QA Team",
+  svy         = svy_rt,
+  description = "Recipe for validation",
+  steps       = get_steps(svy_rt)
+)
+
+# Check documentation is correct
+doc <- my_recipe$doc()
+cat("Input variables:", paste(doc$input_variables, collapse = ", "), "\n")
+cat("Output variables:", paste(doc$output_variables, collapse = ", "), "\n")
+
+# Validate against the survey
+my_recipe$validate(svy_rt)
+```
+
+## Validation Checklist
+
+Before deploying a survey processing pipeline, verify:
+
+1. **Data integrity** -- row counts, column names, and data types after
+   each step
+2. **Weight validation** -- weight columns exist and are positive
+3. **Design verification** -- survey design matches the expected
+   specification (PSU, strata, weights)
+4. **Recipe reproducibility** -- save and reload recipes, verify JSON
+   round-trip
+5. **Cross-validation** -- compare key estimates with published values or
+   direct `survey` package calls
+6. **CV thresholds** -- flag estimates with high coefficients of variation
+
+```{r checklist}
+validate_pipeline <- function(svy) {
+  data <- get_data(svy)
+  checks <- list(
+    has_data    = !is.null(data),
+    has_rows    = nrow(data) > 0,
+    has_weights = all(
+      unlist(svy$weight)[is.character(unlist(svy$weight))] %in% names(data)
+    )
+  )
+
+  passed <- all(unlist(checks))
+  if (passed) {
+    message("All validation checks passed")
+  } else {
+    failed <- names(checks)[!unlist(checks)]
+    warning("Failed checks: ", paste(failed, collapse = ", "))
+  }
+  invisible(checks)
+}
+
+validate_pipeline(svy_simple)
+```
+
+## Best Practices
 
 1. **Always use appropriate weights** -- never compute unweighted statistics
-   from survey data.
-2. **Check design effects** -- high design effects (>2) indicate substantial
-   clustering or stratification impact on variance.
-3. **Use replicate weights when available** -- they provide more robust
-   variance estimates for complex procedures.
-4. **Ensure adequate domain sample sizes** -- consider combining small
-   domains when CVs are too high.
-5. **Document your design** -- include the survey design specification,
-   weight construction details, and variance estimation method.
+   from survey data
+2. **Use replicate weights when available** -- they provide more robust
+   variance estimates
+3. **Check domain sample sizes** -- combine small domains when CVs are too
+   high
+4. **Document your design** -- include design specification, weight
+   construction, and variance method
+5. **Cross-validate key estimates** -- compare with published values or
+   alternative methods
 
-## Troubleshooting Common Issues
+## Next Steps
 
-### Singular Variance Matrices
-This can happen with small domains or insufficient variation. Consider
-combining categories or using a different variance estimation approach.
-
-### Memory Issues with Large Bootstrap Samples
-For large datasets with many replicates, consider using fewer replicates
-for preliminary analysis or processing in chunks.
-
-### Negative Variance Estimates
-Rare but possible with some complex designs. May indicate model
-misspecification or extreme values in the data.
+- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow`, and publishable estimations
+- **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Longitudinal analysis with `RotativePanelSurvey` and `PoolSurvey`
+- **[Getting Started](getting-started.html)** -- Review the basics of steps and survey objects

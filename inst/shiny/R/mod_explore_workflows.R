@@ -4,41 +4,43 @@ explore_workflows_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    # Hero section
+    hero_section_ui("workflows"),
+
     # Search & Filters
     htmltools::tags$div(class = "search-container",
-      shiny::fluidRow(
-        shiny::column(5,
+      htmltools::tags$div(class = "search-row",
+        htmltools::tags$div(class = "search-field",
           shiny::textInput(ns("search"), NULL,
-                          placeholder = "Search workflows by name or description...",
+                          placeholder = "Search workflows...",
                           width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_svy"), "Survey",
-                           choices = c("All" = "", "ECH" = "ech", "EAII" = "eaii",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_svy"), NULL,
+                           choices = c("Survey" = "", "ECH" = "ech", "EAII" = "eaii",
                                      "EPH" = "eph", "EAI" = "eai"),
                            width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_est_type"), "Estimation",
-                           choices = c("All" = "",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_est_type"), NULL,
+                           choices = c("Estimation" = "",
                                      "Annual" = "annual",
                                      "Quarterly" = "quarterly",
                                      "Monthly" = "monthly"),
                            width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_cert"), "Certification",
-                           choices = c("All" = "",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_cert"), NULL,
+                           choices = c("Certification" = "",
                                      "Official" = "official",
                                      "Reviewed" = "reviewed",
                                      "Community" = "community"),
                            width = "100%")
         ),
-        shiny::column(1,
+        htmltools::tags$div(class = "refresh-field",
           shiny::actionButton(ns("btn_refresh"), "",
                             icon = shiny::icon("sync"),
-                            class = "btn-outline-secondary btn-sm",
-                            style = "margin-top: 25px;")
+                            class = "btn-outline-secondary btn-sm")
         )
       )
     ),

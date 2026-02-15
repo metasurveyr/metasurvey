@@ -3,7 +3,7 @@
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/metasSurvey)](https://cran.r-project.org/package=metasurvey)
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
-[![Codecov test coverage](https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
+[![Codecov test coverage](https://codecov.io/gh/metasurveyr/metasurvey/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/metasurveyr/metasurvey/main.svg)](https://results.pre-commit.ci/latest/github/metasurveyr/metasurvey/main)
 <!-- badges: end -->
 

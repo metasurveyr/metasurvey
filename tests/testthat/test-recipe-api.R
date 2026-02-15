@@ -107,7 +107,7 @@ test_that("local backend: filter works", {
   backend$publish(make_api_recipe("A", topic = "labor"))
   backend$publish(make_api_recipe("B", topic = "income"))
 
-  results <- backend$filter(svy_type = "ech")
+  results <- backend$filter(survey_type = "ech")
   expect_equal(length(results), 2)
 })
 

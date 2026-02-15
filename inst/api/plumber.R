@@ -37,6 +37,33 @@ library(jose)
 #* @plumber
 function(pr) {
   pr$setSerializer(serializer_json(auto_unbox = TRUE))
+
+  # Enhance OpenAPI spec with security scheme and API info
+  spec <- pr$getApiSpec()
+  spec$info <- list(
+    title = "metasurvey API",
+    description = paste(
+      "REST API for sharing survey recipes, estimation workflows, and",
+      "ANDA variable metadata. Built with plumber + MongoDB.",
+      "\n\nAuthentication: POST /auth/login returns a JWT token.",
+      "Include it as `Authorization: Bearer <token>` in requests",
+      "that require authentication."
+    ),
+    version = "2.0.0",
+    contact = list(
+      name = "metasurvey",
+      url = "https://metasurveyr.github.io/metasurvey"
+    )
+  )
+  spec$components$securitySchemes <- list(
+    bearerAuth = list(
+      type = "http",
+      scheme = "bearer",
+      bearerFormat = "JWT",
+      description = "JWT token from /auth/login (24h) or /auth/generate-token (90 days)"
+    )
+  )
+  pr$setApiSpec(spec)
 }
 
 # -- Config -------------------------------------------------------------------
@@ -54,13 +81,14 @@ if (!nzchar(MONGO_URI)) {
 
 # -- mongolite connections (one per collection, reused) -----------------------
 
-db_users     <- mongolite::mongo(collection = "users",     db = DATABASE, url = MONGO_URI)
-db_recipes   <- mongolite::mongo(collection = "recipes",   db = DATABASE, url = MONGO_URI)
-db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
+db_users     <- mongolite::mongo(collection = "users",          db = DATABASE, url = MONGO_URI)
+db_recipes   <- mongolite::mongo(collection = "recipes",        db = DATABASE, url = MONGO_URI)
+db_workflows <- mongolite::mongo(collection = "workflows",      db = DATABASE, url = MONGO_URI)
+db_anda      <- mongolite::mongo(collection = "anda_variables", db = DATABASE, url = MONGO_URI)
 
 message(sprintf("[metasurvey-api] Connected to MongoDB: %s (db: %s)", sub("://.*@", "://***@", MONGO_URI), DATABASE))
-message(sprintf("[metasurvey-api] Collections — users: %d, recipes: %d, workflows: %d",
-                db_users$count(), db_recipes$count(), db_workflows$count()))
+message(sprintf("[metasurvey-api] Collections — users: %d, recipes: %d, workflows: %d, anda: %d",
+                db_users$count(), db_recipes$count(), db_workflows$count(), db_anda$count()))
 
 # -- JWT helpers --------------------------------------------------------------
 
@@ -136,14 +164,17 @@ function(req, res) {
 # AUTH
 # ==============================================================================
 
-#* Register a new user
+#* Register a new user. Individual accounts are auto-approved. Institutional accounts require admin review.
 #* @tag Auth
 #* @post /auth/register
 #* @param name:str User display name
-#* @param email:str Email address
-#* @param password:str Password (will be hashed)
-#* @param user_type:str One of: individual, institutional_member, institution
+#* @param email:str Email address (must be unique)
+#* @param password:str Password (hashed with SHA-256 before storage)
+#* @param user_type:str Account type: individual, institutional_member, or institution
 #* @param institution:str Institution name (required for institutional_member)
+#* @response 201 Account created. Returns {ok, token, user} for individual; {ok, pending, message, user} for institutional.
+#* @response 400 Missing required fields or invalid user_type.
+#* @response 409 Email already registered.
 function(req, res, name, email, password, user_type = "individual", institution = NULL) {
   if (missing(name) || missing(email) || missing(password)) {
     res$status <- 400L
@@ -215,11 +246,14 @@ function(req, res, name, email, password, user_type = "individual", institution 
   })
 }
 
-#* Login
+#* Login and receive a JWT token (24h expiry). Use the token in Authorization: Bearer <token> header.
 #* @tag Auth
 #* @post /auth/login
-#* @param email:str Email address
-#* @param password:str Password
+#* @param email:str Registered email address
+#* @param password:str Account password
+#* @response 200 Returns {ok, token, user}.
+#* @response 401 Invalid email or password.
+#* @response 403 Account pending review or rejected.
 function(req, res, email, password) {
   if (missing(email) || missing(password)) {
     res$status <- 400L
@@ -274,9 +308,11 @@ function(req, res, email, password) {
   )
 }
 
-#* Get current user profile
+#* Get current user profile. Requires JWT authentication.
 #* @tag Auth
 #* @get /auth/me
+#* @response 200 Returns {name, email, user_type, institution, verified, created_at}.
+#* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -302,9 +338,10 @@ function(req, res) {
   )
 }
 
-#* Refresh JWT token
+#* Refresh JWT token. Issue a new 24h token. Requires valid (non-expired) JWT.
 #* @tag Auth
 #* @post /auth/refresh
+#* @response 200 Returns {ok, token}.
 function(req, res) {
   user <- require_auth(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -318,9 +355,10 @@ function(req, res) {
   list(ok = TRUE, token = token)
 }
 
-#* Generate a long-lived API token (90 days) for R scripting
+#* Generate a long-lived API token (90 days) for R scripting. Requires JWT authentication.
 #* @tag Auth
 #* @post /auth/generate-token
+#* @response 200 Returns {ok, token, expires_in, expires_at}.
 function(req, res) {
   user <- require_auth(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -355,9 +393,11 @@ function(req, res) {
 # ADMIN — Institution review
 # ==============================================================================
 
-#* List users pending review
+#* List institutional accounts pending admin review. Requires admin JWT.
 #* @tag Admin
 #* @get /admin/pending-users
+#* @response 200 Returns {ok, count, users}.
+#* @response 403 Admin access required.
 function(req, res) {
   user <- require_admin(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -376,9 +416,10 @@ function(req, res) {
   })
 }
 
-#* Approve an institutional account
+#* Approve an institutional account. Sets review_status to "approved". Requires admin JWT.
 #* @tag Admin
 #* @post /admin/approve/<email>
+#* @response 200 Returns {ok, message}.
 function(req, res, email) {
   user <- require_admin(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -399,9 +440,10 @@ function(req, res, email) {
   })
 }
 
-#* Reject an institutional account
+#* Reject an institutional account. Sets review_status to "rejected". Requires admin JWT.
 #* @tag Admin
 #* @post /admin/reject/<email>
+#* @response 200 Returns {ok, message}.
 function(req, res, email) {
   user <- require_admin(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -426,21 +468,22 @@ function(req, res, email) {
 # RECIPES
 # ==============================================================================
 
-#* List recipes (with optional search/filter)
+#* List recipes with optional search, filtering, and pagination. Sorted by downloads descending.
 #* @tag Recipes
 #* @get /recipes
-#* @param search:str Search by name or description
-#* @param svy_type:str Filter by survey type (ech, eaii, eph, eai)
-#* @param topic:str Filter by topic
-#* @param certification:str Filter by certification level
+#* @param search:str Regex search on recipe name
+#* @param survey_type:str Filter by survey type: ech, eaii, eph, eai
+#* @param topic:str Filter by topic: labor_market, income, education, health, demographics, housing
+#* @param certification:str Filter by certification level: community, reviewed, official
 #* @param user:str Filter by author email
 #* @param limit:int Max results (default 50)
-#* @param offset:int Skip results (default 0)
-function(req, res, search = NULL, svy_type = NULL, topic = NULL,
+#* @param offset:int Skip N results for pagination (default 0)
+#* @response 200 Returns {ok, count, recipes: [{id, name, user, survey_type, edition, description, topic, version, downloads, steps, depends_on, certification, user_info, doc, ...}]}.
+function(req, res, search = NULL, survey_type = NULL, topic = NULL,
          certification = NULL, user = NULL, limit = 50, offset = 0) {
   filter <- list()
-  if (!is.null(svy_type) && nzchar(svy_type))
-    filter$svy_type <- svy_type
+  if (!is.null(survey_type) && nzchar(survey_type))
+    filter$survey_type <- survey_type
   if (!is.null(topic) && nzchar(topic))
     filter$topic <- topic
   if (!is.null(certification) && nzchar(certification))
@@ -476,9 +519,11 @@ function(req, res, search = NULL, svy_type = NULL, topic = NULL,
   })
 }
 
-#* Get a single recipe by ID
+#* Get a single recipe by its unique ID.
 #* @tag Recipes
 #* @get /recipes/<id>
+#* @response 200 Returns {ok, recipe: {id, name, user, survey_type, ...}}.
+#* @response 404 Recipe not found.
 function(req, res, id) {
   tryCatch({
     iter <- db_recipes$iterate(
@@ -500,9 +545,12 @@ function(req, res, id) {
   })
 }
 
-#* Publish a new recipe (requires authentication)
+#* Publish a new recipe. Requires JWT authentication. Send the recipe as JSON body with required fields: name, survey_type, edition. Optional: description, topic, steps, depends_on, categories, version, doc.
 #* @tag Recipes
 #* @post /recipes
+#* @response 201 Returns {ok, id}.
+#* @response 400 Missing required fields.
+#* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -514,7 +562,7 @@ function(req, res) {
   }
 
   # Validate required fields
-  required <- c("name", "svy_type", "edition")
+  required <- c("name", "survey_type", "edition")
   missing_fields <- required[!required %in% names(body)]
   if (length(missing_fields) > 0) {
     res$status <- 400L
@@ -551,9 +599,10 @@ function(req, res) {
   })
 }
 
-#* Increment recipe download counter
+#* Increment recipe download counter. No authentication required.
 #* @tag Recipes
 #* @post /recipes/<id>/download
+#* @response 200 Returns {ok}.
 function(req, res, id) {
   tryCatch({
     db_recipes$update(
@@ -571,15 +620,16 @@ function(req, res, id) {
 # WORKFLOWS
 # ==============================================================================
 
-#* List workflows (with optional search/filter)
+#* List workflows with optional search, filtering, and pagination. Sorted by downloads descending.
 #* @tag Workflows
 #* @get /workflows
-#* @param search:str Search by name or description
-#* @param survey_type:str Filter by survey type
+#* @param search:str Regex search on workflow name
+#* @param survey_type:str Filter by survey type: ech, eaii, eph, eai
 #* @param recipe_id:str Filter by referenced recipe ID
 #* @param user:str Filter by author email
 #* @param limit:int Max results (default 50)
-#* @param offset:int Skip results (default 0)
+#* @param offset:int Skip N results for pagination (default 0)
+#* @response 200 Returns {ok, count, workflows: [{id, name, user, survey_type, edition, estimation_type, recipe_ids, calls, ...}]}.
 function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
          user = NULL, limit = 50, offset = 0) {
   filter <- list()
@@ -615,9 +665,11 @@ function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
   })
 }
 
-#* Get a single workflow by ID
+#* Get a single workflow by its unique ID.
 #* @tag Workflows
 #* @get /workflows/<id>
+#* @response 200 Returns {ok, workflow: {id, name, user, survey_type, ...}}.
+#* @response 404 Workflow not found.
 function(req, res, id) {
   tryCatch({
     iter <- db_workflows$iterate(
@@ -639,9 +691,12 @@ function(req, res, id) {
   })
 }
 
-#* Publish a new workflow (requires authentication)
+#* Publish a new workflow. Requires JWT authentication. Send the workflow as JSON body with required fields: name, survey_type, edition. Optional: description, estimation_type, recipe_ids, calls, call_metadata, categories, version.
 #* @tag Workflows
 #* @post /workflows
+#* @response 201 Returns {ok, id}.
+#* @response 400 Missing required fields.
+#* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
   if (is.list(user) && !is.null(user$error)) return(user)
@@ -688,9 +743,10 @@ function(req, res) {
   })
 }
 
-#* Increment workflow download counter
+#* Increment workflow download counter. No authentication required.
 #* @tag Workflows
 #* @post /workflows/<id>/download
+#* @response 200 Returns {ok}.
 function(req, res, id) {
   tryCatch({
     db_workflows$update(
@@ -705,12 +761,38 @@ function(req, res, id) {
 }
 
 # ==============================================================================
+# ANDA METADATA
+# ==============================================================================
+
+#* Get ANDA variable metadata from INE Uruguay's data catalog. Returns variable labels, types, and value categories.
+#* @tag ANDA
+#* @param survey_type:str Survey type (default "ech")
+#* @param names:str Comma-separated variable names (returns all if empty)
+#* @get /anda/variables
+#* @response 200 Returns {ok, count, variables: [{survey_type, name, label, type, value_labels, description, source_edition, source_catalog_id}]}.
+function(survey_type = "ech", names = "") {
+  query <- list(survey_type = survey_type)
+
+  if (nzchar(names)) {
+    var_names <- trimws(strsplit(names, ",")[[1]])
+    var_names <- tolower(var_names)
+    query$name <- list(`$in` = var_names)
+  }
+
+  query_json <- jsonlite::toJSON(query, auto_unbox = TRUE)
+  docs <- db_anda$find(query_json, fields = '{"_id": 0}')
+
+  list(ok = TRUE, count = nrow(docs), variables = docs)
+}
+
+# ==============================================================================
 # HEALTH
 # ==============================================================================
 
-#* API health check
+#* API health check. Returns service status and MongoDB connection state. No authentication required.
 #* @tag System
 #* @get /health
+#* @response 200 Returns {status, service, version, database, mongodb, timestamp}.
 function() {
   # Quick connectivity check
   ok <- tryCatch({

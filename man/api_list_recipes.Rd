@@ -6,7 +6,7 @@
 \usage{
 api_list_recipes(
   search = NULL,
-  svy_type = NULL,
+  survey_type = NULL,
   topic = NULL,
   certification = NULL,
   user = NULL,
@@ -17,7 +17,7 @@ api_list_recipes(
 \arguments{
 \item{search}{Text search (matches name/description)}
 
-\item{svy_type}{Filter by survey type (e.g., \code{"ech"})}
+\item{survey_type}{Filter by survey type (e.g., \code{"ech"})}
 
 \item{topic}{Filter by topic}
 
@@ -38,6 +38,6 @@ Fetch recipes with optional search and filters.
 \examples{
 \dontrun{
 configure_api("https://metasurvey-api.example.com")
-recipes <- api_list_recipes(svy_type = "ech")
+recipes <- api_list_recipes(survey_type = "ech")
 }
 }

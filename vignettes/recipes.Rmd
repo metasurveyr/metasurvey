@@ -1,8 +1,8 @@
 ---
-title: "Creating and Using Recipes"
+title: "Creating and Sharing Recipes"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Creating and Using Recipes}
+  %\VignetteIndexEntry{Creating and Sharing Recipes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,151 +16,345 @@ knitr::opts_chunk$set(
 )
 ```
 
-## What are Recipes?
+## Why Recipes?
 
-Recipes are **reusable collections of transformation steps**. They solve a
-common problem in survey analysis: applying the same variable construction logic
-across different editions of the same survey, or sharing standardised indicator
-definitions with collaborators.
+Anyone who works with household survey microdata knows this pattern: you
+download the raw files, open the codebook, and spend days recoding labor
+status, harmonizing income variables, and building indicators. Months later,
+a colleague starts the same project and writes the same code from scratch.
 
-A `Recipe` object stores:
+In STATA, teams share `.do` files---but they are tightly coupled to specific
+file paths and variable names, and there is no standard way to discover or
+validate them.
 
-- **Metadata** -- name, author, survey type, edition, description.
-- **Steps** -- the sequence of transformations (compute, recode, join, etc.).
-- **Optional fields** -- DOI for citation, topic for search.
+**Recipes** are metasurvey's answer to this problem. A recipe is a portable,
+documented, validated collection of transformation steps that can be:
 
-## Creating a Recipe
-
-Use `recipe()` to create an empty recipe with metadata:
-
-```{r recipe-create}
-library(metasurvey)
-library(data.table)
-
-labor_recipe <- recipe(
-  name        = "labor_indicators",
-  user        = "analyst_team",
-  svy         = survey_empty(type = "ech", edition = "2023"),
-  description = "Standard labor force indicators following ILO definitions"
-)
-
-class(labor_recipe)
-```
+- Applied to any compatible survey edition with a single function call
+- Saved as JSON for version control and sharing
+- Published to a searchable registry where others can discover and reuse them
+- Certified by institutions for official use
 
 ## Building a Recipe from Steps
 
-A more common workflow is to develop your transformations on a real survey, then
-convert the recorded steps into a recipe with `steps_to_recipe()`.
+The most common workflow is to develop transformations interactively on a
+survey, then convert the recorded steps into a recipe.
 
 ```{r build-recipe}
+library(metasurvey)
+library(data.table)
+
 set.seed(42)
-n <- 100
+n <- 200
+
+# Simulate survey microdata
 dt <- data.table(
   id       = 1:n,
   age      = sample(18:80, n, replace = TRUE),
-  income   = round(runif(n, 500, 8000)),
-  employed = sample(0:1, n, replace = TRUE),
-  w        = round(runif(n, 0.5, 3.0), 4)
+  sex      = sample(c(1, 2), n, replace = TRUE),
+  income   = round(runif(n, 5000, 80000)),
+  activity = sample(c(2, 3, 5, 6), n, replace = TRUE,
+                    prob = c(0.55, 0.05, 0.05, 0.35)),
+  weight   = round(runif(n, 0.5, 3.0), 4)
 )
 
 svy <- Survey$new(
-  data = dt, edition = "2023", type = "ech",
-  psu = NULL, engine = "data.table",
-  weight = add_weight(annual = "w")
+  data    = dt,
+  edition = "2023",
+  type    = "ech",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "weight")
 )
 
 # Develop transformations interactively
-svy <- step_compute(svy, income_thousands = income / 1000)
-svy <- bake_steps(svy)
-
-# Convert to recipe
-my_recipe <- steps_to_recipe(
-  name        = "income_prep",
-  user        = "analyst",
-  svy         = svy,
-  description = "Income preparation recipe",
-  steps       = get_steps(svy),
-  topic       = "income"
+svy <- step_compute(svy,
+  income_thousands = income / 1000,
+  employed = ifelse(activity == 2, 1L, 0L),
+  comment = "Income scaling and employment indicator"
 )
 
-my_recipe$name
-my_recipe$description
-length(my_recipe$steps)
+svy <- step_recode(svy, labor_status,
+  activity == 2      ~ "Employed",
+  activity %in% 3:5  ~ "Unemployed",
+  activity %in% 6:8  ~ "Inactive",
+  .default = "Other",
+  comment = "ILO labor force classification"
+)
+
+svy <- step_recode(svy, age_group,
+  age < 25 ~ "Youth",
+  age < 45 ~ "Adult",
+  age < 65 ~ "Mature",
+  .default = "Senior",
+  comment = "Standard age groups"
+)
+
+# Convert all steps to a recipe
+labor_recipe <- steps_to_recipe(
+  name        = "Labor Force Indicators",
+  user        = "Research Team",
+  svy         = svy,
+  description = "Standard labor force indicators following ILO definitions",
+  steps       = get_steps(svy),
+  topic       = "labor"
+)
+
+labor_recipe
 ```
 
-## Saving and Loading Recipes
+You can also create an empty recipe and attach it to a survey for later
+use:
 
-Recipes are serialised as JSON for portability.
+```{r recipe-constructor}
+empty_recipe <- recipe(
+  name        = "Demographics",
+  user        = "analyst",
+  svy         = survey_empty(type = "ech", edition = "2023"),
+  description = "Basic demographic recoding"
+)
 
-### Save to file
-
-```{r recipe-save}
-tf <- tempfile(fileext = ".json")
-save_recipe(my_recipe, tf)
+class(empty_recipe)
 ```
 
-### Read from file
+## Recipe Documentation
 
-```{r recipe-read, eval = FALSE}
-loaded_recipe <- read_recipe("my_recipe.json")
+Every recipe can auto-generate documentation from its steps. The `doc()`
+method returns a list with input variables, output variables, and the
+step-by-step pipeline:
+
+```{r recipe-doc}
+doc <- labor_recipe$doc()
+names(doc)
 ```
 
-The JSON format makes recipes easy to version-control in Git and share via
-repositories.
+```{r recipe-doc-detail}
+# What variables does the recipe need?
+doc$input_variables
+
+# What variables does it create?
+doc$output_variables
+
+# Step-by-step pipeline
+doc$pipeline
+```
+
+This documentation is generated automatically---no manual effort required.
+
+## Recipe Validation
+
+Before applying a recipe to new data, check that all required variables
+exist. The `validate()` method stops with a clear error if any dependency
+is missing:
+
+```{r recipe-validate}
+# Validate against our survey (should pass)
+labor_recipe$validate(svy)
+```
 
 ## Applying Recipes to a Survey
 
-Once a survey has recipes attached, call `bake_recipes()` to apply all of them:
+Attach one or more recipes to a survey and apply them with `bake_recipes()`:
 
-```{r bake-recipes, eval = FALSE}
-# Attach and apply
-svy$add_recipe(my_recipe)
-processed <- bake_recipes(svy)
-```
-
-## Recipe Repository
-
-metasurvey provides an API for sharing recipes with the community. You can
-search for existing recipes by survey type, edition, or topic.
-
-### Search for recipes
-
-```{r get-recipe, eval = FALSE}
-# Search by survey type and topic
-recipes <- get_recipe(
-  svy_type = "ech",
-  topic    = "labor"
+```{r apply-recipe}
+# Create a fresh survey with same structure (simulating a new edition)
+set.seed(99)
+dt2 <- data.table(
+  id       = 1:100,
+  age      = sample(18:80, 100, replace = TRUE),
+  sex      = sample(c(1, 2), 100, replace = TRUE),
+  income   = round(runif(100, 5000, 80000)),
+  activity = sample(c(2, 3, 5, 6), 100, replace = TRUE,
+                    prob = c(0.55, 0.05, 0.05, 0.35)),
+  weight   = round(runif(100, 0.5, 3.0), 4)
 )
-```
 
-### Publish a recipe
-
-```{r publish, eval = FALSE}
-# Requires API authentication
-set_api_key("your-api-key")
-publish_recipe(my_recipe)
-```
-
-## Validating Recipes
-
-Before applying a recipe to a survey, check compatibility:
-
-```{r validate, eval = FALSE}
-validate_recipe(
-  svy_type           = "ech",
-  svy_edition        = "2023",
-  recipe_svy_edition = my_recipe$edition,
-  recipe_svy_type    = my_recipe$survey_type
+svy2 <- Survey$new(
+  data = dt2, edition = "2024", type = "ech",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "weight")
 )
+
+# Attach and bake
+svy2 <- add_recipe(svy2, labor_recipe)
+svy2 <- bake_recipes(svy2)
+
+head(get_data(svy2)[, .(id, income_thousands, labor_status, age_group)], 5)
 ```
+
+The same recipe applied to a different edition produces consistent results.
+This is how metasurvey ensures reproducibility across time.
+
+## Recipe Categories
+
+Categories help organize recipes by topic. metasurvey provides a set of
+default categories:
+
+```{r categories}
+cats <- default_categories()
+vapply(cats, function(c) c$name, character(1))
+```
+
+Add categories to a recipe using the pipe-friendly `add_category()`:
+
+```{r add-category}
+labor_recipe <- add_category(labor_recipe, "labor_market", "Labor market analysis")
+labor_recipe <- add_category(labor_recipe, "income", "Income-related indicators")
+
+# The recipe now has categories attached
+labor_recipe
+```
+
+You can also create custom categories with hierarchical structure:
+
+```{r custom-category}
+parent_cat <- recipe_category("social", "Social indicators")
+child_cat  <- recipe_category("poverty", "Poverty measurement", parent = parent_cat)
+
+# Hierarchical categories support path navigation
+child_cat
+```
+
+## Recipe Certification
+
+The certification system provides three trust levels:
+
+| Level | Who can certify | Meaning |
+|-------|----------------|---------|
+| `community` | Anyone (default) | User-contributed, not reviewed |
+| `reviewed` | Institutional members | Peer-reviewed by a recognized team |
+| `official` | Institutions | Endorsed for official statistics |
+
+```{r certification}
+# Create a user with institutional affiliation
+institution <- recipe_user(
+  name = "National Statistics Office",
+  type = "institution",
+  verified = TRUE
+)
+
+reviewer <- recipe_user(
+  name = "Data Quality Team",
+  type = "institutional_member",
+  institution = institution
+)
+
+# Certify the recipe (pipe-friendly)
+labor_recipe <- certify_recipe(labor_recipe, reviewer, level = "reviewed")
+
+# Print the recipe to see certification info
+labor_recipe
+```
+
+Higher certification levels appear first in search results and signal to
+users that the recipe has been vetted.
+
+## Recipe Discovery with the Local Registry
+
+The `RecipeRegistry` stores recipes locally for search and discovery. This
+is useful for teams that want to share recipes without deploying a server.
+
+```{r registry}
+# Create a registry backed by a JSON file
+registry_path <- tempfile(fileext = ".json")
+set_backend("local", path = registry_path)
+
+# Publish our recipe to the local registry
+get_backend()$publish(labor_recipe)
+```
+
+Now use the tidy API to search and discover recipes:
+
+```{r tidy-api}
+# List all recipes
+all_recipes <- list_recipes()
+length(all_recipes)
+
+# Search by text
+found <- search_recipes("labor")
+length(found)
+
+# Filter by survey type
+ech_recipes <- filter_recipes(survey_type = "ech")
+length(ech_recipes)
+```
+
+Rank recipes by popularity:
+
+```{r rank}
+top <- rank_recipes(n = 5)
+if (length(top) > 0) {
+  cat("Top recipe:", top[[1]]$name, "\n")
+}
+```
+
+## Recipe Versioning
+
+Track recipe evolution with semantic versioning:
+
+```{r versioning}
+labor_recipe <- set_version(labor_recipe, "2.0.0")
+labor_recipe$version
+```
+
+When you update a recipe, increment the version so users know which
+iteration they are working with.
+
+## User Information
+
+Attach author metadata for attribution:
+
+```{r user-info}
+author <- recipe_user(
+  name        = "Research Team",
+  type        = "institutional_member",
+  email       = "team@university.edu",
+  affiliation = "University Economics Department",
+  institution = institution
+)
+
+labor_recipe <- set_user_info(labor_recipe, author)
+labor_recipe$user_info$name
+labor_recipe$user_info$affiliation
+```
+
+## Sharing via the Remote API
+
+For broader sharing, metasurvey connects to a public API where recipes are
+stored and discoverable by anyone.
+
+```{r api-sharing, eval = FALSE}
+# Register and authenticate
+api_register("Your Name", "you@example.com", "password")
+api_login("you@example.com", "password")
+
+# Browse existing recipes (no login required)
+ech_recipes <- api_list_recipes(survey_type = "ech")
+
+# Get a specific recipe
+r <- api_get_recipe(id = "recipe_id_here")
+
+# Publish your own
+api_publish_recipe(labor_recipe)
+```
+
+The API supports search, filtering by survey type/topic/certification, and
+automatic download tracking. See the [API reference](../reference/) for
+the complete list of endpoints.
 
 ## Best Practices
 
-1. **Name recipes descriptively** -- include the survey type and topic
-   (e.g. `"ech_labor_indicators"`).
-2. **Add descriptions** -- document what each recipe computes and why.
-3. **Use `topic` and `doi`** -- make recipes discoverable and citable.
-4. **Version your recipes** -- save JSON files alongside your analysis code in
-   version control.
-5. **Test before sharing** -- apply the recipe to sample data and verify the
-   output before publishing.
+1. **Name recipes descriptively** -- include survey type and topic
+   (e.g., `"ECH Labor Force Indicators"`).
+2. **Add descriptions** -- document what the recipe computes and why.
+3. **Use categories and topics** -- make recipes discoverable.
+4. **Validate before sharing** -- call `validate()` on sample data to
+   ensure all dependencies exist.
+5. **Version your recipes** -- use `set_version()` when updating.
+6. **Certify when possible** -- institutional certification builds trust.
+
+## Next Steps
+
+- **[Estimation Workflows](workflows-and-estimation.html)** -- Use `workflow()` to compute survey-weighted estimates from your processed data
+- **[ECH Case Study](ech-case-study.html)** -- See recipes in action on a real-world labor market analysis
+- **[Getting Started](getting-started.html)** -- Review the basics of steps and survey objects

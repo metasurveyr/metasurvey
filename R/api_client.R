@@ -256,7 +256,7 @@ api_logout <- function() {
 #' @title List recipes from API
 #' @description Fetch recipes with optional search and filters.
 #' @param search Text search (matches name/description)
-#' @param svy_type Filter by survey type (e.g., \code{"ech"})
+#' @param survey_type Filter by survey type (e.g., \code{"ech"})
 #' @param topic Filter by topic
 #' @param certification Filter by certification level
 #' @param user Filter by author email
@@ -267,13 +267,13 @@ api_logout <- function() {
 #' @examples
 #' \dontrun{
 #' configure_api("https://metasurvey-api.example.com")
-#' recipes <- api_list_recipes(svy_type = "ech")
+#' recipes <- api_list_recipes(survey_type = "ech")
 #' }
-api_list_recipes <- function(search = NULL, svy_type = NULL, topic = NULL,
+api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
                              certification = NULL, user = NULL,
                              limit = 50, offset = 0) {
   params <- list(
-    search = search, svy_type = svy_type, topic = topic,
+    search = search, survey_type = survey_type, topic = topic,
     certification = certification, user = user,
     limit = limit, offset = offset
   )
@@ -430,17 +430,91 @@ api_track_download <- function(type, id) {
 
 #' @keywords internal
 parse_recipe_from_json <- function(doc) {
+  # Reconstruct cached_doc from doc field
+  cached_doc <- NULL
+  if (!is.null(doc$doc)) {
+    pipeline <- list()
+    raw_pipeline <- doc$doc$pipeline
+    if (!is.null(raw_pipeline) && is.list(raw_pipeline)) {
+      pipeline <- raw_pipeline
+    }
+    cached_doc <- list(
+      input_variables = as.character(unlist(doc$doc$input_variables)),
+      output_variables = as.character(unlist(doc$doc$output_variables)),
+      pipeline = pipeline
+    )
+  }
+
+  # Reconstruct categories
+  categories <- list()
+  if (!is.null(doc$categories) && length(doc$categories) > 0) {
+    categories <- lapply(doc$categories, function(cat_data) {
+      tryCatch(RecipeCategory$from_list(cat_data), error = function(e) NULL)
+    })
+    categories <- Filter(Negate(is.null), categories)
+  }
+
+  # Reconstruct certification
+  certification <- NULL
+  if (!is.null(doc$certification)) {
+    certification <- tryCatch(
+      RecipeCertification$from_list(doc$certification),
+      error = function(e) NULL
+    )
+  }
+
+  # Reconstruct user_info
+  user_info <- NULL
+  if (!is.null(doc$user_info)) {
+    user_info <- tryCatch(
+      RecipeUser$from_list(doc$user_info),
+      error = function(e) NULL
+    )
+  }
+
   Recipe$new(
     name = doc$name %||% "Unnamed",
     user = doc$user %||% "Unknown",
-    edition = doc$svy_edition %||% doc$edition %||% "Unknown",
-    survey_type = doc$svy_type %||% doc$survey_type %||% "Unknown",
+    edition = doc$edition %||% "Unknown",
+    survey_type = doc$survey_type %||% "Unknown",
     default_engine = "data.table",
     depends_on = doc$depends_on %||% list(),
     description = doc$description %||% "",
     steps = doc$steps %||% list(),
     id = doc$id %||% doc[["_id"]],
     doi = doc$doi,
-    topic = doc$topic
+    topic = doc$topic,
+    cached_doc = cached_doc,
+    categories = categories,
+    downloads = as.integer(doc$downloads %||% 0),
+    certification = certification,
+    user_info = user_info,
+    version = doc$version %||% "1.0.0",
+    depends_on_recipes = doc$depends_on_recipes %||% list(),
+    data_source = doc$data_source
   )
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ANDA Variable Metadata
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' Get ANDA variable metadata from the API
+#'
+#' @param survey_type Character survey type (default "ech")
+#' @param var_names Character vector of variable names. If NULL, returns all.
+#' @return A list of variable metadata objects
+#' @export
+api_get_anda_variables <- function(survey_type = "ech", var_names = NULL) {
+  params <- list(survey_type = survey_type)
+  if (!is.null(var_names) && length(var_names) > 0) {
+    params$names <- paste(tolower(var_names), collapse = ",")
+  }
+
+  tryCatch({
+    resp <- api_request("anda/variables", method = "GET", params = params)
+    resp$variables %||% list()
+  }, error = function(e) {
+    list()
+  })
 }
