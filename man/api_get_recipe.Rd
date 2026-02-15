@@ -2,7 +2,7 @@
 % Please edit documentation in R/api_client.R
 \name{api_get_recipe}
 \alias{api_get_recipe}
-\title{Get single recipe from API}
+\title{Get a single recipe by ID}
 \usage{
 api_get_recipe(id)
 }
@@ -13,5 +13,5 @@ api_get_recipe(id)
 Recipe object or NULL
 }
 \description{
-Get single recipe from API
+Get a single recipe by ID
 }

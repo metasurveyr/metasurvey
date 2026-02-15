@@ -2,16 +2,16 @@
 % Please edit documentation in R/api_client.R
 \name{api_track_download}
 \alias{api_track_download}
-\title{Increment download counter}
+\title{Increment download counter (generic)}
 \usage{
 api_track_download(type, id)
 }
 \arguments{
-\item{type}{"recipe" or "workflow"}
+\item{type}{\code{"recipe"} or \code{"workflow"}}
 
 \item{id}{Object ID}
 }
 \description{
-Increment download counter
+Increment download counter (generic)
 }
 \keyword{internal}

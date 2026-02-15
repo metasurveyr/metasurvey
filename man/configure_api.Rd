@@ -4,20 +4,18 @@
 \alias{configure_api}
 \title{Configure metasurvey API}
 \usage{
-configure_api(url, key = NULL)
+configure_api(url)
 }
 \arguments{
-\item{url}{API base URL (e.g., "https://your-project.vercel.app/api")}
-
-\item{key}{API key for admin operations (optional)}
+\item{url}{API base URL (e.g., \code{"https://metasurvey-api.example.com"})}
 }
 \description{
-Set API URL and key for remote recipe/workflow access
+Set API base URL and optionally load stored credentials.
+The URL can also be set via the \code{METASURVEY_API_URL} environment
+variable, and the token via \code{METASURVEY_TOKEN}.
 }
 \examples{
 \dontrun{
-configure_api(
-  url = "https://metasurvey-api.vercel.app/api"
-)
+configure_api(url = "https://metasurvey-api.example.com")
 }
 }

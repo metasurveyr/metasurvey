@@ -2,16 +2,17 @@
 % Please edit documentation in R/api_client.R
 \name{api_publish_recipe}
 \alias{api_publish_recipe}
-\title{Publish recipe to API}
+\title{Publish a recipe}
 \usage{
 api_publish_recipe(recipe)
 }
 \arguments{
-\item{recipe}{Recipe object}
+\item{recipe}{A Recipe object}
 }
 \value{
-API response
+Invisibly, the API response with the assigned ID.
 }
 \description{
-Publish recipe to API
+Publish a Recipe object to the API. Requires authentication
+(call \code{api_login()} first).
 }
