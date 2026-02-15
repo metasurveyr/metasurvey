@@ -67,7 +67,7 @@ path_dir <- here::here("example-data", "ech", "ech_2023")
 ech_2023 <- load_panel_survey(
   path_implantation = file.path(path_dir, "ECH_implantacion_2023.csv"),
   path_follow_up = file.path(path_dir, "seguimiento"),
-  svy_type = "ECH_2023",
+  svy_type = "ech",
   svy_weight_implantation = add_weight(
     annual = add_replicate(
       "W_ANO",

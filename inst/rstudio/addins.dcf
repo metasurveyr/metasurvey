@@ -1,0 +1,4 @@
+Name: Explore Recipes
+Description: Launch the metasurvey Recipe Explorer to browse, search, and discover survey recipes.
+Binding: explore_recipes
+Interactive: true
