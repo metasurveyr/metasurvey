@@ -1,4 +1,4 @@
-# Tests for step_compute and compute_with_ast
+# Tests for step_compute
 
 test_that("step_compute creates a new variable", {
   s <- make_test_survey()
