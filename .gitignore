@@ -39,6 +39,11 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# Environment files with secrets
+.env
+.env.*
+!.env.example
+
 # pkgdown site
 docs/
 

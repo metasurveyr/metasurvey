@@ -4,10 +4,13 @@
 \alias{explore_recipes}
 \title{Launch the Recipe Explorer Shiny App}
 \usage{
-explore_recipes(port = NULL, launch.browser = TRUE)
+explore_recipes(port = NULL, host = "127.0.0.1", launch.browser = TRUE)
 }
 \arguments{
 \item{port}{Integer port number, or NULL for automatic.}
+
+\item{host}{Character. The host to listen on. Defaults to \code{"127.0.0.1"}
+for local use. Set to \code{"0.0.0.0"} for server deployments (Railway, etc.).}
 
 \item{launch.browser}{Logical. Open the app in a browser?}
 }
@@ -18,7 +21,11 @@ registration and login via MongoDB Atlas.
 }
 \examples{
 \dontrun{
+# Local / RStudio viewer
 explore_recipes()
+
+# Server deployment (Railway, Docker, etc.)
+explore_recipes(host = "0.0.0.0", port = 3838, launch.browser = FALSE)
 }
 
 }

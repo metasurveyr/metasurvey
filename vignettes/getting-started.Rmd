@@ -20,24 +20,34 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-**metasurvey** provides a unified framework for processing complex survey data
-in R. It wraps the `survey` package [@lumley2004] with an expressive pipeline of:
+Working with household survey microdata involves a lot of repetitive
+processing: recoding categorical variables, constructing indicators,
+joining external data, and computing survey-weighted estimates. Each
+researcher writes their own version of these transformations, and the
+code is rarely shared or documented in a way that others can reuse.
 
-- **Steps**: Transformations applied to survey data
-- **Recipes**: Reusable collections of steps for reproducibility  
-- **Workflows**: Statistical estimations with automatic variance calculation
+**metasurvey** addresses this by providing a layer of metaprogramming on
+top of the `survey` package [@lumley2004]. Instead of writing one-off
+scripts, you build a **pipeline** of transformations that is:
 
-The package handles complex survey designs including stratification, clustering,
-and replicate weights, with automatic validation of dependencies and
-optimization of expressions.
+- **Documented** -- each step carries a comment, its input/output
+  variables, and its dependencies
+- **Reproducible** -- the pipeline can be saved as a recipe and applied
+  to new data
+- **Shareable** -- recipes can be published to a public API where other
+  researchers can discover and reuse them
 
-### Key Features
+The pipeline has three levels:
 
-- **Type-safe survey objects** that encapsulate data, weights, and sample designs
-- **Lazy evaluation** of transformations for better performance
-- **Automatic dependency tracking** prevents errors before execution
-- **Reproducible workflows** via shareable recipes
-- **Tidy output** with standard errors and coefficients of variation
+1. **Steps** -- individual transformations (compute, recode, rename,
+   remove, join)
+2. **Recipes** -- reusable collections of steps bundled with metadata
+3. **Workflows** -- statistical estimations (`svymean`, `svytotal`,
+   `svyby`) that produce the final tables
+
+The package handles the survey design---stratification, clustering,
+replicate weights---automatically through the `Survey` object. You focus
+on the substantive analysis; metasurvey takes care of the plumbing.
 
 ## Installation
 
@@ -516,22 +526,60 @@ set_lazy(TRUE)
 set_use_copy(TRUE)
 ```
 
+## Sharing your work: the recipe ecosystem
+
+One of the goals of metasurvey is to reduce duplicated effort across the
+community of survey researchers. If you have built a useful processing
+pipeline, you can publish it so others can find and reuse it. The package
+connects to a public API where recipes and workflows are stored:
+
+```{r ecosystem, eval = FALSE}
+# Browse existing recipes (no login required)
+ech_recipes <- api_list_recipes(svy_type = "ech")
+length(ech_recipes)
+
+# Search for something specific
+labor <- api_list_recipes(search = "labor")
+
+# To publish your own, create an account first
+api_register("Your Name", "you@example.com", "password")
+
+# Then publish
+api_publish_recipe(labor_recipe)
+```
+
+The ecosystem supports three levels of certification (community, reviewed,
+official) and three account types (individual, institutional member,
+institution). Institutional accounts require admin approval, which ensures
+that certifications carry real weight.
+
+For more details, see the guide
+[The Recipe Ecosystem](api-ecosystem.html).
+
+## Related packages
+
+metasurvey is part of a growing ecosystem of R packages for household
+survey analysis in Latin America:
+
+- **[ech](https://calcita.github.io/ech/)** -- Functions for calculating
+  socioeconomic indicators with Uruguay's ECH. Provides ready-made
+  functions for poverty, income, education, and employment indicators.
+- **[eph](https://docs.ropensci.org/eph/)** -- Tools for working with
+  Argentina's Encuesta Permanente de Hogares. Published on rOpenSci.
+  Covers data download, panel construction, and poverty calculation.
+- **[survey](https://cran.r-project.org/package=survey)** -- The
+  foundational package for design-based inference with complex surveys
+  [@lumley2004]. metasurvey builds on top of it.
+
 ## Next Steps
 
 Now that you understand the basics, explore advanced topics:
 
-- **[Recipes](recipes.html)** -- Advanced recipe workflows, publishing, and sharing
+- **[ECH Case Study](ech-case-study.html)** -- Complete labor market analysis of Uruguay's household survey
 - **[Panel Analysis](panel-analysis.html)** -- Rotative panels, PoolSurvey, longitudinal analysis
+- **[The Recipe Ecosystem](api-ecosystem.html)** -- Publishing, discovering, and certifying recipes
+- **[Recipes](recipes.html)** -- Advanced recipe workflows and sharing
 - **[Complex Designs](complex-designs.html)** -- Stratification, clustering, replicate weights
-- **[ECH Case Study](ech-case-study.html)** -- Complete real-world analysis of Uruguay's household survey
-- **[Testing Workflows](testing-workflows.html)** -- Validation strategies for production pipelines
 
 ## References
-
-- Lumley, T. (2004). *Analysis of Complex Survey Samples*. Journal of Statistical Software, 9(1), 1-19
-- Instituto Nacional de Estadística (INE), Uruguay. (2023). *Encuesta Continua de Hogares: Metodología y Documentación*. 
-  [https://www.ine.gub.uy/encuesta-continua-de-hogares1](https://www.ine.gub.uy/encuesta-continua-de-hogares1)
-- International Labour Organization (ILO). (2013). *Resolution concerning statistics of work, employment and labour underutilization*. 
-  19th International Conference of Labour Statisticians.
-- INE Uruguay. ECH Data Dictionary. [https://www4.ine.gub.uy/Anda5/index.php/catalog/775/data-dictionary](https://www4.ine.gub.uy/Anda5/index.php/catalog/775/data-dictionary)
 

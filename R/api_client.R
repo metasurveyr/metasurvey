@@ -1,285 +1,435 @@
 #' @title API Client for metasurvey
-#' @description Simple HTTP client for metasurvey serverless API
+#' @description HTTP client for the metasurvey REST API (plumber).
+#'
+#' The metasurvey API is a server deployed separately (Docker, Cloud Run, etc.).
+#' Users of the R package interact with it through these client functions.
+#'
+#' @section Setup:
+#' \preformatted{
+#' # 1. Point to the deployed API
+#' configure_api(url = "https://metasurvey-api.example.com")
+#'
+#' # 2. Register or login
+#' api_register("Ana Garcia", "ana@example.com", "password123")
+#' api_login("ana@example.com", "password123")
+#'
+#' # 3. Use the API
+#' api_list_recipes(survey_type = "ech")
+#' api_publish_recipe(my_recipe)
+#' }
+#' @name api_client
 #' @keywords internal
+NULL
 
-# Get configured API URL
+# ── Internal option getters ──────────────────────────────────────────────────
+
 api_url <- function() {
-  getOption("metasurvey.api_url", default = NULL)
+  url <- getOption("metasurvey.api_url", default = NULL)
+  if (is.null(url)) {
+    env <- Sys.getenv("METASURVEY_API_URL", "")
+    url <- if (nzchar(env)) sub("/$", "", env) else "https://metasurvey-api-production.up.railway.app"
+    options(metasurvey.api_url = url)
+  }
+  url
 }
 
-# Get configured API key for admin/write operations
-api_key <- function() {
-  getOption("metasurvey.api_key", default = NULL)
-}
-
-# Get user JWT token
 api_token <- function() {
-  getOption("metasurvey.api_token", default = NULL)
+  token <- getOption("metasurvey.api_token", default = NULL)
+  if (is.null(token)) {
+    env <- Sys.getenv("METASURVEY_TOKEN", "")
+    if (nzchar(env)) {
+      token <- env
+      options(metasurvey.api_token = token)
+    }
+  }
+  token
 }
+
+#' @keywords internal
+store_token <- function(token) {
+  options(metasurvey.api_token = token)
+  Sys.setenv(METASURVEY_TOKEN = token)
+  invisible(token)
+}
+
+#' @keywords internal
+token_expires_soon <- function(token, margin_secs = 300) {
+  if (is.null(token)) return(FALSE)
+  tryCatch({
+    parts <- strsplit(token, "\\.")[[1]]
+    if (length(parts) < 2) return(FALSE)
+    payload <- jsonlite::fromJSON(rawToChar(jose::base64url_decode(parts[2])))
+    exp <- as.numeric(payload$exp)
+    if (is.na(exp)) return(FALSE)
+    (exp - as.numeric(Sys.time())) < margin_secs
+  }, error = function(e) FALSE)
+}
+
+# ── Configuration ────────────────────────────────────────────────────────────
 
 #' @title Configure metasurvey API
-#' @description Set API URL and key for remote recipe/workflow access
-#' @param url API base URL (e.g., "https://your-project.vercel.app/api")
-#' @param key API key for admin operations (optional)
+#' @description Set API base URL and optionally load stored credentials.
+#'   The URL can also be set via the \code{METASURVEY_API_URL} environment
+#'   variable, and the token via \code{METASURVEY_TOKEN}.
+#' @param url API base URL (e.g., \code{"https://metasurvey-api.example.com"})
 #' @export
 #' @examples
 #' \dontrun{
-#' configure_api(
-#'   url = "https://metasurvey-api.vercel.app/api"
-#' )
+#' configure_api(url = "https://metasurvey-api.example.com")
 #' }
-configure_api <- function(url, key = NULL) {
+configure_api <- function(url) {
+  # Remove trailing slash
+  url <- sub("/$", "", url)
   options(metasurvey.api_url = url)
-  if (!is.null(key)) {
-    options(metasurvey.api_key = key)
-  }
   message("API configured: ", url)
   invisible(NULL)
 }
 
-# Internal HTTP request helper
+# ── Internal HTTP helper ─────────────────────────────────────────────────────
+
+#' @keywords internal
 api_request <- function(endpoint, method = "GET", body = NULL, params = NULL) {
   base_url <- api_url()
-  
+
   if (is.null(base_url)) {
     stop(
       "API not configured. Use configure_api() first:\n",
-      "  configure_api(url = 'https://your-project.vercel.app/api')"
+      "  configure_api(url = 'https://metasurvey-api.example.com')",
+      call. = FALSE
     )
   }
-  
+
   url <- paste0(base_url, "/", endpoint)
-  
-  # Add query parameters
+
+  # Query parameters
   if (!is.null(params)) {
-    query_string <- paste(
-      names(params), 
-      sapply(params, utils::URLencode, reserved = TRUE),
-      sep = "=",
-      collapse = "&"
-    )
-    url <- paste0(url, "?", query_string)
+    params <- params[!sapply(params, is.null)]
+    if (length(params) > 0) {
+      query_string <- paste(
+        names(params),
+        sapply(params, function(v) utils::URLencode(as.character(v), reserved = TRUE)),
+        sep = "=",
+        collapse = "&"
+      )
+      url <- paste0(url, "?", query_string)
+    }
   }
-  
-  # Prepare headers
+
+  # Headers — auto-refresh token if close to expiry
   headers <- c("Content-Type" = "application/json")
-  
-  # Add JWT token first (preferred), fallback to API key
   token <- api_token()
+  if (!is.null(token) && token_expires_soon(token) && endpoint != "auth/refresh") {
+    tryCatch({
+      refreshed <- api_refresh_token()
+      if (!is.null(refreshed)) token <- refreshed
+    }, error = function(e) NULL)
+  }
   if (!is.null(token)) {
     headers <- c(headers, "Authorization" = paste("Bearer", token))
-  } else if (method %in% c("POST", "PUT", "DELETE")) {
-    # Fallback to API key for write operations
-    key <- api_key()
-    if (!is.null(key)) {
-      headers <- c(headers, "x-api-key" = key)
-    }
   }
-  
-  # Make request
-  tryCatch({
-    if (method == "GET") {
-      resp <- httr::GET(
-        url,
-        httr::add_headers(.headers = headers),
-        httr::timeout(10)
-      )
-    } else if (method == "POST") {
-      resp <- httr::POST(
-        url,
-        body = jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
-        httr::add_headers(.headers = headers),
-        encode = "raw",
-        httr::timeout(10)
-      )
-    } else if (method == "PUT") {
-      resp <- httr::PUT(
-        url,
-        body = jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
-        httr::add_headers(.headers = headers),
-        encode = "raw",
-        httr::timeout(10)
-      )
-    } else if (method == "DELETE") {
-      resp <- httr::DELETE(
-        url,
-        httr::add_headers(.headers = headers),
-        httr::timeout(10)
-      )
-    } else {
-      stop("Unsupported HTTP method: ", method)
-    }
-    
-    # Parse response
-    if (httr::status_code(resp) >= 400) {
-      content <- httr::content(resp, "text", encoding = "UTF-8")
-      stop("API error (", httr::status_code(resp), "): ", content)
-    }
-    
-    result <- jsonlite::fromJSON(
-      httr::content(resp, "text", encoding = "UTF-8"),
-      simplifyVector = FALSE
-    )
-    
-    return(result)
-    
-  }, error = function(e) {
-    stop("API request failed: ", e$message)
-  })
+
+  # Dispatch
+  resp <- switch(method,
+    GET = httr::GET(url, httr::add_headers(.headers = headers), httr::timeout(15)),
+    POST = httr::POST(
+      url,
+      body = jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
+      httr::add_headers(.headers = headers),
+      encode = "raw",
+      httr::timeout(15)
+    ),
+    stop("Unsupported HTTP method: ", method, call. = FALSE)
+  )
+
+  # Parse
+  txt <- httr::content(resp, "text", encoding = "UTF-8")
+
+  if (httr::status_code(resp) >= 400) {
+    parsed <- tryCatch(jsonlite::fromJSON(txt, simplifyVector = FALSE), error = function(e) NULL)
+    msg <- if (!is.null(parsed$error)) parsed$error else txt
+    stop("API error (", httr::status_code(resp), "): ", msg, call. = FALSE)
+  }
+
+  jsonlite::fromJSON(txt, simplifyVector = FALSE)
 }
 
+# ══════════════════════════════════════════════════════════════════════════════
+# AUTH — POST /auth/register, POST /auth/login, GET /auth/me
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' @title Register a new user
+#' @description Create an account on the metasurvey API. On success the JWT
+#'   token is stored automatically via \code{options(metasurvey.api_token)}.
+#' @param name Display name
+#' @param email Email address
+#' @param password Password
+#' @param user_type One of \code{"individual"}, \code{"institutional_member"}, \code{"institution"}
+#' @param institution Institution name (required for \code{"institutional_member"})
+#' @return Invisibly, the API response (list with \code{ok}, \code{token}, \code{user}).
+#' @export
+#' @examples
+#' \dontrun{
+#' configure_api("https://metasurvey-api.example.com")
+#' api_register("Ana Garcia", "ana@example.com", "s3cret")
+#' }
+api_register <- function(name, email, password,
+                         user_type = "individual", institution = NULL) {
+  body <- list(
+    name = name, email = email, password = password,
+    user_type = user_type
+  )
+  if (!is.null(institution)) body$institution <- institution
+
+  result <- api_request("auth/register", method = "POST", body = body)
+
+  if (!is.null(result$token)) {
+    store_token(result$token)
+    message("Registered and logged in as: ", email)
+  }
+  invisible(result)
+}
+
+#' @title Login
+#' @description Authenticate with the metasurvey API. On success the JWT
+#'   token is stored automatically.
+#' @param email Email address
+#' @param password Password
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_login("ana@example.com", "s3cret")
+#' }
+api_login <- function(email, password) {
+  result <- api_request("auth/login", method = "POST",
+                        body = list(email = email, password = password))
+
+  if (!is.null(result$token)) {
+    store_token(result$token)
+    message("Logged in as: ", email)
+  }
+  invisible(result)
+}
+
+#' @title Get current user profile
+#' @description Returns profile info for the currently authenticated user.
+#' @return List with user fields (name, email, user_type, etc.)
+#' @export
+api_me <- function() {
+  api_request("auth/me", method = "GET")
+}
+
+#' @title Refresh JWT token
+#' @description Request a new JWT token using the current (still valid) token.
+#'   The new token is stored automatically. This is called internally by
+#'   \code{api_request()} when the current token is close to expiry (within 5
+#'   minutes).
+#' @return The new token string (invisibly), or NULL if refresh fails.
+#' @export
+api_refresh_token <- function() {
+  result <- tryCatch(
+    api_request("auth/refresh", method = "POST"),
+    error = function(e) NULL
+  )
+  if (!is.null(result) && !is.null(result$token)) {
+    store_token(result$token)
+    message("Token refreshed successfully.")
+    return(invisible(result$token))
+  }
+  invisible(NULL)
+}
+
+#' @title Logout
+#' @description Clear the stored API token from memory and the environment.
+#' @export
+api_logout <- function() {
+  options(metasurvey.api_token = NULL)
+  Sys.unsetenv("METASURVEY_TOKEN")
+  message("Logged out.")
+  invisible(NULL)
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# RECIPES — GET /recipes, GET /recipes/:id, POST /recipes, POST /recipes/:id/download
+# ══════════════════════════════════════════════════════════════════════════════
+
 #' @title List recipes from API
-#' @description Fetch recipes from remote API with optional filters
-#' @param user Filter by user email
-#' @param edition Filter by survey edition
-#' @param survey_type Filter by survey type
+#' @description Fetch recipes with optional search and filters.
+#' @param search Text search (matches name/description)
+#' @param svy_type Filter by survey type (e.g., \code{"ech"})
 #' @param topic Filter by topic
-#' @param limit Maximum number of results (default: 100)
+#' @param certification Filter by certification level
+#' @param user Filter by author email
+#' @param limit Maximum results (default 50)
+#' @param offset Skip first N results (default 0)
 #' @return List of Recipe objects
 #' @export
 #' @examples
 #' \dontrun{
-#' # List all recipes
-#' recipes <- api_list_recipes()
-#' 
-#' # Filter by survey type
-#' ech_recipes <- api_list_recipes(survey_type = "ech", edition = "2023")
+#' configure_api("https://metasurvey-api.example.com")
+#' recipes <- api_list_recipes(svy_type = "ech")
 #' }
-api_list_recipes <- function(user = NULL, edition = NULL, survey_type = NULL, 
-                             topic = NULL, limit = 100) {
-  params <- list(limit = limit)
-  if (!is.null(user)) params$user <- user
-  if (!is.null(edition)) params$edition <- edition
-  if (!is.null(survey_type)) params$survey_type <- survey_type
-  if (!is.null(topic)) params$topic <- topic
-  
+api_list_recipes <- function(search = NULL, svy_type = NULL, topic = NULL,
+                             certification = NULL, user = NULL,
+                             limit = 50, offset = 0) {
+  params <- list(
+    search = search, svy_type = svy_type, topic = topic,
+    certification = certification, user = user,
+    limit = limit, offset = offset
+  )
+
   result <- api_request("recipes", method = "GET", params = params)
-  
-  # Parse recipes
-  recipes <- lapply(result$recipes, function(doc) {
-    tryCatch(
-      # Use existing parser from RecipeAPI
-      parse_recipe_from_json(doc),
-      error = function(e) {
-        warning("Failed to parse recipe: ", e$message)
-        NULL
-      }
-    )
-  })
-  
-  Filter(Negate(is.null), recipes)
+
+  lapply(result$recipes %||% list(), function(doc) {
+    tryCatch(parse_recipe_from_json(doc), error = function(e) {
+      warning("Failed to parse recipe: ", e$message, call. = FALSE)
+      NULL
+    })
+  }) |> Filter(f = Negate(is.null))
 }
 
-#' @title Get single recipe from API
+#' @title Get a single recipe by ID
 #' @param id Recipe ID
 #' @return Recipe object or NULL
 #' @export
 api_get_recipe <- function(id) {
-  result <- api_request("recipes", method = "GET", params = list(id = id))
-  
-  if (length(result$recipes) == 0) {
-    return(NULL)
-  }
-  
-  tryCatch(
-    parse_recipe_from_json(result$recipes[[1]]),
+  result <- tryCatch(
+    api_request(paste0("recipes/", id), method = "GET"),
     error = function(e) {
-      warning("Failed to parse recipe: ", e$message)
-      NULL
+      if (grepl("404", e$message)) return(NULL)
+      stop(e)
     }
   )
+
+  if (is.null(result) || is.null(result$recipe)) return(NULL)
+
+  tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
+    warning("Failed to parse recipe: ", e$message, call. = FALSE)
+    NULL
+  })
 }
 
-#' @title Publish recipe to API
-#' @param recipe Recipe object
-#' @return API response
+#' @title Publish a recipe
+#' @description Publish a Recipe object to the API. Requires authentication
+#'   (call \code{api_login()} first).
+#' @param recipe A Recipe object
+#' @return Invisibly, the API response with the assigned ID.
 #' @export
 api_publish_recipe <- function(recipe) {
   if (!inherits(recipe, "Recipe")) {
-    stop("recipe must be a Recipe object")
+    stop("recipe must be a Recipe object", call. = FALSE)
   }
-  
-  # Convert to JSON-friendly format
-  recipe_data <- recipe$to_list()
-  
-  result <- api_request("recipes", method = "POST", body = recipe_data)
-  
+  result <- api_request("recipes", method = "POST", body = recipe$to_list())
   if (isTRUE(result$ok)) {
-    message("Recipe published successfully: ", result$id)
+    message("Recipe published: ", result$id)
   }
-  
   invisible(result)
 }
 
-#' @title List workflows from API
-#' @param user Filter by user email
-#' @param edition Filter by edition
-#' @param survey_type Filter by survey type
-#' @param recipe_id Filter by recipe ID
-#' @param limit Maximum results
-#' @return List of RecipeWorkflow objects
-#' @export
-api_list_workflows <- function(user = NULL, edition = NULL, survey_type = NULL,
-                               recipe_id = NULL, limit = 100) {
-  params <- list(limit = limit)
-  if (!is.null(user)) params$user <- user
-  if (!is.null(edition)) params$edition <- edition
-  if (!is.null(survey_type)) params$survey_type <- survey_type
-  if (!is.null(recipe_id)) params$recipe_id <- recipe_id
-  
-  result <- api_request("workflows", method = "GET", params = params)
-  
-  workflows <- lapply(result$workflows, function(doc) {
-    tryCatch(
-      workflow_from_list(doc),
-      error = function(e) {
-        warning("Failed to parse workflow: ", e$message)
-        NULL
-      }
-    )
-  })
-  
-  Filter(Negate(is.null), workflows)
-}
-
-#' @title Publish workflow to API
-#' @param workflow RecipeWorkflow object
-#' @return API response
-#' @export
-api_publish_workflow <- function(workflow) {
-  if (!inherits(workflow, "RecipeWorkflow")) {
-    stop("workflow must be a RecipeWorkflow object")
-  }
-  
-  workflow_data <- workflow$to_list()
-  
-  result <- api_request("workflows", method = "POST", body = workflow_data)
-  
-  if (isTRUE(result$ok)) {
-    message("Workflow published successfully: ", result$id)
-  }
-  
-  invisible(result)
-}
-
-#' @title Increment download counter
-#' @param type "recipe" or "workflow"
-#' @param id Object ID
+#' @title Increment recipe download counter
+#' @param id Recipe ID
 #' @keywords internal
-api_track_download <- function(type, id) {
+api_download_recipe <- function(id) {
   tryCatch(
-    api_request("stats", method = "POST", body = list(type = type, id = id)),
-    error = function(e) {
-      # Silent failure - tracking is not critical
-      invisible(NULL)
-    }
+    api_request(paste0("recipes/", id, "/download"), method = "POST"),
+    error = function(e) invisible(NULL)
   )
 }
 
-# Helper to parse recipe from JSON (reuse existing logic or implement)
+# ══════════════════════════════════════════════════════════════════════════════
+# WORKFLOWS — GET /workflows, GET /workflows/:id, POST /workflows, POST /workflows/:id/download
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' @title List workflows from API
+#' @description Fetch workflows with optional search and filters.
+#' @param search Text search
+#' @param survey_type Filter by survey type
+#' @param recipe_id Filter workflows that reference this recipe
+#' @param user Filter by author email
+#' @param limit Maximum results
+#' @param offset Skip first N results
+#' @return List of RecipeWorkflow objects
+#' @export
+api_list_workflows <- function(search = NULL, survey_type = NULL,
+                               recipe_id = NULL, user = NULL,
+                               limit = 50, offset = 0) {
+  params <- list(
+    search = search, survey_type = survey_type,
+    recipe_id = recipe_id, user = user,
+    limit = limit, offset = offset
+  )
+
+  result <- api_request("workflows", method = "GET", params = params)
+
+  lapply(result$workflows %||% list(), function(doc) {
+    tryCatch(workflow_from_list(doc), error = function(e) {
+      warning("Failed to parse workflow: ", e$message, call. = FALSE)
+      NULL
+    })
+  }) |> Filter(f = Negate(is.null))
+}
+
+#' @title Get a single workflow by ID
+#' @param id Workflow ID
+#' @return RecipeWorkflow object or NULL
+#' @export
+api_get_workflow <- function(id) {
+  result <- tryCatch(
+    api_request(paste0("workflows/", id), method = "GET"),
+    error = function(e) {
+      if (grepl("404", e$message)) return(NULL)
+      stop(e)
+    }
+  )
+
+  if (is.null(result) || is.null(result$workflow)) return(NULL)
+
+  tryCatch(workflow_from_list(result$workflow), error = function(e) {
+    warning("Failed to parse workflow: ", e$message, call. = FALSE)
+    NULL
+  })
+}
+
+#' @title Publish a workflow
+#' @description Publish a RecipeWorkflow object to the API. Requires authentication.
+#' @param workflow A RecipeWorkflow object
+#' @return Invisibly, the API response.
+#' @export
+api_publish_workflow <- function(workflow) {
+  if (!inherits(workflow, "RecipeWorkflow")) {
+    stop("workflow must be a RecipeWorkflow object", call. = FALSE)
+  }
+  result <- api_request("workflows", method = "POST", body = workflow$to_list())
+  if (isTRUE(result$ok)) {
+    message("Workflow published: ", result$id)
+  }
+  invisible(result)
+}
+
+#' @title Increment workflow download counter
+#' @param id Workflow ID
+#' @keywords internal
+api_download_workflow <- function(id) {
+  tryCatch(
+    api_request(paste0("workflows/", id, "/download"), method = "POST"),
+    error = function(e) invisible(NULL)
+  )
+}
+
+#' @title Increment download counter (generic)
+#' @param type \code{"recipe"} or \code{"workflow"}
+#' @param id Object ID
+#' @keywords internal
+api_track_download <- function(type, id) {
+  if (type == "recipe") api_download_recipe(id)
+  else if (type == "workflow") api_download_workflow(id)
+  else warning("Unknown type: ", type, call. = FALSE)
+}
+
+# ── Recipe JSON parser ───────────────────────────────────────────────────────
+
+#' @keywords internal
 parse_recipe_from_json <- function(doc) {
-  # This would use the existing Recipe$from_list() or similar
-  # For now, placeholder
   Recipe$new(
     name = doc$name %||% "Unnamed",
     user = doc$user %||% "Unknown",
@@ -289,7 +439,7 @@ parse_recipe_from_json <- function(doc) {
     depends_on = doc$depends_on %||% list(),
     description = doc$description %||% "",
     steps = doc$steps %||% list(),
-    id = doc[["_id"]] %||% doc$id,
+    id = doc$id %||% doc[["_id"]],
     doi = doc$doi,
     topic = doc$topic
   )
