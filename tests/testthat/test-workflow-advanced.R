@@ -97,7 +97,16 @@ test_that("workflow_pool with rho and R parameters", {
 })
 
 test_that("workflow handles empty survey list", {
-  skip("Empty list handling varies")
+  result <- tryCatch({
+    workflow(
+      survey = list(),
+      survey::svymean(~age, na.rm = TRUE),
+      estimation_type = "annual"
+    )
+  }, error = function(e) e)
+  
+  # Should error, return NULL, or return empty data.frame for empty list
+  expect_true(inherits(result, "error") || is.null(result) || (is.data.frame(result) && nrow(result) == 0))
 })
 
 test_that("workflow validates estimation type exists in design", {
