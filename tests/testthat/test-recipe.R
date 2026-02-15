@@ -351,24 +351,7 @@ test_that("get_distinct_recipes returns 0 on error", {
   expect_equal(metasurvey:::get_distinct_recipes("not a list"), 0)
 })
 
-# --- get_distinct_recipes_json tests ---
-
-test_that("get_distinct_recipes_json returns 1 for single document", {
-  content <- list(document = list(list(`_id` = "abc")))
-  expect_equal(metasurvey:::get_distinct_recipes_json(content), 1)
-})
-
-test_that("get_distinct_recipes_json counts multiple documents", {
-  content <- list(documents = list(
-    list(`_id` = "abc"),
-    list(`_id` = "def")
-  ))
-  expect_equal(metasurvey:::get_distinct_recipes_json(content), 2)
-})
-
-test_that("get_distinct_recipes_json returns 1 when documents is NULL", {
-  expect_equal(metasurvey:::get_distinct_recipes_json(list(documents = NULL)), 1)
-})
+# get_distinct_recipes_json was removed — get_recipe() now uses api_client.R
 
 # --- steps_to_recipe tests ---
 

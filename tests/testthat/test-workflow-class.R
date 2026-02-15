@@ -89,7 +89,7 @@ test_that("RecipeWorkflow$to_list() and workflow_from_list() round-trip", {
   lst <- wf$to_list()
   expect_type(lst, "list")
   expect_equal(lst$name, "Roundtrip WF")
-  expect_equal(lst$recipe_ids, "recipe_001")
+  expect_equal(lst$recipe_ids, list("recipe_001"))
 
   # Reconstruct
   wf2 <- workflow_from_list(lst)

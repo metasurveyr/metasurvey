@@ -16,28 +16,7 @@ test_that("bake_recipes validates survey has recipes", {
   expect_true(is(s, "Survey"))
 })
 
-test_that("get_distinct_recipes_json handles single recipe", {
-  # Test internal function behavior
-  content_single <- list(document = list(list(`_id` = "123")))
-  result <- metasurvey:::get_distinct_recipes_json(content_single)
-  expect_equal(result, 1)
-})
-
-test_that("get_distinct_recipes_json handles multiple recipes", {
-  content_multi <- list(documents = list(
-    list(`_id` = "123"),
-    list(`_id` = "456")
-  ))
-  result <- metasurvey:::get_distinct_recipes_json(content_multi)
-  expect_equal(result, 2)
-})
-
-test_that("get_distinct_recipes_json handles errors", {
-  # Empty list case should return 1 (single document mode)
-  # The function returns 1 for single document, 0 only on actual errors
-  result <- metasurvey:::get_distinct_recipes_json(list())
-  expect_true(result >= 0)
-})
+# get_distinct_recipes_json was removed — get_recipe() now uses api_client.R
 
 test_that("get_distinct_recipes counts unique recipes", {
   r1 <- Recipe$new(
