@@ -24,8 +24,8 @@ RUN R -e "install.packages(c('shiny', 'bslib', 'bsicons', 'htmltools', 'httr', '
 # Optional: visNetwork for pipeline graphs
 RUN R -e "install.packages('visNetwork', repos='https://cloud.r-project.org')"
 
-# Install metasurvey from GitHub (develop branch)
-RUN R -e "remotes::install_github('metaSurveyR/metasurvey@develop', dependencies = FALSE)"
+# Install metasurvey from GitHub
+RUN R -e "remotes::install_github('metaSurveyR/metasurvey@feature/v0.0.4-refactor', dependencies = FALSE)"
 
 # Copy Shiny app
 COPY app.R /app/app.R
