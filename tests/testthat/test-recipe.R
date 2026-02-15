@@ -225,9 +225,9 @@ test_that("encoding_recipe converts steps to strings", {
 test_that("get_recipe validates parameters", {
   # This would normally hit an API - we skip if API not available
   
-  result <- tryCatch({
+  result <- suppressWarnings(tryCatch({
     get_recipe(svy_type = "nonexistent_survey_type")
-  }, error = function(e) e)
+  }, error = function(e) e))
   
   # Should either return NULL or an error
   expect_true(is.null(result) || inherits(result, "error"))

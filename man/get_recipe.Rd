@@ -46,8 +46,17 @@ transformations
 \item Versioning: Access different recipe versions according to edition
 }
 
-The function first searches in local repositories and then queries the API
-if necessary. Recipes are cached to improve performance.
+The function queries the metasurvey API to retrieve recipes. \strong{Internet
+connection is required}. If the API is unavailable or you need to work
+offline:
+
+\strong{Working Offline:}
+\itemize{
+\item Don't call \code{get_recipe()} - work directly with steps
+\item Set \code{options(metasurvey.skip_recipes = TRUE)} to disable API calls
+\item Load recipes from local files using \code{read_recipe()}
+\item Create custom recipes with \code{recipe()}
+}
 
 Search criteria are combined with AND operator, so all specified criteria
 must match for a recipe to be returned.
@@ -82,6 +91,18 @@ ech_with_recipe <- load_survey(
   recipes = get_recipe("ech", "2023"),
   bake = TRUE
 )
+
+# Working offline - don't use recipes
+ech_offline <- load_survey(
+  path = "ech_2023.dta",
+  svy_type = "ech",
+  svy_edition = "2023",
+  svy_weight = add_weight(annual = "PESOANO")
+)
+
+# Disable recipe API globally
+options(metasurvey.skip_recipes = TRUE)
+# Now get_recipe() will return NULL with a warning
 
 # For year ranges
 panel_recipe <- get_recipe(

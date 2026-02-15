@@ -22,6 +22,8 @@ transformation steps to be applied to a Survey object.
 
 \describe{
 \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
+\item{$doc()}{Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.}
+\item{$validate(svy)}{Validate that a survey object has all required input variables.}
 }
 }
 
@@ -56,6 +58,18 @@ transformation steps to be applied to a Survey object.
 \item{\code{bake}}{Logical flag indicating whether it has been applied.}
 
 \item{\code{topic}}{Recipe topic (character|NULL).}
+
+\item{\code{step_objects}}{List of Step R6 objects (list|NULL), used for documentation generation.}
+
+\item{\code{categories}}{List of RecipeCategory objects for classification.}
+
+\item{\code{downloads}}{Integer download/usage count.}
+
+\item{\code{certification}}{RecipeCertification object (default community).}
+
+\item{\code{user_info}}{RecipeUser object or NULL.}
+
+\item{\code{version}}{Recipe version string.}
 }
 \if{html}{\out{</div>}}
 }
@@ -63,6 +77,12 @@ transformation steps to be applied to a Survey object.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Recipe-new}{\code{Recipe$new()}}
+\item \href{#method-Recipe-increment_downloads}{\code{Recipe$increment_downloads()}}
+\item \href{#method-Recipe-certify}{\code{Recipe$certify()}}
+\item \href{#method-Recipe-add_category}{\code{Recipe$add_category()}}
+\item \href{#method-Recipe-remove_category}{\code{Recipe$remove_category()}}
+\item \href{#method-Recipe-doc}{\code{Recipe$doc()}}
+\item \href{#method-Recipe-validate}{\code{Recipe$validate()}}
 \item \href{#method-Recipe-clone}{\code{Recipe$clone()}}
 }
 }
@@ -82,8 +102,15 @@ Create a Recipe object
   description,
   steps,
   id,
-  doi,
-  topic
+  doi = NULL,
+  topic = NULL,
+  step_objects = NULL,
+  cached_doc = NULL,
+  categories = list(),
+  downloads = 0L,
+  certification = NULL,
+  user_info = NULL,
+  version = "1.0.0"
 )}\if{html}{\out{</div>}}
 }
 
@@ -111,8 +138,118 @@ Create a Recipe object
 \item{\code{doi}}{DOI or external identifier (character or NULL)}
 
 \item{\code{topic}}{Recipe topic (character or NULL)}
+
+\item{\code{step_objects}}{List of Step R6 objects (optional, used for doc generation)}
+
+\item{\code{cached_doc}}{Pre-computed documentation (optional, used when loading from JSON)}
+
+\item{\code{categories}}{List of RecipeCategory objects (optional)}
+
+\item{\code{downloads}}{Integer download count (default 0)}
+
+\item{\code{certification}}{RecipeCertification object (optional, default community)}
+
+\item{\code{user_info}}{RecipeUser object (optional)}
+
+\item{\code{version}}{Recipe version string (default "1.0.0")}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-increment_downloads"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-increment_downloads}{}}}
+\subsection{Method \code{increment_downloads()}}{
+Increment the download counter
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$increment_downloads()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-certify"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-certify}{}}}
+\subsection{Method \code{certify()}}{
+Certify the recipe at a given level
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$certify(user, level)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{user}}{RecipeUser who is certifying}
+
+\item{\code{level}}{Character certification level ("reviewed" or "official")}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-add_category"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-add_category}{}}}
+\subsection{Method \code{add_category()}}{
+Add a category to the recipe
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$add_category(category)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{category}}{RecipeCategory to add}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-remove_category"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-remove_category}{}}}
+\subsection{Method \code{remove_category()}}{
+Remove a category by name
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$remove_category(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Character category name to remove}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-doc"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-doc}{}}}
+\subsection{Method \code{doc()}}{
+Auto-generate documentation from recipe steps
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$doc()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A list with metadata, input_variables, output_variables, and pipeline information
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-validate"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-validate}{}}}
+\subsection{Method \code{validate()}}{
+Validate that a survey has all required input variables
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$validate(svy)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{svy}}{A Survey object}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+TRUE if valid, otherwise stops with error listing missing variables
 }
 }
 \if{html}{\out{<hr>}}
