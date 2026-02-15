@@ -21,6 +21,12 @@
 #' @field doi DOI or external identifier (character|NULL).
 #' @field bake Logical flag indicating whether it has been applied.
 #' @field topic Recipe topic (character|NULL).
+#' @field step_objects List of Step R6 objects (list|NULL), used for documentation generation.
+#' @field categories List of RecipeCategory objects for classification.
+#' @field downloads Integer download/usage count.
+#' @field certification RecipeCertification object (default community).
+#' @field user_info RecipeUser object or NULL.
+#' @field version Recipe version string.
 #'
 #' @section Methods:
 #' \describe{
@@ -48,6 +54,11 @@ Recipe <- R6Class("Recipe",
     bake = FALSE,
     topic = NULL,
     step_objects = NULL,
+    categories = list(),
+    downloads = 0L,
+    certification = NULL,
+    user_info = NULL,
+    version = "1.0.0",
     #' @description
     #' Create a Recipe object
     #' @param name Descriptive name of the recipe (character)
@@ -63,7 +74,12 @@ Recipe <- R6Class("Recipe",
     #' @param topic Recipe topic (character or NULL)
     #' @param step_objects List of Step R6 objects (optional, used for doc generation)
     #' @param cached_doc Pre-computed documentation (optional, used when loading from JSON)
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic, step_objects = NULL, cached_doc = NULL) {
+    #' @param categories List of RecipeCategory objects (optional)
+    #' @param downloads Integer download count (default 0)
+    #' @param certification RecipeCertification object (optional, default community)
+    #' @param user_info RecipeUser object (optional)
+    #' @param version Recipe version string (default "1.0.0")
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi = NULL, topic = NULL, step_objects = NULL, cached_doc = NULL, categories = list(), downloads = 0L, certification = NULL, user_info = NULL, version = "1.0.0") {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -77,12 +93,45 @@ Recipe <- R6Class("Recipe",
       self$topic <- topic
       self$step_objects <- step_objects
       private$.cached_doc <- cached_doc
+      self$categories <- categories
+      self$downloads <- as.integer(downloads)
+      self$certification <- certification %||% RecipeCertification$new(level = "community")
+      self$user_info <- user_info
+      self$version <- version
+    },
+
+    #' @description Increment the download counter
+    increment_downloads = function() {
+      self$downloads <- self$downloads + 1L
+    },
+
+    #' @description Certify the recipe at a given level
+    #' @param user RecipeUser who is certifying
+    #' @param level Character certification level ("reviewed" or "official")
+    certify = function(user, level) {
+      self$certification <- RecipeCertification$new(level = level, certified_by = user)
+    },
+
+    #' @description Add a category to the recipe
+    #' @param category RecipeCategory to add
+    add_category = function(category) {
+      existing <- vapply(self$categories, function(c) c$name, character(1))
+      if (!category$name %in% existing) {
+        self$categories <- c(self$categories, list(category))
+      }
+    },
+
+    #' @description Remove a category by name
+    #' @param name Character category name to remove
+    remove_category = function(name) {
+      self$categories <- Filter(function(c) c$name != name, self$categories)
     },
 
     #' @description
     #' Auto-generate documentation from recipe steps
     #' @return A list with metadata, input_variables, output_variables, and pipeline information
     doc = function() {
+      cat_names <- vapply(self$categories, function(c) c$name, character(1))
       meta <- list(
         name = self$name,
         user = self$user,
@@ -91,7 +140,11 @@ Recipe <- R6Class("Recipe",
         description = self$description,
         topic = self$topic,
         doi = self$doi,
-        id = self$id
+        id = self$id,
+        categories = if (length(cat_names) > 0) paste(cat_names, collapse = ", ") else NULL,
+        certification = self$certification$level,
+        version = self$version,
+        downloads = self$downloads
       )
 
       # If we have Step objects, generate doc from them
@@ -106,13 +159,22 @@ Recipe <- R6Class("Recipe",
           step_outputs <- switch(
             step$type,
             "compute" = , "ast_compute" = {
-              if (!is.null(step$names)) {
-                step$names
-              } else if (is.list(step$exprs) && !is.null(names(step$exprs))) {
-                names(step$exprs)
-              } else {
-                character(0)
+              # Try to extract variable names from step
+              var_names <- character(0)
+              
+              # Check if exprs has names (works for both lists and calls)
+              if (!is.null(names(step$exprs)) && length(names(step$exprs)) > 0) {
+                # Filter out empty names (first element in calls)
+                var_names <- setdiff(names(step$exprs), "")
               }
+              
+              # Fallback to parsing new_var if available
+              if (length(var_names) == 0 && !is.null(step$new_var)) {
+                # new_var might be comma-separated
+                var_names <- strsplit(step$new_var, ",\\s*")[[1]]
+              }
+              
+              var_names
             },
             "recode" = step$new_var,
             "step_rename" = names(step$exprs),
@@ -432,6 +494,11 @@ save_recipe <- function(recipe, file) {
     topic = recipe$topic,
     doi = recipe$doi,
     id = recipe$id,
+    version = recipe$version,
+    downloads = recipe$downloads,
+    categories = lapply(recipe$categories, function(c) c$to_list()),
+    certification = recipe$certification$to_list(),
+    user_info = if (!is.null(recipe$user_info)) recipe$user_info$to_list() else NULL,
     doc = list(
       input_variables = doc_info$input_variables,
       output_variables = doc_info$output_variables,
@@ -524,6 +591,42 @@ read_recipe <- function(file) {
       )
     }
 
+    # Reconstruct categories
+    categories <- list()
+    if (!is.null(json_data$categories)) {
+      raw_cats <- json_data$categories
+      if (is.data.frame(raw_cats)) {
+        for (i in seq_len(nrow(raw_cats))) {
+          row <- as.list(raw_cats[i, ])
+          # Handle empty data.frame parents from simplifyVector
+          if (is.data.frame(row$parent) && (nrow(row$parent) == 0 || ncol(row$parent) == 0)) {
+            row$parent <- NULL
+          }
+          categories[[i]] <- RecipeCategory$from_list(row)
+        }
+      } else if (is.list(raw_cats)) {
+        categories <- lapply(raw_cats, RecipeCategory$from_list)
+      }
+    }
+
+    # Reconstruct certification
+    certification <- NULL
+    if (!is.null(json_data$certification)) {
+      certification <- tryCatch(
+        RecipeCertification$from_list(json_data$certification),
+        error = function(e) NULL
+      )
+    }
+
+    # Reconstruct user_info
+    user_info <- NULL
+    if (!is.null(json_data$user_info)) {
+      user_info <- tryCatch(
+        RecipeUser$from_list(json_data$user_info),
+        error = function(e) NULL
+      )
+    }
+
     Recipe$new(
       name = json_data$name %||% "Unnamed Recipe",
       user = json_data$user %||% "Unknown",
@@ -536,7 +639,12 @@ read_recipe <- function(file) {
       id = json_data$id %||% stats::runif(1, 0, 1),
       doi = json_data$doi %||% NULL,
       topic = json_data$topic %||% NULL,
-      cached_doc = cached_doc
+      cached_doc = cached_doc,
+      categories = categories,
+      downloads = as.integer(json_data$downloads %||% 0),
+      certification = certification,
+      user_info = user_info,
+      version = json_data$version %||% "1.0.0"
     )
   } else {
     # Old format - just return steps for backward compatibility
@@ -575,8 +683,17 @@ read_recipe <- function(file) {
 #'   \item Versioning: Access different recipe versions according to edition
 #' }
 #'
-#' The function first searches in local repositories and then queries the API
-#' if necessary. Recipes are cached to improve performance.
+#' The function queries the metasurvey API to retrieve recipes. **Internet
+#' connection is required**. If the API is unavailable or you need to work
+#' offline:
+#'
+#' \strong{Working Offline:}
+#' \itemize{
+#'   \item Don't call \code{get_recipe()} - work directly with steps
+#'   \item Set \code{options(metasurvey.skip_recipes = TRUE)} to disable API calls
+#'   \item Load recipes from local files using \code{read_recipe()}
+#'   \item Create custom recipes with \code{recipe()}
+#' }
 #'
 #' Search criteria are combined with AND operator, so all specified criteria
 #' must match for a recipe to be returned.
@@ -612,6 +729,18 @@ read_recipe <- function(file) {
 #'   bake = TRUE
 #' )
 #'
+#' # Working offline - don't use recipes
+#' ech_offline <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(annual = "PESOANO")
+#' )
+#'
+#' # Disable recipe API globally
+#' options(metasurvey.skip_recipes = TRUE)
+#' # Now get_recipe() will return NULL with a warning
+#'
 #' # For year ranges
 #' panel_recipe <- get_recipe(
 #'   svy_type = "ech_panel",
@@ -634,6 +763,14 @@ get_recipe <- function(
     svy_edition = NULL,
     topic = NULL,
     allowMultiple = TRUE) {
+  
+  # Check if recipes should be skipped (offline mode)
+  if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
+    warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.", 
+            call. = FALSE)
+    return(NULL)
+  }
+  
   filterList <- list(
     svy_type = svy_type,
     svy_edition = svy_edition,
@@ -648,22 +785,19 @@ get_recipe <- function(
 
   filterList <- filterList[!sapply(filterList, is.null)]
 
+  tryCatch({
+    content_json <- request_api(method, filterList)
 
-  content_json <- request_api(method, filterList)
+    n_recipe <- get_distinct_recipes_json(content_json)
 
-  n_recipe <- get_distinct_recipes_json(content_json)
+    if (n_recipe == 0) {
+      message("The API returned no recipes for the specified criteria")
+      return(NULL)
+    }
 
-  if (n_recipe == 0) {
-    stop(
-      message(
-        "The API returned no recipes"
-      )
+    message(
+      glue::glue("The API returned {n_recipe} recipes")
     )
-  }
-
-  message(
-    glue::glue("The API returned {n_recipe} recipes")
-  )
 
 
   if (n_recipe == 1) {
@@ -707,6 +841,16 @@ get_recipe <- function(
       )
     )
   }
+  }, error = function(e) {
+    warning(sprintf(
+      "Failed to retrieve recipes from API: %s\n",
+      "  You can:\n",
+      "    - Work without recipes by not calling get_recipe()\n",
+      "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
+      "    - Check your internet connection and try again"
+    ), e$message, call. = FALSE)
+    return(NULL)
+  })
 }
 
 #' Convert a list of steps to a recipe
@@ -1001,6 +1145,7 @@ publish_recipe <- function(recipe) {
 #' @param x A Recipe object
 #' @param ... Additional arguments (currently unused)
 #' @return Invisibly returns the Recipe object
+#' @keywords Recipes
 #' @export
 print.Recipe <- function(x, ...) {
   doc_info <- x$doc()
@@ -1013,6 +1158,7 @@ print.Recipe <- function(x, ...) {
   # Metadata
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
   cat(crayon::silver("Survey:  "), x$survey_type, " / ", x$edition, "\n", sep = "")
+  cat(crayon::silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
     cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
   }
@@ -1021,6 +1167,23 @@ print.Recipe <- function(x, ...) {
   }
   if (!is.null(x$description) && nzchar(x$description)) {
     cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+  }
+  # Certification badge
+  cert_label <- switch(x$certification$level,
+    "community" = crayon::yellow("community"),
+    "reviewed" = crayon::cyan("reviewed"),
+    "official" = crayon::green("official"),
+    x$certification$level
+  )
+  cat(crayon::silver("Certification: "), cert_label, "\n", sep = "")
+  # Downloads
+  if (x$downloads > 0) {
+    cat(crayon::silver("Downloads: "), x$downloads, "\n", sep = "")
+  }
+  # Categories
+  if (length(x$categories) > 0) {
+    cat_names <- vapply(x$categories, function(c) c$name, character(1))
+    cat(crayon::silver("Categories: "), paste(cat_names, collapse = ", "), "\n", sep = "")
   }
 
   # Input variables

@@ -54,7 +54,7 @@ test_that("Recipe$doc() generates documentation from steps", {
 
   # Check pipeline
   expect_length(doc$pipeline, 1)
-  expect_true(doc$pipeline[[1]]$type %in% c("compute", "ast_compute"))
+  expect_equal(doc$pipeline[[1]]$type, "compute")
   expect_true(all(c("high_income", "income_log") %in% doc$pipeline[[1]]$outputs))
 })
 

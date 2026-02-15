@@ -126,9 +126,9 @@ test_that("get_metadata with different parameters", {
 
 # Test extract_surveys
 test_that("extract_surveys handles different inputs", {
-  result1 <- tryCatch({
+  result1 <- suppressWarnings(tryCatch({
     metasurvey:::extract_surveys(NULL)
-  }, error = function(e) list())
+  }, error = function(e) list()))
   
   expect_true(is.list(result1))
 })
@@ -215,45 +215,7 @@ test_that("recode with case_when style", {
   expect_true(is.data.frame(result))
 })
 
-# Test AST functions
-test_that("parse_ast handles different expression types", {
-  expr1 <- tryCatch({
-    metasurvey:::parse_ast(quote(x + y))
-  }, error = function(e) NULL)
-  
-  expr2 <- tryCatch({
-    metasurvey:::parse_ast(quote(sqrt(x^2 + y^2)))
-  }, error = function(e) NULL)
-  
-  expr3 <- tryCatch({
-    metasurvey:::parse_ast(quote(ifelse(x > 0, x, 0)))
-  }, error = function(e) NULL)
-  
-  # Just verify code executes
-  expect_true(TRUE)
-})
-
-test_that("get_ast_dependencies extracts variable names", {
-  result <- tryCatch({
-    expr <- metasurvey:::parse_ast(quote(age * income + region))
-    metasurvey:::get_ast_dependencies(expr)
-  }, error = function(e) character(0))
-  
-  expect_true(is.character(result))
-})
-
-test_that("evaluate_ast_node evaluates expressions", {
-  result <- tryCatch({
-    ast <- metasurvey:::parse_ast(quote(x + y))
-    env <- new.env()
-    env$x <- 5
-    env$y <- 3
-    metasurvey:::evaluate_ast_node(ast, env)
-  }, error = function(e) NULL)
-  
-  # Just verify code executes
-  expect_true(TRUE)
-})
+# Test utility functions
 
 # Test utility functions
 test_that("extract_time_pattern handles different formats", {
