@@ -41,6 +41,8 @@
 #' @field recipes List of \link{Recipe} objects associated.
 #' @field workflows List of workflows.
 #' @field design List of survey design objects (survey/surveyrep).
+#' @field psu Primary Sampling Unit specification (formula or character).
+#' @field design_initialized Logical flag for lazy design initialization.
 #' @field design_active Active binding that recomputes design on-demand from current data and weights.
 #'
 #' @section Active bindings:
@@ -94,6 +96,8 @@ Survey <- R6Class(
     recipes = list(),
     workflows = list(),
     design = NULL,
+    psu = NULL,
+    design_initialized = FALSE,
 
     #' @description Create a Survey object
     #' @param data Survey data
@@ -105,7 +109,7 @@ Survey <- R6Class(
     #' @param design Pre-built design (optional)
     #' @param steps Initial steps list (optional)
     #' @param recipes List of Recipe (optional)
-    initialize = function(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = list()) {
+    initialize = function(data, edition, type, psu = NULL, engine, weight, design = NULL, steps = NULL, recipes = list()) {
       self$data <- data
 
       time_pattern <- validate_time_pattern(
@@ -115,68 +119,25 @@ Survey <- R6Class(
 
       weight_list <- validate_weight_time_pattern(data, weight)
 
-      design_list <- lapply(
-        weight_list,
-        function(x) {
-          if (is.character(x)) {
-            if (is.null(psu)) {
-              psu <- ~1
-            } else {
-              psu <- as.formula(paste("~", psu))
-            }
-
-            survey::svydesign(
-              id = psu,
-              weights = as.formula(paste("~", x)),
-              data = data,
-              calibrate.formula = ~1
-            )
-          } else {
-            aux_vars <- c(x$weight, x$replicate_id)
-            data_aux <- data[, aux_vars, with = FALSE]
-            data_aux <- merge(
-              data_aux,
-              x$replicate_file[, 1:11],
-              by.x = names(x$replicate_id),
-              by.y = x$replicate_id
-            )
-
-            design <- survey::svrepdesign(
-              id = psu,
-              weights = as.formula(paste("~", x$weight)),
-              data = data_aux,
-              repweights = x$replicate_pattern,
-              type = x$replicate_type
-            )
-
-            data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
-            design$variables <- data
-            vars <- grepl(x$replicate_pattern, names(data))
-            rep_weights <- data[, vars, with = FALSE]
-            design$repweights <- data.table(rep_weights)
-            return(design)
-          }
-        }
-      )
-
-      names(design_list) <- names(weight_list)
-
-      if (length(recipes) == 1) {
-        recipes <- list(recipes)
-      }
-
-      if (length(recipes) == 1) {
-        recipes <- list(recipes)
-      }
-
+      # LAZY DESIGN: Store PSU for later, don't create design yet
+      self$psu <- psu
       self$edition <- time_pattern$svy_edition
       self$type <- time_pattern$svy_type
       self$default_engine <- engine
       self$weight <- weight_list
-      self$design <- design_list
+      self$periodicity <- time_pattern$svy_periodicity
+      
+      # Mark design as not initialized
+      self$design <- NULL
+      self$design_initialized <- FALSE
+      
+      if (length(recipes) == 1) {
+        recipes <- list(recipes)
+      }
+
       self$recipes <- if (is.null(recipes)) list() else recipes
       self$workflows <- list()
-      self$periodicity <- time_pattern$svy_periodicity
+      self$steps <- if (is.null(steps)) list() else steps
     },
 
     #' @description Return the underlying data
@@ -272,12 +233,83 @@ Survey <- R6Class(
     #' @param design Survey design object or list
     set_design = function(design) {
       self$design <- design
+      self$design_initialized <- TRUE
     },
+    
+    #' @description Ensure survey design is initialized (lazy initialization)
+    #' @return Invisibly returns self
+    ensure_design = function() {
+      if (!self$design_initialized) {
+        weight_list <- self$weight
+        psu <- self$psu
+        data <- self$data
+        
+        design_list <- lapply(
+          weight_list,
+          function(x) {
+            if (is.character(x)) {
+              if (is.null(psu)) {
+                psu <- ~1
+              } else {
+                psu <- as.formula(paste("~", psu))
+              }
+
+              survey::svydesign(
+                id = psu,
+                weights = as.formula(paste("~", x)),
+                data = data,
+                calibrate.formula = ~1
+              )
+            } else {
+              aux_vars <- c(x$weight, x$replicate_id)
+              data_aux <- data[, aux_vars, with = FALSE]
+              data_aux <- merge(
+                data_aux,
+                x$replicate_file[, 1:11],
+                by.x = names(x$replicate_id),
+                by.y = x$replicate_id
+              )
+
+              design <- survey::svrepdesign(
+                id = psu,
+                weights = as.formula(paste("~", x$weight)),
+                data = data_aux,
+                repweights = x$replicate_pattern,
+                type = x$replicate_type
+              )
+
+              data <- merge(data, x$replicate_file, by.x = names(x$replicate_id), by.y = x$replicate_id)
+              design$variables <- data
+              vars <- grepl(x$replicate_pattern, names(data))
+              rep_weights <- data[, vars, with = FALSE]
+              design$repweights <- data.table(rep_weights)
+              return(design)
+            }
+          }
+        )
+
+        names(design_list) <- names(weight_list)
+        self$design <- design_list
+        self$design_initialized <- TRUE
+      }
+      
+      return(invisible(self))
+    },
+    
     #' @description Update design variables using current data and weight
     update_design = function() {
+      # Ensure design exists before updating
+      self$ensure_design()
+      
       weight_list <- self$weight
-
       data_now <- self$get_data()
+
+      # Defensive check: ensure design matches weight_list length
+      if (length(self$design) != length(weight_list)) {
+        warning("Design length mismatch, reinitializing design")
+        self$design_initialized <- FALSE
+        self$ensure_design()
+      }
 
       for (i in seq_along(weight_list)) {
         if (is.character(weight_list[[i]])) {
@@ -291,6 +323,35 @@ Survey <- R6Class(
           )
         }
       }
+    },
+    
+    #' @description Create a shallow copy of the Survey (optimized for performance)
+    #' @details Only copies the data; reuses design objects and other metadata.
+    #'   Much faster than clone(deep=TRUE) but design objects are shared.
+    #' @return New Survey object with copied data but shared design
+    shallow_clone = function() {
+      new_svy <- Survey$new(
+        data = data.table::copy(self$data),
+        edition = self$edition,
+        type = self$type,
+        psu = self$psu,
+        engine = self$default_engine,
+        weight = self$weight
+      )
+      
+      # Share the design if already initialized (no copy)
+      if (self$design_initialized) {
+        new_svy$design <- self$design
+        new_svy$design_initialized <- TRUE
+      }
+      
+      # Copy steps metadata (shallow)
+      new_svy$steps <- self$steps
+      new_svy$recipes <- self$recipes
+      new_svy$workflows <- self$workflows
+      new_svy$periodicity <- self$periodicity
+      
+      return(new_svy)
     }
   ),
   active = list(
@@ -706,6 +767,11 @@ get_metadata <- function(self) {
 #'
 
 cat_design <- function(self) {
+  # Ensure design is initialized before displaying
+  if (!self$design_initialized) {
+    return("\n  Design: Not initialized (lazy initialization - will be created when needed)\n")
+  }
+  
   design_list <- self$design
 
 
@@ -881,6 +947,7 @@ get_steps <- function(svy) {
 #' @param type Type of survey
 #' @param weight Weight of survey
 #' @param engine Engine of survey
+#' @param psu PSU variable or formula (optional)
 #' @examples
 #' \dontrun{
 #' empty <- survey_empty()
@@ -889,11 +956,12 @@ get_steps <- function(svy) {
 #' @export
 #' @return Survey object
 
-survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL) {
+survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NULL, psu = NULL) {
   Survey$new(
     data = NULL,
     edition = edition,
     type = type,
+    psu = psu,
     weight = weight,
     engine = engine
   )
