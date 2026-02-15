@@ -97,7 +97,7 @@ length(follow_ups)
 You can apply transformations directly on the component surveys. For example,
 compute a derived variable on the implantation:
 
-```{r panel-compute}
+```{r panel-compute, eval=FALSE}
 panel$implantation <- step_compute(panel$implantation,
   income_k = income / 1000
 )
@@ -108,7 +108,7 @@ head(get_data(panel$implantation)[, .(id, income, income_k)], 3)
 
 Apply the same transformation to each follow-up:
 
-```{r panel-follow-up}
+```{r panel-follow-up, eval=FALSE}
 panel$follow_up <- lapply(panel$follow_up, function(svy) {
   svy <- step_compute(svy, income_k = income / 1000)
   bake_steps(svy)
