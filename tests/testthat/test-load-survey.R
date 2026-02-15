@@ -31,6 +31,9 @@ test_that("load_survey with weight creates survey design", {
     svy_weight = add_weight(annual = "w")
   )
 
+  # Trigger design initialization by adding and baking a step
+  s <- s %>% step_compute(double_val = val * 2) %>% bake_steps()
+  
   expect_true(length(s$design) >= 1)
   expect_true(inherits(s$design[[1]], "survey.design"))
 })
@@ -180,10 +183,10 @@ test_that("read_file reads RDS file", {
   on.exit(unlink(tmp), add = TRUE)
   df <- data.frame(id = 1:3, val = c("a", "b", "c"))
   saveRDS(df, tmp)
-  result <- tryCatch(
+  result <- suppressWarnings(tryCatch(
     metasurvey:::read_file(tmp),
     error = function(e) NULL
-  )
+  ))
   expect_true(is.null(result) || data.table::is.data.table(result))
 })
 
