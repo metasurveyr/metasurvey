@@ -56,12 +56,6 @@ print(step)
 \item{\code{comments}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
-
-\item{\code{expressions}}{Optional list of AST expressions used by this step (for AST-backed steps).}
-
-\item{\code{names}}{Optional character vector with the variable names associated to \code{expressions}.}
-
-\item{\code{ast_info}}{Optional list with AST metadata (original expressions, optimized versions, dependencies, flags).}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,10 +85,7 @@ Create a new Step object
   depends_on,
   comments = NULL,
   bake = !lazy_default(),
-  comment = NULL,
-  expressions = NULL,
-  names = NULL,
-  ast_info = NULL
+  comment = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -126,12 +117,6 @@ Create a new Step object
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
 
 \item{\code{comment}}{Optional alias of \code{comments} for backwards compatibility.}
-
-\item{\code{expressions}}{Optional list of AST expressions for AST compute steps.}
-
-\item{\code{names}}{Optional character vector of variable names for AST compute steps.}
-
-\item{\code{ast_info}}{Optional list with AST-related metadata for this step.}
 }
 \if{html}{\out{</div>}}
 }
