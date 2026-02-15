@@ -1,6 +1,6 @@
 is_blank <- function(x) {
   return(
-    is.na(x) || x == ""
+    is.null(x) || length(x) == 0 || is.na(x) || x == ""
   )
 }
 
@@ -333,14 +333,27 @@ get_api_key <- function() {
 
 public_key <- function() {
   url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
-  response <- POST(url)
-  content <- content(response)
-
-  if (response$status_code != 200) {
-    stop(message("Error getting public key", content))
-  }
-
-  return(content$access_token)
+  
+  tryCatch({
+    response <- POST(url)
+    content_data <- content(response)
+    
+    if (response$status_code != 200) {
+      stop(sprintf("API authentication failed with status %d: %s", 
+                   response$status_code, 
+                   as.character(content_data)))
+    }
+    
+    return(content_data$access_token)
+  }, error = function(e) {
+    stop(
+      "Unable to connect to metasurvey recipe API.\n",
+      "  Error: ", e$message, "\n",
+      "  To work without recipes, call load_survey() without the 'recipes' parameter,\n",
+      "  or set recipes = NULL explicitly.",
+      call. = FALSE
+    )
+  })
 }
 
 
@@ -416,9 +429,10 @@ extract_time_pattern <- function(svy_edition) {
   periodicity <- NA
 
   # Extraer el tipo si hay texto al inicio
-  if (grepl("$[^0-9]*", svy_edition)) {
+  if (grepl("^[^0-9]", svy_edition)) {
     type <- sub("[0-9_]*$", "", svy_edition, perl = TRUE)
-    svy_edition <- gsub("[^0-9]*", "", svy_edition, perl = TRUE)
+    svy_edition <- gsub("[^0-9_]*", "", svy_edition, perl = TRUE)
+    svy_edition <- gsub("^_+|_+$", "", svy_edition)
   }
 
   # Caso: Mensual en formato YYYYMM (e.g., "202312")
@@ -470,7 +484,7 @@ extract_time_pattern <- function(svy_edition) {
     }
 
     # Caso: Encuesta con rango de años (e.g., "2019_2021")
-  } else if (grepl("^(\\d{4})(\\d{4})$", svy_edition)) {
+  } else if (grepl("^(\\d{4})[_]?(\\d{4})$", svy_edition)) {
     years <- as.numeric(unlist(regmatches(svy_edition, gregexpr("\\d{4}", svy_edition))))
     year_start <- min(years)
     year_end <- max(years)
@@ -539,6 +553,19 @@ extract_time_pattern <- function(svy_edition) {
 #' @export
 
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
+  # Validar que svy_edition no sea NULL o vacío
+  if (is.null(svy_edition) || length(svy_edition) == 0 || svy_edition == "") {
+    if (is.null(svy_type)) {
+      stop("Both svy_edition and svy_type are NULL. Please provide at least one.")
+    }
+    # Si no hay edition pero sí type, retornar solo el type
+    return(list(
+      svy_type = svy_type,
+      svy_edition = NA,
+      svy_periodicity = NA
+    ))
+  }
+  
   time_pattern <- extract_time_pattern(svy_edition)
 
   if (is.null(time_pattern$type) && is.null(svy_type)) {
