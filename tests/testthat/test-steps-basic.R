@@ -241,7 +241,7 @@ test_that("get_type_step returns types from steps", {
   steps <- get_steps(s2)
   types <- metasurvey:::get_type_step(steps)
   expect_true(is.character(types))
-  expect_true("ast_compute" %in% types)
+  expect_true("compute" %in% types)
 })
 
 test_that("get_type_step returns NULL for empty steps", {

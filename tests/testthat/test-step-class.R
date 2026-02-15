@@ -100,29 +100,6 @@ test_that("Step stores different types correctly", {
   }
 })
 
-test_that("Step can store AST information", {
-  step <- Step$new(
-    name = "ast_step",
-    edition = "2023",
-    survey_type = "ech",
-    type = "compute",
-    new_var = "result",
-    exprs = list(),
-    call = NULL,
-    svy_before = NULL,
-    default_engine = "data.table",
-    depends_on = list()
-  )
-  
-  step$ast_info <- list(
-    original = "x + y",
-    optimized = "x + y",
-    dependencies = c("x", "y")
-  )
-  
-  expect_type(step$ast_info, "list")
-  expect_equal(step$ast_info$original, "x + y")
-})
 
 test_that("Step clone creates independent copy", {
   step1 <- Step$new(
@@ -216,47 +193,9 @@ test_that("bake_step skips already-baked steps", {
   expect_s3_class(result, "Survey")
 })
 
-# --- bake_ast_step ---
 
-test_that("bake_ast_step evaluates AST expressions on survey data", {
-  s <- make_test_survey()
-  ast_expr <- metasurvey:::parse_ast(quote(age * 2))
-  step <- Step$new(
-    name = "ast_test", edition = "2023", survey_type = "ech",
-    type = "ast_compute", new_var = "double_age",
-    exprs = list(), call = NULL, svy_before = NULL,
-    default_engine = "data.table", depends_on = list("age"),
-    expressions = list(ast_expr), names = c("double_age"),
-    bake = FALSE
-  )
-  result <- metasurvey:::bake_ast_step(s, step)
-  expect_true("double_age" %in% names(result$data))
-  expect_equal(result$data$double_age, result$data$age * 2)
-})
 
-test_that("bake_ast_step with plain data.frame data works", {
-  s <- make_test_survey()
-  # Convert data to plain data.frame to hit the else branch (line 346)
-  s$data <- as.data.frame(s$data)
-  ast_expr <- metasurvey:::parse_ast(quote(age + 10))
-  step <- Step$new(
-    name = "df_ast", edition = "2023", survey_type = "ech",
-    type = "ast_compute", new_var = "age_plus",
-    exprs = list(), call = NULL, svy_before = NULL,
-    default_engine = "data.table", depends_on = list("age"),
-    expressions = list(ast_expr), names = c("age_plus"),
-    bake = FALSE
-  )
-  result <- metasurvey:::bake_ast_step(s, step)
-  expect_true("age_plus" %in% names(result$data))
-})
 
-test_that("bake_ast_step errors on non-Survey object", {
-  expect_error(
-    metasurvey:::bake_ast_step("not a survey", list()),
-    "not a Survey|currently only supported"
-  )
-})
 
 # --- bake_steps_survey ---
 
@@ -367,7 +306,7 @@ test_that("bake_step validation warning returns survey with invalid deps", {
     depends_on = list(), bake = FALSE
   )
   # Step with empty deps and empty exprs - bake_step should handle it
-  # The step is "compute" type but not "ast_compute", so it goes to do.call path
+  # The step is "compute" type, so it goes to do.call path
   result <- tryCatch(metasurvey:::bake_step(s, step), error = function(e) s)
   expect_s3_class(result, "Survey")
 })
