@@ -1,26 +1,12 @@
 template:
-  bootstrap: 5
-  bslib:
-    bg: "#F6FFFF"
-    fg: "#000000"
-    primary: "#40555D"
-    border-radius: 0.7rem
-    btn-border-radius: 0.75rem
-    code_font: {google: "Fira Code"}
+  package: rotemplate
 
-url: https://metasurveyr.github.io/metasurvey
-
+url: https://docs.ropensci.org/metasurvey
 
 navbar:
-  bg: primary
   structure:
-    left:  [intro, articles, reference, tutorials, news]
-    right: [search, github]
-  components:
-    github:
-      icon: fa-github
-      href: https://github.com/metaSurveyR/metasurvey
-      aria-label: GitHub
+    left:  [intro, articles, reference, news]
+    right: [search, github, lightswitch]
 
 authors:
   Mauro Loprete:
@@ -64,6 +50,7 @@ reference:
     - set_backend
     - default_categories
     - add_category
+    - add_recipe
     - certify_recipe
     - filter_recipes
     - explore_recipes
@@ -74,6 +61,7 @@ reference:
     - recipe_category
     - recipe_user
     - recipe_certification
+    - set_data
     - set_user_info
     - set_version
 - title: Workflows
@@ -91,6 +79,30 @@ reference:
     - rank_workflows
     - search_workflows
     - publish_workflow
+- title: API Client
+  contents:
+    - configure_api
+    - api_list_recipes
+    - api_get_recipe
+    - api_publish_recipe
+    - api_list_workflows
+    - api_get_workflow
+    - api_publish_workflow
+    - api_login
+    - api_logout
+    - api_me
+    - api_register
+    - api_refresh_token
+    - api_get_anda_variables
+- title: ANDA Metadata
+  contents:
+    - anda_variables
+    - anda_variable_detail
+    - anda_fetch_ddi
+    - anda_parse_variables
+    - anda_catalog_search
+    - anda_list_editions
+    - anda_download_microdata
 - title: PoolSurvey
   contents:
     - has_keyword("PoolSurvey")
@@ -107,18 +119,22 @@ articles:
   contents:
   - getting-started
   - metasurvey-es
-- title: "Guides"
-  desc: "In-depth guides for specific topics"
+- title: "Core Features"
+  desc: "Recipes, workflows, and estimation"
   contents:
   - recipes
-  - panel-analysis
+  - workflows-and-estimation
+- title: "Advanced Topics"
+  desc: "Complex designs, panels, and validation"
+  contents:
   - complex-designs
-  - api-ecosystem
+  - panel-analysis
+- title: "Web App and API"
+  desc: "Interactive explorer, REST API, and database"
+  contents:
+  - shiny-explorer
+  - api-database
 - title: "Case Studies"
-  desc: "Real-world examples and analysis workflows"
+  desc: "Real-world examples with ECH data"
   contents:
   - ech-case-study
-- title: "Advanced"
-  desc: "Testing and validation strategies"
-  contents:
-  - testing-workflows

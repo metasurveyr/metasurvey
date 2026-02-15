@@ -5,14 +5,14 @@
 \title{Filter workflows by criteria}
 \usage{
 filter_workflows(
-  svy_type = NULL,
+  survey_type = NULL,
   edition = NULL,
   recipe_id = NULL,
   certification_level = NULL
 )
 }
 \arguments{
-\item{svy_type}{Character survey type or NULL.}
+\item{survey_type}{Character survey type or NULL.}
 
 \item{edition}{Character edition or NULL.}
 
@@ -29,7 +29,7 @@ or certification level.
 }
 \examples{
 \dontrun{
-ech_wf <- filter_workflows(svy_type = "ech")
+ech_wf <- filter_workflows(survey_type = "ech")
 for_recipe <- filter_workflows(recipe_id = "recipe_001")
 }
 

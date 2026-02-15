@@ -116,18 +116,18 @@ WorkflowBackend <- R6::R6Class(
     },
 
     #' @description Filter workflows by criteria
-    #' @param svy_type Character or NULL
+    #' @param survey_type Character or NULL
     #' @param edition Character or NULL
     #' @param recipe_id Character or NULL
     #' @param certification_level Character or NULL
     #' @return List of matching RecipeWorkflow objects
-    filter = function(svy_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
       if (self$type == "local") {
-        private$.registry$filter(svy_type = svy_type, edition = edition,
+        private$.registry$filter(survey_type = survey_type, edition = edition,
                                   recipe_id = recipe_id, certification_level = certification_level)
       } else if (self$type == "api") {
         tryCatch(
-          api_list_workflows(survey_type = svy_type, recipe_id = recipe_id),
+          api_list_workflows(survey_type = survey_type, recipe_id = recipe_id),
           error = function(e) list()
         )
       }

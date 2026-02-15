@@ -105,7 +105,7 @@ List of matching Recipe objects
 Filter recipes by criteria
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{RecipeRegistry$filter(
-  svy_type = NULL,
+  survey_type = NULL,
   edition = NULL,
   category = NULL,
   certification_level = NULL
@@ -115,7 +115,7 @@ Filter recipes by criteria
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{svy_type}}{Character survey type or NULL}
+\item{\code{survey_type}}{Character survey type or NULL}
 
 \item{\code{edition}}{Character edition or NULL}
 

@@ -2,112 +2,38 @@
 % Please edit documentation in R/Step.R
 \name{bake_steps}
 \alias{bake_steps}
-\title{Execute all pending steps (materialization)}
+\title{Execute all pending steps}
 \usage{
 bake_steps(svy)
 }
 \arguments{
-\item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object with pending steps to execute}
+\item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object with pending steps}
 }
 \value{
-The same type of object as input with all transformations materialized
-in the data and the step history updated to reflect completed operations
+The same object with all steps materialized in the data
+and each step marked as \code{bake = TRUE}.
 }
 \description{
-This function uses optimized expression evaluation as its fundamental execution
-engine. All pending steps are processed with optimization, validation, and
-traceable execution.
+Iterates over all pending (lazy) steps attached to a Survey or
+RotativePanelSurvey and executes them sequentially, mutating
+the underlying data.table. Each step is validated before execution
+(checks that required variables exist).
 }
 \details{
-\strong{CORE EXECUTION ENGINE}:
-
-\strong{1. Step Processing:}
-\itemize{
-\item All pending steps are automatically analyzed
-\item Dependency graphs built from expression analysis
-\item Execution order optimized based on dependencies
-\item Each step validated before materialization
-}
-
-\strong{2. Enhanced Execution Features:}
-\itemize{
-\item Expression optimization applied to all operations
-\item Parallel dependency resolution where possible
-\item Advanced error detection with precise context
-\item Comprehensive execution logging and traceability
-}
-
-\strong{3. Performance Benefits:}
-\itemize{
-\item Pre-compiled expressions for faster execution
-\item Optimized evaluation paths reduce computation time
-\item Cached intermediate results for repeated operations
-\item Minimal memory overhead with maximum performance gains
-}
-
-\strong{4. Key Capabilities:}
-\itemize{
-\item Automatic dependency validation prevents runtime errors
-\item Expression optimization (constant folding, dead code elimination)
-\item Better error messages with step and expression context
-\item Comprehensive audit trail of all transformations
-}
-
-The function provides several key advantages:
-\itemize{
-\item \strong{Expression Optimization}: All expressions optimized before execution
-\item \strong{Dependency Validation}: Variables verified to exist using automatic analysis
-\item \strong{Error Prevention}: Static analysis catches errors before runtime
-\item \strong{Performance}: Optimized execution paths and cached compilations
-\item \strong{Traceability}: Complete audit trail of transformations
-\item \strong{Complex Handling}: RotativePanelSurvey processed at all levels
-}
-
-For RotativePanelSurvey objects, the engine processes both the implantation
-level and follow-up levels, applying appropriate optimizations according to
-the level specified in each step.
-
-Steps are executed in dependency-optimized order, and each step's expressions
+Steps are executed in the order they were added. Each step's expressions
 can reference variables created by previous steps.
+
+For RotativePanelSurvey objects, steps are applied to both the
+implantation and all follow-up surveys.
 }
 \examples{
 \dontrun{
-# Basic execution with Survey
-ech <- load_survey("ech_2023.dta", svy_type = "ech", svy_edition = "2023") |>
-  step_compute(
-    employed = ifelse(POBPCOAC == 2, 1, 0),
-    comment = "Employment indicator"
-  ) |>
-  step_recode(
-    age_group,
-    e27 < 18 ~ "Minor",
-    e27 >= 18 & e27 < 65 ~ "Adult",
-    e27 >= 65 ~ "Senior",
-    comment = "Age groups"
-  )
+svy <- survey_empty("ech", "2023") \%>\%
+  set_data(my_data) \%>\%
+  step_compute(employed = ifelse(pobpcoac == 2, 1, 0)) \%>\%
+  step_recode(age_group, e27 < 18 ~ "Minor", e27 >= 65 ~ "Senior",
+              .default = "Adult")
 
-# Execute all steps
-processed_ech <- bake_steps(ech)
-
-# Verify variables were created
-print(names(processed_ech$data))
-
-# RotativePanelSurvey execution
-panel <- load_panel_survey("panel_2023.dta") |>
-  step_compute(
-    activity_rate = active / population_14_plus * 100,
-    .level = "quarter",
-    comment = "Quarterly activity rate"
-  )
-
-processed_panel <- bake_steps(panel) # Handles multi-level execution
-
-# Optimized pipeline with recipes
-result <- load_survey("data.dta",
-  svy_type = "ech",
-  svy_edition = "2023",
-  recipes = my_recipe
-) |>
-  bake_steps() # Apply recipe with optimizations
+svy <- bake_steps(svy)
 }
 }

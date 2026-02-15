@@ -2,166 +2,217 @@
 
 app_css <- function() {
   htmltools::tags$style(htmltools::HTML("
+    /* ══ Design System: Minimalist + Eye-catching ══ */
+    :root {
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --indigo: #6366f1;
+      --indigo-light: #818cf8;
+      --indigo-50: #eef2ff;
+      --emerald: #10b981;
+      --emerald-50: #ecfdf5;
+      --amber: #f59e0b;
+      --amber-50: #fffbeb;
+      --sky: #0ea5e9;
+      --sky-50: #f0f9ff;
+      --rose: #f43f5e;
+      --violet: #8b5cf6;
+    }
+
     /* ── Global ── */
-    body { background: #f8f9fa; }
-    .navbar { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    body { background: var(--slate-50); color: var(--slate-800); }
+    .navbar {
+      box-shadow: 0 1px 3px rgba(15,23,42,.08);
+      border-bottom: 1px solid var(--slate-200);
+    }
 
     /* ── Recipe Grid ── */
     .recipe-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
       padding: 1rem 0;
     }
 
     /* ── Recipe Card ── */
     .recipe-card {
-      border: none;
-      border-radius: 12px;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
       overflow: hidden;
-      transition: transform .2s ease, box-shadow .2s ease;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
       cursor: pointer;
       background: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
     }
     .recipe-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0,0,0,.12);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(99,102,241,.1);
+      border-color: var(--indigo-light);
     }
     .recipe-card-header {
-      padding: 1rem 1.25rem .75rem;
-      color: #fff;
+      padding: .875rem 1.125rem .625rem;
       position: relative;
+      border-bottom: 1px solid var(--slate-100);
     }
     .recipe-card-header.cert-community {
-      background: linear-gradient(135deg, #f39c12, #e67e22);
+      background: var(--slate-50);
+      color: var(--slate-800);
+      border-left: 3px solid var(--amber);
     }
     .recipe-card-header.cert-reviewed {
-      background: linear-gradient(135deg, #3498db, #2980b9);
+      background: var(--sky-50);
+      color: var(--slate-800);
+      border-left: 3px solid var(--sky);
     }
     .recipe-card-header.cert-official {
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      background: var(--emerald-50);
+      color: var(--slate-800);
+      border-left: 3px solid var(--emerald);
     }
     .recipe-card-header h5 {
       margin: 0;
       font-weight: 700;
-      font-size: 1.05rem;
-      line-height: 1.3;
-      text-shadow: 0 1px 2px rgba(0,0,0,.15);
+      font-size: 1rem;
+      line-height: 1.35;
+      color: var(--slate-900);
     }
     .recipe-card-header .card-subtitle {
-      opacity: .9;
-      font-size: .8rem;
+      color: var(--slate-500);
+      font-size: .78rem;
       margin-top: .25rem;
     }
     .recipe-card-body {
-      padding: 1rem 1.25rem;
+      padding: .875rem 1.125rem;
     }
     .recipe-card-body .description {
-      color: #6c757d;
-      font-size: .85rem;
-      line-height: 1.5;
+      color: var(--slate-500);
+      font-size: .84rem;
+      line-height: 1.55;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      margin-bottom: .75rem;
+      margin-bottom: .625rem;
     }
     .recipe-card-footer {
-      padding: .75rem 1.25rem;
-      background: #f8f9fa;
-      border-top: 1px solid #eee;
+      padding: .625rem 1.125rem;
+      background: var(--slate-50);
+      border-top: 1px solid var(--slate-100);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .recipe-card-footer .downloads {
-      color: #6c757d;
-      font-size: .8rem;
+      color: var(--slate-400);
+      font-size: .78rem;
       display: flex;
       align-items: center;
-      gap: .35rem;
+      gap: .3rem;
     }
     .recipe-card-footer .btn-view {
-      font-size: .8rem;
-      padding: .25rem .75rem;
-      border-radius: 20px;
+      font-size: .78rem;
+      padding: .2rem .7rem;
+      border-radius: 6px;
       font-weight: 600;
     }
 
     /* ── Category Tags ── */
     .category-tag {
       display: inline-block;
-      padding: .15rem .6rem;
-      border-radius: 20px;
-      font-size: .72rem;
+      padding: .125rem .55rem;
+      border-radius: 4px;
+      font-size: .7rem;
       font-weight: 600;
       margin: .1rem;
-      letter-spacing: .02em;
+      letter-spacing: .01em;
     }
-    .tag-labor_market { background: #d4efdf; color: #1e8449; }
-    .tag-income       { background: #d6eaf8; color: #2471a3; }
-    .tag-education    { background: #fdebd0; color: #ca6f1e; }
-    .tag-health       { background: #fadbd8; color: #c0392b; }
-    .tag-demographics { background: #e8daef; color: #7d3c98; }
-    .tag-housing      { background: #d5dbdb; color: #566573; }
-    .tag-default      { background: #eaecee; color: #515a5a; }
+    .tag-labor_market { background: #dcfce7; color: #166534; }
+    .tag-income       { background: #dbeafe; color: #1e40af; }
+    .tag-education    { background: #fef3c7; color: #92400e; }
+    .tag-health       { background: #ffe4e6; color: #9f1239; }
+    .tag-demographics { background: #f3e8ff; color: #6b21a8; }
+    .tag-housing      { background: var(--slate-100); color: var(--slate-600); }
+    .tag-default      { background: var(--slate-100); color: var(--slate-500); }
 
     /* ── Cert Badge ── */
     .cert-badge {
       display: inline-flex;
       align-items: center;
-      gap: .35rem;
-      padding: .2rem .7rem;
-      border-radius: 20px;
-      font-size: .75rem;
+      gap: .3rem;
+      padding: .15rem .6rem;
+      border-radius: 4px;
+      font-size: .7rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .04em;
     }
-    .cert-badge-community { background: #fef9e7; color: #d4ac0d; border: 1px solid #f9e79f; }
-    .cert-badge-reviewed  { background: #ebf5fb; color: #2e86c1; border: 1px solid #aed6f1; }
-    .cert-badge-official  { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; }
+    .cert-badge-community { background: var(--amber-50); color: #92400e; border: 1px solid #fde68a; }
+    .cert-badge-reviewed  { background: var(--sky-50); color: #0369a1; border: 1px solid #bae6fd; }
+    .cert-badge-official  { background: var(--emerald-50); color: #065f46; border: 1px solid #a7f3d0; }
+
+    /* ── Modal Positioning Fix ── */
+    .modal-dialog {
+      margin-top: 1.5rem !important;
+    }
+    .modal-content {
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-body {
+      padding: 0;
+    }
 
     /* ── Detail Modal ── */
     .recipe-detail-header {
-      padding: 2rem 2rem 1.5rem;
-      color: #fff;
+      padding: 1.75rem 2rem 1.25rem;
       border-radius: 0;
       position: relative;
     }
     .recipe-detail-header.cert-community {
-      background: linear-gradient(135deg, #f39c12 0%, #e67e22 50%, #d35400 100%);
+      background: var(--slate-800);
+      color: #fff;
+      border-bottom: 3px solid var(--amber);
     }
     .recipe-detail-header.cert-reviewed {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 50%, #1a5276 100%);
+      background: var(--slate-800);
+      color: #fff;
+      border-bottom: 3px solid var(--sky);
     }
     .recipe-detail-header.cert-official {
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #1e8449 100%);
+      background: var(--slate-800);
+      color: #fff;
+      border-bottom: 3px solid var(--emerald);
     }
     .recipe-detail-header h3 {
       font-weight: 800;
       margin-bottom: .5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,.15);
+      font-size: 1.35rem;
     }
     .recipe-detail-header .meta-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 1.5rem;
-      font-size: .9rem;
-      opacity: .95;
+      gap: 1.25rem;
+      font-size: .85rem;
+      opacity: .85;
     }
     .recipe-detail-header .meta-item {
       display: flex;
       align-items: center;
-      gap: .4rem;
+      gap: .35rem;
     }
 
     /* ── Pipeline Graph ── */
     .pipeline-graph-container {
-      background: #f8f9fa;
-      border: 1px solid #eee;
-      border-radius: 10px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
       overflow: hidden;
       margin-bottom: .5rem;
     }
@@ -170,26 +221,69 @@ app_css <- function() {
     .workflow-step {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 1rem;
+      margin-bottom: .75rem;
       position: relative;
-      padding-left: 2.5rem;
+      padding-left: 2.25rem;
     }
     .workflow-step::before {
       content: '';
       position: absolute;
-      left: 14px;
-      top: 30px;
-      bottom: -1rem;
+      left: 13px;
+      top: 28px;
+      bottom: -.75rem;
       width: 2px;
-      background: #dee2e6;
+      background: var(--slate-200);
     }
     .workflow-step:last-child::before { display: none; }
     .wf-dot {
       position: absolute;
       left: 4px;
       top: 6px;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .55rem;
+      font-weight: 800;
+      color: #fff;
+      z-index: 1;
+    }
+    .wf-dot-svymean   { background: var(--amber); }
+    .wf-dot-svytotal  { background: var(--rose); }
+    .wf-dot-svyratio  { background: var(--violet); }
+    .wf-dot-svyby     { background: var(--sky); }
+    .step-type-svymean   { color: var(--amber); }
+    .step-type-svytotal  { color: var(--rose); }
+    .step-type-svyratio  { color: var(--violet); }
+    .step-type-svyby     { color: var(--sky); }
+
+    /* ── Pipeline Timeline ── */
+    .pipeline-section { padding: 1.25rem 0; }
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: .75rem;
+      position: relative;
+      padding-left: 2.25rem;
+    }
+    .pipeline-step::before {
+      content: '';
+      position: absolute;
+      left: 13px;
+      top: 28px;
+      bottom: -.75rem;
+      width: 2px;
+      background: var(--slate-200);
+    }
+    .pipeline-step:last-child::before { display: none; }
+    .step-dot {
+      position: absolute;
+      left: 4px;
+      top: 6px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -198,297 +292,503 @@ app_css <- function() {
       font-weight: 800;
       color: #fff;
       z-index: 1;
-      background: #f39c12;
     }
-    .wf-dot-svymean   { background: #f39c12; }
-    .wf-dot-svytotal  { background: #e74c3c; }
-    .wf-dot-svyratio  { background: #8e44ad; }
-    .wf-dot-svyby     { background: #2980b9; }
-    .step-type-svymean   { color: #f39c12; }
-    .step-type-svytotal  { color: #e74c3c; }
-    .step-type-svyratio  { color: #8e44ad; }
-    .step-type-svyby     { color: #2980b9; }
-
-    /* ── Pipeline Timeline ── */
-    .pipeline-section { padding: 1.5rem 0; }
-    .pipeline-step {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-      position: relative;
-      padding-left: 2.5rem;
-    }
-    .pipeline-step::before {
-      content: '';
-      position: absolute;
-      left: 14px;
-      top: 30px;
-      bottom: -1rem;
-      width: 2px;
-      background: #dee2e6;
-    }
-    .pipeline-step:last-child::before { display: none; }
-    .step-dot {
-      position: absolute;
-      left: 4px;
-      top: 6px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .65rem;
-      font-weight: 800;
-      color: #fff;
-      z-index: 1;
-    }
-    .step-dot-compute  { background: #3498db; }
-    .step-dot-recode   { background: #9b59b6; }
-    .step-dot-rename   { background: #e67e22; }
-    .step-dot-remove   { background: #e74c3c; }
-    .step-dot-join     { background: #1abc9c; }
-    .step-dot-default  { background: #95a5a6; }
+    .step-dot-compute  { background: var(--indigo); }
+    .step-dot-recode   { background: var(--violet); }
+    .step-dot-rename   { background: var(--amber); }
+    .step-dot-remove   { background: var(--rose); }
+    .step-dot-join     { background: var(--emerald); }
+    .step-dot-default  { background: var(--slate-400); }
     .step-content {
       background: #fff;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: .6rem 1rem;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: .5rem .875rem;
       flex: 1;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
     }
     .step-type {
       font-weight: 700;
-      font-size: .8rem;
+      font-size: .78rem;
       text-transform: uppercase;
       letter-spacing: .04em;
     }
-    .step-type-compute  { color: #3498db; }
-    .step-type-recode   { color: #9b59b6; }
-    .step-type-rename   { color: #e67e22; }
-    .step-type-remove   { color: #e74c3c; }
-    .step-type-join     { color: #1abc9c; }
+    .step-type-compute  { color: var(--indigo); }
+    .step-type-recode   { color: var(--violet); }
+    .step-type-rename   { color: var(--amber); }
+    .step-type-remove   { color: var(--rose); }
+    .step-type-join     { color: var(--emerald); }
     .step-outputs {
-      color: #2c3e50;
-      font-size: .85rem;
+      color: var(--slate-800);
+      font-size: .84rem;
       font-weight: 600;
     }
 
     /* ── Variable Chips ── */
     .var-chip {
       display: inline-block;
-      padding: .2rem .65rem;
-      border-radius: 6px;
-      font-size: .78rem;
-      font-family: 'SFMono-Regular', monospace;
-      margin: .15rem;
+      padding: .15rem .55rem;
+      border-radius: 4px;
+      font-size: .75rem;
+      font-family: 'SFMono-Regular', 'Consolas', monospace;
+      margin: .1rem;
       font-weight: 500;
     }
-    .var-chip-input  { background: #ebf5fb; color: #2471a3; border: 1px solid #aed6f1; }
-    .var-chip-output { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; }
-    .var-chip-output-cat { background: #f5eef8; color: #7d3c98; border: 1px solid #d2b4de; }
+    .var-chip-input  { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .var-chip-output { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .var-chip-output-cat { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
 
     /* ── Cross-reference Chips ── */
     .cross-ref-chip {
       display: inline-block;
-      padding: .25rem .75rem;
-      border-radius: 20px;
-      font-size: .8rem;
+      padding: .2rem .65rem;
+      border-radius: 5px;
+      font-size: .78rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all .2s ease;
-      margin: .15rem;
+      transition: all .15s ease;
+      margin: .1rem;
       text-decoration: none;
     }
     .cross-ref-recipe {
-      background: #ebf5fb; color: #2471a3; border: 1px solid #aed6f1;
+      background: var(--indigo-50); color: var(--indigo); border: 1px solid #c7d2fe;
     }
     .cross-ref-recipe:hover {
-      background: #2471a3; color: #fff;
+      background: var(--indigo); color: #fff;
     }
     .cross-ref-workflow {
-      background: #fef9e7; color: #d4ac0d; border: 1px solid #f9e79f;
+      background: var(--amber-50); color: #92400e; border: 1px solid #fde68a;
     }
     .cross-ref-workflow:hover {
-      background: #d4ac0d; color: #fff;
+      background: var(--amber); color: #fff;
     }
     .est-type-badge {
       display: inline-block;
-      padding: .15rem .55rem;
-      border-radius: 12px;
-      font-size: .72rem;
+      padding: .125rem .5rem;
+      border-radius: 4px;
+      font-size: .7rem;
       font-weight: 600;
       margin: .1rem;
     }
-    .est-type-annual    { background: #d4efdf; color: #1e8449; }
-    .est-type-quarterly { background: #d6eaf8; color: #2471a3; }
-    .est-type-monthly   { background: #fdebd0; color: #ca6f1e; }
+    .est-type-annual    { background: #dcfce7; color: #166534; }
+    .est-type-quarterly { background: #dbeafe; color: #1e40af; }
+    .est-type-monthly   { background: #fef3c7; color: #92400e; }
+
+    /* ── Edition Badges ── */
+    .edition-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .2rem;
+      margin-top: .35rem;
+    }
+    .edition-badge {
+      display: inline-block;
+      padding: .1rem .35rem;
+      border-radius: 3px;
+      font-size: .62rem;
+      font-weight: 600;
+      background: rgba(99,102,241,.08);
+      color: var(--indigo);
+      border: 1px solid rgba(99,102,241,.15);
+      letter-spacing: .02em;
+    }
 
     /* ── Section Titles ── */
     .section-title {
       font-weight: 700;
-      font-size: .95rem;
-      color: #2c3e50;
+      font-size: .9rem;
+      color: var(--slate-700);
       padding-bottom: .5rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid #eee;
+      margin-bottom: .875rem;
+      border-bottom: 1px solid var(--slate-200);
       display: flex;
       align-items: center;
-      gap: .5rem;
+      gap: .4rem;
     }
-    .section-title svg { opacity: .6; }
+    .section-title svg { opacity: .5; }
 
     /* ── Stats Row ── */
     .stat-box {
       text-align: center;
-      padding: 1rem;
-      border-radius: 10px;
-      background: #f8f9fa;
-      border: 1px solid #eee;
+      padding: .875rem;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--slate-200);
     }
     .stat-box .stat-number {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 800;
-      color: #2c3e50;
+      color: var(--indigo);
     }
     .stat-box .stat-label {
-      font-size: .75rem;
-      color: #95a5a6;
+      font-size: .72rem;
+      color: var(--slate-400);
       text-transform: uppercase;
       letter-spacing: .05em;
+    }
+
+    /* ── Navbar fix ── */
+    .navbar .navbar-brand {
+      display: flex;
+      align-items: center;
+      padding-top: 0;
+      padding-bottom: 0;
     }
 
     /* ── Search Bar ── */
     .search-container {
       background: #fff;
-      border-radius: 12px;
-      padding: 1.25rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      margin-bottom: 1.25rem;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      border: 1px solid var(--slate-200);
+      margin-bottom: 1rem;
+    }
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .search-field {
+      flex: 2;
+      min-width: 180px;
+    }
+    .filter-field {
+      flex: 1;
+      min-width: 120px;
+    }
+    .refresh-field {
+      flex: 0 0 auto;
+    }
+    .search-row .form-group {
+      margin-bottom: 0;
     }
 
-    /* ── Auth Forms ── */
-    .auth-container {
-      max-width: 450px;
-      margin: 3rem auto;
-      background: #fff;
-      border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    /* ── Hero Section ── */
+    .hero-section {
+      background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+      border-radius: 12px;
+      padding: 2rem 2.25rem;
+      margin-bottom: 1.25rem;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
     }
-    .auth-container h3 {
-      text-align: center;
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99,102,241,.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-section h2 {
       font-weight: 800;
-      color: #2c3e50;
-      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      margin-bottom: .5rem;
+      position: relative;
     }
-    .auth-container .btn-primary {
+    .hero-section .hero-subtitle {
+      color: var(--slate-300);
+      font-size: .9rem;
+      line-height: 1.6;
+      max-width: 600px;
+      position: relative;
+    }
+    .hero-features {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .hero-feature {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .8rem;
+      color: var(--slate-300);
+    }
+    .hero-feature svg { color: var(--indigo-light); }
+
+    /* ── Auth Layout ── */
+    .auth-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      max-width: 820px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 4px 24px rgba(15,23,42,.08);
+    }
+    .auth-branding {
+      background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+      color: #fff;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-branding::before {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      right: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99,102,241,.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .auth-branding h2 {
+      font-weight: 800;
+      font-size: 1.6rem;
+      margin-bottom: .75rem;
+      position: relative;
+    }
+    .auth-branding .tagline {
+      color: var(--slate-300);
+      font-size: .88rem;
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .auth-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      position: relative;
+    }
+    .auth-feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      padding: .4rem 0;
+      font-size: .82rem;
+      color: var(--slate-300);
+    }
+    .auth-feature-list li svg {
+      color: var(--indigo-light);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .auth-form-panel {
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .auth-form-panel h3 {
+      font-weight: 800;
+      color: var(--slate-800);
+      margin-bottom: .25rem;
+      font-size: 1.2rem;
+    }
+    .auth-form-panel .auth-form-sub {
+      color: var(--slate-400);
+      font-size: .82rem;
+      margin-bottom: 1.25rem;
+    }
+    .auth-form-panel .btn-primary {
       width: 100%;
-      padding: .6rem;
+      padding: .55rem;
       font-weight: 600;
       border-radius: 8px;
+      font-size: .9rem;
+    }
+    .auth-form-panel .form-label {
+      font-weight: 600;
+      font-size: .82rem;
+      color: var(--slate-600);
+    }
+    .auth-form-panel .form-control {
+      border-radius: 8px;
+      border-color: var(--slate-200);
+      padding: .5rem .75rem;
+    }
+    .auth-form-panel .form-control:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+    }
+    .auth-form-panel .nav-pills .nav-link {
+      font-weight: 600;
+      font-size: .82rem;
+      color: var(--slate-500);
+      border-radius: 8px;
+    }
+    .auth-form-panel .nav-pills .nav-link.active {
+      background: var(--indigo);
     }
 
     /* ── Empty State ── */
     .empty-state {
       text-align: center;
-      padding: 4rem 2rem;
-      color: #95a5a6;
+      padding: 3rem 2rem;
+      color: var(--slate-400);
     }
-    .empty-state svg { opacity: .3; margin-bottom: 1rem; }
-    .empty-state h5 { color: #7f8c8d; }
+    .empty-state svg { opacity: .25; margin-bottom: .75rem; }
+    .empty-state h5 { color: var(--slate-500); font-weight: 600; }
 
     /* ── Profile ── */
     .profile-header {
-      background: linear-gradient(135deg, #2c3e50, #34495e);
+      background: var(--slate-800);
       color: #fff;
-      padding: 2.5rem;
-      border-radius: 16px;
-      margin-bottom: 1.5rem;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      border-bottom: 3px solid var(--indigo);
     }
-    .profile-header h3 { font-weight: 800; }
+    .profile-header h3 { font-weight: 800; font-size: 1.3rem; }
     .profile-header .user-type-label {
       display: inline-block;
-      padding: .2rem .7rem;
-      border-radius: 20px;
-      background: rgba(255,255,255,.2);
-      font-size: .8rem;
-      margin-top: .5rem;
+      padding: .15rem .6rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,.12);
+      font-size: .78rem;
+      margin-top: .4rem;
     }
 
     /* ── Code Block ── */
     .code-block-wrapper {
       position: relative;
-      margin: 1rem 0;
+      margin: .75rem 0;
     }
     .code-block-wrapper .code-block-header {
       display: flex;
       align-items: center;
-      gap: .5rem;
-      padding: .5rem 1rem;
-      background: #1a1b26;
-      color: #a9b1d6;
-      border-radius: 10px 10px 0 0;
-      font-size: .8rem;
+      gap: .4rem;
+      padding: .4rem .875rem;
+      background: var(--slate-800);
+      color: var(--slate-400);
+      border-radius: 8px 8px 0 0;
+      font-size: .75rem;
       font-weight: 600;
     }
     .code-block-wrapper pre {
       margin: 0;
-      padding: 1rem 1.25rem;
-      background: #24283b;
-      color: #c0caf5;
-      border-radius: 0 0 10px 10px;
+      padding: .875rem 1rem;
+      background: var(--slate-900);
+      color: #e2e8f0;
+      border-radius: 0 0 8px 8px;
       font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-      font-size: .82rem;
+      font-size: .8rem;
       line-height: 1.6;
       overflow-x: auto;
       white-space: pre;
       tab-size: 2;
     }
-    .code-block-wrapper pre .code-comment {
-      color: #565f89;
-    }
-    .code-block-wrapper pre .code-string {
-      color: #9ece6a;
-    }
-    .code-block-wrapper pre .code-func {
-      color: #7aa2f7;
-    }
+    .code-block-wrapper pre .code-comment { color: var(--slate-500); }
+    .code-block-wrapper pre .code-string  { color: #86efac; }
+    .code-block-wrapper pre .code-func    { color: var(--indigo-light); }
     .code-block-wrapper .btn-copy-code {
       position: absolute;
-      top: .35rem;
-      right: .5rem;
-      padding: .2rem .6rem;
-      font-size: .7rem;
-      background: rgba(255,255,255,.1);
-      color: #a9b1d6;
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 6px;
+      top: .3rem;
+      right: .4rem;
+      padding: .15rem .5rem;
+      font-size: .65rem;
+      background: rgba(255,255,255,.08);
+      color: var(--slate-400);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 4px;
       cursor: pointer;
-      transition: all .2s;
+      transition: all .15s;
     }
     .code-block-wrapper .btn-copy-code:hover {
-      background: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.15);
       color: #fff;
     }
 
     /* ── Token Section ── */
     .token-section {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
+      background: var(--indigo-50);
+      border: 1px solid #c7d2fe;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
     }
     .token-section h5 {
-      margin: 0 0 1rem;
+      margin: 0 0 .75rem;
       font-weight: 700;
-      color: #2c3e50;
+      color: var(--slate-800);
+      font-size: .95rem;
     }
     .token-section .token-help {
-      font-size: .8rem;
-      color: #6c757d;
-      margin-top: .75rem;
+      font-size: .78rem;
+      color: var(--slate-500);
+      margin-top: .6rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .recipe-grid {
+        grid-template-columns: 1fr;
+        gap: .75rem;
+      }
+      .search-row {
+        flex-wrap: wrap;
+      }
+      .search-field {
+        flex: 1 1 100%;
+      }
+      .filter-field {
+        flex: 1 1 calc(33% - .5rem);
+      }
+      .recipe-detail-header {
+        padding: 1.25rem;
+      }
+      .recipe-detail-header h3 {
+        font-size: 1.1rem;
+      }
+      .recipe-detail-header .meta-row {
+        gap: .75rem;
+        font-size: .8rem;
+      }
+      .stat-box .stat-number {
+        font-size: 1.3rem;
+      }
+      .profile-header {
+        padding: 1.25rem;
+      }
+      .auth-layout {
+        grid-template-columns: 1fr;
+        margin: 1rem;
+      }
+      .auth-branding {
+        padding: 1.5rem;
+      }
+      .auth-branding h2 {
+        font-size: 1.2rem;
+      }
+      .auth-form-panel {
+        padding: 1.5rem;
+      }
+      .hero-section {
+        padding: 1.5rem;
+      }
+      .hero-section h2 {
+        font-size: 1.2rem;
+      }
+      .hero-features {
+        gap: .75rem;
+      }
+      .code-block-wrapper pre {
+        font-size: .72rem;
+        padding: .625rem .75rem;
+      }
+    }
+    @media (max-width: 576px) {
+      .recipe-detail-header .meta-row {
+        flex-direction: column;
+        gap: .4rem;
+      }
+      .hero-features {
+        flex-direction: column;
+        gap: .4rem;
+      }
     }
   "))
 }
@@ -553,44 +853,150 @@ code_block_ui <- function(code, label = "R Code", block_id = NULL) {
   )
 }
 
-# Generate R code snippet for using a recipe
-recipe_code_snippet <- function(recipe) {
-  rid <- recipe$id %||% "recipe_id"
-  stype <- recipe$survey_type %||% "ech"
-  edition <- recipe$edition %||% "2018"
+# Hero section for explore pages
+hero_section_ui <- function(type = "recipes") {
+  if (type == "recipes") {
+    htmltools::tags$div(class = "hero-section",
+      htmltools::tags$h2(
+        bsicons::bs_icon("journal-code", size = "1.4rem"),
+        " Recipes"
+      )
+    )
+  } else {
+    htmltools::tags$div(class = "hero-section",
+      htmltools::tags$h2(
+        bsicons::bs_icon("bar-chart-fill", size = "1.4rem"),
+        " Workflows"
+      )
+    )
+  }
+}
 
-  paste0(
-    '<span class="code-comment"># Download recipe from the ecosystem</span>\n',
-    'library(metasurvey)\n',
-    'recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)\n',
-    '\n',
-    '<span class="code-comment"># Check documentation</span>\n',
-    'recipe$<span class="code-func">doc</span>()\n',
-    '\n',
-    '<span class="code-comment"># Apply to your survey</span>\n',
-    'svy &lt;- <span class="code-func">Survey$new</span>(\n',
-    '  data = my_data,\n',
-    '  type = <span class="code-string">"', stype, '"</span>,\n',
-    '  edition = <span class="code-string">"', edition, '"</span>\n',
-    ')\n',
-    'svy$<span class="code-func">add_recipe</span>(recipe)\n',
-    'svy &lt;- <span class="code-func">bake_recipes</span>(svy)'
+# Format edition display — handles single string or array
+format_edition <- function(edition) {
+  eds <- as.character(unlist(edition))
+  if (length(eds) == 0) return("Unknown")
+  if (length(eds) == 1) return(eds)
+  # Show range for consecutive years
+  paste0(eds[1], "-", eds[length(eds)])
+}
+
+# Build S3 object path from recipe data_source metadata
+s3_object_path <- function(recipe, edition_str) {
+  ds <- recipe$data_source
+  if (is.null(ds) || is.null(ds$s3_bucket)) return(NULL)
+  s3_file <- gsub("\\{edition\\}", edition_str, ds$file_pattern %||% "")
+  list(
+    bucket = ds$s3_bucket,
+    object = paste0(ds$s3_prefix, s3_file)
   )
 }
 
-# Generate R code snippet for using a workflow
+# Generate R code snippet for using a recipe (tidy API only)
+recipe_code_snippet <- function(recipe) {
+  rid <- recipe$id %||% "recipe_id"
+  stype <- recipe$survey_type %||% "ech"
+  eds <- as.character(unlist(recipe$edition %||% "2023"))
+  edition_str <- eds[length(eds)]
+  dep_recipes <- as.character(unlist(recipe$depends_on_recipes))
+
+  lines <- c('library(metasurvey)', '')
+
+  # Data download
+  if (tolower(stype) == "ech") {
+    lines <- c(lines,
+      '<span class="code-comment"># Available ECH editions in ANDA</span>',
+      '<span class="code-func">anda_list_editions</span>()',
+      '',
+      '<span class="code-comment"># Download microdata from INE (ANDA5)</span>',
+      paste0('my_data &lt;- <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition_str, '"</span>) %&gt;%'),
+      '  data.table::<span class="code-func">fread</span>()',
+      ''
+    )
+  } else {
+    s3 <- s3_object_path(recipe, edition_str)
+    if (!is.null(s3)) {
+      lines <- c(lines,
+        '<span class="code-comment"># Download data from S3</span>',
+        paste0('my_data &lt;- aws.s3::<span class="code-func">s3read_using</span>('),
+        paste0('  data.table::fread,'),
+        paste0('  object = <span class="code-string">"', s3$object, '"</span>,'),
+        paste0('  bucket = <span class="code-string">"', s3$bucket, '"</span>'),
+        ')',
+        ''
+      )
+    }
+  }
+
+  # Build pipeline with %>%
+  lines <- c(lines,
+    '<span class="code-comment"># Create survey and load data</span>',
+    paste0('svy &lt;- <span class="code-func">survey_empty</span>(type = <span class="code-string">"', stype, '"</span>, edition = <span class="code-string">"', edition_str, '"</span>) %&gt;%'),
+    '  <span class="code-func">set_data</span>(my_data)',
+    ''
+  )
+
+  # Prerequisite recipes
+  if (length(dep_recipes) > 0) {
+    lines <- c(lines, '<span class="code-comment"># Apply prerequisite recipes first</span>')
+    for (i in seq_along(dep_recipes)) {
+      lines <- c(lines, paste0(
+        'dep_', i, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
+        dep_recipes[i], '"</span>)'
+      ))
+    }
+    pipe_lines <- c()
+    for (i in seq_along(dep_recipes)) {
+      pipe_lines <- c(pipe_lines, paste0('  <span class="code-func">add_recipe</span>(dep_', i, ') %&gt;%'))
+    }
+    lines <- c(lines,
+      'svy &lt;- svy %&gt;%',
+      pipe_lines,
+      '  <span class="code-func">bake_recipes</span>()',
+      ''
+    )
+  }
+
+  lines <- c(lines,
+    '<span class="code-comment"># Apply this recipe</span>',
+    paste0('recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)'),
+    'svy &lt;- svy %&gt;%',
+    '  <span class="code-func">add_recipe</span>(recipe) %&gt;%',
+    '  <span class="code-func">bake_recipes</span>()'
+  )
+
+  paste(lines, collapse = "\n")
+}
+
+# Generate R code snippet for using a workflow (tidy API only)
 workflow_code_snippet <- function(wf) {
   recipe_ids <- unlist(wf$recipe_ids)
   calls <- unlist(wf$calls)
   stype <- wf$survey_type %||% "ech"
-  edition <- wf$edition %||% "2018"
+  eds <- as.character(unlist(wf$edition %||% "2023"))
+  edition <- eds[length(eds)]
 
-  lines <- c(
-    '<span class="code-comment"># Apply required recipes first</span>',
-    'library(metasurvey)'
+  lines <- c('library(metasurvey)', '')
+
+  # Data download
+  if (tolower(stype) == "ech") {
+    lines <- c(lines,
+      '<span class="code-comment"># Download microdata from INE (ANDA5)</span>',
+      paste0('my_data &lt;- <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition, '"</span>) %&gt;%'),
+      '  data.table::<span class="code-func">fread</span>()',
+      ''
+    )
+  }
+
+  lines <- c(lines,
+    '<span class="code-comment"># Create survey and load data</span>',
+    paste0('svy &lt;- <span class="code-func">survey_empty</span>(type = <span class="code-string">"', stype, '"</span>, edition = <span class="code-string">"', edition, '"</span>) %&gt;%'),
+    '  <span class="code-func">set_data</span>(my_data)',
+    ''
   )
 
   if (length(recipe_ids) > 0) {
+    lines <- c(lines, '<span class="code-comment"># Apply required recipes</span>')
     for (i in seq_along(recipe_ids)) {
       rvar <- paste0("r", i)
       lines <- c(lines, paste0(
@@ -598,10 +1004,15 @@ workflow_code_snippet <- function(wf) {
         recipe_ids[i], '"</span>)'
       ))
     }
+    pipe_lines <- c()
     for (i in seq_along(recipe_ids)) {
-      lines <- c(lines, paste0('svy$<span class="code-func">add_recipe</span>(r', i, ')'))
+      pipe_lines <- c(pipe_lines, paste0('  <span class="code-func">add_recipe</span>(r', i, ') %&gt;%'))
     }
-    lines <- c(lines, 'svy &lt;- <span class="code-func">bake_recipes</span>(svy)')
+    lines <- c(lines,
+      'svy &lt;- svy %&gt;%',
+      pipe_lines,
+      '  <span class="code-func">bake_recipes</span>()'
+    )
   }
 
   if (length(calls) > 0) {
@@ -650,7 +1061,7 @@ recipe_card_ui <- function(recipe, ns, index) {
         recipe$user,
         htmltools::tags$span(style = "margin-left: .75rem;",
           bsicons::bs_icon("journal-code", size = ".75rem"),
-          paste(recipe$survey_type, "/", recipe$edition)
+          paste(recipe$survey_type, "/", format_edition(recipe$edition))
         )
       )
     ),
@@ -660,7 +1071,16 @@ recipe_card_ui <- function(recipe, ns, index) {
         recipe$description %||% "No description provided."
       ),
       htmltools::tags$div(style = "margin-bottom: .5rem;", cat_tags),
-      cert_badge(cert_level)
+      cert_badge(cert_level),
+      # Edition badges
+      if (length(unlist(recipe$edition)) > 1) {
+        eds <- as.character(unlist(recipe$edition))
+        htmltools::tags$div(class = "edition-badges",
+          lapply(eds, function(ed) {
+            htmltools::tags$span(class = "edition-badge", ed)
+          })
+        )
+      }
     ),
 
     htmltools::tags$div(class = "recipe-card-footer",
@@ -672,9 +1092,7 @@ recipe_card_ui <- function(recipe, ns, index) {
         paste0("v", recipe$version %||% "1.0.0")
       ),
       htmltools::tags$button(
-        class = paste0("btn btn-sm btn-outline-", if (cert_level == "official") "success"
-                       else if (cert_level == "reviewed") "primary" else "warning"),
-        class = "btn-view",
+        class = "btn btn-sm btn-outline-primary btn-view",
         bsicons::bs_icon("arrow-right", size = ".75rem"),
         " View"
       )
@@ -682,7 +1100,7 @@ recipe_card_ui <- function(recipe, ns, index) {
   )
 }
 
-recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), graph_output_id = "recipe_graph") {
+recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), graph_output_id = "recipe_graph", all_recipes = list(), anda_labels = list()) {
   doc <- recipe$doc()
   cert_level <- recipe$certification$level %||% "community"
   cert_cls <- paste0("cert-", cert_level)
@@ -696,7 +1114,7 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         bsicons::bs_icon("person-fill"), recipe$user),
       htmltools::tags$span(class = "meta-item",
         bsicons::bs_icon("journal-code"),
-        paste(recipe$survey_type, "/", recipe$edition)),
+        paste(recipe$survey_type, "/", format_edition(recipe$edition))),
       htmltools::tags$span(class = "meta-item",
         bsicons::bs_icon("tag-fill"), paste0("v", recipe$version %||% "1.0.0")),
       htmltools::tags$span(class = "meta-item",
@@ -713,7 +1131,26 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           paste("by", recipe$certification$certified_by$name)
         )
       }
-    )
+    ),
+    if (length(unlist(recipe$edition)) > 1) {
+      eds <- as.character(unlist(recipe$edition))
+      htmltools::tags$div(
+        style = "margin-top: .6rem;",
+        htmltools::tags$span(
+          style = "color: rgba(255,255,255,.6); font-size: .75rem; margin-right: .4rem;",
+          "Compatible:"
+        ),
+        htmltools::tags$div(class = "edition-badges", style = "display: inline-flex;",
+          lapply(eds, function(ed) {
+            htmltools::tags$span(
+              class = "edition-badge",
+              style = "background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.15);",
+              ed
+            )
+          })
+        )
+      )
+    }
   )
 
   # Description
@@ -721,6 +1158,56 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     htmltools::tags$div(style = "padding: 1.25rem 0;",
       htmltools::tags$p(style = "color: #555; font-size: .95rem; line-height: 1.7;",
         recipe$description
+      )
+    )
+  }
+
+  # Data Source — show ANDA for ECH, S3 for others
+  stype <- recipe$survey_type %||% ""
+  ds <- recipe$data_source
+  data_source_section <- if (tolower(stype) == "ech") {
+    eds <- as.character(unlist(recipe$edition))
+    htmltools::tags$div(style = "padding: 1rem 0;",
+      htmltools::tags$div(class = "section-title",
+        bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
+      ),
+      htmltools::tags$div(style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        htmltools::tags$span(class = "var-chip var-chip-input",
+          style = "font-size: .78rem;",
+          bsicons::bs_icon("database", size = ".75rem"),
+          " INE Uruguay (ANDA5)"
+        ),
+        htmltools::tags$span(
+          class = "var-chip",
+          style = "font-size: .72rem; background: var(--emerald-50); color: #065f46; border: 1px solid #a7f3d0;",
+          paste0("anda_download_microdata(\"", eds[length(eds)], "\")")
+        )
+      ),
+      htmltools::tags$div(style = "margin-top: .5rem; font-size: .78rem; color: var(--slate-500);",
+        paste0("Ediciones disponibles: ", paste(eds, collapse = ", "))
+      )
+    )
+  } else if (!is.null(ds) && !is.null(ds$s3_bucket)) {
+    eds <- as.character(unlist(recipe$edition))
+    latest_ed <- eds[length(eds)]
+    s3_path <- gsub("\\{edition\\}", latest_ed, ds$file_pattern %||% "")
+    s3_full <- paste0("s3://", ds$s3_bucket, "/", ds$s3_prefix, s3_path)
+
+    htmltools::tags$div(style = "padding: 1rem 0;",
+      htmltools::tags$div(class = "section-title",
+        bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
+      ),
+      htmltools::tags$div(style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        htmltools::tags$span(class = "var-chip var-chip-input",
+          style = "font-size: .78rem;",
+          bsicons::bs_icon("database", size = ".75rem"),
+          paste0(" ", ds$provider %||% "")
+        ),
+        htmltools::tags$span(
+          class = "var-chip",
+          style = "font-size: .72rem; background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200);",
+          s3_full
+        )
       )
     )
   }
@@ -733,6 +1220,42 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       htmltools::tagList(lapply(recipe$categories, function(c) {
         category_tag(c$name)
       }))
+    )
+  }
+
+  # Depends on Recipes (recipe-to-recipe dependencies)
+  dep_recipes_ids <- as.character(unlist(recipe$depends_on_recipes))
+  dep_recipes_section <- if (length(dep_recipes_ids) > 0) {
+    dep_chips <- lapply(dep_recipes_ids, function(rid) {
+      rname <- rid
+      for (r in all_recipes) {
+        if (as.character(r$id) == rid) {
+          rname <- r$name
+          break
+        }
+      }
+      if (!is.null(ns)) {
+        htmltools::tags$span(
+          class = "cross-ref-chip cross-ref-recipe",
+          onclick = sprintf("Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+                            ns("navigate_dep_recipe"), rid),
+          bsicons::bs_icon("journal-code", size = ".75rem"),
+          " ", rname
+        )
+      } else {
+        htmltools::tags$span(
+          class = "cross-ref-chip cross-ref-recipe",
+          bsicons::bs_icon("journal-code", size = ".75rem"),
+          " ", rname
+        )
+      }
+    })
+
+    htmltools::tags$div(style = "padding: 1rem 0;",
+      htmltools::tags$div(class = "section-title",
+        bsicons::bs_icon("arrow-left-right"), "Requires Recipes"
+      ),
+      htmltools::tagList(dep_chips)
     )
   }
 
@@ -766,6 +1289,38 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         htmltools::tags$div(style = "font-size:.75rem; color:#95a5a6; font-style:italic;", comment_txt)
       }
 
+      # Expression / formula display
+      expr_txt <- if (is.list(step$expression)) step$expression[[1]] else step$expression
+      expr_html <- if (!is.null(expr_txt) && length(expr_txt) == 1 && nzchar(expr_txt)) {
+        htmltools::tags$div(
+          style = "font-family:'JetBrains Mono','Fira Code','Consolas',monospace;font-size:.72rem;color:var(--slate-700);background:var(--slate-50);border:1px solid var(--slate-200);border-radius:4px;padding:.3rem .5rem;margin-top:.3rem;white-space:pre-wrap;word-break:break-all;",
+          expr_txt
+        )
+      }
+
+      # Conditions display for recode steps
+      conditions <- step$conditions
+      conditions_html <- if (!is.null(conditions) && length(conditions) > 0) {
+        cond_items <- lapply(conditions, function(cond) {
+          val <- cond$value %||% cond[[1]] %||% ""
+          label <- cond$label %||% cond[[2]] %||% ""
+          cond_expr <- cond$condition %||% cond[[3]] %||% ""
+          htmltools::tags$div(
+            style = "font-size:.7rem;color:var(--slate-600);padding:.1rem 0;",
+            htmltools::tags$span(style = "font-weight:600;color:var(--violet);", val),
+            if (nzchar(label)) htmltools::tags$span(style = "margin:0 .3rem;", paste0("(", label, ")")),
+            if (nzchar(cond_expr)) htmltools::tags$span(
+              style = "font-family:monospace;color:var(--slate-500);font-size:.65rem;",
+              paste0(" <- ", cond_expr)
+            )
+          )
+        })
+        htmltools::tags$div(
+          style = "margin-top:.3rem;padding:.3rem .5rem;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:4px;max-height:120px;overflow-y:auto;",
+          htmltools::tagList(cond_items)
+        )
+      }
+
       htmltools::tags$div(class = "pipeline-step",
         htmltools::tags$div(class = dot_cls, step$index),
         htmltools::tags$div(class = "step-content",
@@ -773,7 +1328,9 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           htmltools::tags$span(style = "margin: 0 .35rem; color: #bbb;",
             bsicons::bs_icon("arrow-right", size = ".7rem")),
           htmltools::tags$span(class = "step-outputs", outputs_str),
-          comment_html
+          comment_html,
+          expr_html,
+          conditions_html
         )
       )
     })
@@ -787,6 +1344,72 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     )
   }
 
+  # Build ANDA metadata lookup: variable_name -> full metadata list
+  var_meta_map <- list()
+  if (length(anda_labels) > 0) {
+    for (al in anda_labels) {
+      nm <- al$name %||% ""
+      if (nzchar(nm)) var_meta_map[[tolower(nm)]] <- al
+    }
+  }
+
+  # Helper: render a variable chip with ANDA metadata (label, type, description, value_labels)
+  var_chip <- function(v, cls, suffix = NULL) {
+    meta <- var_meta_map[[tolower(v)]]
+    label <- meta$label %||% ""
+    vtype <- meta$type %||% ""
+    desc <- meta$description %||% ""
+    vlabels <- meta$value_labels
+
+    # Build tooltip text with full metadata
+    tooltip_parts <- c()
+    if (nzchar(label)) tooltip_parts <- c(tooltip_parts, label)
+    if (nzchar(vtype)) tooltip_parts <- c(tooltip_parts, paste0("Type: ", vtype))
+    if (nzchar(desc)) tooltip_parts <- c(tooltip_parts, desc)
+    if (!is.null(vlabels) && length(vlabels) > 0) {
+      n_vals <- min(length(vlabels), 8)
+      val_strs <- vapply(seq_len(n_vals), function(i) {
+        paste0(names(vlabels)[i], " = ", vlabels[[i]])
+      }, character(1))
+      if (length(vlabels) > 8) val_strs <- c(val_strs, paste0("... (", length(vlabels), " total)"))
+      tooltip_parts <- c(tooltip_parts, paste(val_strs, collapse = " | "))
+    }
+    tooltip <- paste(tooltip_parts, collapse = "\n")
+
+    # Type badge
+    type_badge <- if (nzchar(vtype)) {
+      type_color <- if (vtype == "discrete") "var(--violet)" else "var(--sky)"
+      htmltools::tags$span(
+        style = paste0("font-size:.55rem;padding:.05rem .3rem;border-radius:3px;margin-left:.3rem;",
+                        "background:", type_color, ";color:#fff;font-weight:600;font-family:system-ui,sans-serif;"),
+        vtype
+      )
+    }
+
+    # Value labels count badge
+    vlabel_badge <- if (!is.null(vlabels) && length(vlabels) > 0) {
+      htmltools::tags$span(
+        style = "font-size:.55rem;opacity:.5;margin-left:.2rem;font-family:system-ui,sans-serif;",
+        paste0("(", length(vlabels), " cat.)")
+      )
+    }
+
+    htmltools::tags$span(class = cls,
+      title = tooltip,
+      style = if (nzchar(label)) "cursor:help;" else NULL,
+      v,
+      if (!is.null(suffix)) suffix,
+      if (nzchar(label)) {
+        htmltools::tags$span(
+          style = "font-size:.6rem;opacity:.55;margin-left:.35rem;font-family:system-ui,sans-serif;font-weight:400;",
+          label
+        )
+      },
+      type_badge,
+      vlabel_badge
+    )
+  }
+
   # Input variables
   input_vars <- unlist(doc$input_variables)
   input_section <- if (length(input_vars) > 0) {
@@ -796,7 +1419,7 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         paste("Requires (", length(input_vars), "variables )")
       ),
       htmltools::tagList(lapply(input_vars, function(v) {
-        htmltools::tags$span(class = "var-chip var-chip-input", v)
+        var_chip(v, "var-chip var-chip-input")
       }))
     )
   }
@@ -823,13 +1446,11 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         var_type <- type_map[[v]] %||% "unknown"
         cls <- if (var_type == "categorical") "var-chip var-chip-output-cat"
                else "var-chip var-chip-output"
-        htmltools::tags$span(class = cls,
-          v,
-          htmltools::tags$span(
-            style = "font-size:.65rem; opacity:.7; margin-left:.3rem;",
-            paste0("[", var_type, "]")
-          )
+        type_badge <- htmltools::tags$span(
+          style = "font-size:.65rem; opacity:.7; margin-left:.3rem;",
+          paste0("[", var_type, "]")
         )
+        var_chip(v, cls, suffix = type_badge)
       }))
     )
   }
@@ -887,7 +1508,9 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     header,
     htmltools::tags$div(style = "padding: 0 2rem 1.5rem;",
       desc_section,
+      data_source_section,
       cat_section,
+      dep_recipes_section,
       graph_section,
       pipeline_section,
       workflow_section,
@@ -921,24 +1544,24 @@ recipe_pipeline_graph <- function(recipe) {
     s
   })
 
-  # ── Palette (aligned with view_graph + Shiny app) ──
+  # ── Palette (aligned with new minimalist design) ──
   pal <- list(
-    primary    = "#2C3E50",
-    compute    = "#3498db",
-    recode     = "#9b59b6",
-    join       = "#1abc9c",
-    remove     = "#e74c3c",
-    rename     = "#e67e22",
-    default    = "#95a5a6",
-    bg         = "#f8f9fa",
-    edge       = "#bdc3c7",
-    edge_dep   = "#e67e22",
-    input_var  = "#2471a3",
-    output_var = "#1e8449",
-    wf_mean    = "#f39c12",
-    wf_total   = "#e74c3c",
-    wf_ratio   = "#8e44ad",
-    wf_by      = "#2980b9"
+    primary    = "#1e293b",
+    compute    = "#6366f1",
+    recode     = "#8b5cf6",
+    join       = "#10b981",
+    remove     = "#f43f5e",
+    rename     = "#f59e0b",
+    default    = "#94a3b8",
+    bg         = "#f8fafc",
+    edge       = "#cbd5e1",
+    edge_dep   = "#f59e0b",
+    input_var  = "#1e40af",
+    output_var = "#166534",
+    wf_mean    = "#f59e0b",
+    wf_total   = "#f43f5e",
+    wf_ratio   = "#8b5cf6",
+    wf_by      = "#0ea5e9"
   )
 
   step_color <- function(type) {
@@ -992,14 +1615,14 @@ recipe_pipeline_graph <- function(recipe) {
   survey_id <- node_id
   add_node(data.frame(
     id = survey_id,
-    label = paste0(toupper(recipe$survey_type), " ", recipe$edition),
+    label = paste0(toupper(recipe$survey_type), " ", format_edition(recipe$edition)),
     title = paste0(
       "<div style='font-family:system-ui,sans-serif;padding:10px 14px;'>",
       "<div style='font-weight:800;color:", pal$primary, ";font-size:13px;'>",
       htmltools::htmlEscape(recipe$name), "</div>",
       "<div style='font-size:11px;color:#6c757d;margin-top:4px;'>",
       htmltools::htmlEscape(recipe$survey_type), " / ",
-      htmltools::htmlEscape(recipe$edition), "</div></div>"
+      htmltools::htmlEscape(format_edition(recipe$edition)), "</div></div>"
     ),
     group = "survey", level = 0L,
     stringsAsFactors = FALSE
@@ -1033,18 +1656,25 @@ recipe_pipeline_graph <- function(recipe) {
 
     outputs_str <- if (length(s$outputs) > 0) paste(s$outputs, collapse = ", ") else ""
     comment_str <- if (!is.null(s$comment) && nzchar(s$comment)) s$comment else ""
+    expr_str <- if (is.list(s$expression)) s$expression[[1]] else (s$expression %||% "")
+    if (is.null(expr_str)) expr_str <- ""
 
     add_node(data.frame(
       id = node_id,
       label = paste0(s$index, ". ", outputs_str),
       title = paste0(
-        "<div style='font-family:system-ui,sans-serif;padding:10px 14px;max-width:300px;'>",
+        "<div style='font-family:system-ui,sans-serif;padding:10px 14px;max-width:350px;'>",
         "<div style='font-weight:700;font-size:13px;color:", step_color(stype), ";",
         "text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;'>",
         htmltools::htmlEscape(stype), "</div>",
         if (nzchar(outputs_str)) paste0(
           "<div style='font-size:12px;font-weight:600;color:", pal$primary, ";'>",
           htmltools::htmlEscape(outputs_str), "</div>"
+        ) else "",
+        if (nzchar(expr_str)) paste0(
+          "<div style='font-family:SFMono-Regular,monospace;font-size:10px;color:", pal$primary, ";",
+          "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;white-space:pre-wrap;'>",
+          htmltools::htmlEscape(expr_str), "</div>"
         ) else "",
         if (nzchar(comment_str)) paste0(
           "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
@@ -1380,9 +2010,7 @@ workflow_card_ui <- function(wf, ns, index) {
         paste0("v", wf$version %||% "1.0.0")
       ),
       htmltools::tags$button(
-        class = paste0("btn btn-sm btn-outline-", if (cert_level == "official") "success"
-                       else if (cert_level == "reviewed") "primary" else "warning"),
-        class = "btn-view",
+        class = "btn btn-sm btn-outline-primary btn-view",
         bsicons::bs_icon("arrow-right", size = ".75rem"),
         " View"
       )
@@ -1405,7 +2033,7 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
         bsicons::bs_icon("person-fill"), wf$user
       ),
       htmltools::tags$div(class = "meta-item",
-        bsicons::bs_icon("clipboard-data"), paste(wf$survey_type, "/", wf$edition)
+        bsicons::bs_icon("clipboard-data"), paste(wf$survey_type, "/", format_edition(wf$edition))
       ),
       if (length(wf$estimation_type) > 0) htmltools::tags$div(class = "meta-item",
         bsicons::bs_icon("bar-chart-fill"),

@@ -44,15 +44,15 @@ RecipeRegistry <- R6::R6Class(
     },
 
     #' @description Filter recipes by criteria
-    #' @param svy_type Character survey type or NULL
+    #' @param survey_type Character survey type or NULL
     #' @param edition Character edition or NULL
     #' @param category Character category name or NULL
     #' @param certification_level Character certification level or NULL
     #' @return List of matching Recipe objects
-    filter = function(svy_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
       results <- private$.recipes
-      if (!is.null(svy_type)) {
-        results <- Filter(function(r) r$survey_type == svy_type, results)
+      if (!is.null(survey_type)) {
+        results <- Filter(function(r) r$survey_type == survey_type, results)
       }
       if (!is.null(edition)) {
         results <- Filter(function(r) r$edition == edition, results)
@@ -121,7 +121,7 @@ RecipeRegistry <- R6::R6Class(
         list(
           name = r$name,
           user = r$user,
-          svy_type = r$survey_type,
+          survey_type = r$survey_type,
           edition = r$edition,
           description = r$description,
           topic = r$topic,
@@ -174,7 +174,7 @@ RecipeRegistry <- R6::R6Class(
           name = item$name %||% "Unnamed",
           user = item$user %||% "Unknown",
           edition = item$edition %||% "Unknown",
-          survey_type = item$svy_type %||% "Unknown",
+          survey_type = item$survey_type %||% "Unknown",
           default_engine = default_engine(),
           depends_on = item$depends_on %||% list(),
           description = item$description %||% "",

@@ -329,7 +329,7 @@ load_panel_survey <- function(
     names(path_survey) <- names_path_survey_year_month
 
     follow_up <- lapply(
-      X = 1:length(path_survey),
+      X = seq_along(path_survey),
       FUN = function(x) {
         y <- path_survey[[x]]
         z <- names(path_survey)[x]
@@ -416,7 +416,7 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
     stop("Unsupported file type: ", .extension)
   )
 
-  require(.read_function$package, character.only = TRUE)
+  loadNamespace(.read_function$package)
 
   if (is.null(.args)) {
     .args <- list(.output_file)

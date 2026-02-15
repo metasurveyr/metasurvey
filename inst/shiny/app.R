@@ -17,18 +17,23 @@ for (f in list.files(file.path(app_dir, "R"), full.names = TRUE, pattern = "\\.R
   source(f, local = TRUE)
 }
 
-# Theme
+# Theme — minimalist with indigo accent
 app_theme <- bs_theme(
   version = 5,
-  bootswatch = "flatly",
-  primary = "#2C3E50",
-  secondary = "#18BC9C",
-  success = "#27AE60",
-  warning = "#F39C12",
-  info = "#3498DB",
-  font_scale = 1.02,
-  "navbar-bg" = "#2C3E50",
-  "enable-rounded" = TRUE
+  primary = "#6366f1",
+  secondary = "#64748b",
+  success = "#10b981",
+  warning = "#f59e0b",
+  info = "#0ea5e9",
+  danger = "#f43f5e",
+  "body-bg" = "#f8fafc",
+  "body-color" = "#1e293b",
+  font_scale = 1,
+  "navbar-bg" = "#0f172a",
+  "navbar-dark-color" = "#e2e8f0",
+  "enable-rounded" = TRUE,
+  "border-radius" = ".5rem",
+  "card-border-color" = "#e2e8f0"
 )
 
 # UI

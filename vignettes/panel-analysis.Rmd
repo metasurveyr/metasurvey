@@ -1,8 +1,8 @@
 ---
-title: "Panel Survey Analysis with metasurvey"
+title: "Rotating Panels and PoolSurvey"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Panel Survey Analysis with metasurvey}
+  %\VignetteIndexEntry{Rotating Panels and PoolSurvey}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,24 +18,28 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-Many national household surveys use **rotative panel designs**, where a sample
-of respondents is interviewed in an initial wave (*implantation*) and then
-followed up over successive periods. metasurvey provides two classes for this
-setting:
-- `RotativePanelSurvey` -- a panel with an implantation survey and a list of
-  follow-up surveys.
+Many national household surveys use **rotative panel designs**, where a
+sample of respondents is interviewed in an initial wave (*implantation*) and
+then followed up over successive periods. Uruguay's ECH, for example,
+interviews each household once and then follows up monthly for the rest of
+the year.
+
+metasurvey provides two classes for this setting:
+
+- `RotativePanelSurvey` -- a panel with an implantation survey and a list
+  of follow-up surveys
 - `PoolSurvey` -- a collection of surveys pooled together for combined
-  estimation.
+  estimation across periods
 
 ## Creating a RotativePanelSurvey
 
 A `RotativePanelSurvey` requires an implantation `Survey` and one or more
-follow-up `Survey` objects. Each component survey must have its `periodicity`
-field set.
+follow-up `Survey` objects.
 
 ```{r create-panel}
 library(metasurvey)
 library(data.table)
+set_use_copy(TRUE)
 
 set.seed(42)
 n <- 100
@@ -44,29 +48,28 @@ make_survey <- function(edition) {
   dt <- data.table(
     id       = 1:n,
     age      = sample(18:80, n, replace = TRUE),
-    income   = round(runif(n, 500, 8000)),
+    income   = round(runif(n, 5000, 80000)),
     employed = sample(0:1, n, replace = TRUE),
     w        = round(runif(n, 0.5, 3.0), 4)
   )
-  svy <- Survey$new(
+  Survey$new(
     data = dt, edition = edition, type = "ech",
     psu = NULL, engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  svy$periodicity <- "monthly"
-  svy
 }
 
-# Implantation: January 2023
-impl <- make_survey("2023-01-01")
+# Implantation: 2023 wave 1
+impl <- make_survey("2023")
 
-# Follow-ups: February and March 2023
-fu_feb <- make_survey("2023-02-01")
-fu_mar <- make_survey("2023-03-01")
+# Follow-ups: waves 2 through 4
+fu_2 <- make_survey("2023")
+fu_3 <- make_survey("2023")
+fu_4 <- make_survey("2023")
 
 panel <- RotativePanelSurvey$new(
   implantation   = impl,
-  follow_up      = list(fu_feb, fu_mar),
+  follow_up      = list(fu_2, fu_3, fu_4),
   type           = "ech",
   default_engine = "data.table",
   steps          = list(),
@@ -86,43 +89,38 @@ surveys:
 imp <- get_implantation(panel)
 class(imp)
 head(get_data(imp), 3)
+```
 
+```{r access-followup}
 # Follow-up surveys
 follow_ups <- get_follow_up(panel)
-length(follow_ups)
+cat("Number of follow-ups:", length(follow_ups), "\n")
 ```
 
-## Working with Panel Data
+## Applying Steps to Panel Components
 
-You can apply transformations directly on the component surveys. For example,
-compute a derived variable on the implantation:
+Apply transformations to individual panel components. The same step
+functions work on implantation and follow-up surveys:
 
-```{r panel-compute, eval=FALSE}
+```{r panel-steps}
+# Transform the implantation survey
 panel$implantation <- step_compute(panel$implantation,
-  income_k = income / 1000
+  income_k = income / 1000,
+  comment = "Income in thousands"
 )
-panel$implantation <- bake_steps(panel$implantation)
 
-head(get_data(panel$implantation)[, .(id, income, income_k)], 3)
-```
-
-Apply the same transformation to each follow-up:
-
-```{r panel-follow-up, eval=FALSE}
+# Apply the same step to each follow-up
 panel$follow_up <- lapply(panel$follow_up, function(svy) {
-  svy <- step_compute(svy, income_k = income / 1000)
-  bake_steps(svy)
+  step_compute(svy, income_k = income / 1000, comment = "Income in thousands")
 })
-
-head(get_data(panel$follow_up[[1]])[, .(id, income, income_k)], 3)
 ```
 
-## Running Estimations
+## Estimation on Panel Components
 
-Use `workflow()` on individual panel components for cross-sectional or time
-series analysis.
+Use `workflow()` on individual panel components for cross-sectional or
+time-series analysis.
 
-### Cross-sectional analysis (implantation)
+### Cross-Sectional Analysis (Implantation)
 
 ```{r workflow-impl}
 result_impl <- workflow(
@@ -134,7 +132,7 @@ result_impl <- workflow(
 result_impl
 ```
 
-### Comparing across follow-ups
+### Comparing Across Follow-Ups
 
 ```{r workflow-followup}
 results <- rbindlist(lapply(seq_along(panel$follow_up), function(i) {
@@ -143,35 +141,37 @@ results <- rbindlist(lapply(seq_along(panel$follow_up), function(i) {
     survey::svymean(~income, na.rm = TRUE),
     estimation_type = "annual"
   )
-  r$period <- paste0("follow_up_", i)
+  r$period <- panel$follow_up[[i]]$edition
   r
 }))
 
 results[, .(period, stat, value, se, cv)]
 ```
 
-## Creating a PoolSurvey
+## PoolSurvey: Combined Estimation
 
-A `PoolSurvey` pools multiple surveys together for combined estimation. The
-constructor takes a nested list: `list(estimation_type = list(group = list(surveys)))`.
+A `PoolSurvey` pools multiple surveys together for combined estimation.
+This is useful when you want to aggregate monthly data into quarterly or
+annual estimates, or when combining surveys reduces sampling variability.
 
-```{r pool-survey}
-s1 <- make_survey("2023-01-01")
-s1$edition <- "2023-01-01"
+The constructor takes a nested list:
+`list(estimation_type = list(group = list(surveys)))`.
 
-s2 <- make_survey("2023-02-01")
-s2$edition <- "2023-02-01"
+```{r pool-create}
+s1 <- make_survey("2023")
+s2 <- make_survey("2023")
+s3 <- make_survey("2023")
 
 pool <- PoolSurvey$new(
-  list(annual = list("group1" = list(s1, s2)))
+  list(annual = list("q1" = list(s1, s2, s3)))
 )
 
 class(pool)
 ```
 
-Run a pooled estimation:
+### Pooled Estimation
 
-```{r workflow-pool}
+```{r pool-workflow}
 pool_result <- workflow(
   pool,
   survey::svymean(~income, na.rm = TRUE),
@@ -181,26 +181,131 @@ pool_result <- workflow(
 pool_result
 ```
 
+### Multiple Groups
+
+You can organize surveys into multiple groups:
+
+```{r pool-groups}
+s4 <- make_survey("2023")
+s5 <- make_survey("2023")
+s6 <- make_survey("2023")
+
+pool_semester <- PoolSurvey$new(
+  list(annual = list(
+    "q1" = list(s1, s2, s3),
+    "q2" = list(s4, s5, s6)
+  ))
+)
+
+result_semester <- workflow(
+  pool_semester,
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result_semester
+```
+
+## Extracting Surveys from Panels
+
+Use `extract_surveys()` to select specific periods from a
+`RotativePanelSurvey`:
+
+```{r extract}
+# Extract specific follow-ups by index
+first_two <- extract_surveys(panel, index = 1:2)
+class(first_two)
+```
+
+```{r extract-monthly, eval = FALSE}
+# Extract by month (requires Date-format editions)
+march_data <- extract_surveys(panel, monthly = 3)
+```
+
+## Time Patterns
+
+metasurvey provides utilities for working with survey edition dates:
+
+```{r time-patterns}
+# Extract periodicity from edition strings
+extract_time_pattern("2023")
+extract_time_pattern("2023-06")
+```
+
+```{r validate-time}
+# Validate edition format
+validate_time_pattern(svy_type = "ech", svy_edition = "2023")
+```
+
+```{r group-dates}
+# Group dates by period
+dates <- as.Date(c("2023-01-15", "2023-03-20", "2023-06-10",
+                    "2023-09-05", "2023-11-30"))
+group_dates(dates, type = "quarterly")
+group_dates(dates, type = "biannual")
+```
+
 ## Loading Panel Data from Files
 
 In practice, panel data is loaded from files using `load_panel_survey()`:
 
 ```{r load-panel, eval = FALSE}
 panel <- load_panel_survey(
-  path_implantation = "data/ech_impl_2023.dta",
-  path_follow_up    = "data/ech_fu_2023/",
+  path_implantation = "data/ECH_implantacion_2023.csv",
+  path_follow_up    = "data/seguimiento/",
   svy_type          = "ech",
   svy_weight_implantation = add_weight(annual = "pesoano"),
   svy_weight_follow_up    = add_weight(monthly = "pesomes")
 )
+
+# Access components
+imp <- get_implantation(panel)
+fups <- get_follow_up(panel)
 ```
+
+## Bootstrap Replicate Weights
+
+For surveys that provide bootstrap replicate weights (like the ECH), use
+`add_replicate()` inside `add_weight()` to configure robust variance
+estimation:
+
+```{r replicate, eval = FALSE}
+panel <- load_panel_survey(
+  path_implantation = "data/ECH_implantacion_2023.csv",
+  path_follow_up    = "data/seguimiento/",
+  svy_type          = "ech",
+  svy_weight_implantation = add_weight(
+    annual = add_replicate(
+      weight           = "pesoano",
+      replicate_pattern = "wr\\d+",
+      replicate_path   = "data/pesos_replicados_anual.csv",
+      replicate_id     = c("numero" = "numero"),
+      replicate_type   = "bootstrap"
+    )
+  ),
+  svy_weight_follow_up = add_weight(monthly = "pesomes")
+)
+```
+
+When replicate weights are configured, `workflow()` automatically uses
+`survey::svrepdesign()` for variance estimation instead of the standard
+Taylor linearization approach.
 
 ## Best Practices
 
-1. **Set periodicity** on each component survey before constructing the panel.
-2. **Apply transformations uniformly** -- ensure the same steps are applied to
-   implantation and follow-up surveys for comparability.
+1. **Set periodicity** on each component survey before constructing the
+   panel
+2. **Apply transformations uniformly** -- ensure the same steps are applied
+   to implantation and follow-up surveys for comparability
 3. **Use PoolSurvey** when combining surveys for variance reduction or
-   quarterly-to-monthly estimation.
+   quarterly/annual aggregation
 4. **Validate results** -- compare pooled estimates against direct estimates
-   to check for consistency.
+   to check for consistency
+5. **Use bootstrap replicates** when available for more robust variance
+   estimation
+
+## Next Steps
+
+- **[Survey Designs and Validation](complex-designs.html)** -- Stratification, clustering, and pipeline validation
+- **[ECH Case Study](ech-case-study.html)** -- Complete labor market analysis with the ECH rotating panel
+- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()` and `RecipeWorkflow`

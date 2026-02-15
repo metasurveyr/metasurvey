@@ -268,7 +268,7 @@ rank_recipes <- function(n = NULL) {
 #' Filter recipes in the active backend by survey type, edition, category,
 #' or certification level.
 #'
-#' @param svy_type Character survey type or NULL.
+#' @param survey_type Character survey type or NULL.
 #' @param edition Character edition or NULL.
 #' @param category Character category name or NULL.
 #' @param certification_level Character certification level or NULL.
@@ -277,16 +277,16 @@ rank_recipes <- function(n = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' ech_recipes <- filter_recipes(svy_type = "ech", category = "labor_market")
+#' ech_recipes <- filter_recipes(survey_type = "ech", category = "labor_market")
 #' official <- filter_recipes(certification_level = "official")
 #' }
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{rank_recipes}}
 #' @export
-filter_recipes <- function(svy_type = NULL, edition = NULL,
+filter_recipes <- function(survey_type = NULL, edition = NULL,
                            category = NULL, certification_level = NULL) {
   get_backend()$filter(
-    svy_type = svy_type, edition = edition,
+    survey_type = survey_type, edition = edition,
     category = category, certification_level = certification_level
   )
 }

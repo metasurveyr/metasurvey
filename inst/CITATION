@@ -1,0 +1,14 @@
+citHeader("To cite metasurvey in publications use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "metasurvey: Survey Processing with Meta-Programming",
+  author   = c(
+    person("Mauro", "Loprete"),
+    person("Natalia", "da Silva"),
+    person("Fabricio", "Machado")
+  ),
+  year     = "2025",
+  url      = "https://github.com/metasurveyr/metasurvey",
+  note     = paste("R package version", meta$Version)
+)

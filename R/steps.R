@@ -1226,7 +1226,7 @@ view_graph <- function(svy, init_step = "Load survey") {
     )
     edges <- rbind(
       edges,
-      data.frame(from = 1:length(steps), to = 2:(length(steps) + 1))
+      data.frame(from = seq_along(steps), to = seq_along(steps) + 1L)
     )
   }
 
@@ -1236,7 +1236,7 @@ view_graph <- function(svy, init_step = "Load survey") {
   node_id_counter <- nrow(nodes)
 
   if (length(steps) > 0) {
-    for (i in 1:length(steps)) {
+    for (i in seq_along(steps)) {
       step <- steps[[i]]
       current_step_node_id <- i + 1
 
@@ -1263,7 +1263,7 @@ view_graph <- function(svy, init_step = "Load survey") {
           prev_rhs_node_id <- rhs_init_node_id
 
           if (length(rhs_steps) > 0) {
-            for (j in 1:length(rhs_steps)) {
+            for (j in seq_along(rhs_steps)) {
               node_id_counter <- node_id_counter + 1
 
               extra_nodes_list[[length(extra_nodes_list) + 1]] <- data.frame(

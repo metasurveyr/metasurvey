@@ -105,18 +105,18 @@ RecipeBackend <- R6::R6Class(
     },
 
     #' @description Filter recipes by criteria
-    #' @param svy_type Character or NULL
+    #' @param survey_type Character or NULL
     #' @param edition Character or NULL
     #' @param category Character or NULL
     #' @param certification_level Character or NULL
     #' @return List of matching Recipe objects
-    filter = function(svy_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
       if (self$type == "local") {
-        private$.registry$filter(svy_type = svy_type, edition = edition,
+        private$.registry$filter(survey_type = survey_type, edition = edition,
                                  category = category, certification_level = certification_level)
       } else if (self$type == "api") {
         tryCatch(
-          api_list_recipes(svy_type = svy_type, topic = category,
+          api_list_recipes(survey_type = survey_type, topic = category,
                            certification = certification_level),
           error = function(e) list()
         )

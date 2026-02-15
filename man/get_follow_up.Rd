@@ -6,7 +6,7 @@
 \usage{
 get_follow_up(
   RotativePanelSurvey,
-  index = 1:length(RotativePanelSurvey$follow_up)
+  index = seq_along(RotativePanelSurvey$follow_up)
 )
 }
 \arguments{
