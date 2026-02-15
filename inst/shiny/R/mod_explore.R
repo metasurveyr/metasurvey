@@ -4,23 +4,26 @@ explore_ui <- function(id) {
   ns <- shiny::NS(id)
 
   htmltools::tagList(
+    # Hero section
+    hero_section_ui("recipes"),
+
     # Search & Filters
     htmltools::tags$div(class = "search-container",
-      shiny::fluidRow(
-        shiny::column(5,
+      htmltools::tags$div(class = "search-row",
+        htmltools::tags$div(class = "search-field",
           shiny::textInput(ns("search"), NULL,
-                          placeholder = "Search recipes by name or description...",
+                          placeholder = "Search recipes...",
                           width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_svy"), "Survey",
-                           choices = c("All" = "", "ECH" = "ech", "EAII" = "eaii",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_svy"), NULL,
+                           choices = c("Survey" = "", "ECH" = "ech", "EAII" = "eaii",
                                      "EPH" = "eph", "EAI" = "eai"),
                            width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_category"), "Category",
-                           choices = c("All" = "",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_category"), NULL,
+                           choices = c("Category" = "",
                                      "Labor Market" = "labor_market",
                                      "Income" = "income",
                                      "Education" = "education",
@@ -29,19 +32,18 @@ explore_ui <- function(id) {
                                      "Housing" = "housing"),
                            width = "100%")
         ),
-        shiny::column(2,
-          shiny::selectInput(ns("filter_cert"), "Certification",
-                           choices = c("All" = "",
+        htmltools::tags$div(class = "filter-field",
+          shiny::selectInput(ns("filter_cert"), NULL,
+                           choices = c("Certification" = "",
                                      "Official" = "official",
                                      "Reviewed" = "reviewed",
                                      "Community" = "community"),
                            width = "100%")
         ),
-        shiny::column(1,
+        htmltools::tags$div(class = "refresh-field",
           shiny::actionButton(ns("btn_refresh"), "",
                             icon = shiny::icon("sync"),
-                            class = "btn-outline-secondary btn-sm",
-                            style = "margin-top: 25px;")
+                            class = "btn-outline-secondary btn-sm")
         )
       )
     ),
@@ -200,11 +202,24 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
         })
       }
 
+      # Fetch ANDA variable labels
+      doc_info <- recipe$doc()
+      all_vars <- unique(c(
+        unlist(doc_info$input_variables),
+        unlist(doc_info$output_variables)
+      ))
+      anda_labels <- tryCatch(
+        shiny_fetch_anda_variables(recipe$survey_type, all_vars),
+        error = function(e) list()
+      )
+
       shiny::showModal(
         shiny::modalDialog(
           recipe_detail_ui(recipe, ns = ns,
                           referencing_workflows = referencing_workflows,
-                          graph_output_id = graph_id),
+                          graph_output_id = graph_id,
+                          all_recipes = all_recipes(),
+                          anda_labels = anda_labels),
           size = "l",
           easyClose = TRUE,
           footer = shiny::modalButton("Close")
@@ -235,6 +250,19 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
         }
       }, ignoreNULL = TRUE, ignoreInit = TRUE)
     }
+
+    # Cross-reference: navigate to dependency recipe from recipe detail
+    shiny::observeEvent(input$navigate_dep_recipe, {
+      rid <- input$navigate_dep_recipe
+      shiny::removeModal()
+      recipes <- all_recipes()
+      for (r in recipes) {
+        if (as.character(r$id) == rid) {
+          open_recipe_modal(r)
+          return()
+        }
+      }
+    })
 
     # Cross-reference: navigate to workflow from recipe detail
     shiny::observeEvent(input$navigate_workflow, {

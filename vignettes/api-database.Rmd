@@ -1,0 +1,434 @@
+---
+title: "API and Database Reference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{API and Database Reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Overview
+
+metasurvey provides a REST API built with [plumber](https://www.rplumber.io/)
+backed by MongoDB for sharing recipes, workflows, and variable metadata
+across the community. The API is deployed on Railway and used by both the
+R client functions (`api_*`) and the Shiny explorer app.
+
+**Production URL:**
+`https://metasurvey-api-production.up.railway.app`
+
+**Interactive API docs (Swagger UI):**
+`https://metasurvey-api-production.up.railway.app/__docs__/`
+
+The Swagger UI provides an interactive endpoint explorer auto-generated
+by plumber. For detailed request/response schemas and MongoDB
+collection documentation, refer to the sections below.
+
+## Configuration
+
+```{r configure}
+library(metasurvey)
+
+# Point to the production API (default)
+configure_api("https://metasurvey-api-production.up.railway.app")
+
+# Or use an environment variable
+Sys.setenv(METASURVEY_API_URL = "https://metasurvey-api-production.up.railway.app")
+```
+
+The R client reads the URL from `configure_api()` first, then falls back
+to the `METASURVEY_API_URL` environment variable, and finally to the
+production URL.
+
+## Authentication
+
+The API uses JWT (JSON Web Token) authentication with HMAC-SHA256
+signing. Tokens expire after 24 hours; long-lived tokens (90 days) can
+be generated for scripting.
+
+### Register
+
+```{r register}
+# Individual account (auto-approved)
+api_register("Ana Garcia", "ana@example.com", "password123")
+
+# Institutional member (requires admin review)
+api_register(
+  "Carlos Rodriguez",
+  "carlos@ine.gub.uy",
+  "password123",
+  user_type = "institutional_member",
+  institution = "INE Uruguay"
+)
+```
+
+Account types:
+
+| Type | Description | Approval |
+|------|-------------|----------|
+| `individual` | Independent researcher | Automatic |
+| `institutional_member` | Member of a recognized institution | Requires admin review |
+| `institution` | Institutional account | Requires admin review |
+
+### Login
+
+```{r login}
+api_login("ana@example.com", "password123")
+```
+
+The token is stored in the session and used automatically for
+subsequent API calls. The client refreshes tokens automatically within
+5 minutes of expiry.
+
+### Session Management
+
+```{r session}
+# View current user profile
+api_me()
+
+# Refresh token
+api_refresh_token()
+
+# Logout
+api_logout()
+```
+
+### Long-Lived Tokens
+
+For automated scripts and CI/CD, generate a 90-day token from the
+Shiny app (Profile tab) or use it directly:
+
+```{r token}
+Sys.setenv(METASURVEY_TOKEN = "your-long-lived-token")
+
+# API calls work without interactive login
+recipes <- api_list_recipes(survey_type = "ech")
+```
+
+## API Endpoints
+
+### Recipes
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/recipes` | No | List and search recipes |
+| `GET` | `/recipes/:id` | No | Get a single recipe |
+| `POST` | `/recipes` | Yes | Publish a new recipe |
+| `POST` | `/recipes/:id/download` | No | Increment download counter |
+
+#### List Recipes
+
+```{r list-recipes}
+# All recipes
+all <- api_list_recipes()
+
+# Filter by survey type
+ech <- api_list_recipes(survey_type = "ech")
+
+# Search by text
+labor <- api_list_recipes(search = "empleo")
+
+# Filter by topic
+income <- api_list_recipes(topic = "income")
+
+# Filter by certification level
+official <- api_list_recipes(certification = "official")
+
+# Pagination
+page2 <- api_list_recipes(limit = 10, offset = 10)
+```
+
+Query parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `search` | string | Regex search on recipe name |
+| `survey_type` | string | `ech`, `eaii`, `eph`, `eai` |
+| `topic` | string | `labor_market`, `income`, `education`, `health`, `demographics`, `housing` |
+| `certification` | string | `community`, `reviewed`, `official` |
+| `user` | string | Filter by author email |
+| `limit` | integer | Max results (default 50) |
+| `offset` | integer | Skip N results (default 0) |
+
+#### Get Recipe
+
+```{r get-recipe}
+recipe <- api_get_recipe("ech_employment_001")
+```
+
+#### Publish Recipe
+
+```{r publish-recipe}
+api_login("ana@example.com", "password123")
+api_publish_recipe(my_recipe)
+```
+
+The server automatically sets `user` from the JWT, initializes
+`downloads = 0`, generates an `id` if not provided, and assigns
+`community` certification by default.
+
+### Workflows
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/workflows` | No | List and search workflows |
+| `GET` | `/workflows/:id` | No | Get a single workflow |
+| `POST` | `/workflows` | Yes | Publish a new workflow |
+| `POST` | `/workflows/:id/download` | No | Increment download counter |
+
+```{r workflow-api}
+# List workflows for ECH
+wf <- api_list_workflows(survey_type = "ech")
+
+# Find workflows that use a specific recipe
+wf <- api_list_workflows(recipe_id = "ech_employment_001")
+
+# Get specific workflow
+w <- api_get_workflow("wf_labor_market_001")
+
+# Publish
+api_publish_workflow(my_workflow)
+```
+
+### ANDA Variable Metadata
+
+> **Note:** The ANDA integration is an *unofficial* implementation that
+> parses DDI XML metadata from INE Uruguay's public ANDA catalog. It is
+> not endorsed by INE and may contain errors or become outdated if INE
+> changes the catalog structure. Always verify critical variable
+> definitions against the official codebook.
+
+The `/anda/variables` endpoint provides variable metadata sourced from
+INE Uruguay's ANDA catalog (DDI XML format). This includes variable
+labels, value categories, and type information.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/anda/variables` | No | Get variable metadata |
+
+```{r anda}
+# Get all ECH variables
+vars <- api_get_anda_variables(survey_type = "ech")
+
+# Get specific variables
+vars <- api_get_anda_variables(
+  survey_type = "ech",
+  var_names = c("pobpcoac", "e27", "ht11")
+)
+```
+
+Query parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `survey_type` | string | Survey type (default `"ech"`) |
+| `names` | string | Comma-separated variable names (all if empty) |
+
+Each variable document contains:
+
+| Field | Description |
+|-------|-------------|
+| `name` | Variable name (lowercase) |
+| `label` | Human-readable label |
+| `type` | `discrete`, `continuous`, or `unknown` |
+| `value_labels` | Named list of code-to-label mappings |
+| `description` | Extended description |
+| `source_edition` | Survey edition (e.g., `"2024"`) |
+| `source_catalog_id` | ANDA catalog ID (e.g., `767`) |
+
+### Admin
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/admin/pending-users` | Admin | List institutional accounts pending review |
+| `POST` | `/admin/approve/:email` | Admin | Approve an institutional account |
+| `POST` | `/admin/reject/:email` | Admin | Reject an institutional account |
+
+Admin access is controlled by the `METASURVEY_ADMIN_EMAIL` environment
+variable on the server.
+
+### Health Check
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/health` | No | API health and MongoDB status |
+
+```json
+{
+  "status": "ok",
+  "service": "metasurvey-api",
+  "version": "2.0.0",
+  "database": "metasurvey",
+  "mongodb": "connected",
+  "timestamp": "2026-02-15T12:00:00Z"
+}
+```
+
+## MongoDB Schema
+
+The database has four collections, each with JSON Schema validation and
+optimized indexes.
+
+### Collections
+
+#### `users`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Display name |
+| `email` | string | Yes | Email (unique, validated) |
+| `password_hash` | string | Yes | SHA-256 hash (64 chars) |
+| `user_type` | enum | Yes | `individual`, `institutional_member`, `institution` |
+| `institution` | string | No | Institution name |
+| `verified` | boolean | No | Whether identity is verified |
+| `review_status` | enum | No | `approved`, `pending`, `rejected` |
+| `reviewed_by` | string | No | Admin email who reviewed |
+| `reviewed_at` | string | No | ISO timestamp |
+| `created_at` | string | Yes | ISO timestamp |
+
+**Indexes:** unique on `email`.
+
+#### `recipes`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | No | Unique identifier (auto-generated) |
+| `name` | string | Yes | Recipe name |
+| `user` | string | Yes | Author email |
+| `survey_type` | enum | Yes | `ech`, `eaii`, `eph`, `eai` |
+| `edition` | string/array | No | Survey edition(s) |
+| `description` | string | No | Description |
+| `topic` | enum | No | `labor_market`, `income`, `education`, `health`, `demographics`, `housing` |
+| `version` | string | No | Semantic version (default `"1.0.0"`) |
+| `downloads` | number | No | Download count (default `0`) |
+| `steps` | array | No | Step expressions as strings |
+| `depends_on` | array | No | Required input variable names |
+| `depends_on_recipes` | array | No | Recipe IDs this depends on |
+| `categories` | array | No | Category objects |
+| `certification` | object | No | `{level, certified_at, certified_by, notes}` |
+| `user_info` | object | No | `{name, user_type, email, url, verified}` |
+| `doc` | object | No | `{input_variables, output_variables, pipeline}` |
+| `data_source` | object | No | `{s3_bucket, s3_prefix, file_pattern, provider}` |
+
+**Indexes:** unique on `id`; on `user`, `survey_type`, `topic`,
+`downloads` (desc), `certification.level`; compound on
+`(survey_type, edition)`; text search on `(name, description, topic)`.
+
+#### `workflows`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | No | Unique identifier (auto-generated) |
+| `name` | string | Yes | Workflow name |
+| `user` | string | Yes | Author email |
+| `survey_type` | enum | Yes | `ech`, `eaii`, `eph`, `eai` |
+| `edition` | string/array | No | Survey edition(s) |
+| `description` | string | No | Description |
+| `version` | string | No | Semantic version |
+| `downloads` | number | No | Download count |
+| `estimation_type` | string/array | No | `annual`, `quarterly`, `monthly` |
+| `recipe_ids` | array | No | Referenced recipe IDs |
+| `calls` | array | No | Estimation calls as strings |
+| `call_metadata` | array | No | Call descriptions |
+| `categories` | array | No | Category objects |
+| `certification` | object | No | Same as recipes |
+| `user_info` | object | No | Same as recipes |
+
+**Indexes:** unique on `id`; on `user`, `survey_type`, `recipe_ids`,
+`downloads` (desc); compound on `(survey_type, edition)`; text search
+on `(name, description)`.
+
+#### `anda_variables`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `survey_type` | string | Yes | Survey type |
+| `name` | string | Yes | Variable name (lowercase) |
+| `label` | string | Yes | Human-readable label |
+| `type` | enum | No | `discrete`, `continuous`, `unknown` |
+| `value_labels` | object | No | Code-to-label mappings |
+| `description` | string | No | Extended description |
+| `source_edition` | string | No | Edition (e.g., `"2024"`) |
+| `source_catalog_id` | number | No | ANDA catalog ID |
+
+**Indexes:** unique compound on `(survey_type, name)`; on
+`survey_type`.
+
+## Database Setup
+
+To set up the database for a new deployment:
+
+```bash
+# 1. Create collections with JSON Schema validation and indexes
+mongosh "$METASURVEY_MONGO_URI" inst/scripts/setup_mongodb.js
+
+# 2. Seed recipes, workflows, and users
+METASURVEY_MONGO_URI="..." Rscript inst/scripts/seed_ech_recipes.R
+
+# 3. Seed ANDA variable metadata from INE catalog
+METASURVEY_MONGO_URI="..." Rscript inst/scripts/seed_anda_metadata.R
+```
+
+The setup script creates all four collections and builds the indexes.
+It is idempotent---existing collections are skipped.
+
+## Server Deployment
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `METASURVEY_MONGO_URI` | Yes | — | MongoDB connection string |
+| `METASURVEY_DB` | No | `metasurvey` | Database name |
+| `METASURVEY_JWT_SECRET` | No | `metasurvey-dev-secret-...` | JWT signing secret (override in production) |
+| `METASURVEY_ADMIN_EMAIL` | No | — | Admin email for institutional review |
+
+### Running Locally
+
+```bash
+METASURVEY_MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net" \
+  Rscript -e 'plumber::plumb("inst/api/plumber.R")$run(port = 8787)'
+```
+
+The Swagger UI will be available at `http://localhost:8787/__docs__/`.
+
+### Docker
+
+```bash
+docker build -t metasurvey-api inst/api/
+docker run -p 8787:8787 \
+  -e METASURVEY_MONGO_URI="mongodb+srv://..." \
+  -e METASURVEY_JWT_SECRET="your-production-secret" \
+  -e METASURVEY_ADMIN_EMAIL="admin@example.com" \
+  metasurvey-api
+```
+
+### Railway
+
+The API is configured for Railway deployment via the `render.yaml` in
+`inst/api/`. Push the repository and configure the environment variables
+in the Railway dashboard.
+
+## CORS
+
+The API allows cross-origin requests from any origin:
+
+- **Allowed methods:** GET, POST, OPTIONS
+- **Allowed headers:** Content-Type, Authorization
+
+## Next Steps
+
+- **[Interactive Recipe Explorer](shiny-explorer.html)** -- Browse
+  recipes and workflows through the Shiny web app
+- **[Creating and Sharing Recipes](recipes.html)** -- Build recipes
+  programmatically and publish them to the API
+- **[Estimation Workflows](workflows-and-estimation.html)** -- Compute
+  survey-weighted estimates with `workflow()`

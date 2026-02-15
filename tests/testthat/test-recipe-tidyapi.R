@@ -267,7 +267,7 @@ test_that("filter_recipes filters by criteria", {
     id = "fr_2", doi = NULL, topic = NULL
   ))
 
-  results <- filter_recipes(svy_type = "ech")
+  results <- filter_recipes(survey_type = "ech")
   expect_equal(length(results), 1)
   expect_equal(results[[1]]$name, "ECH Recipe")
 })

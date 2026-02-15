@@ -41,7 +41,7 @@ rank_workflows <- function(n = NULL) {
 #' Filter workflows in the active backend by survey type, edition, recipe ID,
 #' or certification level.
 #'
-#' @param svy_type Character survey type or NULL.
+#' @param survey_type Character survey type or NULL.
 #' @param edition Character edition or NULL.
 #' @param recipe_id Character recipe ID or NULL (find workflows using this recipe).
 #' @param certification_level Character certification level or NULL.
@@ -49,16 +49,16 @@ rank_workflows <- function(n = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' ech_wf <- filter_workflows(svy_type = "ech")
+#' ech_wf <- filter_workflows(survey_type = "ech")
 #' for_recipe <- filter_workflows(recipe_id = "recipe_001")
 #' }
 #'
 #' @seealso \code{\link{search_workflows}}, \code{\link{find_workflows_for_recipe}}
 #' @export
-filter_workflows <- function(svy_type = NULL, edition = NULL,
+filter_workflows <- function(survey_type = NULL, edition = NULL,
                              recipe_id = NULL, certification_level = NULL) {
   get_workflow_backend()$filter(
-    svy_type = svy_type, edition = edition,
+    survey_type = survey_type, edition = edition,
     recipe_id = recipe_id, certification_level = certification_level
   )
 }

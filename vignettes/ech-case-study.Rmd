@@ -1,12 +1,10 @@
 ---
-title: "Analisis del mercado laboral uruguayo con la ECH"
+title: "ECH Case Study: From STATA to R"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Analisis del mercado laboral uruguayo con la ECH}
+  %\VignetteIndexEntry{ECH Case Study: From STATA to R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: references.bib
-link-citations: true
 ---
 
 ```{r, include = FALSE}
@@ -14,492 +12,434 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
 ```
 
-```{r setup}
+## The ECH Compatibility Problem
+
+Uruguay's *Encuesta Continua de Hogares* (ECH) is published annually by the
+Instituto Nacional de Estadistica (INE). Over the years, INE has changed
+variable names, codebook definitions, and module structure across editions.
+Researchers who work with ECH data must *compatibilize* variables---mapping
+different naming conventions to a common schema---before any cross-year
+analysis is possible.
+
+In Uruguayan academia, this work has been done in STATA for over 30 years.
+A typical compatibility pipeline consists of approximately
+**8 .do files per year**, covering:
+
+1. `2_correc_datos.do` -- Load raw data, merge person and household files,
+   fix variable names
+2. `3_compatibilizacion_mod_1_4.do` -- Harmonize demographics, health,
+   education, and labor modules
+3. `4_ingreso_ht11.do` -- Construct household income (`ht11`)
+4. `5_descomp_fuentes.do` -- Decompose income by source
+5. `6_ingreso_ht11_sss.do` -- Social security adjustments
+6. `7_check_ingr.do` -- Validate income variables
+7. `8_arregla_base_comp.do` -- Final dataset preparation
+8. `9_labels.do` -- Apply value labels
+
+Multiplied across 30+ years, that is over **240 STATA scripts** doing
+essentially the same task: mapping raw ECH variables to a common schema.
+
+**metasurvey solves this with recipes.** Instead of maintaining hundreds of
+`.do` files, you write a single recipe that encodes the transformation logic
+and can be applied to any ECH edition.
+
+## STATA vs metasurvey: Side by Side
+
+Here is a fragment of a typical STATA compatibility script for sex, age,
+and relationship:
+
+```stata
+* STATA: Typical ECH compatibility script
+
+* sexo
+g bc_pe2 = e26
+
+* edad
+g bc_pe3 = e27
+
+* parentesco
+g bc_pe4 = -9
+  replace bc_pe4 = 1 if e31 == 1
+  replace bc_pe4 = 2 if e31 == 2
+  replace bc_pe4 = 3 if e31 == 3 | e31 == 4 | e31 == 5
+  replace bc_pe4 = 4 if e31 == 7 | e31 == 8
+  replace bc_pe4 = 5 if e31 == 6 | e31 == 9 | e31 == 10 | e31 == 11 | e31 == 12
+  replace bc_pe4 = 6 if e31 == 13
+  replace bc_pe4 = 7 if e31 == 14
+```
+
+The equivalent in metasurvey:
+
+```r
+svy <- step_rename(svy, sex = e26, age = e27)
+
+svy <- step_recode(svy, relationship,
+  e31 == 1                ~ "Head",
+  e31 == 2                ~ "Spouse",
+  e31 %in% 3:5            ~ "Child",
+  e31 %in% c(7, 8)        ~ "Parent",
+  e31 %in% c(6, 9:12)     ~ "Other relative",
+  e31 == 13               ~ "Domestic service",
+  e31 == 14               ~ "Non-relative",
+  .default = NA_character_,
+  comment = "Relationship to head of household"
+)
+```
+
+The key differences:
+
+| Aspect | STATA `.do` file | metasurvey recipe |
+|--------|-----------------|------------------|
+| Format | Flat script with hardcoded paths | Portable JSON with metadata |
+| Validation | Manual `assert` checks | Automatic `validate()` method |
+| Documentation | Comments in code | Auto-generated `doc()` method |
+| Sharing | Copy files via email/server | Registry with search and versioning |
+| Reproducibility | Depends on file paths and environment | Self-contained, any machine |
+| Cross-edition | Duplicate script per year | One recipe, multiple editions |
+
+## Simulating ECH-Like Data
+
+For this vignette we simulate data that mirrors the structure of a real ECH
+microdata file. The simulated variables follow the same naming conventions
+and value ranges used by INE.
+
+```{r simulate}
 library(metasurvey)
-library(survey)
 library(data.table)
-```
 
-## La Encuesta Continua de Hogares
-
-La Encuesta Continua de Hogares (ECH) es la principal fuente de
-informacion socioeconomica de Uruguay. Desde 1968, el Instituto Nacional
-de Estadistica (INE) la lleva adelante de forma ininterrumpida, lo que
-la convierte en una de las series de encuestas de hogares mas largas de
-America Latina [@ine2023].
-
-La ECH tiene dos grandes propositos. Por un lado, produce las cifras
-oficiales de empleo, desempleo, pobreza e ingresos que se publican
-mensual y trimestralmente. Por otro, sus microdatos son la base de buena
-parte de la investigacion academica en ciencias sociales y economia en
-Uruguay. Tesis de grado, articulos de revistas, informes de consultoria
-y documentos de politica publica dependen de estos datos.
-
-Para quienes trabajan con encuestas de hogares en la region, el paquete
-[`ech`](https://calcita.github.io/ech/) de Gabriela Mathieu y Richard
-Detomasi ofrece un conjunto valioso de funciones para calcular
-indicadores socioeconomicos con la ECH. De la misma forma, el paquete
-[`eph`](https://docs.ropensci.org/eph/) de Diego Kozlowski, Pablo
-Tiscornia y Guido Weksler hace lo propio con la Encuesta Permanente de
-Hogares de Argentina y esta publicado en rOpenSci. **metasurvey** se
-inspira en estos proyectos y complementa su enfoque: en lugar de
-funciones especificas para cada indicador, ofrece una capa de
-metaprogramacion que permite construir, documentar y compartir pipelines
-de procesamiento completos.
-
-### Estructura de la encuesta
-
-La ECH utiliza un diseno de panel rotativo. Cada trimestre ingresa una
-nueva muestra de hogares (la *implantacion*), que es luego entrevistada
-mensualmente durante seis meses (el *seguimiento*). Esto permite
-producir:
-
-- **Estimaciones anuales** usando la muestra de implantacion con pesos
-  anuales
-- **Estimaciones mensuales** usando los seguimientos con pesos mensuales
-- **Estimaciones trimestrales-a-mensuales** que combinan la correlacion
-  entre trimestres solapados
-
-Las variables clave para el analisis laboral son [@inedata]:
-
-| Variable | Descripcion | Valores relevantes |
-|----------|-------------|-------------------|
-| `POBPCOAC` | Condicion de actividad | 2=Ocupado, 3-5=Desocupado, 6-8=Inactivo |
-| `e27` | Edad en anos | Continua |
-| `e26` | Sexo | 1=Hombre, 2=Mujer |
-| `e51` | Nivel educativo | 1-14, escala codificada |
-| `ht11` | Ingreso total del hogar | En pesos uruguayos corrientes |
-| `pesoano` | Factor de expansion anual | Peso muestral |
-| `dpto` | Departamento | 1-19 |
-
-## Cargando datos de la ECH
-
-En una situacion real, los microdatos se cargan directamente desde los
-archivos del INE. El paquete `metasurvey` puede manejar la estructura
-completa del panel, incluyendo los pesos replicados bootstrap que el INE
-provee para la estimacion robusta de varianzas:
-
-```{r load-real-data}
-# Carga de la ECH 2023 completa con pesos replicados
-path_dir <- "ruta/a/datos/ech_2023"
-
-ech_2023 <- load_panel_survey(
-  path_implantation = file.path(path_dir, "ECH_implantacion_2023.csv"),
-  path_follow_up = file.path(path_dir, "seguimiento"),
-  svy_type = "ech",
-  svy_weight_implantation = add_weight(
-    annual = add_replicate(
-      "W_ANO",
-      replicate_path = file.path(path_dir, "anual", "pesos_replicados_bootstrap_anual_2023.csv"),
-      replicate_id = c("ID" = "ID"),
-      replicate_pattern = "wr[0-9]+",
-      replicate_type = "bootstrap"
-    )
-  ),
-  svy_weight_follow_up = add_weight(
-    monthly = add_replicate(
-      "W",
-      replicate_path = file.path(
-        path_dir,
-        c("pesos_replicados_bootstrap_mensuales_ene_jun_2023",
-          "pesos_replicados_bootstrap_mensuales_jul_dic_2023")
-      ),
-      replicate_id = c("ID" = "ID"),
-      replicate_pattern = "wr[0-9]+",
-      replicate_type = "bootstrap"
-    )
-  )
-)
-```
-
-Para los ejemplos de esta guia, usamos datos simulados que reproducen la
-estructura de la ECH. Las distribuciones estan calibradas para generar
-resultados en el rango de las cifras oficiales, aunque los valores
-puntuales no coincidiran exactamente:
-
-```{r simulate-data}
 set.seed(2023)
-n <- 2000
+n <- 500
 
-# Simulamos microdatos con distribuciones calibradas
-dt <- data.table(
-  numero   = 1:n,
-  e27      = pmax(0, round(rnorm(n, 38, 18))),
-  e26      = sample(c(1, 2), n, replace = TRUE, prob = c(0.48, 0.52)),
-  ht11     = round(pmax(0, rnorm(n, 45000, 25000))),
-  cant_per = sample(1:6, n, replace = TRUE, prob = c(0.20, 0.25, 0.25, 0.15, 0.10, 0.05)),
-  POBPCOAC = sample(c(2, 3, 4, 5, 6, 7, 8), n, replace = TRUE,
-                    prob = c(0.55, 0.04, 0.02, 0.02, 0.15, 0.12, 0.10)),
-  e51      = sample(1:14, n, replace = TRUE,
-                    prob = c(0.02, 0.05, 0.08, 0.10, 0.12, 0.08,
-                             0.10, 0.12, 0.10, 0.08, 0.05, 0.04, 0.03, 0.03)),
-  dpto     = sample(1:19, n, replace = TRUE,
-                    prob = c(0.40, rep(0.60/18, 18))),
+ech_sim <- data.table(
+  numero   = rep(1:100, each = 5),
+  nper     = rep(1:5, 100),
+  e26      = sample(c(1, 2), n, replace = TRUE),
+  e27      = sample(0:90, n, replace = TRUE),
+  e31      = sample(1:14, n, replace = TRUE,
+                    prob = c(0.20, 0.15, 0.25, 0.05, 0.03,
+                             0.02, 0.03, 0.02, 0.02, 0.01,
+                             0.01, 0.01, 0.05, 0.15)),
+  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n, replace = TRUE,
+                    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)),
+  e51      = sample(1:14, n, replace = TRUE),
+  ht11     = round(runif(n, 5000, 120000)),
+  dpto     = sample(1:19, n, replace = TRUE),
   pesoano  = round(runif(n, 0.5, 3.0), 4)
 )
 
 svy <- Survey$new(
-  data    = dt,
+  data    = ech_sim,
   edition = "2023",
   type    = "ech",
   psu     = NULL,
   engine  = "data.table",
   weight  = add_weight(annual = "pesoano")
 )
+
+head(get_data(svy), 3)
 ```
 
-## Construccion de indicadores laborales
+## Step 1: Demographic Variables
 
-### Definiciones basicas segun la OIT
+Rename raw INE codes to readable names and recode categorical variables:
 
-Las definiciones de la Organizacion Internacional del Trabajo (OIT)
-[@ilo2013] establecen tres poblaciones fundamentales:
-
-- **Poblacion en Edad de Trabajar (PET)**: personas de 14 anos o mas
-  (en Uruguay, el corte es 14 anos; en Argentina, por ejemplo, la EPH
-  usa 10 anos)
-- **Poblacion Economicamente Activa (PEA)**: personas que trabajan o
-  buscan trabajo activamente
-- **Ocupados (PO)**: personas que trabajaron al menos una hora en el
-  periodo de referencia
-- **Desocupados (PD)**: personas que no trabajaron pero buscaron empleo
-
-Con `metasurvey`, estas definiciones se codifican como pasos del
-pipeline:
-
-```{r labor-indicators}
-# Poblacion en Edad de Trabajar
-svy <- step_recode(svy, pet,
-  e27 >= 14 ~ 1,
-  .default = 0,
-  comment = "PET: Poblacion en Edad de Trabajar (14+ anios)"
+```{r demographics}
+# Recode sex from INE codes (e26: 1=Male, 2=Female)
+svy <- step_recode(svy, sex,
+  e26 == 1 ~ "Male",
+  e26 == 2 ~ "Female",
+  .default = NA_character_,
+  comment = "Sex: 1=Male, 2=Female (INE e26)"
 )
 
-# Poblacion Economicamente Activa
-svy <- step_recode(svy, pea,
-  POBPCOAC %in% 2:5 ~ 1,
-  .default = 0,
-  comment = "PEA: Poblacion Economicamente Activa (ocupados + desocupados)"
-)
-
-# Ocupados
-svy <- step_recode(svy, po,
-  POBPCOAC == 2 ~ 1,
-  .default = 0,
-  comment = "PO: Ocupados (POBPCOAC == 2)"
-)
-
-# Desocupados
-svy <- step_recode(svy, pd,
-  POBPCOAC %in% 3:5 ~ 1,
-  .default = 0,
-  comment = "PD: Desocupados (POBPCOAC %in% 3:5)"
-)
-
-# Tasas
-svy <- step_compute(svy,
-  tasa_empleo    = po / pet,
-  tasa_desempleo = pd / pea,
-  tasa_actividad = pea / pet,
-  comment = "Tasas laborales basicas: empleo, desempleo, actividad"
-)
-```
-
-### Variables demograficas para desagregaciones
-
-Los indicadores laborales agregados ocultan diferencias importantes. La
-brecha de genero en el mercado laboral uruguayo es persistente: la tasa
-de desempleo de las mujeres es sistematicamente mayor que la de los
-hombres, y la tasa de actividad es menor. Para hacer visibles estas
-diferencias, necesitamos variables de cruce:
-
-```{r demographic-vars}
-# Sexo
-svy <- step_recode(svy, sexo,
-  e26 == 1 ~ "Hombre",
-  e26 == 2 ~ "Mujer",
-  .default = "Otro",
-  comment = "Sexo"
-)
-
-# Grupos de edad para analisis laboral
-svy <- step_recode(svy, tramo_edad,
-  e27 < 25  ~ "Jovenes (14-24)",
-  e27 < 45  ~ "Adultos (25-44)",
-  e27 < 65  ~ "Mayores (45-64)",
-  .default  = "Adultos mayores (65+)",
+# Recode age groups (standard ECH grouping, e27 = age)
+svy <- step_recode(svy, age_group,
+  e27 < 14 ~ "Child (0-13)",
+  e27 < 25 ~ "Youth (14-24)",
+  e27 < 45 ~ "Adult (25-44)",
+  e27 < 65 ~ "Mature (45-64)",
+  .default = "Senior (65+)",
   .to_factor = TRUE,
   ordered = TRUE,
-  comment = "Tramos de edad para analisis laboral"
+  comment = "Standard age groups for labor statistics"
+)
+```
+
+## Step 2: Labor Force Classification
+
+The variable `POBPCOAC` (Poblacion por condicion de actividad) is the
+central labor status classification in the ECH. INE codes:
+
+- 2 = Employed
+- 3-5 = Unemployed (various subcategories)
+- 6-7 = Inactive
+
+This mirrors the ILO standard labor force framework:
+
+```{r labor}
+svy <- step_recode(svy, labor_status,
+  pobpcoac == 2      ~ "Employed",
+  pobpcoac %in% 3:5  ~ "Unemployed",
+  pobpcoac %in% 6:7  ~ "Inactive",
+  .default = NA_character_,
+  comment = "ILO labor force status from POBPCOAC"
 )
 
-# Nivel educativo agregado
-svy <- step_recode(svy, nivel_educativo,
-  e51 %in% 1:6   ~ "Hasta primaria",
-  e51 %in% 7:9   ~ "Secundaria",
-  e51 %in% 10:14 ~ "Terciaria",
-  .default = "Sin dato",
-  comment = "Nivel educativo agregado (3 categorias)"
-)
-
-# Region
-svy <- step_recode(svy, region,
-  dpto == 1 ~ "Montevideo",
-  .default  = "Interior",
-  comment = "Region: Montevideo vs Interior"
-)
-
-# Ingreso per capita del hogar
+# Create binary indicators
 svy <- step_compute(svy,
-  ingreso_pc = ht11 / cant_per,
-  comment = "Ingreso per capita del hogar"
+  employed     = ifelse(pobpcoac == 2, 1L, 0L),
+  unemployed   = ifelse(pobpcoac %in% 3:5, 1L, 0L),
+  active       = ifelse(pobpcoac %in% 2:5, 1L, 0L),
+  working_age  = ifelse(e27 >= 14, 1L, 0L),
+  comment = "Labor force binary indicators"
 )
 ```
 
-## Estimacion con diseno muestral
+## Step 3: Income Variables
 
-Una vez construidas las variables, el siguiente paso es estimar los
-indicadores con errores estandar que tengan en cuenta el diseno muestral.
-Esto es fundamental: un `mean()` simple sobre los microdatos produce
-estimaciones puntuales incorrectas (no usa los pesos de expansion) y
-errores estandar que subestiman la incertidumbre real.
+Construct income indicators following the standard methodology used with
+ECH data:
 
-La funcion `workflow()` encapsula las llamadas a `survey::svymean()`,
-`survey::svytotal()` y `survey::svyby()`, y devuelve los resultados en
-un `data.table` ordenado con estimacion, error estandar y coeficiente de
-variacion.
+```{r income}
+svy <- step_compute(svy,
+  income_pc    = ht11 / 5,
+  income_thousands = ht11 / 1000,
+  log_income   = log(ht11 + 1),
+  comment = "Income transformations"
+)
+```
 
-```{r estimation}
-# Indicadores anuales agregados
-resultados <- workflow(
-  list(svy),
-  survey::svymean(~tasa_empleo, na.rm = TRUE),
-  survey::svymean(~tasa_desempleo, na.rm = TRUE),
-  survey::svymean(~tasa_actividad, na.rm = TRUE),
-  survey::svytotal(~po, na.rm = TRUE),
-  survey::svytotal(~pd, na.rm = TRUE),
-  estimation_type = "annual"
+## Step 4: Geographic Classification
+
+```{r geography}
+dept_names <- data.table(
+  dpto = 1:19,
+  department = c("Montevideo", "Artigas", "Canelones", "Cerro Largo",
+                 "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
+                 "Maldonado", "Paysandu", "Rio Negro", "Rivera", "Rocha",
+                 "Salto", "San Jose", "Soriano", "Tacuarembo",
+                 "Treinta y Tres"),
+  region = c("Montevideo", rep("Interior", 18))
 )
 
-resultados
-```
-
-### Desagregacion por sexo
-
-```{r gender-breakdown}
-# Tasas por sexo
-por_sexo <- workflow(
-  list(svy),
-  survey::svyby(~tasa_desempleo, ~sexo, survey::svymean, na.rm = TRUE),
-  survey::svyby(~tasa_empleo, ~sexo, survey::svymean, na.rm = TRUE),
-  survey::svyby(~tasa_actividad, ~sexo, survey::svymean, na.rm = TRUE),
-  estimation_type = "annual"
+svy <- step_join(svy,
+  dept_names,
+  by = "dpto",
+  type = "left",
+  comment = "Department names and region classification"
 )
-
-por_sexo
 ```
 
-En las cifras oficiales del INE para 2023, la tasa de desempleo de las
-mujeres fue de 9.7% frente a 6.1% para los hombres---una brecha de 3.6
-puntos porcentuales que se ha mantenido relativamente estable en la
-ultima decada.
+## Building the Recipe
 
-### Desagregacion por tramo de edad
-
-```{r age-breakdown}
-por_edad <- workflow(
-  list(svy),
-  survey::svyby(~tasa_desempleo, ~tramo_edad, survey::svymean, na.rm = TRUE),
-  survey::svyby(~tasa_empleo, ~tramo_edad, survey::svymean, na.rm = TRUE),
-  estimation_type = "annual"
-)
-
-por_edad
-```
-
-El desempleo juvenil es tipicamente dos a tres veces mayor que el
-desempleo adulto. En 2023, la tasa de desempleo de los jovenes de 14 a
-24 anos fue de 26.5%, frente a un promedio nacional de 8.3%. Este es uno
-de los desafios estructurales del mercado laboral uruguayo que motiva
-politicas publicas como el programa "Yo Estudio y Trabajo" y las
-exoneraciones a la contratacion de jovenes.
-
-### Desagregacion regional
-
-```{r region-breakdown}
-por_region <- workflow(
-  list(svy),
-  survey::svyby(~tasa_desempleo, ~region, survey::svymean, na.rm = TRUE),
-  survey::svyby(~ingreso_pc, ~region, survey::svymean, na.rm = TRUE),
-  estimation_type = "annual"
-)
-
-por_region
-```
-
-Montevideo concentra el 40% de la poblacion y presenta historicamente
-tasas de desempleo ligeramente superiores al Interior, pero tambien
-ingresos per capita mas altos. Esta aparente paradoja se explica por la
-mayor tasa de actividad femenina en Montevideo y por las diferencias en
-la estructura productiva.
-
-## Evaluacion de calidad
-
-Toda estimacion basada en una muestra tiene incertidumbre. El coeficiente
-de variacion (CV) cuantifica la precision relativa de cada estimacion.
-El INE de Uruguay [@ine2023] clasifica la calidad de las estimaciones
-asi:
-
-| CV | Calidad | Recomendacion |
-|----|---------|---------------|
-| < 5% | Excelente | Publicar sin restricciones |
-| 5%--10% | Muy buena | Publicar con confianza |
-| 10%--15% | Buena | Publicar para la mayoria de usos |
-| 15%--25% | Aceptable | Publicar con nota de precaucion |
-| 25%--35% | Pobre | Solo para tendencias generales |
-| >= 35% | No confiable | No publicar |
-
-La funcion `evaluate_cv()` clasifica automaticamente la calidad:
-
-```{r quality}
-# Evaluar calidad de las estimaciones
-resultados[, calidad := sapply(cv * 100, evaluate_cv)]
-resultados[, .(stat, value, se, cv_pct = round(cv * 100, 2), calidad)]
-```
-
-Un error comun al trabajar con la ECH es calcular estimaciones para
-subpoblaciones demasiado pequenas. Por ejemplo, la tasa de desempleo
-de mujeres jovenes con educacion terciaria en el departamento de Flores
-probablemente tenga un CV superior al 35% y no deberia publicarse como
-cifra confiable. Antes de desagregar, siempre hay que verificar que el
-tamano muestral del dominio sea suficiente.
-
-## Convirtiendo el analisis en una receta
-
-Hasta ahora hemos construido un pipeline completo de procesamiento. Si
-queremos que otro investigador pueda aplicar exactamente las mismas
-definiciones a la ECH de 2024 (o a cualquier otra edicion), podemos
-convertir los pasos en una receta:
+Convert all transformations into a portable recipe:
 
 ```{r recipe}
-# Crear receta a partir de los pasos aplicados
-receta_laboral <- steps_to_recipe(
-  name        = "Indicadores Laborales ECH - Estandar OIT",
-  user        = "investigador@ejemplo.com",
+ech_recipe <- steps_to_recipe(
+  name        = "ECH Labor Market Indicators",
+  user        = "Research Team",
   svy         = svy,
   description = paste(
-    "Pipeline estandar de indicadores laborales para la ECH,",
-    "siguiendo las definiciones de la OIT (2013).",
-    "Incluye PET, PEA, PO, PD, tasas laborales basicas,",
-    "y variables demograficas para desagregacion",
-    "(sexo, tramo de edad, nivel educativo, region)."
+    "Standard labor market indicators for the ECH.",
+    "Includes demographic recoding, ILO labor classification,",
+    "income transformations, and geographic joins."
   ),
-  steps = get_steps(svy),
-  topic = "labor_market"
+  steps       = get_steps(svy),
+  topic       = "labor"
 )
 
-# Documentacion automatica
-doc <- receta_laboral$doc()
-cat("Variables de entrada requeridas:\n")
-cat(paste(" -", doc$input_variables), sep = "\n")
-cat("\nVariables que crea:\n")
-cat(paste(" -", doc$output_variables), sep = "\n")
+ech_recipe
 ```
 
-### Publicar para la comunidad
+### Auto-Documentation
 
-Si queremos que esta receta este disponible para todos los usuarios de
-metasurvey:
+```{r recipe-doc}
+doc <- ech_recipe$doc()
 
-```{r publish}
-# Iniciar sesion
-api_login("investigador@ejemplo.com", "mi_password")
+# What variables does the recipe need?
+doc$input_variables
 
-# Publicar
-api_publish_recipe(receta_laboral)
-
-# Ahora cualquier usuario puede encontrarla:
-# api_list_recipes(search = "laboral", svy_type = "ech")
+# What variables does it create?
+doc$output_variables
 ```
 
-Para mas detalles sobre el ecosistema de recetas, la certificacion y el
-mecanismo de descubrimiento, ver la guia
-[The Recipe Ecosystem](api-ecosystem.html).
+### Publishing to the Registry
 
-### Aplicar a otra edicion
+Publish the recipe so others can discover and reuse it:
 
-```{r reapply}
-# Cargar datos de otra edicion
-ech_2024 <- Survey$new(
-  data = nueva_data_2024,
-  edition = "2024",
-  type = "ech",
-  psu = NULL,
-  engine = "data.table",
-  weight = add_weight(annual = "pesoano")
+```{r recipe-publish}
+# Set up a local registry
+set_backend("local", path = tempfile(fileext = ".json"))
+get_backend()$publish(ech_recipe)
+
+# Now anyone can find it
+found <- search_recipes("labor")
+cat("Found", length(found), "recipe(s)\n")
+```
+
+## Estimation with workflow()
+
+Now compute standard labor market indicators:
+
+```{r estimation}
+# Mean household income
+result_income <- workflow(
+  list(svy),
+  survey::svymean(~ht11, na.rm = TRUE),
+  estimation_type = "annual"
 )
 
-# Validar que la receta es compatible
-val <- receta_laboral$validate(ech_2024)
-if (val$validation_passed) {
-  ech_2024$add_recipe(receta_laboral)
-  ech_2024 <- bake_recipes(ech_2024)
-  cat("Receta aplicada exitosamente a la ECH 2024.\n")
+result_income
+```
+
+```{r estimation-labor}
+# Employment rate (proportion employed among total population)
+result_employment <- workflow(
+  list(svy),
+  survey::svymean(~employed, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result_employment
+```
+
+### Domain Estimation
+
+Compute estimates by subpopulation:
+
+```{r domain}
+# Mean income by region
+income_region <- workflow(
+  list(svy),
+  survey::svyby(~ht11, ~region, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+income_region
+```
+
+```{r domain-sex}
+# Employment by sex
+employment_sex <- workflow(
+  list(svy),
+  survey::svyby(~employed, ~sex, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+employment_sex
+```
+
+### Quality Assessment
+
+```{r quality}
+results_all <- workflow(
+  list(svy),
+  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~employed, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+for (i in seq_len(nrow(results_all))) {
+  cv_pct <- results_all$cv[i] * 100
+  cat(
+    results_all$stat[i], ":",
+    round(cv_pct, 1), "% CV -",
+    evaluate_cv(cv_pct), "\n"
+  )
 }
 ```
 
-## Analisis mensual con el panel rotativo
+## Reproducibility: Same Recipe, Different Edition
 
-La ECH permite producir estimaciones mensuales usando los datos de
-seguimiento. Esto es particularmente util para monitorear el mercado
-laboral en coyunturas de crisis (como fue el caso en 2020 con la
-pandemia):
+The power of recipes is applying them unchanged to new data. Here we
+simulate a "2024 edition" with the same structure:
 
-```{r monthly}
-# Extraer encuestas mensuales del panel
-mensuales <- extract_surveys(ech_procesada, monthly = 1:12)
-
-# Tasa de desempleo mensual
-serie_mensual <- workflow(
-  survey = mensuales,
-  survey::svymean(~tasa_desempleo, na.rm = TRUE),
-  estimation_type = "monthly"
+```{r reproduce}
+set.seed(2024)
+ech_2024 <- data.table(
+  numero   = rep(1:100, each = 5),
+  nper     = rep(1:5, 100),
+  e26      = sample(c(1, 2), n, replace = TRUE),
+  e27      = sample(0:90, n, replace = TRUE),
+  e31      = sample(1:14, n, replace = TRUE,
+                    prob = c(0.20, 0.15, 0.25, 0.05, 0.03,
+                             0.02, 0.03, 0.02, 0.02, 0.01,
+                             0.01, 0.01, 0.05, 0.15)),
+  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n, replace = TRUE,
+                    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)),
+  e51      = sample(1:14, n, replace = TRUE),
+  ht11     = round(runif(n, 5500, 130000)),
+  dpto     = sample(1:19, n, replace = TRUE),
+  pesoano  = round(runif(n, 0.5, 3.0), 4)
 )
 
-serie_mensual
+svy_2024 <- Survey$new(
+  data = ech_2024, edition = "2024", type = "ech",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "pesoano")
+)
+
+# Apply the same recipe
+svy_2024 <- add_recipe(svy_2024, ech_recipe)
+svy_2024 <- bake_recipes(svy_2024)
+
+# Estimate
+result_2024 <- workflow(
+  list(svy_2024),
+  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~employed, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result_2024
 ```
 
-Las estimaciones mensuales tienen mayor variabilidad que las anuales
-porque se basan en muestras mas pequenas. Es habitual que el CV
-mensual sea el doble del CV anual para el mismo indicador. Por eso los
-comunicados oficiales del INE enfatizan las tendencias mas que los
-valores puntuales mensuales.
+Same recipe, different data, consistent methodology.
 
-## Buenas practicas
+## For STATA Users: Quick Reference
 
-1. **Usar siempre los pesos de expansion.** Un analisis sin pesos produce
-   estimaciones sesgadas. `workflow()` se encarga de esto automaticamente
-   a traves del diseno muestral del objeto `Survey`.
+If you are transitioning from STATA to R for survey analysis, here is a
+mapping of common operations:
 
-2. **Evaluar el CV antes de publicar.** Desagregar demasiado reduce el
-   tamano muestral efectivo. Si el CV supera el 25%, la estimacion no
-   deberia publicarse como cifra confiable.
+| STATA | metasurvey | Notes |
+|-------|-----------|-------|
+| `gen var = expr` | `step_compute(svy, var = expr)` | Lazy by default; call `bake_steps()` to execute |
+| `replace var = x if cond` | `step_compute(svy, var = ifelse(cond, x, var))` | Conditional assignment |
+| `recode var (old=new)` | `step_recode(svy, new_var, old == val ~ "label")` | Creates a new variable |
+| `rename old new` | `step_rename(svy, new = old)` | |
+| `drop var1 var2` | `step_remove(svy, var1, var2)` | |
+| `merge using file` | `step_join(svy, data, by = "key")` | Left join by default |
+| `svy: mean var` | `workflow(list(svy), svymean(~var))` | Returns data.table with SE, CV |
+| `svy: total var` | `workflow(list(svy), svytotal(~var))` | |
+| `svy: mean var, over(group)` | `workflow(list(svy), svyby(~var, ~group, svymean))` | |
+| `.do` file | `steps_to_recipe()` + publish | Portable, discoverable, version-controlled |
+| `use "data.dta"` | `load_survey(path = "data.dta")` | Reads STATA, CSV, RDS, etc. |
 
-3. **Documentar las definiciones.** Dos investigadores pueden obtener
-   tasas de desempleo diferentes si uno incluye a los trabajadores
-   desalentados y otro no. Las recetas de metasurvey hacen explicitas
-   estas decisiones.
+### Key Differences
 
-4. **Validar contra cifras oficiales.** Siempre comparar las estimaciones
-   con los boletines del INE. Si hay diferencias importantes, revisar las
-   definiciones y el tratamiento de los pesos.
+1. **Lazy evaluation**: In STATA, commands execute immediately. In
+   metasurvey, steps are recorded and executed together with `bake_steps()`.
+   This enables validation and optimization before execution.
 
-5. **Compartir el pipeline.** Publicar la receta permite que otros
-   investigadores reproduzcan el analisis y detecten posibles errores.
+2. **Immutability**: metasurvey creates new variables instead of modifying
+   existing ones. `step_recode()` creates a new column; it does not
+   overwrite the source variable.
 
-## Referencias
+3. **Design awareness**: Survey weights and design are attached to the
+   `Survey` object. You never need to prefix commands with `svy:` or
+   remember to set the design---`workflow()` handles it automatically.
+
+4. **Recipes vs .do files**: Recipes are self-documenting (via `doc()`),
+   self-validating (via `validate()`), and discoverable (via the registry).
+   A `.do` file is just a script; a recipe is a structured, portable object.
+
+## Next Steps
+
+- **[Creating and Sharing Recipes](recipes.html)** -- Learn about recipe registries, certification, and discovery
+- **[Estimation Workflows](workflows-and-estimation.html)** -- Deep dive into `workflow()` and `RecipeWorkflow`
+- **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Work with the ECH's rotating panel structure
+- **[Getting Started](getting-started.html)** -- Review the basics

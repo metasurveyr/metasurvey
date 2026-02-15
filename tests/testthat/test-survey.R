@@ -336,15 +336,25 @@ test_that("add_recipe adds recipe when edition matches", {
   expect_equal(length(s$recipes), 1)
 })
 
-test_that("add_recipe errors when edition does not match", {
+test_that("add_recipe allows different editions but errors on type mismatch", {
   s <- make_test_survey()
-  r <- Recipe$new(
+  # Different edition is now allowed (flexible edition matching)
+  r_diff_edition <- Recipe$new(
     name = "test", edition = "2024", survey_type = "ech",
     default_engine = "data.table", depends_on = list(),
     user = "tester", description = "Test", steps = list(),
     id = "r1", doi = NULL, topic = NULL
   )
-  expect_error(s$add_recipe(r), "Invalid Recipe")
+  expect_no_error(s$add_recipe(r_diff_edition))
+
+  # Different survey_type should error
+  r_diff_type <- Recipe$new(
+    name = "test", edition = "2023", survey_type = "eaii",
+    default_engine = "data.table", depends_on = list(),
+    user = "tester", description = "Test", steps = list(),
+    id = "r2", doi = NULL, topic = NULL
+  )
+  expect_error(s$add_recipe(r_diff_type), "survey type mismatch")
 })
 
 # --- get_info_weight ---

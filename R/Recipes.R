@@ -27,6 +27,8 @@
 #' @field certification RecipeCertification object (default community).
 #' @field user_info RecipeUser object or NULL.
 #' @field version Recipe version string.
+#' @field depends_on_recipes List of recipe IDs that must be applied before this one.
+#' @field data_source List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.
 #'
 #' @section Methods:
 #' \describe{
@@ -59,6 +61,8 @@ Recipe <- R6Class("Recipe",
     certification = NULL,
     user_info = NULL,
     version = "1.0.0",
+    depends_on_recipes = list(),
+    data_source = NULL,
     #' @description
     #' Create a Recipe object
     #' @param name Descriptive name of the recipe (character)
@@ -79,7 +83,9 @@ Recipe <- R6Class("Recipe",
     #' @param certification RecipeCertification object (optional, default community)
     #' @param user_info RecipeUser object (optional)
     #' @param version Recipe version string (default "1.0.0")
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi = NULL, topic = NULL, step_objects = NULL, cached_doc = NULL, categories = list(), downloads = 0L, certification = NULL, user_info = NULL, version = "1.0.0") {
+    #' @param depends_on_recipes List of recipe IDs that must be applied before this one (optional)
+    #' @param data_source List with S3 bucket info (optional)
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi = NULL, topic = NULL, step_objects = NULL, cached_doc = NULL, categories = list(), downloads = 0L, certification = NULL, user_info = NULL, version = "1.0.0", depends_on_recipes = list(), data_source = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -98,6 +104,8 @@ Recipe <- R6Class("Recipe",
       self$certification <- certification %||% RecipeCertification$new(level = "community")
       self$user_info <- user_info
       self$version <- version
+      self$depends_on_recipes <- depends_on_recipes
+      self$data_source <- data_source
     },
 
     #' @description Increment the download counter
@@ -125,6 +133,40 @@ Recipe <- R6Class("Recipe",
     #' @param name Character category name to remove
     remove_category = function(name) {
       self$categories <- Filter(function(c) c$name != name, self$categories)
+    },
+
+    #' @description
+    #' Serialize Recipe to a plain list suitable for JSON/API publishing.
+    #' Steps are encoded as character strings via deparse().
+    #' @return A named list with all recipe fields.
+    to_list = function() {
+      doc_info <- self$doc()
+      list(
+        name = self$name,
+        user = self$user,
+        survey_type = self$survey_type,
+        edition = self$edition,
+        description = self$description,
+        topic = self$topic,
+        doi = self$doi,
+        id = self$id,
+        version = self$version,
+        downloads = self$downloads,
+        depends_on = self$depends_on,
+        depends_on_recipes = self$depends_on_recipes,
+        data_source = self$data_source,
+        categories = lapply(self$categories, function(c) c$to_list()),
+        certification = self$certification$to_list(),
+        user_info = if (!is.null(self$user_info)) self$user_info$to_list() else NULL,
+        doc = list(
+          input_variables = doc_info$input_variables,
+          output_variables = doc_info$output_variables,
+          pipeline = doc_info$pipeline
+        ),
+        steps = lapply(self$steps, function(s) {
+          if (is.character(s)) s else paste(deparse(s), collapse = " ")
+        })
+      )
     },
 
     #' @description
@@ -773,7 +815,7 @@ get_recipe <- function(
 
   tryCatch({
     recipes <- api_list_recipes(
-      svy_type = svy_type,
+      survey_type = svy_type,
       search = topic
     )
 
@@ -903,7 +945,8 @@ print.Recipe <- function(x, ...) {
 
   # Metadata
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
-  cat(crayon::silver("Survey:  "), x$survey_type, " / ", x$edition, "\n", sep = "")
+  ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
+  cat(crayon::silver("Survey:  "), x$survey_type, " / ", ed_str, "\n", sep = "")
   cat(crayon::silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
     cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")

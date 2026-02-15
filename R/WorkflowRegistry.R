@@ -44,15 +44,15 @@ WorkflowRegistry <- R6::R6Class(
     },
 
     #' @description Filter workflows by criteria
-    #' @param svy_type Character survey type or NULL
+    #' @param survey_type Character survey type or NULL
     #' @param edition Character edition or NULL
     #' @param recipe_id Character recipe ID or NULL (find workflows using this recipe)
     #' @param certification_level Character certification level or NULL
     #' @return List of matching RecipeWorkflow objects
-    filter = function(svy_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
       results <- private$.workflows
-      if (!is.null(svy_type)) {
-        results <- Filter(function(w) w$survey_type == svy_type, results)
+      if (!is.null(survey_type)) {
+        results <- Filter(function(w) w$survey_type == survey_type, results)
       }
       if (!is.null(edition)) {
         results <- Filter(function(w) w$edition == edition, results)

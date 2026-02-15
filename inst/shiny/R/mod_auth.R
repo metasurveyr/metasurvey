@@ -3,56 +3,67 @@
 auth_ui <- function(id) {
   ns <- shiny::NS(id)
 
-  htmltools::tags$div(class = "auth-container",
-    shiny::tabsetPanel(
-      id = ns("auth_tabs"), type = "pills",
+  htmltools::tags$div(class = "auth-layout",
+    # Left: Branding panel
+    htmltools::tags$div(class = "auth-branding",
+      htmltools::tags$h2(
+        bsicons::bs_icon("journal-code", size = "1.5rem"),
+        " metasurvey"
+      )
+    ),
 
-      # Login Tab
-      shiny::tabPanel("Login",
-        htmltools::tags$div(style = "padding-top: 1.5rem;",
-          htmltools::tags$h3(
-            bsicons::bs_icon("box-arrow-in-right", size = "1.5rem"),
-            " Welcome back"
-          ),
-          shiny::textInput(ns("login_email"), "Email",
-                          placeholder = "your@email.com"),
-          shiny::passwordInput(ns("login_password"), "Password",
-                              placeholder = "Enter password"),
-          htmltools::tags$br(),
-          shiny::actionButton(ns("btn_login"), "Login",
-                            class = "btn-primary btn-lg",
-                            icon = shiny::icon("sign-in-alt")),
-          shiny::uiOutput(ns("login_feedback"))
-        )
-      ),
+    # Right: Form panel
+    htmltools::tags$div(class = "auth-form-panel",
+      shiny::tabsetPanel(
+        id = ns("auth_tabs"), type = "pills",
 
-      # Register Tab
-      shiny::tabPanel("Register",
-        htmltools::tags$div(style = "padding-top: 1.5rem;",
-          htmltools::tags$h3(
-            bsicons::bs_icon("person-plus-fill", size = "1.5rem"),
-            " Create account"
-          ),
-          shiny::textInput(ns("reg_name"), "Full Name",
-                          placeholder = "Juan Perez"),
-          shiny::textInput(ns("reg_email"), "Email",
-                          placeholder = "your@email.com"),
-          shiny::passwordInput(ns("reg_password"), "Password",
-                              placeholder = "Min. 6 characters"),
-          shiny::selectInput(ns("reg_type"), "Account Type",
-                           choices = c("Individual" = "individual",
-                                     "Institutional Member" = "institutional_member",
-                                     "Institution" = "institution")),
-          shiny::conditionalPanel(
-            condition = sprintf("input['%s'] == 'institutional_member'", ns("reg_type")),
-            shiny::textInput(ns("reg_institution"), "Institution Name",
-                           placeholder = "e.g., Instituto de Economia")
-          ),
-          htmltools::tags$br(),
-          shiny::actionButton(ns("btn_register"), "Create Account",
-                            class = "btn-primary btn-lg",
-                            icon = shiny::icon("user-plus")),
-          shiny::uiOutput(ns("register_feedback"))
+        # Login Tab
+        shiny::tabPanel("Login",
+          htmltools::tags$div(style = "padding-top: 1.25rem;",
+            htmltools::tags$h3("Welcome back"),
+            htmltools::tags$div(class = "auth-form-sub",
+              "Accede a tus recetas y tokens API."
+            ),
+            shiny::textInput(ns("login_email"), "Email",
+                            placeholder = "your@email.com"),
+            shiny::passwordInput(ns("login_password"), "Password",
+                                placeholder = "Enter password"),
+            htmltools::tags$div(style = "margin-top: .5rem;"),
+            shiny::actionButton(ns("btn_login"), "Sign in",
+                              class = "btn-primary",
+                              icon = shiny::icon("sign-in-alt")),
+            shiny::uiOutput(ns("login_feedback"))
+          )
+        ),
+
+        # Register Tab
+        shiny::tabPanel("Register",
+          htmltools::tags$div(style = "padding-top: 1.25rem;",
+            htmltools::tags$h3("Create account"),
+            htmltools::tags$div(class = "auth-form-sub",
+              "Unite a la comunidad para publicar y compartir."
+            ),
+            shiny::textInput(ns("reg_name"), "Full Name",
+                            placeholder = "Juan Perez"),
+            shiny::textInput(ns("reg_email"), "Email",
+                            placeholder = "your@email.com"),
+            shiny::passwordInput(ns("reg_password"), "Password",
+                                placeholder = "Min. 6 characters"),
+            shiny::selectInput(ns("reg_type"), "Account Type",
+                             choices = c("Individual" = "individual",
+                                       "Institutional Member" = "institutional_member",
+                                       "Institution" = "institution")),
+            shiny::conditionalPanel(
+              condition = sprintf("input['%s'] == 'institutional_member'", ns("reg_type")),
+              shiny::textInput(ns("reg_institution"), "Institution Name",
+                             placeholder = "e.g., Instituto de Economia")
+            ),
+            htmltools::tags$div(style = "margin-top: .5rem;"),
+            shiny::actionButton(ns("btn_register"), "Create Account",
+                              class = "btn-primary",
+                              icon = shiny::icon("user-plus")),
+            shiny::uiOutput(ns("register_feedback"))
+          )
         )
       )
     )

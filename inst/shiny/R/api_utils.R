@@ -180,7 +180,7 @@ shiny_generate_token <- function(token) {
 
 shiny_fetch_recipes <- function(filter = list()) {
   params <- list()
-  if (!is.null(filter$svy_type)) params$svy_type <- filter$svy_type
+  if (!is.null(filter$survey_type)) params$survey_type <- filter$survey_type
   if (!is.null(filter$user)) params$user <- filter$user
   if (!is.null(filter$topic)) params$topic <- filter$topic
   if (!is.null(filter$search)) params$search <- filter$search
@@ -233,8 +233,8 @@ parse_recipe_doc <- function(doc) {
     metasurvey::Recipe$new(
       name = doc$name %||% "Unnamed",
       user = doc$user %||% "Unknown",
-      edition = doc$svy_edition %||% doc$edition %||% "Unknown",
-      survey_type = doc$svy_type %||% doc$survey_type %||% "Unknown",
+      edition = doc$edition %||% "Unknown",
+      survey_type = doc$survey_type %||% "Unknown",
       default_engine = "data.table",
       depends_on = doc$depends_on %||% list(),
       description = doc$description %||% "",
@@ -244,7 +244,9 @@ parse_recipe_doc <- function(doc) {
       cached_doc = cached_doc, categories = categories,
       downloads = as.integer(doc$downloads %||% 0),
       certification = certification, user_info = user_info,
-      version = doc$version %||% "1.0.0"
+      version = doc$version %||% "1.0.0",
+      depends_on_recipes = doc$depends_on_recipes %||% list(),
+      data_source = doc$data_source
     ),
     error = function(e) NULL
   )
@@ -295,6 +297,20 @@ shiny_increment_workflow_downloads <- function(workflow_id) {
     shiny_api_request("POST", paste0("workflows/", workflow_id, "/download")),
     error = function(e) NULL
   )
+}
+
+# ── ANDA variable metadata ───────────────────────────────────────────────────
+
+shiny_fetch_anda_variables <- function(survey_type, var_names) {
+  if (length(var_names) == 0) return(list())
+  params <- list(
+    survey_type = survey_type,
+    names = paste(tolower(var_names), collapse = ",")
+  )
+  tryCatch({
+    result <- shiny_api_request("GET", "anda/variables", params = params)
+    if (isTRUE(result$ok)) result$variables %||% list() else list()
+  }, error = function(e) list())
 }
 
 # ── Example recipes for local/demo mode ──────────────────────────────────────

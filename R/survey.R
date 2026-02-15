@@ -201,9 +201,32 @@ Survey <- R6Class(
     #' @param recipe Recipe object
     #' @param bake Whether to bake lazily (internal flag)
     add_recipe = function(recipe, bake = lazy_default()) {
-      if ((self$edition != recipe$edition)) {
-        stop("Invalid Recipe: \n", recipe$name, "\nEdition of survey: ", self$edition, "\nEdition of recipe: ", recipe$edition)
+      # Validate survey_type match (if both are set)
+      if (!is.null(self$type) && !is.null(recipe$survey_type) &&
+          nzchar(self$type) && nzchar(recipe$survey_type) &&
+          tolower(self$type) != tolower(recipe$survey_type)) {
+        stop(
+          "Recipe survey type mismatch: survey is '", self$type,
+          "' but recipe '", recipe$name, "' targets '", recipe$survey_type, "'",
+          call. = FALSE
+        )
       }
+
+      # Validate depends_on: check that required variables exist in the data
+      if (length(recipe$depends_on) > 0 && !is.null(self$data)) {
+        deps <- unlist(recipe$depends_on)
+        survey_vars <- names(self$data)
+        missing_vars <- setdiff(deps, survey_vars)
+        if (length(missing_vars) > 0) {
+          warning(
+            "Recipe '", recipe$name, "' depends on variables not present in survey: ",
+            paste(missing_vars, collapse = ", "),
+            ". Recipe added but bake_recipes() may fail.",
+            call. = FALSE
+          )
+        }
+      }
+
       index_recipe <- length(self$recipes) + 1
       self$recipes[[index_recipe]] <- recipe
     },
@@ -459,7 +482,7 @@ get_edition <- function(svy) {
   svy$get_edition()
 }
 
-get_weight <- function(svy, estimation_type = 1:length(svy$weight)) {
+get_weight <- function(svy, estimation_type = seq_along(svy$weight)) {
   svy$weight[[estimation_type]]
 }
 
@@ -990,15 +1013,37 @@ bake_recipes <- function(svy) {
     recipes <- list(recipes)
   }
 
+  eval_env <- environment()
   for (i in seq_along(recipes)) {
     recipe <- recipes[[i]]
-    expr <- as.name("svy")
+
+    # Validate depends_on before baking each recipe
+    if (length(recipe$depends_on) > 0 && !is.null(svy$data)) {
+      deps <- unlist(recipe$depends_on)
+      survey_vars <- names(svy$data)
+      missing_vars <- setdiff(deps, survey_vars)
+      if (length(missing_vars) > 0) {
+        stop(
+          "Cannot bake recipe '", recipe$name,
+          "': missing required variables: ",
+          paste(missing_vars, collapse = ", "),
+          call. = FALSE
+        )
+      }
+    }
 
     for (step in seq_along(recipe$steps)) {
       step_call <- recipe$steps[[step]]
-      expr <- call("%>%", expr, step_call)
+      if (is.character(step_call)) {
+        step_call <- parse(text = step_call)[[1]]
+      }
+      # Replace pipe placeholder '.' with 'svy' in call objects
+      if (is.call(step_call) && length(step_call) >= 2 &&
+          is.name(step_call[[2]]) && as.character(step_call[[2]]) == ".") {
+        step_call[[2]] <- as.name("svy")
+      }
+      svy <- eval(step_call, envir = eval_env)
     }
-    svy <- eval(expr)
   }
 
   svy_after <- svy$clone(deep = TRUE)
@@ -1014,4 +1059,35 @@ bake_recipes <- function(svy) {
   }
 
   return(svy_after)
+}
+
+#' Set data on a Survey
+#'
+#' Tidy wrapper for \code{svy$set_data(data)}.
+#'
+#' @param svy Survey object
+#' @param data A data.frame or data.table with survey microdata
+#' @param .copy Logical; if TRUE, clone the Survey before modifying (default FALSE)
+#' @return The Survey object (invisibly). If \code{.copy=TRUE}, returns a new clone.
+#' @export
+set_data <- function(svy, data, .copy = FALSE) {
+  if (isTRUE(.copy)) {
+    svy <- svy$clone(deep = TRUE)
+  }
+  svy$set_data(data)
+  invisible(svy)
+}
+
+#' Add a recipe to a Survey
+#'
+#' Tidy wrapper for \code{svy$add_recipe(recipe)}.
+#'
+#' @param svy Survey object
+#' @param recipe A Recipe object
+#' @param bake Logical; whether to bake immediately (default: lazy_default())
+#' @return The Survey object (invisibly), modified in place
+#' @export
+add_recipe <- function(svy, recipe, bake = lazy_default()) {
+  svy$add_recipe(recipe, bake = bake)
+  invisible(svy)
 }

@@ -429,37 +429,16 @@ minimal_recipe <- recipe(
 )
 ```
 
-### Saving and Loading Recipes
+### Applying Recipes to New Data
 
-Save recipes as JSON for sharing and version control:
+Once published, anyone can retrieve a recipe and apply it to their data:
 
-```{r recipe-save}
-tf <- tempfile(fileext = ".json")
-save_recipe(labor_recipe, tf)
-
-# Recipe saved with:
-# - All step definitions
-# - Metadata (author, description, topic)
-# - Input/output variable documentation
-# - Dependency information
-```
-
-Load recipes from disk:
-
-```{r recipe-load, eval = FALSE}
-loaded_recipe <- read_recipe("labor_force_indicators.json")
+```{r recipe-apply, eval = FALSE}
+# Search for existing recipes
+found <- search_recipes("labor")
 
 # Apply to a new survey
-new_svy <- Survey$new(
-  data = new_data,
-  edition = "2024",
-  type = "ech",
-  psu = NULL,
-  engine = "data.table",
-  weight = add_weight(annual = "pesoano")
-)
-
-new_svy$add_recipe(loaded_recipe)
+new_svy <- add_recipe(new_svy, found[[1]])
 processed <- bake_recipes(new_svy)
 ```
 
@@ -469,8 +448,6 @@ Recipes automatically document their transformations:
 
 ```{r recipe-doc}
 doc <- labor_recipe$doc()
-
-# Examine documentation structure
 names(doc)
 
 # Input variables required
@@ -478,23 +455,6 @@ doc$input_variables
 
 # Output variables created
 doc$output_variables
-
-# Pipeline summary
-doc$pipeline  # Step-by-step transformation sequence
-```
-
-### Recipe Validation
-
-Validate that a recipe is compatible with your data:
-
-```{r recipe-validate, eval = FALSE}
-# Check if all required variables exist
-validation <- labor_recipe$validate(svy)
-
-# Returns:
-# - missing_vars: Variables not found in data
-# - validation_passed: TRUE if all dependencies met
-# - warnings: Potential issues
 ```
 
 ## Package Configuration
@@ -535,7 +495,7 @@ connects to a public API where recipes and workflows are stored:
 
 ```{r ecosystem, eval = FALSE}
 # Browse existing recipes (no login required)
-ech_recipes <- api_list_recipes(svy_type = "ech")
+ech_recipes <- api_list_recipes(survey_type = "ech")
 length(ech_recipes)
 
 # Search for something specific
@@ -553,8 +513,7 @@ official) and three account types (individual, institutional member,
 institution). Institutional accounts require admin approval, which ensures
 that certifications carry real weight.
 
-For more details, see the guide
-[The Recipe Ecosystem](api-ecosystem.html).
+For more details, see [Creating and Sharing Recipes](recipes.html).
 
 ## Related packages
 
@@ -573,13 +532,13 @@ survey analysis in Latin America:
 
 ## Next Steps
 
-Now that you understand the basics, explore advanced topics:
+Now that you understand the basics, explore these guides:
 
-- **[ECH Case Study](ech-case-study.html)** -- Complete labor market analysis of Uruguay's household survey
-- **[Panel Analysis](panel-analysis.html)** -- Rotative panels, PoolSurvey, longitudinal analysis
-- **[The Recipe Ecosystem](api-ecosystem.html)** -- Publishing, discovering, and certifying recipes
-- **[Recipes](recipes.html)** -- Advanced recipe workflows and sharing
-- **[Complex Designs](complex-designs.html)** -- Stratification, clustering, replicate weights
+- **[Creating and Sharing Recipes](recipes.html)** -- Recipe registry, certification, and discovery
+- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow`, and publishable estimations
+- **[Survey Designs and Validation](complex-designs.html)** -- Stratification, clustering, replicate weights, pipeline validation
+- **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Longitudinal analysis with `RotativePanelSurvey` and `PoolSurvey`
+- **[ECH Case Study](ech-case-study.html)** -- Complete labor market analysis with STATA comparison
 
 ## References
 

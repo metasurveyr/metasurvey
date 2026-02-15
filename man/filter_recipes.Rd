@@ -5,14 +5,14 @@
 \title{Filter recipes by criteria}
 \usage{
 filter_recipes(
-  svy_type = NULL,
+  survey_type = NULL,
   edition = NULL,
   category = NULL,
   certification_level = NULL
 )
 }
 \arguments{
-\item{svy_type}{Character survey type or NULL.}
+\item{survey_type}{Character survey type or NULL.}
 
 \item{edition}{Character edition or NULL.}
 
@@ -29,7 +29,7 @@ or certification level.
 }
 \examples{
 \dontrun{
-ech_recipes <- filter_recipes(svy_type = "ech", category = "labor_market")
+ech_recipes <- filter_recipes(survey_type = "ech", category = "labor_market")
 official <- filter_recipes(certification_level = "official")
 }
 

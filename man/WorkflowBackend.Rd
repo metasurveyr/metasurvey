@@ -184,7 +184,7 @@ List of RecipeWorkflow objects
 Filter workflows by criteria
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WorkflowBackend$filter(
-  svy_type = NULL,
+  survey_type = NULL,
   edition = NULL,
   recipe_id = NULL,
   certification_level = NULL
@@ -194,7 +194,7 @@ Filter workflows by criteria
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{svy_type}}{Character or NULL}
+\item{\code{survey_type}}{Character or NULL}
 
 \item{\code{edition}}{Character or NULL}
 

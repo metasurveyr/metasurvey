@@ -70,6 +70,10 @@ transformation steps to be applied to a Survey object.
 \item{\code{user_info}}{RecipeUser object or NULL.}
 
 \item{\code{version}}{Recipe version string.}
+
+\item{\code{depends_on_recipes}}{List of recipe IDs that must be applied before this one.}
+
+\item{\code{data_source}}{List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.}
 }
 \if{html}{\out{</div>}}
 }
@@ -81,6 +85,7 @@ transformation steps to be applied to a Survey object.
 \item \href{#method-Recipe-certify}{\code{Recipe$certify()}}
 \item \href{#method-Recipe-add_category}{\code{Recipe$add_category()}}
 \item \href{#method-Recipe-remove_category}{\code{Recipe$remove_category()}}
+\item \href{#method-Recipe-to_list}{\code{Recipe$to_list()}}
 \item \href{#method-Recipe-doc}{\code{Recipe$doc()}}
 \item \href{#method-Recipe-validate}{\code{Recipe$validate()}}
 \item \href{#method-Recipe-clone}{\code{Recipe$clone()}}
@@ -110,7 +115,9 @@ Create a Recipe object
   downloads = 0L,
   certification = NULL,
   user_info = NULL,
-  version = "1.0.0"
+  version = "1.0.0",
+  depends_on_recipes = list(),
+  data_source = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -152,6 +159,10 @@ Create a Recipe object
 \item{\code{user_info}}{RecipeUser object (optional)}
 
 \item{\code{version}}{Recipe version string (default "1.0.0")}
+
+\item{\code{depends_on_recipes}}{List of recipe IDs that must be applied before this one (optional)}
+
+\item{\code{data_source}}{List with S3 bucket info (optional)}
 }
 \if{html}{\out{</div>}}
 }
@@ -217,6 +228,20 @@ Remove a category by name
 \item{\code{name}}{Character category name to remove}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Recipe-to_list"></a>}}
+\if{latex}{\out{\hypertarget{method-Recipe-to_list}{}}}
+\subsection{Method \code{to_list()}}{
+Serialize Recipe to a plain list suitable for JSON/API publishing.
+Steps are encoded as character strings via deparse().
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Recipe$to_list()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A named list with all recipe fields.
 }
 }
 \if{html}{\out{<hr>}}

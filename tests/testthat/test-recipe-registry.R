@@ -81,7 +81,7 @@ test_that("filter by svy_type", {
   reg$register(r2)
   reg$register(r3)
 
-  results <- reg$filter(svy_type = "ech")
+  results <- reg$filter(survey_type = "ech")
   expect_equal(length(results), 2)
 })
 
@@ -138,7 +138,7 @@ test_that("filter with multiple criteria", {
   reg$register(r2)
   reg$register(r3)
 
-  results <- reg$filter(svy_type = "ech", edition = "2023")
+  results <- reg$filter(survey_type = "ech", edition = "2023")
   expect_equal(length(results), 1)
   expect_equal(results[[1]]$name, "A")
 })

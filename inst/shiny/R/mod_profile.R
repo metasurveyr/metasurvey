@@ -106,9 +106,16 @@ profile_server <- function(id, auth_state) {
           '<span class="code-comment"># Or add to your .Renviron file:</span>\n',
           '<span class="code-comment"># METASURVEY_TOKEN=', token_val, '</span>\n',
           '\n',
-          '<span class="code-comment"># Now you can use the API</span>\n',
-          'recipes &lt;- <span class="code-func">api_list_recipes</span>()\n',
-          'length(recipes)'
+          '<span class="code-comment"># Browse available recipes</span>\n',
+          'recipes &lt;- <span class="code-func">list_recipes</span>()\n',
+          '<span class="code-func">search_recipes</span>(<span class="code-string">"employment"</span>)\n',
+          '\n',
+          '<span class="code-comment"># Download and apply a recipe</span>\n',
+          'recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"recipe_id"</span>)\n',
+          'svy &lt;- <span class="code-func">survey_empty</span>(type = <span class="code-string">"ech"</span>, edition = <span class="code-string">"2023"</span>)\n',
+          'svy &lt;- <span class="code-func">set_data</span>(svy, my_data)\n',
+          'svy &lt;- <span class="code-func">add_recipe</span>(svy, recipe)\n',
+          'svy &lt;- <span class="code-func">bake_recipes</span>(svy)'
         )
         htmltools::tagList(
           code_block_ui(code_text, label = "R Code — API Access", block_id = "profile_token_code"),
