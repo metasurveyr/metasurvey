@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
-Version: 0.0.3
+Version: 0.0.4
 Author: Mauro Loprete [aut, cre], Natalia da Silva [aut], Fabricio Machado [aut]
 Maintainer: Mauro Loprete <mauro.loprete@icloud.com>
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
@@ -65,7 +65,11 @@ Suggests:
     future,
     future.apply,
     gt,
-    magrittr
+    magrittr,
+    shiny (>= 1.7.0),
+    bslib (>= 0.5.0),
+    bsicons (>= 0.1.0),
+    htmltools (>= 0.5.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd",

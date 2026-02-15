@@ -31,11 +31,6 @@ authors:
     href: https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html
 
 reference:
-- title: AST System (Core Engine)
-  desc: Abstract Syntax Tree functions - the core evaluation engine
-  contents:
-  - has_keyword("AST")
-
 - title: Engine
   contents:
     - has_keyword("engine")
@@ -57,6 +52,45 @@ reference:
 - title: Recipes
   contents:
     - has_keyword("Recipes")
+- title: Recipe Infrastructure
+  contents:
+    - RecipeBackend
+    - RecipeRegistry
+    - RecipeUser
+    - RecipeCategory
+    - RecipeCategory-from_list
+    - RecipeCertification
+    - get_backend
+    - set_backend
+    - default_categories
+    - add_category
+    - certify_recipe
+    - filter_recipes
+    - explore_recipes
+    - list_recipes
+    - rank_recipes
+    - search_recipes
+    - remove_category
+    - recipe_category
+    - recipe_user
+    - recipe_certification
+    - set_user_info
+    - set_version
+- title: Workflows
+  contents:
+    - has_keyword("Workflows")
+    - RecipeWorkflow-class
+    - WorkflowBackend
+    - WorkflowRegistry
+    - workflow_from_list
+    - get_workflow_backend
+    - set_workflow_backend
+    - filter_workflows
+    - find_workflows_for_recipe
+    - list_workflows
+    - rank_workflows
+    - search_workflows
+    - publish_workflow
 - title: PoolSurvey
   contents:
     - has_keyword("PoolSurvey")
