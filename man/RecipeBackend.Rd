@@ -5,7 +5,7 @@
 \title{RecipeBackend}
 \description{
 Backend-agnostic factory for recipe storage and retrieval.
-Supports "local" (JSON-backed RecipeRegistry) and "mongo" (MongoDB Atlas API) backends.
+Supports "local" (JSON-backed RecipeRegistry) and "api" (remote plumber API) backends.
 }
 \examples{
 \dontrun{
@@ -14,15 +14,16 @@ backend <- RecipeBackend$new("local", path = "recipes.json")
 backend$publish(my_recipe)
 backend$search("labor")
 
-# Mongo backend
-backend <- RecipeBackend$new("mongo")
+# API backend (requires configure_api() first)
+configure_api("https://metasurvey-api.example.com")
+backend <- RecipeBackend$new("api")
 }
 
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{type}}{Character backend type ("local" or "mongo").}
+\item{\code{type}}{Character backend type ("local" or "api").}
 }
 \if{html}{\out{</div>}}
 }
@@ -54,7 +55,7 @@ Create a new RecipeBackend
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{Character. "local" or "mongo".}
+\item{\code{type}}{Character. "local" or "api".}
 
 \item{\code{path}}{Character. File path for local backend (optional).}
 }

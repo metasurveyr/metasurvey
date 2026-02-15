@@ -7,7 +7,7 @@
 set_workflow_backend(type, path = NULL)
 }
 \arguments{
-\item{type}{Character. "local" or "mongo".}
+\item{type}{Character. "local" or "api" (also accepts "mongo" for backward compat).}
 
 \item{path}{Character. File path for local backend.}
 }
@@ -17,5 +17,6 @@ Configure the active workflow backend via options.
 \examples{
 \dontrun{
 set_workflow_backend("local", path = "my_workflows.json")
+set_workflow_backend("api")
 }
 }

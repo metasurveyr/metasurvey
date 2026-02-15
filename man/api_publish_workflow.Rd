@@ -2,16 +2,16 @@
 % Please edit documentation in R/api_client.R
 \name{api_publish_workflow}
 \alias{api_publish_workflow}
-\title{Publish workflow to API}
+\title{Publish a workflow}
 \usage{
 api_publish_workflow(workflow)
 }
 \arguments{
-\item{workflow}{RecipeWorkflow object}
+\item{workflow}{A RecipeWorkflow object}
 }
 \value{
-API response
+Invisibly, the API response.
 }
 \description{
-Publish workflow to API
+Publish a RecipeWorkflow object to the API. Requires authentication.
 }

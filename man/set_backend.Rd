@@ -7,7 +7,7 @@
 set_backend(type, path = NULL)
 }
 \arguments{
-\item{type}{Character. "local" or "mongo".}
+\item{type}{Character. "local" or "api" (also accepts "mongo" for backward compat).}
 
 \item{path}{Character. File path for local backend.}
 }
@@ -17,6 +17,6 @@ Configure the active recipe backend via options.
 \examples{
 \dontrun{
 set_backend("local", path = "my_recipes.json")
-set_backend("mongo")
+set_backend("api")
 }
 }

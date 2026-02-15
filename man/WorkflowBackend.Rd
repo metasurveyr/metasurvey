@@ -5,7 +5,7 @@
 \title{WorkflowBackend}
 \description{
 Backend-agnostic factory for workflow storage and retrieval.
-Supports "local" (JSON-backed WorkflowRegistry) and "mongo" (MongoDB Atlas API) backends.
+Supports "local" (JSON-backed WorkflowRegistry) and "api" (remote plumber API) backends.
 }
 \examples{
 \dontrun{
@@ -13,13 +13,17 @@ Supports "local" (JSON-backed WorkflowRegistry) and "mongo" (MongoDB Atlas API) 
 backend <- WorkflowBackend$new("local", path = "workflows.json")
 backend$publish(my_workflow)
 backend$search("labor")
+
+# API backend (requires configure_api() first)
+configure_api("https://metasurvey-api.example.com")
+backend <- WorkflowBackend$new("api")
 }
 
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{type}}{Character backend type ("local" or "mongo").}
+\item{\code{type}}{Character backend type ("local" or "api").}
 }
 \if{html}{\out{</div>}}
 }
@@ -52,7 +56,7 @@ Create a new WorkflowBackend
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{Character. "local" or "mongo".}
+\item{\code{type}}{Character. "local" or "api".}
 
 \item{\code{path}}{Character. File path for local backend (optional).}
 }

@@ -11,7 +11,7 @@ RecipeBackend object
 }
 \description{
 Returns the currently configured recipe backend.
-Defaults to "mongo" if not configured.
+Defaults to "api" if not configured.
 }
 \examples{
 \dontrun{
