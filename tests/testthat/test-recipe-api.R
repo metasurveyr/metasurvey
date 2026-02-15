@@ -19,10 +19,13 @@ test_that("RecipeBackend creates local backend", {
   expect_equal(backend$type, "local")
 })
 
-test_that("RecipeBackend creates mongo backend", {
+test_that("RecipeBackend creates api backend (mongo alias)", {
   backend <- RecipeBackend$new("mongo")
   expect_s3_class(backend, "RecipeBackend")
-  expect_equal(backend$type, "mongo")
+  expect_equal(backend$type, "api")
+
+  backend2 <- RecipeBackend$new("api")
+  expect_equal(backend2$type, "api")
 })
 
 test_that("invalid backend type throws error", {
@@ -148,18 +151,18 @@ test_that("set_backend and get_backend work with local", {
   expect_equal(b$type, "local")
 })
 
-test_that("set_backend works with mongo", {
+test_that("set_backend works with mongo (alias for api)", {
   old <- getOption("metasurvey.backend")
   on.exit(options(metasurvey.backend = old))
   set_backend("mongo")
   b <- get_backend()
-  expect_equal(b$type, "mongo")
+  expect_equal(b$type, "api")
 })
 
-test_that("get_backend returns default mongo when not configured", {
+test_that("get_backend returns default local when not configured", {
   old <- getOption("metasurvey.backend")
   on.exit(options(metasurvey.backend = old))
   options(metasurvey.backend = NULL)
   b <- get_backend()
-  expect_equal(b$type, "mongo")
+  expect_equal(b$type, "local")
 })
