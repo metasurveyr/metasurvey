@@ -5,27 +5,30 @@
 \title{List workflows from API}
 \usage{
 api_list_workflows(
-  user = NULL,
-  edition = NULL,
+  search = NULL,
   survey_type = NULL,
   recipe_id = NULL,
-  limit = 100
+  user = NULL,
+  limit = 50,
+  offset = 0
 )
 }
 \arguments{
-\item{user}{Filter by user email}
-
-\item{edition}{Filter by edition}
+\item{search}{Text search}
 
 \item{survey_type}{Filter by survey type}
 
-\item{recipe_id}{Filter by recipe ID}
+\item{recipe_id}{Filter workflows that reference this recipe}
+
+\item{user}{Filter by author email}
 
 \item{limit}{Maximum results}
+
+\item{offset}{Skip first N results}
 }
 \value{
 List of RecipeWorkflow objects
 }
 \description{
-List workflows from API
+Fetch workflows with optional search and filters.
 }

@@ -37,6 +37,8 @@ member$trust_level()
 \item{\code{url}}{Character or NULL. Institution URL.}
 
 \item{\code{verified}}{Logical. Whether the account is verified.}
+
+\item{\code{review_status}}{Character. One of "approved", "pending", "rejected".}
 }
 \if{html}{\out{</div>}}
 }
@@ -64,7 +66,8 @@ Create a new RecipeUser
   affiliation = NULL,
   institution = NULL,
   url = NULL,
-  verified = FALSE
+  verified = FALSE,
+  review_status = "approved"
 )}\if{html}{\out{</div>}}
 }
 
@@ -84,6 +87,8 @@ Create a new RecipeUser
 \item{\code{url}}{Character or NULL. Institution URL.}
 
 \item{\code{verified}}{Logical. Whether account is verified.}
+
+\item{\code{review_status}}{Character. "approved", "pending", or "rejected".}
 }
 \if{html}{\out{</div>}}
 }

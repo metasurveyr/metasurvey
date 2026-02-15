@@ -5,36 +5,39 @@
 \title{List recipes from API}
 \usage{
 api_list_recipes(
-  user = NULL,
-  edition = NULL,
-  survey_type = NULL,
+  search = NULL,
+  svy_type = NULL,
   topic = NULL,
-  limit = 100
+  certification = NULL,
+  user = NULL,
+  limit = 50,
+  offset = 0
 )
 }
 \arguments{
-\item{user}{Filter by user email}
+\item{search}{Text search (matches name/description)}
 
-\item{edition}{Filter by survey edition}
-
-\item{survey_type}{Filter by survey type}
+\item{svy_type}{Filter by survey type (e.g., \code{"ech"})}
 
 \item{topic}{Filter by topic}
 
-\item{limit}{Maximum number of results (default: 100)}
+\item{certification}{Filter by certification level}
+
+\item{user}{Filter by author email}
+
+\item{limit}{Maximum results (default 50)}
+
+\item{offset}{Skip first N results (default 0)}
 }
 \value{
 List of Recipe objects
 }
 \description{
-Fetch recipes from remote API with optional filters
+Fetch recipes with optional search and filters.
 }
 \examples{
 \dontrun{
-# List all recipes
-recipes <- api_list_recipes()
-
-# Filter by survey type
-ech_recipes <- api_list_recipes(survey_type = "ech", edition = "2023")
+configure_api("https://metasurvey-api.example.com")
+recipes <- api_list_recipes(svy_type = "ech")
 }
 }
