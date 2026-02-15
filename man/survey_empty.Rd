@@ -4,7 +4,13 @@
 \alias{survey_empty}
 \title{survey_empty}
 \usage{
-survey_empty(edition = NULL, type = NULL, weight = NULL, engine = NULL)
+survey_empty(
+  edition = NULL,
+  type = NULL,
+  weight = NULL,
+  engine = NULL,
+  psu = NULL
+)
 }
 \arguments{
 \item{edition}{Edition of survey}
@@ -14,6 +20,8 @@ survey_empty(edition = NULL, type = NULL, weight = NULL, engine = NULL)
 \item{weight}{Weight of survey}
 
 \item{engine}{Engine of survey}
+
+\item{psu}{PSU variable or formula (optional)}
 }
 \value{
 Survey object

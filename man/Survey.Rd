@@ -24,6 +24,9 @@ Survey R6 class
 R6 class that encapsulates survey data, metadata (type, edition,
 periodicity), sampling design (simple/replicate), steps/recipes/workflows,
 and utilities to manage them.
+
+Only copies the data; reuses design objects and other metadata.
+Much faster than clone(deep=TRUE) but design objects are shared.
 }
 \section{Methods}{
 
@@ -119,6 +122,10 @@ and utilities to manage them.
 \item{\code{workflows}}{List of workflows.}
 
 \item{\code{design}}{List of survey design objects (survey/surveyrep).}
+
+\item{\code{psu}}{Primary Sampling Unit specification (formula or character).}
+
+\item{\code{design_initialized}}{Logical flag for lazy design initialization.}
 }
 \if{html}{\out{</div>}}
 }
@@ -148,7 +155,9 @@ and utilities to manage them.
 \item \href{#method-Survey-head}{\code{Survey$head()}}
 \item \href{#method-Survey-str}{\code{Survey$str()}}
 \item \href{#method-Survey-set_design}{\code{Survey$set_design()}}
+\item \href{#method-Survey-ensure_design}{\code{Survey$ensure_design()}}
 \item \href{#method-Survey-update_design}{\code{Survey$update_design()}}
+\item \href{#method-Survey-shallow_clone}{\code{Survey$shallow_clone()}}
 \item \href{#method-Survey-clone}{\code{Survey$clone()}}
 }
 }
@@ -162,7 +171,7 @@ Create a Survey object
   data,
   edition,
   type,
-  psu,
+  psu = NULL,
   engine,
   weight,
   design = NULL,
@@ -404,6 +413,19 @@ Set the survey design object
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Survey-ensure_design"></a>}}
+\if{latex}{\out{\hypertarget{method-Survey-ensure_design}{}}}
+\subsection{Method \code{ensure_design()}}{
+Ensure survey design is initialized (lazy initialization)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Survey$ensure_design()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Invisibly returns self
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Survey-update_design"></a>}}
 \if{latex}{\out{\hypertarget{method-Survey-update_design}{}}}
 \subsection{Method \code{update_design()}}{
@@ -412,6 +434,19 @@ Update design variables using current data and weight
 \if{html}{\out{<div class="r">}}\preformatted{Survey$update_design()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Survey-shallow_clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Survey-shallow_clone}{}}}
+\subsection{Method \code{shallow_clone()}}{
+Create a shallow copy of the Survey (optimized for performance)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Survey$shallow_clone()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+New Survey object with copied data but shared design
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Survey-clone"></a>}}
