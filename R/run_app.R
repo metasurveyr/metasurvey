@@ -5,15 +5,21 @@
 #' registration and login via MongoDB Atlas.
 #'
 #' @param port Integer port number, or NULL for automatic.
+#' @param host Character. The host to listen on. Defaults to \code{"127.0.0.1"}
+#'   for local use. Set to \code{"0.0.0.0"} for server deployments (Railway, etc.).
 #' @param launch.browser Logical. Open the app in a browser?
 #'
 #' @examples
 #' \dontrun{
+#' # Local / RStudio viewer
 #' explore_recipes()
+#'
+#' # Server deployment (Railway, Docker, etc.)
+#' explore_recipes(host = "0.0.0.0", port = 3838, launch.browser = FALSE)
 #' }
 #'
 #' @export
-explore_recipes <- function(port = NULL, launch.browser = TRUE) {
+explore_recipes <- function(port = NULL, host = "127.0.0.1", launch.browser = TRUE) {
   if (!requireNamespace("shiny", quietly = TRUE)) {
     stop("Package 'shiny' is required. Install it with: install.packages('shiny')")
   }
@@ -24,5 +30,5 @@ explore_recipes <- function(port = NULL, launch.browser = TRUE) {
   if (app_dir == "") {
     stop("Shiny app not found. Reinstall metasurvey.")
   }
-  shiny::runApp(app_dir, port = port, launch.browser = launch.browser)
+  shiny::runApp(app_dir, port = port, host = host, launch.browser = launch.browser)
 }

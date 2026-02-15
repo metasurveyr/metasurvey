@@ -286,12 +286,7 @@ test_that("%@% returns y when x is blank", {
 
 # --- API config functions ---
 
-test_that("set_api_key sets the option", {
-  old <- getOption("metasurvey.api_key")
-  on.exit(options(metasurvey.api_key = old), add = TRUE)
-  set_api_key("test-key-123")
-  expect_equal(getOption("metasurvey.api_key"), "test-key-123")
-})
+# set_api_key was removed — use configure_api() + api_login() instead
 
 test_that("get_user returns public by default", {
   old_key <- getOption("metasurvey.api_key")
@@ -324,45 +319,30 @@ test_that("get_user returns apiKey when api_key is set", {
   expect_equal(metasurvey:::get_user(), "apiKey")
 })
 
-test_that("url_api_host returns default URL", {
-  old <- getOption("metasurvey.base_url")
-  on.exit(options(metasurvey.base_url = old), add = TRUE)
-  options(metasurvey.base_url = NULL)
-  result <- metasurvey:::url_api_host()
-  expect_true(grepl("mongodb", result))
+# url_api_host, get_api_key, public_key were removed.
+# API access now goes through api_client.R → plumber API.
+
+test_that("configure_api sets option", {
+  old <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old), add = TRUE)
+  configure_api("https://test.example.com")
+  expect_equal(getOption("metasurvey.api_url"), "https://test.example.com")
 })
 
-test_that("url_api_host respects custom option", {
-  old <- getOption("metasurvey.base_url")
-  on.exit(options(metasurvey.base_url = old), add = TRUE)
-  options(metasurvey.base_url = "https://custom.api.com/")
-  expect_equal(metasurvey:::url_api_host(), "https://custom.api.com/")
+test_that("configure_api strips trailing slash", {
+  old <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old), add = TRUE)
+  configure_api("https://test.example.com/")
+  expect_equal(getOption("metasurvey.api_url"), "https://test.example.com")
 })
 
-test_that("get_api_key returns apiKey payload when key is set", {
-  old <- getOption("metasurvey.api_key")
-  on.exit(options(metasurvey.api_key = old), add = TRUE)
-  options(metasurvey.api_key = "my-api-key")
-  result <- get_api_key()
-  expect_equal(result$methodAuth, "apiKey")
-  expect_equal(result$token, "my-api-key")
-})
-
-test_that("get_api_key returns userPassword payload when credentials set", {
-  old_key <- getOption("metasurvey.api_key")
-  old_user <- getOption("metasurvey.user")
-  old_pass <- getOption("metasurvey.password")
-  on.exit({
-    options(metasurvey.api_key = old_key)
-    options(metasurvey.user = old_user)
-    options(metasurvey.password = old_pass)
-  }, add = TRUE)
-  options(metasurvey.api_key = NULL)
-  options(metasurvey.user = "user@test.com")
-  options(metasurvey.password = "secret")
-  result <- get_api_key()
-  expect_equal(result$methodAuth, "userPassword")
-  expect_equal(result$email, "user@test.com")
+test_that("api_url returns default when no config is set", {
+  old <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old), add = TRUE)
+  options(metasurvey.api_url = NULL)
+  url <- metasurvey:::api_url()
+  expect_true(is.character(url))
+  expect_true(nzchar(url))
 })
 
 # --- add_replicate tests ---
