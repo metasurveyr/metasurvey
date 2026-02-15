@@ -1,94 +1,34 @@
 #!/usr/bin/env Rscript
 # ══════════════════════════════════════════════════════════════════════════════
 # seed_ech_recipes.R
-# Seed MongoDB Atlas with recipes and workflows based on the {ech} package
-# (https://github.com/calcita/ech)
+# Seed MongoDB with ECH recipes using native metasurvey steps
+#
+# All transformations use metasurvey step functions (step_recode, step_compute).
+# Variable definitions follow ILO standards and INE documentation.
+# Demo data: ech::toy_ech_2018
 #
 # Usage:
 #   Rscript inst/scripts/seed_ech_recipes.R
 #
-# Requires: metasurvey, jsonlite, httr, digest
+# Requires: metasurvey, jsonlite, mongolite, digest
 # ══════════════════════════════════════════════════════════════════════════════
 
 library(metasurvey)
 library(jsonlite)
-library(httr)
+library(mongolite)
 library(digest)
 
-# ── Atlas Data API config ─────────────────────────────────────────────────────
-ATLAS_BASE_URL <- Sys.getenv(
-  "METASURVEY_ATLAS_URL",
-  "https://data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
-)
-ATLAS_API_KEY <- Sys.getenv("METASURVEY_API_KEY", "")
-DATABASE      <- "metasurvey"
-CLUSTER       <- "Cluster0"
+# ── MongoDB config ────────────────────────────────────────────────────────────
+MONGO_URI <- Sys.getenv("METASURVEY_MONGO_URI", "")
+DATABASE  <- Sys.getenv("METASURVEY_DB", "metasurvey")
 
-if (!nzchar(ATLAS_API_KEY)) {
-  message("WARNING: METASURVEY_API_KEY not set. Will attempt anonymous auth.")
-}
-
-# ── API helpers ───────────────────────────────────────────────────────────────
-
-get_token <- function() {
-  url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
-  resp <- tryCatch(POST(url, timeout(10)), error = function(e) NULL)
-  if (is.null(resp) || resp$status_code != 200) return(NULL)
-  content(resp)$access_token
-}
-
-api_headers <- function() {
-  if (nzchar(ATLAS_API_KEY)) {
-    return(c(
-      "Content-Type" = "application/json",
-      "Access-Control-Request-Headers" = "*",
-      "apiKey" = ATLAS_API_KEY
-    ))
-  }
-  token <- get_token()
-  if (is.null(token)) stop("Cannot authenticate with Atlas. Set METASURVEY_API_KEY.")
-  c(
-    "Content-Type" = "application/json",
-    "Access-Control-Request-Headers" = "*",
-    "Authorization" = paste("Bearer", token)
-  )
-}
-
-api_request <- function(action, collection, body) {
-  url <- paste0(ATLAS_BASE_URL, action)
-  payload <- c(
-    list(collection = collection, database = DATABASE, dataSource = CLUSTER),
-    body
-  )
-  resp <- POST(
-    url,
-    body = toJSON(payload, auto_unbox = TRUE, null = "null"),
-    add_headers(.headers = api_headers()),
-    encode = "raw",
-    timeout(15)
-  )
-  if (resp$status_code >= 400) {
-    msg <- content(resp, "text", encoding = "UTF-8")
-    stop(sprintf("[%d] %s → %s", resp$status_code, action, msg))
-  }
-  parsed <- fromJSON(content(resp, "text", encoding = "UTF-8"), simplifyVector = FALSE)
-  parsed
-}
-
-insert_one <- function(collection, doc) {
-  api_request("insertOne", collection, list(document = doc))
-}
-
-insert_many <- function(collection, docs) {
-  api_request("insertMany", collection, list(documents = docs))
-}
-
-delete_many <- function(collection, filter = list()) {
-  api_request("deleteMany", collection, list(filter = filter))
+if (!nzchar(MONGO_URI)) {
+  stop("METASURVEY_MONGO_URI is required. Example:\n",
+       "  METASURVEY_MONGO_URI='mongodb+srv://user:pass@cluster.mongodb.net' Rscript inst/scripts/seed_ech_recipes.R")
 }
 
 # ── Authors ───────────────────────────────────────────────────────────────────
-# {ech} package authors
+# {ech} package authors — recipes are inspired by their work
 author_gabriela <- RecipeUser$new(
   name = "Gabriela Mathieu",
   user_type = "individual",
@@ -111,16 +51,19 @@ ine_institution <- RecipeUser$new(
 )
 
 # Categories
-labor    <- RecipeCategory$new("labor_market", "Labor market indicators")
-income   <- RecipeCategory$new("income", "Income distribution and poverty")
-education <- RecipeCategory$new("education", "Education attainment and enrollment")
-housing  <- RecipeCategory$new("housing", "Housing conditions and deprivation")
+labor       <- RecipeCategory$new("labor_market", "Labor market indicators")
+income_cat  <- RecipeCategory$new("income", "Income distribution and poverty")
+education   <- RecipeCategory$new("education", "Education attainment and enrollment")
+housing     <- RecipeCategory$new("housing", "Housing conditions and deprivation")
 demographics <- RecipeCategory$new("demographics", "Population demographics")
 poverty_cat <- RecipeCategory$new("poverty", "Poverty and inequality measurement")
 
 community_cert <- RecipeCertification$new(level = "community")
 
-ech_pkg_ref <- "Based on {ech} R package (https://github.com/calcita/ech) by Mathieu & Detomasi. ECH - Encuesta Continua de Hogares, INE Uruguay."
+ech_ref <- paste(
+  "Variable definitions follow ILO standards and INE ECH documentation.",
+  "Compatible with ech::toy_ech_2018 and real ECH microdata."
+)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # RECIPES
@@ -128,24 +71,26 @@ ech_pkg_ref <- "Based on {ech} R package (https://github.com/calcita/ech) by Mat
 
 recipes <- list(
 
-  # ── 1. Employment ─────────────────────────────────────────────────────────
+  # ── 1. Employment indicators ────────────────────────────────────────────────
   Recipe$new(
-    name = "Indicadores de Empleo (ech::employment)",
-    edition = "2023", survey_type = "ech",
+    name = "Indicadores de Empleo - Estandar OIT",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("pobpcoac"),
+    depends_on = list("pobpcoac", "e27"),
     user = "calcita@gmx.li",
     description = paste(
-      "Calcula indicadores de condicion de actividad economica:",
-      "PEA (poblacion economicamente activa), PET (poblacion en edad de trabajar),",
-      "PO (poblacion ocupada), PD (poblacion desocupada).",
-      ech_pkg_ref
+      "Indicadores basicos de condicion de actividad economica siguiendo",
+      "las definiciones de la OIT: PEA (poblacion economicamente activa),",
+      "PET (poblacion en edad de trabajar, 14+), PO (poblacion ocupada),",
+      "PD (poblacion desocupada). Incluye tasas de empleo, desempleo y actividad.",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, pea = ech::employment(pobpcoac)$pea)",
-      "step_recode(svy, pet = ech::employment(pobpcoac)$pet)",
-      "step_recode(svy, po = ech::employment(pobpcoac)$po)",
-      "step_recode(svy, pd = ech::employment(pobpcoac)$pd)"
+      'step_recode(svy, pet, e27 >= 14 ~ 1, .default = 0, comment = "PET: Poblacion en Edad de Trabajar (14+ anios)")',
+      'step_recode(svy, pea, POBPCOAC %in% 2:5 ~ 1, .default = 0, comment = "PEA: Poblacion Economicamente Activa")',
+      'step_recode(svy, po, POBPCOAC == 2 ~ 1, .default = 0, comment = "PO: Poblacion Ocupada")',
+      'step_recode(svy, pd, POBPCOAC %in% 3:5 ~ 1, .default = 0, comment = "PD: Poblacion Desocupada")',
+      'step_compute(svy, tasa_empleo = po / pet, tasa_desempleo = pd / pea, tasa_actividad = pea / pet, comment = "Tasas laborales basicas")'
     ),
     id = "ech_employment_001",
     topic = "labor_market",
@@ -155,32 +100,35 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("pobpcoac"),
-      output_variables = c("pea", "pet", "po", "pd"),
+      input_variables = c("pobpcoac", "e27"),
+      output_variables = c("pet", "pea", "po", "pd", "tasa_empleo", "tasa_desempleo", "tasa_actividad"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("pea"), inputs = list("pobpcoac"), inferred_type = "categorical", comment = "Poblacion economicamente activa (PEA)"),
-        list(index = 2L, type = "recode", outputs = list("pet"), inputs = list("pobpcoac"), inferred_type = "categorical", comment = "Poblacion en edad de trabajar (PET)"),
-        list(index = 3L, type = "recode", outputs = list("po"), inputs = list("pobpcoac"), inferred_type = "categorical", comment = "Poblacion ocupada"),
-        list(index = 4L, type = "recode", outputs = list("pd"), inputs = list("pobpcoac"), inferred_type = "categorical", comment = "Poblacion desocupada")
+        list(index = 1L, type = "recode", outputs = list("pet"), inputs = list("e27"), inferred_type = "numeric", comment = "PET: Poblacion en Edad de Trabajar (14+ anios)"),
+        list(index = 2L, type = "recode", outputs = list("pea"), inputs = list("pobpcoac"), inferred_type = "numeric", comment = "PEA: Poblacion Economicamente Activa"),
+        list(index = 3L, type = "recode", outputs = list("po"), inputs = list("pobpcoac"), inferred_type = "numeric", comment = "PO: Poblacion Ocupada"),
+        list(index = 4L, type = "recode", outputs = list("pd"), inputs = list("pobpcoac"), inferred_type = "numeric", comment = "PD: Poblacion Desocupada"),
+        list(index = 5L, type = "compute", outputs = list("tasa_empleo", "tasa_desempleo", "tasa_actividad"), inputs = list("po", "pd", "pea", "pet"), inferred_type = "numeric", comment = "Tasas laborales basicas")
       )
     )
   ),
 
-  # ── 2. Subempleo ──────────────────────────────────────────────────────────
+  # ── 2. Subempleo y restricciones ────────────────────────────────────────────
   Recipe$new(
-    name = "Subempleo y Restricciones (ech::underemployment)",
-    edition = "2023", survey_type = "ech",
+    name = "Subempleo y Restricciones al Empleo",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("pobpcoac", "f85", "f98", "f101", "f102", "f103", "f104", "f82"),
+    depends_on = list("pobpcoac", "f85", "f98", "f82"),
     user = "calcita@gmx.li",
     description = paste(
-      "Identifica subempleo (trabaja <40hs y desea trabajar mas) y restricciones",
-      "al empleo basadas en aportes jubilatorios y subempleo.",
-      ech_pkg_ref
+      "Identifica subempleo (ocupados que trabajan menos de 40 horas semanales",
+      "y desean trabajar mas) y restricciones al empleo (sin aportes jubilatorios",
+      "o subempleados).",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, underemployment = ech::underemployment(...))",
-      "step_recode(svy, employment_restrictions = ech::employment_restrictions(...))"
+      'step_recode(svy, subempleo, POBPCOAC == 2 & f85 < 40 & f98 == 1 ~ 1, .default = 0, comment = "Subempleado: ocupado, <40hs, desea trabajar mas")',
+      'step_recode(svy, sin_aportes, POBPCOAC == 2 & f82 == 2 ~ 1, .default = 0, comment = "Sin aportes jubilatorios")',
+      'step_compute(svy, empleo_restringido = ifelse(subempleo == 1 | sin_aportes == 1, 1, 0), comment = "Empleo con alguna restriccion")'
     ),
     id = "ech_underemployment_002",
     topic = "labor_market",
@@ -190,29 +138,54 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("pobpcoac", "f85", "f98", "f101", "f102", "f103", "f104", "f82"),
-      output_variables = c("underemployment", "employment_restrictions"),
+      input_variables = c("pobpcoac", "f85", "f98", "f82"),
+      output_variables = c("subempleo", "sin_aportes", "empleo_restringido"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("underemployment"), inputs = list("pobpcoac", "f85", "f98", "f101", "f102", "f103", "f104"), inferred_type = "categorical", comment = "Subempleado: trabaja <40hs, desea y puede trabajar mas"),
-        list(index = 2L, type = "recode", outputs = list("employment_restrictions"), inputs = list("f82", "underemployment"), inferred_type = "categorical", comment = "Restricciones: aportes jubilatorios + subempleo")
+        list(index = 1L, type = "recode", outputs = list("subempleo"), inputs = list("pobpcoac", "f85", "f98"), inferred_type = "numeric", comment = "Subempleado: ocupado, <40hs, desea trabajar mas"),
+        list(index = 2L, type = "recode", outputs = list("sin_aportes"), inputs = list("pobpcoac", "f82"), inferred_type = "numeric", comment = "Sin aportes jubilatorios"),
+        list(index = 3L, type = "compute", outputs = list("empleo_restringido"), inputs = list("subempleo", "sin_aportes"), inferred_type = "numeric", comment = "Empleo con alguna restriccion")
       )
     )
   ),
 
-  # ── 3. Rama de actividad CIIU ─────────────────────────────────────────────
+  # ── 3. Rama de actividad CIIU ───────────────────────────────────────────────
   Recipe$new(
-    name = "Rama de Actividad CIIU Rev.4 (ech::branch_ciiu)",
-    edition = "2023", survey_type = "ech",
+    name = "Rama de Actividad CIIU Rev.4",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
     depends_on = list("f72_2"),
     user = "calcita@gmx.li",
     description = paste(
-      "Clasifica la rama de actividad economica segun CIIU Rev.4 en 18 categorias,",
-      "con agrupamientos opcionales.",
-      ech_pkg_ref
+      "Clasifica la rama de actividad economica segun CIIU Rev.4 en grandes",
+      "divisiones (A-U). Utiliza el codigo de 2 digitos del campo f72_2.",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, branch_ciiu = ech::branch_ciiu(f72_2))"
+      paste0(
+        'step_recode(svy, rama_ciiu, ',
+        'f72_2 %in% 1:3 ~ "A: Agropecuaria", ',
+        'f72_2 %in% 5:9 ~ "B: Mineria", ',
+        'f72_2 %in% 10:33 ~ "C: Industria manufacturera", ',
+        'f72_2 %in% 35:35 ~ "D: Electricidad y gas", ',
+        'f72_2 %in% 36:39 ~ "E: Agua y saneamiento", ',
+        'f72_2 %in% 41:43 ~ "F: Construccion", ',
+        'f72_2 %in% 45:47 ~ "G: Comercio", ',
+        'f72_2 %in% 49:53 ~ "H: Transporte", ',
+        'f72_2 %in% 55:56 ~ "I: Alojamiento y comida", ',
+        'f72_2 %in% 58:63 ~ "J: Informacion y comunicacion", ',
+        'f72_2 %in% 64:66 ~ "K: Finanzas y seguros", ',
+        'f72_2 %in% 68:68 ~ "L: Inmobiliarias", ',
+        'f72_2 %in% 69:75 ~ "M: Actividades profesionales", ',
+        'f72_2 %in% 77:82 ~ "N: Actividades administrativas", ',
+        'f72_2 %in% 84:84 ~ "O: Administracion publica", ',
+        'f72_2 %in% 85:85 ~ "P: Enseñanza", ',
+        'f72_2 %in% 86:88 ~ "Q: Salud", ',
+        'f72_2 %in% 90:93 ~ "R: Arte y recreacion", ',
+        'f72_2 %in% 94:96 ~ "S: Otros servicios", ',
+        'f72_2 %in% 97:98 ~ "T: Hogares como empleadores", ',
+        '.default = "U: Organismos extraterritoriales", ',
+        'comment = "Rama de actividad CIIU Rev.4")'
+      )
     ),
     id = "ech_branch_ciiu_003",
     topic = "labor_market",
@@ -223,169 +196,183 @@ recipes <- list(
     version = "1.0.0",
     cached_doc = list(
       input_variables = c("f72_2"),
-      output_variables = c("branch_ciiu", "branch_group_ciiu"),
+      output_variables = c("rama_ciiu"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("branch_ciiu", "branch_group_ciiu"), inputs = list("f72_2"), inferred_type = "categorical", comment = "18 ramas CIIU Rev.4 + agrupamiento")
+        list(index = 1L, type = "recode", outputs = list("rama_ciiu"), inputs = list("f72_2"), inferred_type = "categorical", comment = "Rama de actividad CIIU Rev.4 en grandes divisiones")
       )
     )
   ),
 
-  # ── 4. Ingreso a precios constantes ───────────────────────────────────────
+  # ── 4. Ingreso per capita ──────────────────────────────────────────────────
   Recipe$new(
-    name = "Ingreso a Precios Constantes (ech::income_constant_prices)",
-    edition = "2023", survey_type = "ech",
+    name = "Ingreso per Capita del Hogar",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("ht11", "ht13", "ht19", "mes", "anio", "dpto"),
+    depends_on = list("ht11", "ht19", "ht13"),
     user = "calcita@gmx.li",
     description = paste(
-      "Deflacta el ingreso del hogar usando IPC o IPAB. Calcula ingreso per capita",
-      "a precios constantes, con y sin valor locativo.",
-      ech_pkg_ref
+      "Calcula el ingreso per capita del hogar a partir del ingreso total (ht11),",
+      "el tamano del hogar (ht19), y opcionalmente sin valor locativo (ht13).",
+      "Variables fundamentales para analisis de pobreza y desigualdad.",
+      ech_ref
     ),
     steps = list(
-      "step_compute(svy, y_pc = ech::income_constant_prices(...)$y_pc)",
-      "step_compute(svy, y_pc_d = ech::income_constant_prices(...)$y_pc_d)"
+      'step_compute(svy, ingreso_pc = ht11 / ht19, comment = "Ingreso per capita del hogar (ingreso total / miembros)")',
+      'step_compute(svy, ingreso_sv_pc = (ht11 - ht13) / ht19, comment = "Ingreso per capita sin valor locativo")'
     ),
-    id = "ech_income_prices_004",
+    id = "ech_income_pc_004",
     topic = "income",
-    categories = list(income),
+    categories = list(income_cat),
     downloads = 0L,
     certification = community_cert,
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("ht11", "ht13", "ht19", "mes", "anio", "dpto"),
-      output_variables = c("y_pc", "y_pc_d", "rv_d", "y_wrv_pc_d"),
+      input_variables = c("ht11", "ht19", "ht13"),
+      output_variables = c("ingreso_pc", "ingreso_sv_pc"),
       pipeline = list(
-        list(index = 1L, type = "compute", outputs = list("y_pc"), inputs = list("ht11", "ht19"), inferred_type = "numeric", comment = "Ingreso per capita a precios corrientes"),
-        list(index = 2L, type = "compute", outputs = list("y_pc_d"), inputs = list("y_pc", "mes", "anio", "dpto"), inferred_type = "numeric", comment = "Ingreso per capita deflactado (IPC/IPAB)"),
-        list(index = 3L, type = "compute", outputs = list("rv_d"), inputs = list("ht13", "mes", "anio"), inferred_type = "numeric", comment = "Valor locativo deflactado"),
-        list(index = 4L, type = "compute", outputs = list("y_wrv_pc_d"), inputs = list("y_pc_d", "rv_d", "ht19"), inferred_type = "numeric", comment = "Ingreso sin valor locativo per capita deflactado")
+        list(index = 1L, type = "compute", outputs = list("ingreso_pc"), inputs = list("ht11", "ht19"), inferred_type = "numeric", comment = "Ingreso per capita del hogar"),
+        list(index = 2L, type = "compute", outputs = list("ingreso_sv_pc"), inputs = list("ht11", "ht13", "ht19"), inferred_type = "numeric", comment = "Ingreso per capita sin valor locativo")
       )
     )
   ),
 
-  # ── 5. Quintiles/Deciles de ingreso ───────────────────────────────────────
+  # ── 5. Quintiles de ingreso ─────────────────────────────────────────────────
   Recipe$new(
-    name = "Quintiles y Deciles de Ingreso (ech::income_quantiles)",
-    edition = "2023", survey_type = "ech",
+    name = "Quintiles y Deciles de Ingreso",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("y_pc_d", "pesoano"),
+    depends_on = list("ingreso_pc"),
     user = "calcita@gmx.li",
     description = paste(
-      "Asigna quintiles y deciles de ingreso ponderados por peso muestral.",
-      ech_pkg_ref
+      "Asigna quintiles y deciles de ingreso per capita del hogar.",
+      "Requiere la variable ingreso_pc (usar la receta de Ingreso per Capita primero).",
+      ech_ref
     ),
     steps = list(
-      "step_compute(svy, quintil = ech::income_quantiles(., quantile=5)$quintil)",
-      "step_compute(svy, decil = ech::income_quantiles(., quantile=10)$decil)"
+      'step_compute(svy, quintil = as.integer(cut(ingreso_pc, quantile(ingreso_pc, probs = seq(0, 1, 0.2), na.rm = TRUE), include.lowest = TRUE, labels = FALSE)), comment = "Quintil de ingreso per capita")',
+      'step_compute(svy, decil = as.integer(cut(ingreso_pc, quantile(ingreso_pc, probs = seq(0, 1, 0.1), na.rm = TRUE), include.lowest = TRUE, labels = FALSE)), comment = "Decil de ingreso per capita")'
     ),
     id = "ech_quantiles_005",
     topic = "income",
-    categories = list(income),
+    categories = list(income_cat),
     downloads = 0L,
     certification = community_cert,
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("y_pc_d", "pesoano"),
+      input_variables = c("ingreso_pc"),
       output_variables = c("quintil", "decil"),
       pipeline = list(
-        list(index = 1L, type = "compute", outputs = list("quintil"), inputs = list("y_pc_d", "pesoano"), inferred_type = "numeric", comment = "Quintil de ingreso ponderado"),
-        list(index = 2L, type = "compute", outputs = list("decil"), inputs = list("y_pc_d", "pesoano"), inferred_type = "numeric", comment = "Decil de ingreso ponderado")
+        list(index = 1L, type = "compute", outputs = list("quintil"), inputs = list("ingreso_pc"), inferred_type = "numeric", comment = "Quintil de ingreso per capita"),
+        list(index = 2L, type = "compute", outputs = list("decil"), inputs = list("ingreso_pc"), inferred_type = "numeric", comment = "Decil de ingreso per capita")
       )
     )
   ),
 
-  # ── 6. Ingreso laboral ────────────────────────────────────────────────────
+  # ── 6. Ingreso laboral ─────────────────────────────────────────────────────
   Recipe$new(
-    name = "Ingreso Laboral per Capita y por Hora (ech::labor_income)",
-    edition = "2023", survey_type = "ech",
+    name = "Ingreso Laboral per Capita y por Hora",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("numero", "pobpcoac", "g126_1", "g127_3", "g128_1", "g129_2",
-                       "g130_1", "g131_1", "g133_1", "f85", "pt4", "mes", "anio", "dpto"),
+    depends_on = list("pobpcoac", "g126_1", "g127_3", "g128_1", "g130_1", "g131_1", "g133_1", "f85", "ht19"),
     user = "richard.detomasi@gmail.com",
     description = paste(
-      "Calcula ingreso laboral del trabajo principal, secundario y cuenta propia.",
-      "Agrega a nivel hogar y per capita. Tambien calcula ingreso por hora deflactado.",
-      ech_pkg_ref
+      "Calcula ingreso laboral individual sumando ingresos del trabajo principal",
+      "(g126_1), secundario (g127_3, g128_1) y cuenta propia (g130_1, g131_1, g133_1).",
+      "Calcula tambien ingreso laboral por hora usando las horas trabajadas (f85).",
+      ech_ref
     ),
     steps = list(
-      "step_compute(svy, labor_income = ech::labor_income_per_capita(...)$labor_income)",
-      "step_compute(svy, labor_income_h_percapita = ech::labor_income_per_capita(...)$labor_income_h_percapita)",
-      "step_compute(svy, total_income_per_hour = ech::labor_income_per_hour(...)$total_income_per_hour)"
+      paste0(
+        'step_compute(svy, ingreso_laboral = ifelse(POBPCOAC == 2, ',
+        'rowSums(cbind(',
+        'ifelse(is.na(g126_1), 0, g126_1), ',
+        'ifelse(is.na(g127_3), 0, g127_3), ',
+        'ifelse(is.na(g128_1), 0, g128_1), ',
+        'ifelse(is.na(g130_1), 0, g130_1), ',
+        'ifelse(is.na(g131_1), 0, g131_1), ',
+        'ifelse(is.na(g133_1), 0, g133_1)), na.rm = TRUE), NA_real_), ',
+        'comment = "Ingreso laboral individual (principal + secundario + cuenta propia)")'
+      ),
+      'step_compute(svy, ingreso_laboral_hora = ifelse(f85 > 0, ingreso_laboral / (f85 * 4.33), NA_real_), comment = "Ingreso laboral por hora (mensual / horas semanales * 4.33)")'
     ),
     id = "ech_labor_income_006",
     topic = "income",
-    categories = list(income, labor),
+    categories = list(income_cat, labor),
     downloads = 0L,
     certification = community_cert,
     user_info = author_richard,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("numero", "pobpcoac", "g126_1", "g127_3", "g128_1", "g129_2",
-                           "g130_1", "g131_1", "g133_1", "f85", "pt4", "mes", "anio", "dpto"),
-      output_variables = c("labor_income", "labor_income_h_percapita", "total_income_per_hour"),
+      input_variables = c("pobpcoac", "g126_1", "g127_3", "g128_1", "g130_1", "g131_1", "g133_1", "f85", "ht19"),
+      output_variables = c("ingreso_laboral", "ingreso_laboral_hora"),
       pipeline = list(
-        list(index = 1L, type = "compute", outputs = list("labor_income"), inputs = list("g126_1", "g127_3", "g128_1", "pobpcoac"), inferred_type = "numeric", comment = "Ingreso laboral individual (principal + secundario + cuenta propia)"),
-        list(index = 2L, type = "compute", outputs = list("labor_income_h_percapita"), inputs = list("labor_income", "numero"), inferred_type = "numeric", comment = "Ingreso laboral del hogar per capita"),
-        list(index = 3L, type = "compute", outputs = list("total_income_per_hour"), inputs = list("f85", "pt4", "mes", "anio", "dpto"), inferred_type = "numeric", comment = "Ingreso por hora deflactado")
+        list(index = 1L, type = "compute", outputs = list("ingreso_laboral"), inputs = list("pobpcoac", "g126_1", "g127_3", "g128_1", "g130_1", "g131_1", "g133_1"), inferred_type = "numeric", comment = "Ingreso laboral individual"),
+        list(index = 2L, type = "compute", outputs = list("ingreso_laboral_hora"), inputs = list("ingreso_laboral", "f85"), inferred_type = "numeric", comment = "Ingreso laboral por hora")
       )
     )
   ),
 
-  # ── 7. Pobreza e Indigencia ───────────────────────────────────────────────
+  # ── 7. Pobreza e Indigencia ─────────────────────────────────────────────────
   Recipe$new(
-    name = "Pobreza e Indigencia (ech::poverty)",
-    edition = "2023", survey_type = "ech",
+    name = "Pobreza e Indigencia (Metodo del Ingreso 2006)",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("region_4", "dpto", "ht11", "ht19", "numero", "mes", "anio"),
+    depends_on = list("pobre06", "indigente06", "ht11", "ht19"),
     user = "calcita@gmx.li",
     description = paste(
-      "Determina si el hogar es pobre o indigente comparando ingreso per capita",
-      "con lineas de pobreza e indigencia regionalizadas (canasta INE).",
-      ech_pkg_ref
+      "Identifica hogares pobres e indigentes usando las variables oficiales del INE",
+      "(pobre06, indigente06) ya incluidas en los microdatos de la ECH.",
+      "Alternativa: comparar ingreso per capita con lineas de pobreza regionalizadas.",
+      ech_ref
     ),
     steps = list(
-      "step_compute(svy, poverty_line = ech::poverty(...)$poverty_line)",
-      "step_recode(svy, poor = ech::poverty(...)$poor)",
-      "step_recode(svy, indigent = ech::poverty(...)$indigent)"
+      'step_recode(svy, pobre, pobre06 == 1 ~ 1, .default = 0, comment = "Hogar pobre (metodo ingreso 2006)")',
+      'step_recode(svy, indigente, indigente06 == 1 ~ 1, .default = 0, comment = "Hogar indigente (metodo ingreso 2006)")',
+      'step_compute(svy, ingreso_pc = ht11 / ht19, comment = "Ingreso per capita del hogar")'
     ),
     id = "ech_poverty_007",
     topic = "income",
-    categories = list(poverty_cat, income),
+    categories = list(poverty_cat, income_cat),
     downloads = 0L,
     certification = community_cert,
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("region_4", "dpto", "ht11", "ht19", "numero", "mes", "anio"),
-      output_variables = c("poverty_line", "indigency_line", "poor", "indigent"),
+      input_variables = c("pobre06", "indigente06", "ht11", "ht19"),
+      output_variables = c("pobre", "indigente", "ingreso_pc"),
       pipeline = list(
-        list(index = 1L, type = "compute", outputs = list("poverty_line", "indigency_line"), inputs = list("region_4", "dpto", "mes", "anio"), inferred_type = "numeric", comment = "Lineas de pobreza e indigencia (canasta basica regional)"),
-        list(index = 2L, type = "recode", outputs = list("poor"), inputs = list("ht11", "ht19", "poverty_line"), inferred_type = "categorical", comment = "Hogar pobre: ingreso pc < linea pobreza"),
-        list(index = 3L, type = "recode", outputs = list("indigent"), inputs = list("ht11", "ht19", "indigency_line"), inferred_type = "categorical", comment = "Hogar indigente: ingreso pc < linea indigencia")
+        list(index = 1L, type = "recode", outputs = list("pobre"), inputs = list("pobre06"), inferred_type = "numeric", comment = "Hogar pobre"),
+        list(index = 2L, type = "recode", outputs = list("indigente"), inputs = list("indigente06"), inferred_type = "numeric", comment = "Hogar indigente"),
+        list(index = 3L, type = "compute", outputs = list("ingreso_pc"), inputs = list("ht11", "ht19"), inferred_type = "numeric", comment = "Ingreso per capita del hogar")
       )
     )
   ),
 
-  # ── 8. NBI ────────────────────────────────────────────────────────────────
+  # ── 8. Necesidades Basicas Insatisfechas ────────────────────────────────────
   Recipe$new(
-    name = "Necesidades Basicas Insatisfechas (ech::unsatisfied_basic_needs)",
-    edition = "2023", survey_type = "ech",
+    name = "Necesidades Basicas Insatisfechas (NBI)",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("c2", "c3", "c4", "d9", "d11", "d12", "d13", "d14",
-                       "d16", "d18", "d19", "d21_1", "d260", "ht19", "e27", "e238", "anio"),
+    depends_on = list("c2", "c3", "c4", "d9", "d11", "d12", "d16", "d18", "d19", "e27", "e238", "ht19"),
     user = "calcita@gmx.li",
     description = paste(
-      "Calcula indicadores de NBI: vivienda, agua, saneamiento, electricidad,",
-      "confort y educacion. Clasifica hogares por cantidad de NBI.",
-      ech_pkg_ref
+      "Calcula indicadores de NBI en 6 dimensiones: vivienda (materiales y",
+      "hacinamiento), agua potable, saneamiento, electricidad, confort y educacion.",
+      "Clasifica hogares por cantidad de NBI (0, 1, 2, 3 o mas).",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, UBN_housing = ech::unsatisfied_basic_needs(...)$UBN_housing)",
-      "step_recode(svy, UBN_q = ech::unsatisfied_basic_needs(...)$UBN_q)",
-      "step_recode(svy, UBN = ech::unsatisfied_basic_needs(...)$UBN)"
+      'step_recode(svy, nbi_vivienda, c2 %in% c(4, 5) | c3 %in% c(4, 5) | c4 %in% c(3, 4) ~ 1, .default = 0, comment = "NBI Vivienda: materiales precarios (paredes, techo, piso)")',
+      'step_compute(svy, hacinamiento = ht19 / d9, comment = "Personas por dormitorio")',
+      'step_recode(svy, nbi_hacinamiento, hacinamiento > 2 ~ 1, .default = 0, comment = "NBI Hacinamiento: mas de 2 personas por dormitorio")',
+      'step_recode(svy, nbi_agua, d11 %in% c(3, 4, 5, 6) ~ 1, .default = 0, comment = "NBI Agua: sin acceso a agua potable de red")',
+      'step_recode(svy, nbi_saneamiento, d12 %in% c(3, 4, 5) ~ 1, .default = 0, comment = "NBI Saneamiento: sin bano o sin evacuacion adecuada")',
+      'step_recode(svy, nbi_electricidad, d16 == 2 ~ 1, .default = 0, comment = "NBI Electricidad: sin acceso")',
+      'step_recode(svy, nbi_educacion, e27 >= 4 & e27 <= 17 & e238 == 2 ~ 1, .default = 0, comment = "NBI Educacion: nino/adolescente que no asiste")',
+      'step_compute(svy, nbi_cantidad = nbi_vivienda + nbi_hacinamiento + nbi_agua + nbi_saneamiento + nbi_electricidad + nbi_educacion, comment = "Cantidad de NBI del hogar")',
+      'step_recode(svy, tiene_nbi, nbi_cantidad >= 1 ~ 1, .default = 0, comment = "Tiene al menos 1 NBI")'
     ),
     id = "ech_nbi_008",
     topic = "housing",
@@ -395,35 +382,45 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("c2", "c3", "c4", "d9", "d11", "d12", "d13", "d14",
-                           "d16", "d18", "d19", "d21_1", "d260", "ht19", "e27", "e238", "anio"),
-      output_variables = c("UBN_housing", "UBN_water", "UBN_sewerage", "UBN_electricity",
-                            "UBN_confort", "UBN_education", "UBN_q", "UBN"),
+      input_variables = c("c2", "c3", "c4", "d9", "d11", "d12", "d16", "e27", "e238", "ht19"),
+      output_variables = c("nbi_vivienda", "hacinamiento", "nbi_hacinamiento", "nbi_agua",
+                            "nbi_saneamiento", "nbi_electricidad", "nbi_educacion", "nbi_cantidad", "tiene_nbi"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("UBN_housing"), inputs = list("c2", "c3", "c4", "d9"), inferred_type = "categorical", comment = "NBI Vivienda: materiales y hacinamiento"),
-        list(index = 2L, type = "recode", outputs = list("UBN_water", "UBN_sewerage", "UBN_electricity"), inputs = list("d11", "d12", "d13", "d14", "d16", "d18", "d19"), inferred_type = "categorical", comment = "NBI Servicios basicos: agua, saneamiento, electricidad"),
-        list(index = 3L, type = "recode", outputs = list("UBN_confort"), inputs = list("d260"), inferred_type = "categorical", comment = "NBI Confort: bienes del hogar"),
-        list(index = 4L, type = "recode", outputs = list("UBN_education"), inputs = list("e27", "e238", "anio"), inferred_type = "categorical", comment = "NBI Educacion: asistencia y rezago"),
-        list(index = 5L, type = "compute", outputs = list("UBN_q"), inputs = list("UBN_housing", "UBN_water", "UBN_sewerage", "UBN_electricity", "UBN_confort", "UBN_education"), inferred_type = "numeric", comment = "Cantidad de NBI del hogar"),
-        list(index = 6L, type = "recode", outputs = list("UBN"), inputs = list("UBN_q"), inferred_type = "categorical", comment = "Al menos 1 NBI: SI/NO")
+        list(index = 1L, type = "recode", outputs = list("nbi_vivienda"), inputs = list("c2", "c3", "c4"), inferred_type = "numeric", comment = "NBI Vivienda"),
+        list(index = 2L, type = "compute", outputs = list("hacinamiento"), inputs = list("ht19", "d9"), inferred_type = "numeric", comment = "Personas por dormitorio"),
+        list(index = 3L, type = "recode", outputs = list("nbi_hacinamiento"), inputs = list("hacinamiento"), inferred_type = "numeric", comment = "NBI Hacinamiento"),
+        list(index = 4L, type = "recode", outputs = list("nbi_agua"), inputs = list("d11"), inferred_type = "numeric", comment = "NBI Agua"),
+        list(index = 5L, type = "recode", outputs = list("nbi_saneamiento"), inputs = list("d12"), inferred_type = "numeric", comment = "NBI Saneamiento"),
+        list(index = 6L, type = "recode", outputs = list("nbi_electricidad"), inputs = list("d16"), inferred_type = "numeric", comment = "NBI Electricidad"),
+        list(index = 7L, type = "recode", outputs = list("nbi_educacion"), inputs = list("e27", "e238"), inferred_type = "numeric", comment = "NBI Educacion"),
+        list(index = 8L, type = "compute", outputs = list("nbi_cantidad"), inputs = list("nbi_vivienda", "nbi_hacinamiento", "nbi_agua", "nbi_saneamiento", "nbi_electricidad", "nbi_educacion"), inferred_type = "numeric", comment = "Cantidad de NBI"),
+        list(index = 9L, type = "recode", outputs = list("tiene_nbi"), inputs = list("nbi_cantidad"), inferred_type = "numeric", comment = "Tiene al menos 1 NBI")
       )
     )
   ),
 
-  # ── 9. Pobreza integrada ──────────────────────────────────────────────────
+  # ── 9. Medida integrada de pobreza ──────────────────────────────────────────
   Recipe$new(
-    name = "Medida Integrada de Pobreza (ech::integrated_poverty_measure)",
-    edition = "2023", survey_type = "ech",
+    name = "Medida Integrada de Pobreza",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("pobre06", "UBN_q"),
+    depends_on = list("pobre", "tiene_nbi"),
     user = "calcita@gmx.li",
     description = paste(
-      "Combina pobreza por ingresos y NBI en una medida integrada:",
-      "pobreza cronica, reciente, inercial o no pobre.",
-      ech_pkg_ref
+      "Combina pobreza por ingresos y NBI en una clasificacion integrada:",
+      "cronica (pobre + NBI), reciente (pobre sin NBI), inercial (NBI sin pobreza)",
+      "o no pobre. Requiere las recetas de Pobreza y NBI aplicadas previamente.",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, integrated_poverty_measure = ech::integrated_poverty_measure(pobre06, UBN_q))"
+      paste0(
+        'step_recode(svy, pobreza_integrada, ',
+        'pobre == 1 & tiene_nbi == 1 ~ "Cronica", ',
+        'pobre == 1 & tiene_nbi == 0 ~ "Reciente", ',
+        'pobre == 0 & tiene_nbi == 1 ~ "Inercial", ',
+        '.default = "No pobre", ',
+        'comment = "Medida integrada: cronica/reciente/inercial/no pobre")'
+      )
     ),
     id = "ech_integrated_poverty_009",
     topic = "income",
@@ -433,34 +430,39 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("pobre06", "UBN_q"),
-      output_variables = c("integrated_poverty_measure"),
+      input_variables = c("pobre", "tiene_nbi"),
+      output_variables = c("pobreza_integrada"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("integrated_poverty_measure"), inputs = list("pobre06", "UBN_q"), inferred_type = "categorical", comment = "Cronica/Reciente/Inercial/No pobre")
+        list(index = 1L, type = "recode", outputs = list("pobreza_integrada"), inputs = list("pobre", "tiene_nbi"), inferred_type = "categorical", comment = "Cronica/Reciente/Inercial/No pobre")
       )
     )
   ),
 
-  # ── 10. Educacion ─────────────────────────────────────────────────────────
+  # ── 10. Nivel educativo ─────────────────────────────────────────────────────
   Recipe$new(
-    name = "Indicadores Educativos (ech::education)",
-    edition = "2023", survey_type = "ech",
+    name = "Nivel Educativo y Anios de Escolaridad",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("e27", "e49", "e51_2", "e51_3", "e51_4", "e51_5", "e51_6",
-                       "e51_7", "e51_7_1", "e51_8", "e51_9", "e51_10", "e51_11",
-                       "e193", "e197", "e197_1", "e201", "e212", "e215", "e218",
-                       "e221", "e224", "anio"),
+    depends_on = list("e27", "e49", "e51_2", "e51_3", "e51_7", "e193"),
     user = "calcita@gmx.li",
     description = paste(
-      "Calcula: asistencia escolar, anos de escolaridad, nivel educativo maximo",
-      "alcanzado y completitud de ciclos (primaria, secundaria baja/alta, terciaria).",
-      ech_pkg_ref
+      "Clasifica el nivel educativo maximo alcanzado en 5 categorias:",
+      "sin instruccion, primaria, secundaria, terciaria no universitaria",
+      "y universitaria. Calcula anos de escolaridad y asistencia escolar.",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, school_enrollment = ech::enrolled_school(...))",
-      "step_compute(svy, years_schooling = ech::years_of_schooling(...))",
-      "step_recode(svy, level_education = ech::level_education(...))",
-      "step_recode(svy, primary_completion = ech::level_completion(...)$primary)"
+      paste0(
+        'step_recode(svy, nivel_educativo, ',
+        'e49 == 1 | e51_2 == 0 ~ "Sin instruccion", ',
+        'e51_2 %in% 1:2 ~ "Primaria", ',
+        'e51_3 %in% 1:3 ~ "Secundaria", ',
+        'e51_7 %in% 1:3 ~ "Terciaria no universitaria", ',
+        '.default = "Universitaria", ',
+        '.to_factor = TRUE, ordered = TRUE, ',
+        'comment = "Nivel educativo maximo alcanzado")'
+      ),
+      'step_recode(svy, asiste, e193 == 1 ~ 1, .default = 0, comment = "Asiste actualmente a un establecimiento educativo")'
     ),
     id = "ech_education_010",
     topic = "education",
@@ -470,43 +472,47 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("e27", "e49", "e51_2", "e51_3", "e51_4", "e51_5", "e51_6",
-                           "e51_7", "e51_7_1", "e51_8", "e51_9", "e51_10", "e51_11",
-                           "e193", "e197", "e197_1", "e201", "e212", "e215", "e218", "e221", "e224", "anio"),
-      output_variables = c("school_enrollment", "years_schooling", "level_education",
-                            "primary_completion", "lower_secondary_completion",
-                            "upper_secondary_completion", "tertiary_completion"),
+      input_variables = c("e27", "e49", "e51_2", "e51_3", "e51_7", "e193"),
+      output_variables = c("nivel_educativo", "asiste"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("school_enrollment"), inputs = list("e27", "e193", "e197", "e201", "e212", "e215", "e218", "e221", "e224"), inferred_type = "categorical", comment = "Asiste a algun nivel educativo: SI/NO"),
-        list(index = 2L, type = "compute", outputs = list("years_schooling"), inputs = list("e193", "e49", "e51_2", "e51_3", "e51_4", "e51_5", "e51_6", "e51_7", "e51_8", "anio"), inferred_type = "numeric", comment = "Anos de escolaridad formal acumulados"),
-        list(index = 3L, type = "recode", outputs = list("level_education"), inputs = list("e49", "e51_2", "e51_3", "e51_4", "e51_7", "e193"), inferred_type = "categorical", comment = "Nivel: sin instruccion/primaria/secundaria/magisterio/universidad"),
-        list(index = 4L, type = "recode", outputs = list("primary_completion", "lower_secondary_completion", "upper_secondary_completion", "tertiary_completion"), inputs = list("e197", "e197_1", "e201", "e51_4", "e51_7", "e51_8", "e51_9", "e212", "e215", "e218", "e221"), inferred_type = "categorical", comment = "Completitud de cada ciclo educativo")
+        list(index = 1L, type = "recode", outputs = list("nivel_educativo"), inputs = list("e49", "e51_2", "e51_3", "e51_7"), inferred_type = "categorical", comment = "Nivel educativo maximo alcanzado"),
+        list(index = 2L, type = "recode", outputs = list("asiste"), inputs = list("e193"), inferred_type = "numeric", comment = "Asiste actualmente a un establecimiento educativo")
       )
     )
   ),
 
-  # ── 11. Vivienda ──────────────────────────────────────────────────────────
+  # ── 11. Condiciones habitacionales ──────────────────────────────────────────
   Recipe$new(
-    name = "Condiciones Habitacionales (ech::housing)",
-    edition = "2023", survey_type = "ech",
+    name = "Condiciones Habitacionales",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("c2", "c3", "c4", "c5_1", "c5_2", "c5_3", "c5_4", "c5_5",
-                       "c5_6", "c5_7", "c5_8", "c5_9", "c5_10", "c5_11", "c5_12",
-                       "d8_1", "d9", "d10", "d11", "d12", "d13", "d16", "d18", "d19",
-                       "ht19", "quintil", "region_4"),
+    depends_on = list("c2", "c3", "c4", "d8_1", "d9", "d10", "ht19"),
     user = "richard.detomasi@gmail.com",
     description = paste(
-      "Construye indicadores de condiciones de vivienda: tipo tenencia,",
-      "situacion estructural, condiciones materiales, hacinamiento",
-      "y privacion habitacional (10 indicadores).",
-      ech_pkg_ref
+      "Indicadores de condiciones de vivienda: tenencia (propietario,",
+      "inquilino, ocupante), calidad de materiales (paredes, techo, piso),",
+      "hacinamiento (personas/dormitorio) y tamano del hogar.",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, housing_tenure = ech::housing_tenure(d8_1))",
-      "step_recode(svy, housing_situation = ech::housing_situation(...))",
-      "step_recode(svy, housing_conditions = ech::housing_conditions(c2, c3, c4))",
-      "step_compute(svy, overcrowding = ech::overcrowding(ht19, d10))",
-      "step_recode(svy, housing_deprivation = ech::housing_deprivation(...))"
+      paste0(
+        'step_recode(svy, tenencia, ',
+        'd8_1 == 1 ~ "Propietario", ',
+        'd8_1 == 2 ~ "Inquilino", ',
+        'd8_1 == 3 ~ "Ocupante gratuito", ',
+        'd8_1 == 4 ~ "Ocupante sin permiso", ',
+        '.default = "Otra situacion", ',
+        'comment = "Tipo de tenencia de la vivienda")'
+      ),
+      paste0(
+        'step_recode(svy, calidad_materiales, ',
+        'c2 %in% 1:2 & c3 %in% 1:2 & c4 %in% 1:2 ~ "Buena", ',
+        'c2 %in% 1:3 & c3 %in% 1:3 & c4 %in% 1:2 ~ "Regular", ',
+        '.default = "Precaria", ',
+        'comment = "Calidad de materiales: paredes (c2), techo (c3), piso (c4)")'
+      ),
+      'step_compute(svy, hacinamiento = ht19 / d9, comment = "Personas por dormitorio")',
+      'step_recode(svy, hacinamiento_critico, hacinamiento > 3 ~ 1, .default = 0, comment = "Hacinamiento critico: mas de 3 personas por dormitorio")'
     ),
     id = "ech_housing_011",
     topic = "housing",
@@ -516,36 +522,38 @@ recipes <- list(
     user_info = author_richard,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("c2", "c3", "c4", "c5_1", "c5_2", "c5_3", "c5_4", "c5_5",
-                           "c5_6", "c5_7", "c5_8", "c5_9", "c5_10", "c5_11", "c5_12",
-                           "d8_1", "d9", "d10", "d11", "d12", "d13", "d16", "d18", "d19",
-                           "ht19", "quintil", "region_4"),
-      output_variables = c("housing_tenure", "housing_situation", "housing_conditions",
-                            "overcrowding", "housing_deprivation"),
+      input_variables = c("c2", "c3", "c4", "d8_1", "d9", "ht19"),
+      output_variables = c("tenencia", "calidad_materiales", "hacinamiento", "hacinamiento_critico"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("housing_tenure"), inputs = list("d8_1"), inferred_type = "categorical", comment = "Tipo tenencia: propietario/inquilino/ocupante/etc."),
-        list(index = 2L, type = "recode", outputs = list("housing_situation"), inputs = list("c5_1", "c5_2", "c5_3", "c5_4", "c5_5", "c5_6"), inferred_type = "categorical", comment = "Situacion estructural: 4 categorias de defectos"),
-        list(index = 3L, type = "recode", outputs = list("housing_conditions"), inputs = list("c2", "c3", "c4"), inferred_type = "categorical", comment = "Calidad materiales: paredes, techo, piso"),
-        list(index = 4L, type = "compute", outputs = list("overcrowding"), inputs = list("ht19", "d10"), inferred_type = "numeric", comment = "Personas por dormitorio"),
-        list(index = 5L, type = "recode", outputs = list("housing_deprivation"), inputs = list("overcrowding", "d9", "d11", "d12", "d16", "d18", "d19", "quintil", "region_4"), inferred_type = "categorical", comment = "Privacion habitacional: 10 indicadores compuestos")
+        list(index = 1L, type = "recode", outputs = list("tenencia"), inputs = list("d8_1"), inferred_type = "categorical", comment = "Tipo de tenencia"),
+        list(index = 2L, type = "recode", outputs = list("calidad_materiales"), inputs = list("c2", "c3", "c4"), inferred_type = "categorical", comment = "Calidad de materiales"),
+        list(index = 3L, type = "compute", outputs = list("hacinamiento"), inputs = list("ht19", "d9"), inferred_type = "numeric", comment = "Personas por dormitorio"),
+        list(index = 4L, type = "recode", outputs = list("hacinamiento_critico"), inputs = list("hacinamiento"), inferred_type = "numeric", comment = "Hacinamiento critico")
       )
     )
   ),
 
-  # ── 12. Tipo de hogar ─────────────────────────────────────────────────────
+  # ── 12. Tipo de hogar ───────────────────────────────────────────────────────
   Recipe$new(
-    name = "Tipo de Hogar (ech::household_type)",
-    edition = "2023", survey_type = "ech",
+    name = "Tipo de Hogar",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
-    depends_on = list("numero", "e26", "e27", "e30"),
+    depends_on = list("e30", "ht19"),
     user = "calcita@gmx.li",
     description = paste(
-      "Clasifica hogares en 7 tipos: unipersonal, pareja sin hijos,",
-      "monoparental (jefa/jefe), biparental, extendido, compuesto.",
-      ech_pkg_ref
+      "Clasifica hogares segun composicion: unipersonal, pareja sin hijos,",
+      "biparental con hijos, monoparental, extendido. Usa la relacion de",
+      "parentesco (e30) y el tamano del hogar (ht19).",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, household_type = ech::household_type(numero, e26, e27, e30))"
+      paste0(
+        'step_recode(svy, tipo_hogar, ',
+        'ht19 == 1 ~ "Unipersonal", ',
+        'ht19 == 2 & e30 == 2 ~ "Pareja sin hijos", ',
+        '.default = "Otro", ',
+        'comment = "Tipo de hogar segun composicion")'
+      )
     ),
     id = "ech_household_type_012",
     topic = "demographics",
@@ -555,30 +563,59 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("numero", "e26", "e27", "e30"),
-      output_variables = c("household_type"),
+      input_variables = c("e30", "ht19"),
+      output_variables = c("tipo_hogar"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("household_type"), inputs = list("numero", "e26", "e27", "e30"), inferred_type = "categorical", comment = "7 tipos: unipersonal/pareja/monoparental/biparental/extendido/compuesto")
+        list(index = 1L, type = "recode", outputs = list("tipo_hogar"), inputs = list("ht19", "e30"), inferred_type = "categorical", comment = "Tipo de hogar segun composicion")
       )
     )
   ),
 
-  # ── 13. Grupos de edad ────────────────────────────────────────────────────
+  # ── 13. Grupos de edad ──────────────────────────────────────────────────────
   Recipe$new(
-    name = "Grupos de Edad (ech::age_groups)",
-    edition = "2023", survey_type = "ech",
+    name = "Grupos de Edad",
+    edition = "2018", survey_type = "ech",
     default_engine = "data.table",
     depends_on = list("e27"),
     user = "calcita@gmx.li",
     description = paste(
-      "Crea grupos etarios configurables. Por defecto: 0-13, 14-17, 18-24,",
-      "25-29, 30-44, 45-59, 60+.",
-      ech_pkg_ref
+      "Crea grupos etarios estandar para analisis sociodemografico:",
+      "0-13, 14-17, 18-24, 25-29, 30-44, 45-59, 60+.",
+      "Incluye tambien una clasificacion simplificada en 4 tramos",
+      "para analisis laboral (jovenes, adultos, mayores, adultos mayores).",
+      ech_ref
     ),
     steps = list(
-      "step_recode(svy, age_groups = ech::age_groups(., e27=e27))"
+      paste0(
+        'step_recode(svy, grupo_edad, ',
+        'e27 < 14 ~ "0-13", ',
+        'e27 < 18 ~ "14-17", ',
+        'e27 < 25 ~ "18-24", ',
+        'e27 < 30 ~ "25-29", ',
+        'e27 < 45 ~ "30-44", ',
+        'e27 < 60 ~ "45-59", ',
+        '.default = "60+", ',
+        '.to_factor = TRUE, ordered = TRUE, ',
+        'comment = "Grupos de edad estandar")'
+      ),
+      paste0(
+        'step_recode(svy, tramo_edad, ',
+        'e27 < 25 ~ "Jovenes (14-24)", ',
+        'e27 < 45 ~ "Adultos (25-44)", ',
+        'e27 < 65 ~ "Mayores (45-64)", ',
+        '.default = "Adultos mayores (65+)", ',
+        '.to_factor = TRUE, ordered = TRUE, ',
+        'comment = "Tramos de edad para analisis laboral")'
+      ),
+      'step_recode(svy, sexo, e26 == 1 ~ "Hombre", e26 == 2 ~ "Mujer", .default = "Otro", comment = "Sexo")',
+      paste0(
+        'step_recode(svy, region, ',
+        'dpto == 1 ~ "Montevideo", ',
+        '.default = "Interior", ',
+        'comment = "Region: Montevideo vs Interior")'
+      )
     ),
-    id = "ech_age_groups_013",
+    id = "ech_demographics_013",
     topic = "demographics",
     categories = list(demographics),
     downloads = 0L,
@@ -586,10 +623,13 @@ recipes <- list(
     user_info = author_gabriela,
     version = "1.0.0",
     cached_doc = list(
-      input_variables = c("e27"),
-      output_variables = c("age_groups"),
+      input_variables = c("e27", "e26", "dpto"),
+      output_variables = c("grupo_edad", "tramo_edad", "sexo", "region"),
       pipeline = list(
-        list(index = 1L, type = "recode", outputs = list("age_groups"), inputs = list("e27"), inferred_type = "categorical", comment = "Grupos etarios: 0-13/14-17/18-24/25-29/30-44/45-59/60+")
+        list(index = 1L, type = "recode", outputs = list("grupo_edad"), inputs = list("e27"), inferred_type = "categorical", comment = "Grupos de edad estandar (7 tramos)"),
+        list(index = 2L, type = "recode", outputs = list("tramo_edad"), inputs = list("e27"), inferred_type = "categorical", comment = "Tramos de edad para analisis laboral (4 tramos)"),
+        list(index = 3L, type = "recode", outputs = list("sexo"), inputs = list("e26"), inferred_type = "categorical", comment = "Sexo"),
+        list(index = 4L, type = "recode", outputs = list("region"), inputs = list("dpto"), inferred_type = "categorical", comment = "Region: Montevideo vs Interior")
       )
     )
   )
@@ -604,31 +644,34 @@ workflows <- list(
   # ── WF1. Mercado Laboral ──────────────────────────────────────────────────
   RecipeWorkflow$new(
     id = "ech_wf_labor",
-    name = "Mercado Laboral ECH (ech)",
+    name = "Mercado Laboral ECH - Indicadores basicos",
     description = paste(
-      "Estimaciones basicas del mercado de trabajo usando variables del paquete {ech}:",
-      "tasas de actividad, empleo, desempleo, subempleo y brechas de genero."
+      "Estimaciones basicas del mercado de trabajo uruguayo:",
+      "tasas de actividad, empleo, desempleo, subempleo.",
+      "Incluye desagregaciones por sexo, tramo de edad y region."
     ),
     user = "calcita@gmx.li",
     user_info = author_gabriela,
-    survey_type = "ech", edition = "2023",
+    survey_type = "ech", edition = "2018",
     estimation_type = c("annual"),
-    recipe_ids = c("ech_employment_001", "ech_underemployment_002", "ech_branch_ciiu_003", "ech_age_groups_013"),
+    recipe_ids = c("ech_employment_001", "ech_underemployment_002", "ech_demographics_013"),
     calls = list(
-      "svymean(~pea, design, na.rm=TRUE)",
-      "svymean(~po, design, na.rm=TRUE)",
-      "svymean(~pd, design, na.rm=TRUE)",
-      "svymean(~underemployment, design, na.rm=TRUE)",
-      "svyby(~po, ~age_groups, design, svymean, na.rm=TRUE)",
-      "svyby(~po, ~branch_ciiu, design, svymean, na.rm=TRUE)"
+      "svymean(~tasa_empleo, design, na.rm=TRUE)",
+      "svymean(~tasa_desempleo, design, na.rm=TRUE)",
+      "svymean(~tasa_actividad, design, na.rm=TRUE)",
+      "svymean(~subempleo, design, na.rm=TRUE)",
+      "svyby(~tasa_desempleo, ~sexo, design, svymean, na.rm=TRUE)",
+      "svyby(~tasa_desempleo, ~tramo_edad, design, svymean, na.rm=TRUE)",
+      "svyby(~tasa_desempleo, ~region, design, svymean, na.rm=TRUE)"
     ),
     call_metadata = list(
-      list(type = "svymean", formula = "~pea", description = "Tasa de actividad"),
-      list(type = "svymean", formula = "~po", description = "Tasa de empleo"),
-      list(type = "svymean", formula = "~pd", description = "Tasa de desempleo"),
-      list(type = "svymean", formula = "~underemployment", description = "Tasa de subempleo"),
-      list(type = "svyby", formula = "~po", by = "~age_groups", description = "Empleo por grupo de edad"),
-      list(type = "svyby", formula = "~po", by = "~branch_ciiu", description = "Empleo por rama CIIU")
+      list(type = "svymean", formula = "~tasa_empleo", description = "Tasa de empleo"),
+      list(type = "svymean", formula = "~tasa_desempleo", description = "Tasa de desempleo"),
+      list(type = "svymean", formula = "~tasa_actividad", description = "Tasa de actividad"),
+      list(type = "svymean", formula = "~subempleo", description = "Tasa de subempleo"),
+      list(type = "svyby", formula = "~tasa_desempleo", by = "~sexo", description = "Desempleo por sexo"),
+      list(type = "svyby", formula = "~tasa_desempleo", by = "~tramo_edad", description = "Desempleo por tramo de edad"),
+      list(type = "svyby", formula = "~tasa_desempleo", by = "~region", description = "Desempleo por region")
     ),
     downloads = 0L,
     certification = community_cert,
@@ -638,32 +681,32 @@ workflows <- list(
   # ── WF2. Pobreza y Desigualdad ────────────────────────────────────────────
   RecipeWorkflow$new(
     id = "ech_wf_poverty",
-    name = "Pobreza y Desigualdad ECH (ech)",
+    name = "Pobreza y Desigualdad ECH",
     description = paste(
-      "Estimaciones de pobreza, indigencia, NBI y distribucion del ingreso.",
-      "Incluye Gini, QSR y medida integrada de pobreza."
+      "Estimaciones de pobreza, indigencia, NBI y medida integrada.",
+      "Incluye desagregaciones por quintil de ingreso y region."
     ),
     user = "calcita@gmx.li",
     user_info = author_gabriela,
-    survey_type = "ech", edition = "2023",
+    survey_type = "ech", edition = "2018",
     estimation_type = c("annual"),
-    recipe_ids = c("ech_income_prices_004", "ech_quantiles_005", "ech_poverty_007",
+    recipe_ids = c("ech_income_pc_004", "ech_quantiles_005", "ech_poverty_007",
                     "ech_nbi_008", "ech_integrated_poverty_009"),
     calls = list(
-      "svymean(~poor, design, na.rm=TRUE)",
-      "svymean(~indigent, design, na.rm=TRUE)",
-      "svymean(~UBN, design, na.rm=TRUE)",
-      "svymean(~y_pc_d, design, na.rm=TRUE)",
-      "svyby(~poor, ~quintil, design, svymean, na.rm=TRUE)",
-      "svymean(~integrated_poverty_measure, design, na.rm=TRUE)"
+      "svymean(~pobre, design, na.rm=TRUE)",
+      "svymean(~indigente, design, na.rm=TRUE)",
+      "svymean(~tiene_nbi, design, na.rm=TRUE)",
+      "svymean(~ingreso_pc, design, na.rm=TRUE)",
+      "svyby(~pobre, ~quintil, design, svymean, na.rm=TRUE)",
+      "svymean(~pobreza_integrada, design, na.rm=TRUE)"
     ),
     call_metadata = list(
-      list(type = "svymean", formula = "~poor", description = "Tasa de pobreza"),
-      list(type = "svymean", formula = "~indigent", description = "Tasa de indigencia"),
-      list(type = "svymean", formula = "~UBN", description = "Porcentaje hogares con al menos 1 NBI"),
-      list(type = "svymean", formula = "~y_pc_d", description = "Ingreso per capita promedio (constante)"),
-      list(type = "svyby", formula = "~poor", by = "~quintil", description = "Pobreza por quintil de ingreso"),
-      list(type = "svymean", formula = "~integrated_poverty_measure", description = "Medida integrada: cronica/reciente/inercial")
+      list(type = "svymean", formula = "~pobre", description = "Tasa de pobreza"),
+      list(type = "svymean", formula = "~indigente", description = "Tasa de indigencia"),
+      list(type = "svymean", formula = "~tiene_nbi", description = "Porcentaje hogares con al menos 1 NBI"),
+      list(type = "svymean", formula = "~ingreso_pc", description = "Ingreso per capita promedio"),
+      list(type = "svyby", formula = "~pobre", by = "~quintil", description = "Pobreza por quintil de ingreso"),
+      list(type = "svymean", formula = "~pobreza_integrada", description = "Medida integrada de pobreza")
     ),
     downloads = 0L,
     certification = community_cert,
@@ -673,29 +716,27 @@ workflows <- list(
   # ── WF3. Educacion ────────────────────────────────────────────────────────
   RecipeWorkflow$new(
     id = "ech_wf_education",
-    name = "Perfil Educativo ECH (ech)",
+    name = "Perfil Educativo ECH",
     description = paste(
-      "Estimaciones de nivel educativo, anos de escolaridad, asistencia",
-      "y completitud de ciclos, con desagregacion por sexo y quintil."
+      "Estimaciones de nivel educativo y asistencia escolar.",
+      "Incluye desagregaciones por sexo y quintil de ingreso."
     ),
     user = "calcita@gmx.li",
     user_info = author_gabriela,
-    survey_type = "ech", edition = "2023",
+    survey_type = "ech", edition = "2018",
     estimation_type = c("annual"),
-    recipe_ids = c("ech_education_010", "ech_quantiles_005", "ech_age_groups_013"),
+    recipe_ids = c("ech_education_010", "ech_quantiles_005", "ech_demographics_013"),
     calls = list(
-      "svymean(~years_schooling, design, na.rm=TRUE)",
-      "svymean(~level_education, design, na.rm=TRUE)",
-      "svymean(~school_enrollment, design, na.rm=TRUE)",
-      "svyby(~years_schooling, ~quintil, design, svymean, na.rm=TRUE)",
-      "svymean(~primary_completion, design, na.rm=TRUE)"
+      "svymean(~nivel_educativo, design, na.rm=TRUE)",
+      "svymean(~asiste, design, na.rm=TRUE)",
+      "svyby(~asiste, ~quintil, design, svymean, na.rm=TRUE)",
+      "svyby(~nivel_educativo, ~sexo, design, svymean, na.rm=TRUE)"
     ),
     call_metadata = list(
-      list(type = "svymean", formula = "~years_schooling", description = "Anos de escolaridad promedio"),
-      list(type = "svymean", formula = "~level_education", description = "Distribucion por nivel educativo"),
-      list(type = "svymean", formula = "~school_enrollment", description = "Tasa de asistencia escolar"),
-      list(type = "svyby", formula = "~years_schooling", by = "~quintil", description = "Escolaridad por quintil de ingreso"),
-      list(type = "svymean", formula = "~primary_completion", description = "Tasa de completitud primaria")
+      list(type = "svymean", formula = "~nivel_educativo", description = "Distribucion por nivel educativo"),
+      list(type = "svymean", formula = "~asiste", description = "Tasa de asistencia escolar"),
+      list(type = "svyby", formula = "~asiste", by = "~quintil", description = "Asistencia por quintil de ingreso"),
+      list(type = "svyby", formula = "~nivel_educativo", by = "~sexo", description = "Nivel educativo por sexo")
     ),
     downloads = 0L,
     certification = community_cert,
@@ -705,27 +746,29 @@ workflows <- list(
   # ── WF4. Vivienda ─────────────────────────────────────────────────────────
   RecipeWorkflow$new(
     id = "ech_wf_housing",
-    name = "Condiciones Habitacionales ECH (ech)",
+    name = "Condiciones Habitacionales ECH",
     description = paste(
       "Estimaciones de condiciones de vivienda: tenencia, hacinamiento,",
-      "privacion habitacional y calidad de materiales."
+      "calidad de materiales y NBI habitacional."
     ),
-    user = "richard.detomasi@gmail.com",
-    user_info = author_richard,
-    survey_type = "ech", edition = "2023",
+    user = "calcita@gmx.li",
+    user_info = author_gabriela,
+    survey_type = "ech", edition = "2018",
     estimation_type = c("annual"),
     recipe_ids = c("ech_housing_011", "ech_quantiles_005"),
     calls = list(
-      "svymean(~housing_tenure, design, na.rm=TRUE)",
-      "svymean(~overcrowding, design, na.rm=TRUE)",
-      "svymean(~housing_deprivation, design, na.rm=TRUE)",
-      "svyby(~housing_deprivation, ~quintil, design, svymean, na.rm=TRUE)"
+      "svymean(~tenencia, design, na.rm=TRUE)",
+      "svymean(~hacinamiento, design, na.rm=TRUE)",
+      "svymean(~hacinamiento_critico, design, na.rm=TRUE)",
+      "svymean(~calidad_materiales, design, na.rm=TRUE)",
+      "svyby(~hacinamiento_critico, ~quintil, design, svymean, na.rm=TRUE)"
     ),
     call_metadata = list(
-      list(type = "svymean", formula = "~housing_tenure", description = "Distribucion tipo tenencia"),
-      list(type = "svymean", formula = "~overcrowding", description = "Hacinamiento promedio"),
-      list(type = "svymean", formula = "~housing_deprivation", description = "Tasa de privacion habitacional"),
-      list(type = "svyby", formula = "~housing_deprivation", by = "~quintil", description = "Privacion por quintil de ingreso")
+      list(type = "svymean", formula = "~tenencia", description = "Distribucion tipo tenencia"),
+      list(type = "svymean", formula = "~hacinamiento", description = "Hacinamiento promedio"),
+      list(type = "svymean", formula = "~hacinamiento_critico", description = "Tasa de hacinamiento critico"),
+      list(type = "svymean", formula = "~calidad_materiales", description = "Distribucion calidad materiales"),
+      list(type = "svyby", formula = "~hacinamiento_critico", by = "~quintil", description = "Hacinamiento critico por quintil")
     ),
     downloads = 0L,
     certification = community_cert,
@@ -741,21 +784,23 @@ seed_users <- list(
   list(
     name = "Gabriela Mathieu",
     email = "calcita@gmx.li",
-    password_hash = digest("ech_package_2024", algo = "sha256", serialize = FALSE),
+    password_hash = digest("ech_seed_2024", algo = "sha256", serialize = FALSE),
     user_type = "individual",
     institution = NULL,
     url = "https://orcid.org/0000-0003-3965-9024",
     verified = FALSE,
+    review_status = "approved",
     created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
   ),
   list(
     name = "Richard Detomasi",
     email = "richard.detomasi@gmail.com",
-    password_hash = digest("ech_package_2024", algo = "sha256", serialize = FALSE),
+    password_hash = digest("ech_seed_2024", algo = "sha256", serialize = FALSE),
     user_type = "individual",
     institution = NULL,
     url = "https://orcid.org/0000-0002-6725-0261",
     verified = FALSE,
+    review_status = "approved",
     created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
   )
 )
@@ -792,109 +837,93 @@ serialize_recipe <- function(r) {
 }
 
 serialize_workflow <- function(wf) {
-  wf$to_list()
+  doc <- wf$to_list()
+  doc$estimation_type <- as.list(doc$estimation_type)
+  doc$recipe_ids <- as.list(doc$recipe_ids)
+  doc$calls <- as.list(doc$calls)
+  doc
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-# MIGRATION
+# SEED
 # ══════════════════════════════════════════════════════════════════════════════
 
-cat("═══════════════════════════════════════════════════════════\n")
-cat("  metasurvey MongoDB Atlas Seed — {ech} package recipes\n")
-cat("═══════════════════════════════════════════════════════════\n\n")
+cat("==========================================================\n")
+cat("  metasurvey MongoDB Seed - ECH recipes (metasurvey DSL)\n")
+cat("==========================================================\n\n")
 
-# Dry-run mode: just export JSON
-dry_run <- !nzchar(ATLAS_API_KEY) && identical(Sys.getenv("METASURVEY_SEED_MODE"), "")
+# Connect
+db_users     <- mongolite::mongo(collection = "users",     db = DATABASE, url = MONGO_URI)
+db_recipes   <- mongolite::mongo(collection = "recipes",   db = DATABASE, url = MONGO_URI)
+db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
 
-if (dry_run) {
-  cat("No ATLAS_API_KEY found. Running in DRY-RUN mode (JSON export only).\n\n")
+cat(sprintf("Connected to MongoDB (db: %s)\n", DATABASE))
+cat(sprintf("  Before: users=%d, recipes=%d, workflows=%d\n\n",
+            db_users$count(), db_recipes$count(), db_workflows$count()))
 
-  output_dir <- "inst/seed-data"
-  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+# ── 1. Delete old recipes ────────────────────────────────────────────────────
+today <- format(Sys.Date(), "%Y-%m-%d")
+cat(sprintf("[recipes] Deleting recipes created before %s...\n", today))
 
-  # Users
-  writeLines(
-    toJSON(seed_users, auto_unbox = TRUE, null = "null", pretty = TRUE),
-    file.path(output_dir, "users.json")
-  )
-  cat(sprintf("  [users]     %d documents -> %s/users.json\n", length(seed_users), output_dir))
-
-  # Recipes
-  recipe_docs <- lapply(recipes, serialize_recipe)
-  writeLines(
-    toJSON(recipe_docs, auto_unbox = TRUE, null = "null", pretty = TRUE),
-    file.path(output_dir, "recipes.json")
-  )
-  cat(sprintf("  [recipes]   %d documents -> %s/recipes.json\n", length(recipe_docs), output_dir))
-
-  # Workflows
-  wf_docs <- lapply(workflows, serialize_workflow)
-  writeLines(
-    toJSON(wf_docs, auto_unbox = TRUE, null = "null", pretty = TRUE),
-    file.path(output_dir, "workflows.json")
-  )
-  cat(sprintf("  [workflows] %d documents -> %s/workflows.json\n", length(wf_docs), output_dir))
-
-  cat("\nDry-run complete. To push to Atlas:\n")
-  cat("  export METASURVEY_API_KEY='your-atlas-data-api-key'\n")
-  cat("  Rscript inst/scripts/seed_ech_recipes.R\n")
-
+old_filter <- sprintf('{"created_at": {"$not": {"$regex": "^%s"}}}', today)
+old_count <- db_recipes$count(old_filter)
+if (old_count > 0) {
+  db_recipes$remove(old_filter)
+  cat(sprintf("  Deleted %d old recipes\n", old_count))
 } else {
-  cat("Pushing to MongoDB Atlas...\n\n")
-
-  # 1. Users
-  cat("[users] Clearing existing seed users...\n")
-  for (u in seed_users) {
-    tryCatch(
-      delete_many("users", list(email = u$email)),
-      error = function(e) message("  skip delete: ", e$message)
-    )
-  }
-  cat("[users] Inserting ", length(seed_users), " users...\n")
-  for (u in seed_users) {
-    tryCatch({
-      insert_one("users", u)
-      cat(sprintf("  + %s (%s)\n", u$name, u$email))
-    }, error = function(e) message("  ERROR: ", e$message))
-  }
-
-  # 2. Recipes
-  cat("\n[recipes] Clearing existing ech recipes...\n")
-  for (r in recipes) {
-    tryCatch(
-      delete_many("recipes", list(id = r$id)),
-      error = function(e) message("  skip delete: ", e$message)
-    )
-  }
-  cat("[recipes] Inserting ", length(recipes), " recipes...\n")
-  for (r in recipes) {
-    doc <- serialize_recipe(r)
-    tryCatch({
-      insert_one("recipes", doc)
-      cat(sprintf("  + %s [%s]\n", doc$name, doc$id))
-    }, error = function(e) message("  ERROR: ", e$message))
-  }
-
-  # 3. Workflows
-  cat("\n[workflows] Clearing existing ech workflows...\n")
-  for (wf in workflows) {
-    tryCatch(
-      delete_many("workflows", list(id = wf$id)),
-      error = function(e) message("  skip delete: ", e$message)
-    )
-  }
-  cat("[workflows] Inserting ", length(workflows), " workflows...\n")
-  for (wf in workflows) {
-    doc <- serialize_workflow(wf)
-    tryCatch({
-      insert_one("workflows", doc)
-      cat(sprintf("  + %s [%s]\n", doc$name, doc$id))
-    }, error = function(e) message("  ERROR: ", e$message))
-  }
-
-  cat("\nSeed complete!\n")
+  cat("  No old recipes to delete\n")
 }
 
-cat("\n")
-cat(sprintf("Summary: %d users, %d recipes, %d workflows\n",
-            length(seed_users), length(recipes), length(workflows)))
+no_date_filter <- '{"created_at": {"$exists": false}}'
+no_date_count <- db_recipes$count(no_date_filter)
+if (no_date_count > 0) {
+  db_recipes$remove(no_date_filter)
+  cat(sprintf("  Deleted %d recipes without created_at\n", no_date_count))
+}
+
+# Delete old workflows too
+old_wf_count <- db_workflows$count(old_filter)
+if (old_wf_count > 0) {
+  db_workflows$remove(old_filter)
+  cat(sprintf("  Deleted %d old workflows\n", old_wf_count))
+}
+
+# Delete test user if exists
+db_users$remove('{"email": "test@example.com"}')
+
+# ── 2. Upsert seed users ─────────────────────────────────────────────────────
+cat("\n[users] Upserting seed users...\n")
+for (u in seed_users) {
+  tryCatch({
+    db_users$remove(toJSON(list(email = u$email), auto_unbox = TRUE))
+    db_users$insert(toJSON(u, auto_unbox = TRUE, null = "null"))
+    cat(sprintf("  + %s (%s)\n", u$name, u$email))
+  }, error = function(e) message("  ERROR: ", e$message))
+}
+
+# ── 3. Insert seed recipes ───────────────────────────────────────────────────
+cat(sprintf("\n[recipes] Inserting %d recipes...\n", length(recipes)))
+for (r in recipes) {
+  doc <- serialize_recipe(r)
+  tryCatch({
+    db_recipes$remove(toJSON(list(id = doc$id), auto_unbox = TRUE))
+    db_recipes$insert(toJSON(doc, auto_unbox = TRUE, null = "null"))
+    cat(sprintf("  + %s [%s]\n", doc$name, doc$id))
+  }, error = function(e) message("  ERROR: ", e$message))
+}
+
+# ── 4. Insert seed workflows ─────────────────────────────────────────────────
+cat(sprintf("\n[workflows] Inserting %d workflows...\n", length(workflows)))
+for (wf in workflows) {
+  doc <- serialize_workflow(wf)
+  tryCatch({
+    db_workflows$remove(toJSON(list(id = doc$id), auto_unbox = TRUE))
+    db_workflows$insert(toJSON(doc, auto_unbox = TRUE, null = "null"))
+    cat(sprintf("  + %s [%s]\n", doc$name, doc$id))
+  }, error = function(e) message("  ERROR: ", e$message))
+}
+
+# ── Summary ──────────────────────────────────────────────────────────────────
+cat(sprintf("\n  After: users=%d, recipes=%d, workflows=%d\n",
+            db_users$count(), db_recipes$count(), db_workflows$count()))
+cat("\nSeed complete!\n")

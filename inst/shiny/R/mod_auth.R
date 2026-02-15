@@ -78,7 +78,7 @@ auth_server <- function(id, auth_state) {
       }
 
       result <- tryCatch(
-        mongo_login(email, password),
+        shiny_login(email, password),
         error = function(e) list(ok = FALSE, error = e$message)
       )
 
@@ -86,9 +86,24 @@ auth_server <- function(id, auth_state) {
         auth_state$user <- result$user
         auth_state$logged_in <- TRUE
         auth_state$email <- email
+        auth_state$token <- result$token
         shiny::showNotification(
           paste("Welcome,", result$user$name, "!"),
           type = "message", duration = 3
+        )
+      } else if (!is.null(result$review_status) && result$review_status == "pending") {
+        output$login_feedback <- shiny::renderUI(
+          htmltools::tags$div(class = "alert alert-info mt-3",
+            bsicons::bs_icon("hourglass-split"),
+            " Your account is pending admin review. You will be notified once approved."
+          )
+        )
+      } else if (!is.null(result$review_status) && result$review_status == "rejected") {
+        output$login_feedback <- shiny::renderUI(
+          htmltools::tags$div(class = "alert alert-danger mt-3",
+            bsicons::bs_icon("x-circle-fill"),
+            " Your institutional account was not approved. Contact the administrator."
+          )
         )
       } else {
         output$login_feedback <- shiny::renderUI(
@@ -131,14 +146,26 @@ auth_server <- function(id, auth_state) {
       inst_arg <- if (user_type == "institutional_member" && nzchar(institution)) institution else NULL
 
       result <- tryCatch(
-        mongo_register(name, email, password, user_type, inst_arg),
+        shiny_register(name, email, password, user_type, inst_arg),
         error = function(e) list(ok = FALSE, error = e$message)
       )
 
-      if (isTRUE(result$ok)) {
+      if (isTRUE(result$ok) && isTRUE(result$pending)) {
+        # Institutional account pending review
+        output$register_feedback <- shiny::renderUI(
+          htmltools::tags$div(class = "alert alert-info mt-3",
+            bsicons::bs_icon("hourglass-split"),
+            htmltools::tags$strong(" Account created!"),
+            htmltools::tags$br(),
+            "Institutional accounts require admin approval before activation. ",
+            "You will be able to login once your account is reviewed."
+          )
+        )
+      } else if (isTRUE(result$ok)) {
         auth_state$user <- result$user
         auth_state$logged_in <- TRUE
         auth_state$email <- email
+        auth_state$token <- result$token
         shiny::showNotification(
           paste("Account created! Welcome,", name),
           type = "message", duration = 3

@@ -64,13 +64,13 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
     # Reactive: all recipes from MongoDB
     all_recipes <- shiny::reactiveVal(list())
 
-    # Current recipe for the pipeline graph (defined once, not per-click)
-    current_graph_recipe <- shiny::reactiveVal(NULL)
+    # Counter for unique graph IDs
+    graph_counter <- shiny::reactiveVal(0)
 
     load_recipes <- function() {
       shiny::withProgress(message = "Loading recipes...", {
         recipes <- tryCatch(
-          mongo_fetch_recipes(),
+          shiny_fetch_recipes(),
           error = function(e) {
             shiny::showNotification(
               paste("Could not load recipes:", e$message),
@@ -175,36 +175,36 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       htmltools::tags$div(class = "recipe-grid", cards)
     })
 
-    # Pipeline graph output (defined once, reactive to current_graph_recipe)
-    if (requireNamespace("visNetwork", quietly = TRUE)) {
-      output$recipe_graph <- visNetwork::renderVisNetwork({
-        recipe <- current_graph_recipe()
-        shiny::req(recipe)
-        recipe_pipeline_graph(recipe)
-      })
-    }
-
     # Helper: open recipe detail modal
     open_recipe_modal <- function(recipe) {
       # Increment downloads
       tryCatch(
-        mongo_increment_downloads(recipe$id),
+        shiny_increment_downloads(recipe$id),
         error = function(e) NULL
       )
 
       # Find workflows that reference this recipe
       referencing_workflows <- tryCatch({
-        all_wf <- mongo_fetch_workflows()
+        all_wf <- shiny_fetch_workflows()
         Filter(function(wf) recipe$id %in% wf$recipe_ids, all_wf)
       }, error = function(e) list())
 
-      # Set graph recipe (triggers re-render when modal is visible)
-      current_graph_recipe(recipe)
+      # Generate unique ID for this modal's graph
+      graph_counter(graph_counter() + 1)
+      graph_id <- paste0("recipe_graph_", graph_counter())
+      
+      # Create the graph output dynamically with unique ID
+      if (requireNamespace("visNetwork", quietly = TRUE)) {
+        output[[graph_id]] <- visNetwork::renderVisNetwork({
+          recipe_pipeline_graph(recipe)
+        })
+      }
 
       shiny::showModal(
         shiny::modalDialog(
           recipe_detail_ui(recipe, ns = ns,
-                          referencing_workflows = referencing_workflows),
+                          referencing_workflows = referencing_workflows,
+                          graph_output_id = graph_id),
           size = "l",
           easyClose = TRUE,
           footer = shiny::modalButton("Close")

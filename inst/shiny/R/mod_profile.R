@@ -78,9 +78,79 @@ profile_server <- function(id, auth_state) {
                             class = "btn-outline-danger")
         ),
 
+        # API Token section
+        shiny::uiOutput(ns("token_section")),
+
+        # Admin panel for pending reviews
+        shiny::uiOutput(ns("admin_panel")),
+
         # My recipes section
         shiny::uiOutput(ns("my_recipes_section"))
       )
+    })
+
+    # Token section
+    generated_token <- shiny::reactiveVal(NULL)
+
+    output$token_section <- shiny::renderUI({
+      if (!isTRUE(auth_state$logged_in) || is.null(auth_state$token)) return(NULL)
+
+      token_val <- generated_token()
+
+      token_content <- if (!is.null(token_val)) {
+        code_text <- paste0(
+          '<span class="code-comment"># Configure metasurvey API access</span>\n',
+          'library(metasurvey)\n',
+          '<span class="code-func">Sys.setenv</span>(METASURVEY_TOKEN = <span class="code-string">"', token_val, '"</span>)\n',
+          '\n',
+          '<span class="code-comment"># Or add to your .Renviron file:</span>\n',
+          '<span class="code-comment"># METASURVEY_TOKEN=', token_val, '</span>\n',
+          '\n',
+          '<span class="code-comment"># Now you can use the API</span>\n',
+          'recipes &lt;- <span class="code-func">api_list_recipes</span>()\n',
+          'length(recipes)'
+        )
+        htmltools::tagList(
+          code_block_ui(code_text, label = "R Code — API Access", block_id = "profile_token_code"),
+          htmltools::tags$p(class = "token-help",
+            bsicons::bs_icon("shield-lock", size = ".75rem"),
+            " Token expires in 90 days. Keep it private and do not share it."
+          )
+        )
+      } else {
+        htmltools::tags$p(style = "color: #6c757d; font-size: .9rem;",
+          "Generate a long-lived token for use in R scripts and automated pipelines."
+        )
+      }
+
+      htmltools::tags$div(class = "token-section",
+        htmltools::tags$h5(
+          bsicons::bs_icon("key-fill", size = "1.1rem"),
+          " API Access Token"
+        ),
+        shiny::actionButton(ns("btn_generate_token"),
+          if (is.null(token_val)) "Generate Token" else "Regenerate Token",
+          icon = shiny::icon("key"),
+          class = if (is.null(token_val)) "btn-primary btn-sm" else "btn-outline-secondary btn-sm"
+        ),
+        token_content
+      )
+    })
+
+    shiny::observeEvent(input$btn_generate_token, {
+      result <- tryCatch(
+        shiny_generate_token(auth_state$token),
+        error = function(e) list(ok = FALSE, error = e$message)
+      )
+      if (isTRUE(result$ok)) {
+        generated_token(result$token)
+        shiny::showNotification("API token generated (valid for 90 days)", type = "message")
+      } else {
+        shiny::showNotification(
+          paste("Token generation failed:", result$error %||% "Unknown error"),
+          type = "error"
+        )
+      }
     })
 
     # Logout
@@ -88,7 +158,104 @@ profile_server <- function(id, auth_state) {
       auth_state$user <- NULL
       auth_state$logged_in <- FALSE
       auth_state$email <- NULL
+      auth_state$token <- NULL
       shiny::showNotification("Logged out successfully.", type = "message")
+    })
+
+    # Admin panel — show pending reviews if admin
+    output$admin_panel <- shiny::renderUI({
+      if (!isTRUE(auth_state$logged_in) || is.null(auth_state$token)) return(NULL)
+      # Only show for admin users (check by fetching pending — if 403, not admin)
+      result <- tryCatch(
+        shiny_fetch_pending_users(auth_state$token),
+        error = function(e) list(ok = FALSE)
+      )
+      if (!isTRUE(result$ok)) return(NULL)
+
+      pending <- result$users %||% list()
+      if (length(pending) == 0) {
+        return(htmltools::tags$div(
+          style = "padding: 1rem; background: #f0f9ff; border-radius: 12px; margin-bottom: 1.5rem;",
+          bsicons::bs_icon("shield-check", size = "1.2rem"),
+          htmltools::tags$strong(" Admin Panel"),
+          htmltools::tags$p(style = "margin: .5rem 0 0; color: #6c757d;",
+            "No accounts pending review."
+          )
+        ))
+      }
+
+      user_cards <- lapply(seq_along(pending), function(i) {
+        u <- pending[[i]]
+        htmltools::tags$div(
+          style = "display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: #fff; border-radius: 8px; margin-bottom: .5rem; border: 1px solid #e9ecef;",
+          htmltools::tags$div(
+            htmltools::tags$strong(u$name %||% "Unknown"),
+            htmltools::tags$span(style = "color: #6c757d; margin-left: .5rem;", u$email %||% ""),
+            htmltools::tags$br(),
+            htmltools::tags$span(
+              class = paste0("badge bg-", if (u$user_type == "institution") "primary" else "info"),
+              u$user_type
+            ),
+            if (!is.null(u$institution) && !is.na(u$institution)) htmltools::tags$span(
+              style = "color: #6c757d; margin-left: .5rem; font-size: .85rem;",
+              paste("Institution:", u$institution)
+            )
+          ),
+          htmltools::tags$div(
+            style = "display: flex; gap: .5rem;",
+            shiny::actionButton(ns(paste0("approve_", i)), "Approve",
+              class = "btn-sm btn-success", icon = shiny::icon("check")),
+            shiny::actionButton(ns(paste0("reject_", i)), "Reject",
+              class = "btn-sm btn-danger", icon = shiny::icon("times"))
+          )
+        )
+      })
+
+      htmltools::tags$div(
+        style = "padding: 1.25rem; background: #f0f9ff; border-radius: 12px; margin-bottom: 1.5rem;",
+        htmltools::tags$div(style = "display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;",
+          bsicons::bs_icon("shield-lock-fill", size = "1.2rem"),
+          htmltools::tags$strong(paste("Admin Panel -", length(pending), "pending")),
+          shiny::actionButton(ns("refresh_admin"), "", icon = shiny::icon("sync"),
+            class = "btn-outline-secondary btn-sm", style = "margin-left: auto;")
+        ),
+        htmltools::tagList(user_cards)
+      )
+    })
+
+    # Admin approve/reject handlers
+    shiny::observe({
+      result <- tryCatch(shiny_fetch_pending_users(auth_state$token), error = function(e) list(ok = FALSE))
+      if (!isTRUE(result$ok)) return()
+      pending <- result$users %||% list()
+
+      lapply(seq_along(pending), function(i) {
+        approve_id <- paste0("approve_", i)
+        reject_id <- paste0("reject_", i)
+        user_email <- pending[[i]]$email
+
+        shiny::observeEvent(input[[approve_id]], {
+          res <- tryCatch(shiny_approve_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
+          if (isTRUE(res$ok)) {
+            shiny::showNotification(paste("Approved:", user_email), type = "message")
+          }
+        }, ignoreInit = TRUE, once = TRUE)
+
+        shiny::observeEvent(input[[reject_id]], {
+          res <- tryCatch(shiny_reject_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
+          if (isTRUE(res$ok)) {
+            shiny::showNotification(paste("Rejected:", user_email), type = "warning")
+          }
+        }, ignoreInit = TRUE, once = TRUE)
+      })
+    }) |> shiny::bindEvent(auth_state$logged_in)
+
+    # Refresh admin panel
+    shiny::observeEvent(input$refresh_admin, {
+      output$admin_panel <- shiny::renderUI({
+        # Re-trigger by invalidating
+        shiny::invalidateLater(0)
+      })
     })
 
     # My recipes
@@ -97,7 +264,7 @@ profile_server <- function(id, auth_state) {
       if (is.null(email)) return()
 
       recipes <- tryCatch(
-        mongo_fetch_user_recipes(email),
+        shiny_fetch_user_recipes(email),
         error = function(e) list()
       )
 

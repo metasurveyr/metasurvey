@@ -64,7 +64,7 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
     load_workflows <- function() {
       shiny::withProgress(message = "Loading workflows...", {
         workflows <- tryCatch(
-          mongo_fetch_workflows(),
+          shiny_fetch_workflows(),
           error = function(e) {
             shiny::showNotification(
               paste("Could not load workflows:", e$message),
@@ -169,7 +169,7 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
     open_workflow_modal <- function(wf) {
       # Increment downloads
       tryCatch(
-        mongo_increment_workflow_downloads(wf$id),
+        shiny_increment_workflow_downloads(wf$id),
         error = function(e) NULL
       )
 

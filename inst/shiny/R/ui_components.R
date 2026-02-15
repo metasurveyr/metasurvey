@@ -415,6 +415,81 @@ app_css <- function() {
       font-size: .8rem;
       margin-top: .5rem;
     }
+
+    /* ── Code Block ── */
+    .code-block-wrapper {
+      position: relative;
+      margin: 1rem 0;
+    }
+    .code-block-wrapper .code-block-header {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      background: #1a1b26;
+      color: #a9b1d6;
+      border-radius: 10px 10px 0 0;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .code-block-wrapper pre {
+      margin: 0;
+      padding: 1rem 1.25rem;
+      background: #24283b;
+      color: #c0caf5;
+      border-radius: 0 0 10px 10px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: .82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 2;
+    }
+    .code-block-wrapper pre .code-comment {
+      color: #565f89;
+    }
+    .code-block-wrapper pre .code-string {
+      color: #9ece6a;
+    }
+    .code-block-wrapper pre .code-func {
+      color: #7aa2f7;
+    }
+    .code-block-wrapper .btn-copy-code {
+      position: absolute;
+      top: .35rem;
+      right: .5rem;
+      padding: .2rem .6rem;
+      font-size: .7rem;
+      background: rgba(255,255,255,.1);
+      color: #a9b1d6;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .code-block-wrapper .btn-copy-code:hover {
+      background: rgba(255,255,255,.2);
+      color: #fff;
+    }
+
+    /* ── Token Section ── */
+    .token-section {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .token-section h5 {
+      margin: 0 0 1rem;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+    .token-section .token-help {
+      font-size: .8rem;
+      color: #6c757d;
+      margin-top: .75rem;
+    }
   "))
 }
 
@@ -448,6 +523,108 @@ format_downloads <- function(n) {
   n <- as.integer(n)
   if (n >= 1000) paste0(round(n / 1000, 1), "k")
   else as.character(n)
+}
+
+# Reusable code block with copy button
+code_block_ui <- function(code, label = "R Code", block_id = NULL) {
+  if (is.null(block_id)) block_id <- paste0("cb_", as.integer(Sys.time() * 1000) %% 1e6)
+  # Strip HTML tags and decode entities for clipboard
+  plain_code <- gsub("<[^>]+>", "", code)
+  plain_code <- gsub("&lt;", "<", plain_code)
+  plain_code <- gsub("&gt;", ">", plain_code)
+  plain_code <- gsub("&amp;", "&", plain_code)
+  escaped_code <- gsub("'", "\\\\'", gsub("\n", "\\\\n", plain_code))
+  copy_js <- sprintf(
+    "var btn=this; navigator.clipboard.writeText('%s').then(function(){btn.textContent='Copied!'; setTimeout(function(){btn.textContent='Copy'},1500)});",
+    escaped_code
+  )
+
+  htmltools::tags$div(class = "code-block-wrapper",
+    htmltools::tags$div(class = "code-block-header",
+      bsicons::bs_icon("code-slash", size = ".85rem"),
+      label
+    ),
+    htmltools::tags$button(
+      class = "btn-copy-code",
+      onclick = htmltools::HTML(copy_js),
+      "Copy"
+    ),
+    htmltools::tags$pre(htmltools::HTML(code))
+  )
+}
+
+# Generate R code snippet for using a recipe
+recipe_code_snippet <- function(recipe) {
+  rid <- recipe$id %||% "recipe_id"
+  stype <- recipe$survey_type %||% "ech"
+  edition <- recipe$edition %||% "2018"
+
+  paste0(
+    '<span class="code-comment"># Download recipe from the ecosystem</span>\n',
+    'library(metasurvey)\n',
+    'recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)\n',
+    '\n',
+    '<span class="code-comment"># Check documentation</span>\n',
+    'recipe$<span class="code-func">doc</span>()\n',
+    '\n',
+    '<span class="code-comment"># Apply to your survey</span>\n',
+    'svy &lt;- <span class="code-func">Survey$new</span>(\n',
+    '  data = my_data,\n',
+    '  type = <span class="code-string">"', stype, '"</span>,\n',
+    '  edition = <span class="code-string">"', edition, '"</span>\n',
+    ')\n',
+    'svy$<span class="code-func">add_recipe</span>(recipe)\n',
+    'svy &lt;- <span class="code-func">bake_recipes</span>(svy)'
+  )
+}
+
+# Generate R code snippet for using a workflow
+workflow_code_snippet <- function(wf) {
+  recipe_ids <- unlist(wf$recipe_ids)
+  calls <- unlist(wf$calls)
+  stype <- wf$survey_type %||% "ech"
+  edition <- wf$edition %||% "2018"
+
+  lines <- c(
+    '<span class="code-comment"># Apply required recipes first</span>',
+    'library(metasurvey)'
+  )
+
+  if (length(recipe_ids) > 0) {
+    for (i in seq_along(recipe_ids)) {
+      rvar <- paste0("r", i)
+      lines <- c(lines, paste0(
+        rvar, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
+        recipe_ids[i], '"</span>)'
+      ))
+    }
+    for (i in seq_along(recipe_ids)) {
+      lines <- c(lines, paste0('svy$<span class="code-func">add_recipe</span>(r', i, ')'))
+    }
+    lines <- c(lines, 'svy &lt;- <span class="code-func">bake_recipes</span>(svy)')
+  }
+
+  if (length(calls) > 0) {
+    lines <- c(lines, '',
+      '<span class="code-comment"># Run estimations</span>',
+      'results &lt;- <span class="code-func">workflow</span>('
+    )
+    lines <- c(lines, '  list(svy),')
+    for (i in seq_along(calls)) {
+      comma <- if (i < length(calls)) "," else ""
+      lines <- c(lines, paste0('  ', calls[i], comma))
+    }
+    est_types <- unlist(wf$estimation_type)
+    if (length(est_types) > 0) {
+      lines <- c(lines, paste0(
+        '  estimation_type = <span class="code-string">"',
+        est_types[1], '"</span>'
+      ))
+    }
+    lines <- c(lines, ')')
+  }
+
+  paste(lines, collapse = "\n")
 }
 
 recipe_card_ui <- function(recipe, ns, index) {
@@ -505,7 +682,7 @@ recipe_card_ui <- function(recipe, ns, index) {
   )
 }
 
-recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) {
+recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), graph_output_id = "recipe_graph") {
   doc <- recipe$doc()
   cert_level <- recipe$certification$level %||% "community"
   cert_cls <- paste0("cert-", cert_level)
@@ -569,7 +746,7 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) 
       ),
       htmltools::tags$div(
         class = "pipeline-graph-container",
-        visNetwork::visNetworkOutput(ns("recipe_graph"), height = "350px")
+        visNetwork::visNetworkOutput(ns(graph_output_id), height = "350px")
       )
     )
   }
@@ -577,14 +754,16 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) 
   # Pipeline timeline
   pipeline_section <- if (length(doc$pipeline) > 0) {
     steps_html <- lapply(doc$pipeline, function(step) {
-      step_type <- step$type %||% "unknown"
+      step_type <- if (is.list(step$type)) step$type[[1]] else (step$type %||% "unknown")
       base_type <- gsub("ast_", "", step_type)
       dot_cls <- paste0("step-dot step-dot-", if (base_type %in% c("compute", "recode", "rename", "remove", "join")) base_type else "default")
       type_cls <- paste0("step-type step-type-", base_type)
 
-      outputs_str <- if (length(step$outputs) > 0) paste(step$outputs, collapse = ", ") else "(no output)"
-      comment_html <- if (!is.null(step$comment) && length(step$comment) == 1 && nzchar(step$comment)) {
-        htmltools::tags$div(style = "font-size:.75rem; color:#95a5a6; font-style:italic;", step$comment)
+      outputs <- unlist(step$outputs)
+      outputs_str <- if (length(outputs) > 0) paste(outputs, collapse = ", ") else "(no output)"
+      comment_txt <- if (is.list(step$comment)) step$comment[[1]] else step$comment
+      comment_html <- if (!is.null(comment_txt) && length(comment_txt) == 1 && nzchar(comment_txt)) {
+        htmltools::tags$div(style = "font-size:.75rem; color:#95a5a6; font-style:italic;", comment_txt)
       }
 
       htmltools::tags$div(class = "pipeline-step",
@@ -609,34 +788,38 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) 
   }
 
   # Input variables
-  input_section <- if (length(doc$input_variables) > 0) {
+  input_vars <- unlist(doc$input_variables)
+  input_section <- if (length(input_vars) > 0) {
     htmltools::tags$div(style = "padding: 1rem 0;",
       htmltools::tags$div(class = "section-title",
         bsicons::bs_icon("box-arrow-in-right"),
-        paste("Requires (", length(doc$input_variables), "variables )")
+        paste("Requires (", length(input_vars), "variables )")
       ),
-      htmltools::tagList(lapply(doc$input_variables, function(v) {
+      htmltools::tagList(lapply(input_vars, function(v) {
         htmltools::tags$span(class = "var-chip var-chip-input", v)
       }))
     )
   }
 
   # Output variables
-  output_section <- if (length(doc$output_variables) > 0) {
+  output_vars <- unlist(doc$output_variables)
+  output_section <- if (length(output_vars) > 0) {
     # Build type map from pipeline
     type_map <- list()
     for (step in doc$pipeline) {
-      if (length(step$outputs) > 0 && !is.null(step$inferred_type)) {
-        for (o in step$outputs) type_map[[o]] <- step$inferred_type
+      outputs <- unlist(step$outputs)
+      inf_type <- if (is.list(step$inferred_type)) step$inferred_type[[1]] else step$inferred_type
+      if (length(outputs) > 0 && !is.null(inf_type)) {
+        for (o in outputs) type_map[[o]] <- inf_type
       }
     }
 
     htmltools::tags$div(style = "padding: 1rem 0;",
       htmltools::tags$div(class = "section-title",
         bsicons::bs_icon("box-arrow-right"),
-        paste("Produces (", length(doc$output_variables), "variables )")
+        paste("Produces (", length(output_vars), "variables )")
       ),
-      htmltools::tagList(lapply(doc$output_variables, function(v) {
+      htmltools::tagList(lapply(output_vars, function(v) {
         var_type <- type_map[[v]] %||% "unknown"
         cls <- if (var_type == "categorical") "var-chip var-chip-output-cat"
                else "var-chip var-chip-output"
@@ -686,6 +869,19 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) 
     )
   }
 
+  # R Code snippet
+  code_section <- htmltools::tags$div(style = "padding: 1rem 0;",
+    htmltools::tags$div(class = "section-title",
+      bsicons::bs_icon("terminal-fill"),
+      "Use in R"
+    ),
+    code_block_ui(
+      recipe_code_snippet(recipe),
+      label = "R Code",
+      block_id = paste0("recipe_code_", recipe$id %||% "x")
+    )
+  )
+
   # Assemble
   htmltools::tags$div(
     header,
@@ -696,7 +892,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list()) 
       pipeline_section,
       workflow_section,
       input_section,
-      output_section
+      output_section,
+      code_section
     )
   )
 }
@@ -709,9 +906,20 @@ recipe_pipeline_graph <- function(recipe) {
   pipeline <- doc$pipeline
   if (length(pipeline) == 0) return(NULL)
 
-  input_vars  <- doc$input_variables
-  output_vars <- doc$output_variables
+  input_vars  <- unlist(doc$input_variables)
+  output_vars <- unlist(doc$output_variables)
   workflows   <- list()  # Workflows now live as separate RecipeWorkflow objects
+
+  # Normalize pipeline steps: MongoDB returns lists, we need character vectors
+  pipeline <- lapply(pipeline, function(s) {
+    s$outputs <- as.character(unlist(s$outputs))
+    s$inputs  <- as.character(unlist(s$inputs))
+    s$type    <- if (is.list(s$type)) s$type[[1]] else s$type
+    s$comment <- if (is.list(s$comment)) s$comment[[1]] else s$comment
+    s$inferred_type <- if (is.list(s$inferred_type)) s$inferred_type[[1]] else s$inferred_type
+    s$index   <- if (is.list(s$index)) as.integer(s$index[[1]]) else as.integer(s$index)
+    s
+  })
 
   # ── Palette (aligned with view_graph + Shiny app) ──
   pal <- list(
@@ -1308,5 +1516,18 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
     )
   }
 
-  htmltools::tagList(header, desc_section, recipe_refs, est_type_section, est_section)
+  # R Code snippet
+  code_section <- htmltools::tags$div(style = "padding: 0 1.5rem 1rem;",
+    htmltools::tags$div(class = "section-title",
+      bsicons::bs_icon("terminal-fill"),
+      "Use in R"
+    ),
+    code_block_ui(
+      workflow_code_snippet(wf),
+      label = "R Code",
+      block_id = paste0("wf_code_", wf$id %||% "x")
+    )
+  )
+
+  htmltools::tagList(header, desc_section, recipe_refs, est_type_section, est_section, code_section)
 }

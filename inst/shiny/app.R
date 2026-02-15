@@ -7,8 +7,12 @@ library(bsicons)
 library(htmltools)
 library(metasurvey)
 
-# Source app modules
-app_dir <- system.file("shiny", package = "metasurvey")
+# Source app modules — prefer local dev files if running from source tree
+app_dir <- if (file.exists("R/api_utils.R")) {
+  "."
+} else {
+  system.file("shiny", package = "metasurvey")
+}
 for (f in list.files(file.path(app_dir, "R"), full.names = TRUE, pattern = "\\.R$")) {
   source(f, local = TRUE)
 }
