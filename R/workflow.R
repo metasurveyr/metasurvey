@@ -113,6 +113,9 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
             function(i) {
               survey <- survey[[i]]
 
+              # Ensure design is initialized before using it
+              survey$ensure_design()
+
               partial_result <- rbindlist(
                 lapply(
                   2:length(.calls),
@@ -134,6 +137,12 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
       }
     )
   )
+
+  # Auto-capture: build RecipeWorkflow if surveys have recipes
+  wf <- .capture_workflow(survey, .calls, estimation_type)
+  if (!is.null(wf)) {
+    attr(result, "workflow") <- wf
+  }
 
   return(result)
 }
@@ -181,6 +190,9 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
             seq_along(survey[[x]]),
             function(i) {
               survey_item <- survey[[x]][[i]]
+              
+              # Ensure design is initialized before using it
+              survey_item$ensure_design()
 
               result <- rbindlist(
                 lapply(
@@ -216,15 +228,25 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   ]
 
   if (estimation_type_first == estimation_type) {
-    return(data.table(result))
+    out <- data.table(result)
   } else {
     numeric_vars <- names(result)[sapply(result, is.numeric)]
     agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
     agg[, se := sapply(variance, adj_se, rho = rho, R = R)]
     agg[, cv := se / value]
     agg[, evaluate := sapply(cv, evaluate_cv)]
-    return(data.table(agg[order(stat), ]))
+    out <- data.table(agg[order(stat), ])
   }
+
+  # Auto-capture for pool workflows
+  # Collect all surveys from the pool structure for recipe extraction
+  all_surveys <- unlist(survey, recursive = FALSE)
+  wf <- .capture_workflow(all_surveys, .calls, estimation_type)
+  if (!is.null(wf)) {
+    attr(out, "workflow") <- wf
+  }
+
+  return(out)
 }
 
 
@@ -324,4 +346,87 @@ cat_estimation.svyratio <- function(estimation, call) {
   )
   names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
+}
+
+#' Auto-capture workflow from survey list and calls
+#' @param survey_list List of Survey objects
+#' @param .calls Substituted call list
+#' @param estimation_type Character vector of estimation types
+#' @return RecipeWorkflow or NULL if no recipes found
+#' @keywords internal
+#' @noRd
+.capture_workflow <- function(survey_list, .calls, estimation_type) {
+  # Collect recipe IDs from surveys
+  recipe_ids <- character(0)
+  svy_type <- "Unknown"
+  svy_edition <- "Unknown"
+  svy_user <- "Unknown"
+
+  for (s in survey_list) {
+    if (!inherits(s, "Survey")) next
+    if (svy_type == "Unknown") svy_type <- s$type %||% "Unknown"
+    if (svy_edition == "Unknown") svy_edition <- s$edition %||% "Unknown"
+
+    # Extract recipe IDs from the survey's recipes
+    if (length(s$recipes) > 0) {
+      for (r in s$recipes) {
+        if (inherits(r, "Recipe") && !is.null(r$id)) {
+          rid <- as.character(r$id)
+          if (!rid %in% recipe_ids) {
+            recipe_ids <- c(recipe_ids, rid)
+          }
+          if (svy_user == "Unknown" && !is.null(r$user)) {
+            svy_user <- r$user
+          }
+        }
+      }
+    }
+  }
+
+  # Only auto-capture if surveys have recipes
+  if (length(recipe_ids) == 0) return(NULL)
+
+  # Parse call metadata from .calls
+  calls_str <- list()
+  call_metadata <- list()
+
+  if (length(.calls) > 1) {
+    for (i in 2:length(.calls)) {
+      raw_call <- .calls[[i]]
+      deparsed <- deparse(raw_call, width.cutoff = 200)
+      calls_str[[length(calls_str) + 1]] <- paste(deparsed, collapse = " ")
+
+      # Extract type and formula from the call
+      call_list <- as.list(raw_call)
+      fn_name <- deparse(call_list[[1]])
+
+      # Extract formula (first argument after function name)
+      formula_str <- if (length(call_list) > 1) deparse(call_list[[2]], width.cutoff = 200) else ""
+
+      # Extract by= for svyby
+      by_str <- NULL
+      if (fn_name == "svyby" && length(call_list) > 2) {
+        by_str <- deparse(call_list[[3]], width.cutoff = 200)
+      }
+
+      call_metadata[[length(call_metadata) + 1]] <- list(
+        type = fn_name,
+        formula = paste(formula_str, collapse = " "),
+        by = by_str,
+        description = ""
+      )
+    }
+  }
+
+  RecipeWorkflow$new(
+    name = paste("Workflow:", svy_type, svy_edition),
+    description = paste("Auto-captured workflow with", length(calls_str), "estimations"),
+    user = svy_user,
+    survey_type = svy_type,
+    edition = svy_edition,
+    estimation_type = estimation_type,
+    recipe_ids = recipe_ids,
+    calls = calls_str,
+    call_metadata = call_metadata
+  )
 }
