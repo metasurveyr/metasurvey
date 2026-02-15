@@ -782,23 +782,12 @@ workflows <- list(
 
 seed_users <- list(
   list(
-    name = "Gabriela Mathieu",
-    email = "calcita@gmx.li",
-    password_hash = digest("ech_seed_2024", algo = "sha256", serialize = FALSE),
+    name = "metasurvey",
+    email = "metasurvey@example.com",
+    password_hash = digest("ech_package_2024", algo = "sha256", serialize = FALSE),
     user_type = "individual",
     institution = NULL,
-    url = "https://orcid.org/0000-0003-3965-9024",
-    verified = FALSE,
-    review_status = "approved",
-    created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
-  ),
-  list(
-    name = "Richard Detomasi",
-    email = "richard.detomasi@gmail.com",
-    password_hash = digest("ech_seed_2024", algo = "sha256", serialize = FALSE),
-    user_type = "individual",
-    institution = NULL,
-    url = "https://orcid.org/0000-0002-6725-0261",
+    url = "https://github.com/metaSurveyR/metasurvey",
     verified = FALSE,
     review_status = "approved",
     created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
