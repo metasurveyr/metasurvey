@@ -1,8 +1,8 @@
 #' @title WorkflowBackend
 #' @description Backend-agnostic factory for workflow storage and retrieval.
-#' Supports "local" (JSON-backed WorkflowRegistry) and "mongo" (MongoDB Atlas API) backends.
+#' Supports "local" (JSON-backed WorkflowRegistry) and "api" (remote plumber API) backends.
 #'
-#' @field type Character backend type ("local" or "mongo").
+#' @field type Character backend type ("local" or "api").
 #'
 #' @examples
 #' \dontrun{
@@ -10,6 +10,10 @@
 #' backend <- WorkflowBackend$new("local", path = "workflows.json")
 #' backend$publish(my_workflow)
 #' backend$search("labor")
+#'
+#' # API backend (requires configure_api() first)
+#' configure_api("https://metasurvey-api.example.com")
+#' backend <- WorkflowBackend$new("api")
 #' }
 #'
 #' @export
@@ -19,10 +23,12 @@ WorkflowBackend <- R6::R6Class(
     type = NULL,
 
     #' @description Create a new WorkflowBackend
-    #' @param type Character. "local" or "mongo".
+    #' @param type Character. "local" or "api".
     #' @param path Character. File path for local backend (optional).
     initialize = function(type, path = NULL) {
-      valid_types <- c("local", "mongo")
+      # Accept "mongo" as alias for "api" (backward compat)
+      if (type == "mongo") type <- "api"
+      valid_types <- c("local", "api")
       if (!(type %in% valid_types)) {
         stop("Backend type must be one of: ", paste(valid_types, collapse = ", "))
       }
@@ -44,40 +50,8 @@ WorkflowBackend <- R6::R6Class(
         if (!is.null(private$.path)) {
           private$.registry$save(private$.path)
         }
-      } else if (self$type == "mongo") {
-        # MongoDB publication via Data API
-        wf_data <- wf$to_list()
-        api_url <- paste0(url_api_host(), "insertOne")
-        key <- get_api_key()
-        headers <- switch(key$methodAuth,
-          apiKey = c("Content-Type" = "application/json",
-                     "Access-Control-Request-Headers" = "*",
-                     "apiKey" = key$token),
-          anonUser = c("Content-Type" = "application/json",
-                       "Access-Control-Request-Headers" = "*",
-                       "Authorization" = paste("Bearer", key$token)),
-          userPassword = c("Content-Type" = "application/ejson",
-                           "Accept" = "application/json",
-                           "email" = key$email,
-                           "password" = key$password)
-        )
-        payload <- list(
-          dataSource = "Cluster0",
-          database = "metasurvey",
-          collection = "workflows",
-          document = wf_data
-        )
-        response <- httr::POST(
-          url = api_url,
-          httr::add_headers(headers),
-          body = jsonlite::toJSON(payload, auto_unbox = TRUE),
-          encode = "json"
-        )
-        if (response$status_code < 300) {
-          message("Workflow published to metasurvey API. Status: ", response$status_code)
-        } else {
-          stop("Failed to publish workflow. Status: ", response$status_code)
-        }
+      } else if (self$type == "api") {
+        api_publish_workflow(wf)
       }
     },
 
@@ -87,8 +61,8 @@ WorkflowBackend <- R6::R6Class(
     search = function(query) {
       if (self$type == "local") {
         private$.registry$search(query)
-      } else if (self$type == "mongo") {
-        list() # TODO: mongo search
+      } else if (self$type == "api") {
+        tryCatch(api_list_workflows(search = query), error = function(e) list())
       }
     },
 
@@ -98,8 +72,8 @@ WorkflowBackend <- R6::R6Class(
     get = function(id) {
       if (self$type == "local") {
         private$.registry$get(id)
-      } else if (self$type == "mongo") {
-        NULL # TODO: mongo get
+      } else if (self$type == "api") {
+        tryCatch(api_get_workflow(id), error = function(e) NULL)
       }
     },
 
@@ -114,6 +88,8 @@ WorkflowBackend <- R6::R6Class(
             private$.registry$save(private$.path)
           }
         }
+      } else if (self$type == "api") {
+        api_download_workflow(id)
       }
     },
 
@@ -123,8 +99,8 @@ WorkflowBackend <- R6::R6Class(
     find_by_recipe = function(recipe_id) {
       if (self$type == "local") {
         private$.registry$find_by_recipe(recipe_id)
-      } else if (self$type == "mongo") {
-        list() # TODO: mongo query
+      } else if (self$type == "api") {
+        tryCatch(api_list_workflows(recipe_id = recipe_id), error = function(e) list())
       }
     },
 
@@ -134,8 +110,8 @@ WorkflowBackend <- R6::R6Class(
     rank = function(n = NULL) {
       if (self$type == "local") {
         private$.registry$rank_by_downloads(n)
-      } else if (self$type == "mongo") {
-        list()
+      } else if (self$type == "api") {
+        tryCatch(api_list_workflows(limit = n %||% 50), error = function(e) list())
       }
     },
 
@@ -149,8 +125,11 @@ WorkflowBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$filter(svy_type = svy_type, edition = edition,
                                   recipe_id = recipe_id, certification_level = certification_level)
-      } else if (self$type == "mongo") {
-        list()
+      } else if (self$type == "api") {
+        tryCatch(
+          api_list_workflows(survey_type = svy_type, recipe_id = recipe_id),
+          error = function(e) list()
+        )
       }
     },
 
@@ -159,8 +138,8 @@ WorkflowBackend <- R6::R6Class(
     list_all = function() {
       if (self$type == "local") {
         private$.registry$list_all()
-      } else if (self$type == "mongo") {
-        list()
+      } else if (self$type == "api") {
+        tryCatch(api_list_workflows(), error = function(e) list())
       }
     },
 
@@ -186,11 +165,12 @@ WorkflowBackend <- R6::R6Class(
 
 #' @title Set workflow backend
 #' @description Configure the active workflow backend via options.
-#' @param type Character. "local" or "mongo".
+#' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
 #' @param path Character. File path for local backend.
 #' @examples
 #' \dontrun{
 #' set_workflow_backend("local", path = "my_workflows.json")
+#' set_workflow_backend("api")
 #' }
 #' @export
 set_workflow_backend <- function(type, path = NULL) {

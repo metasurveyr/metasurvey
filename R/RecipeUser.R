@@ -9,6 +9,7 @@
 #' @field institution RecipeUser or NULL. Parent institution (for institutional_member).
 #' @field url Character or NULL. Institution URL.
 #' @field verified Logical. Whether the account is verified.
+#' @field review_status Character. One of "approved", "pending", "rejected".
 #'
 #' @examples
 #' # Individual user
@@ -34,6 +35,7 @@ RecipeUser <- R6::R6Class(
     institution = NULL,
     url = NULL,
     verified = FALSE,
+    review_status = "approved",
 
     #' @description Create a new RecipeUser
     #' @param name Character. User or institution name.
@@ -43,8 +45,10 @@ RecipeUser <- R6::R6Class(
     #' @param institution RecipeUser or NULL. Parent institution for institutional_member.
     #' @param url Character or NULL. Institution URL.
     #' @param verified Logical. Whether account is verified.
+    #' @param review_status Character. "approved", "pending", or "rejected".
     initialize = function(name, user_type, email = NULL, affiliation = NULL,
-                          institution = NULL, url = NULL, verified = FALSE) {
+                          institution = NULL, url = NULL, verified = FALSE,
+                          review_status = "approved") {
       if (is.null(name) || !is.character(name) || nchar(name) == 0) {
         stop("User name must be a non-empty character string")
       }
@@ -64,6 +68,7 @@ RecipeUser <- R6::R6Class(
       self$institution <- institution
       self$url <- url
       self$verified <- verified
+      self$review_status <- review_status
     },
 
     #' @description Get trust level (1=individual, 2=member, 3=institution)
@@ -99,6 +104,7 @@ RecipeUser <- R6::R6Class(
       if (!is.null(self$affiliation)) lst$affiliation <- self$affiliation
       if (!is.null(self$url)) lst$url <- self$url
       lst$verified <- self$verified
+      lst$review_status <- self$review_status
       if (!is.null(self$institution)) {
         lst$institution <- self$institution$to_list()
       }
@@ -119,6 +125,10 @@ RecipeUser <- R6::R6Class(
       if (!is.null(self$institution)) cat("  Institution:", self$institution$name, "\n")
       if (!is.null(self$url)) cat("  URL:", self$url, "\n")
       if (self$verified) cat("  ", crayon::green("Verified"), "\n")
+      if (self$review_status != "approved") {
+        status_col <- if (self$review_status == "pending") crayon::yellow else crayon::red
+        cat("  ", status_col(paste0("Review: ", self$review_status)), "\n")
+      }
       invisible(self)
     }
   )
@@ -138,6 +148,7 @@ RecipeUser$from_list <- function(lst) {
     affiliation = lst$affiliation,
     institution = inst,
     url = lst$url,
-    verified = isTRUE(lst$verified)
+    verified = isTRUE(lst$verified),
+    review_status = lst$review_status %||% "approved"
   )
 }

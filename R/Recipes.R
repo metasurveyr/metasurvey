@@ -763,92 +763,41 @@ get_recipe <- function(
     svy_edition = NULL,
     topic = NULL,
     allowMultiple = TRUE) {
-  
+
   # Check if recipes should be skipped (offline mode)
   if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
-    warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.", 
+    warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.",
             call. = FALSE)
     return(NULL)
   }
-  
-  filterList <- list(
-    svy_type = svy_type,
-    svy_edition = svy_edition,
-    topic = topic
-  )
-
-  method <- "findOne"
-
-  if (allowMultiple) {
-    method <- "find"
-  }
-
-  filterList <- filterList[!sapply(filterList, is.null)]
 
   tryCatch({
-    content_json <- request_api(method, filterList)
+    recipes <- api_list_recipes(
+      svy_type = svy_type,
+      search = topic
+    )
 
-    n_recipe <- get_distinct_recipes_json(content_json)
-
-    if (n_recipe == 0) {
+    if (length(recipes) == 0) {
       message("The API returned no recipes for the specified criteria")
       return(NULL)
     }
 
-    message(
-      glue::glue("The API returned {n_recipe} recipes")
-    )
+    message(glue::glue("The API returned {length(recipes)} recipes"))
 
+    if (!allowMultiple) {
+      return(recipes[[1]])
+    }
 
-  if (n_recipe == 1) {
-    recipe <- content_json$document[[1]]
-    return(
-      Recipe$new(
-        name = unlist(recipe$name),
-        user = unlist(recipe$user),
-        edition = unlist(recipe$svy_edition),
-        survey_type = unlist(recipe$svy_type),
-        default_engine = default_engine(),
-        depends_on = unlist(recipe$depends_on),
-        description = unlist(recipe$description),
-        steps = decode_step(recipe$steps),
-        id = recipe[["_id"]],
-        doi = unlist(recipe$DOI),
-        topic = unlist(recipe$topic)
-      )
-    )
-  } else {
-    return(
-      lapply(
-        X = 1:n_recipe,
-        FUN = function(x) {
-          recipe <- content_json$documents[[x]]
-
-          Recipe$new(
-            name = unlist(recipe$name),
-            user = unlist(recipe$user),
-            edition = unlist(recipe$svy_edition),
-            survey_type = unlist(recipe$svy_type),
-            default_engine = default_engine(),
-            depends_on = list(),
-            description = unlist(recipe$description),
-            steps = decode_step(recipe$steps),
-            id = recipe[["_id"]],
-            doi = unlist(recipe$doi),
-            topic = unlist(recipe$topic)
-          )
-        }
-      )
-    )
-  }
+    recipes
   }, error = function(e) {
-    warning(sprintf(
-      "Failed to retrieve recipes from API: %s\n",
+    warning(
+      "Failed to retrieve recipes from API: ", e$message, "\n",
       "  You can:\n",
       "    - Work without recipes by not calling get_recipe()\n",
       "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
-      "    - Check your internet connection and try again"
-    ), e$message, call. = FALSE)
+      "    - Check your internet connection and try again",
+      call. = FALSE
+    )
     return(NULL)
   })
 }
@@ -903,144 +852,12 @@ steps_to_recipe <- function(
 }
 
 
-get_distinct_recipes_json <- function(content_json) {
-  tryCatch(
-    {
-      if (is.null(content_json$documents)) {
-        return(1)
-      } else {
-        return(
-          length(
-            unique(
-              sapply(
-                X = seq_along(content_json$documents),
-                FUN = function(x) {
-                  content_json$documents[[x]][["_id"]]
-                }
-              )
-            )
-          )
-        )
-      }
-    },
-    error = function(e) {
-      return(0)
-    }
-  )
-}
-
-
+# Legacy helpers kept for backward compatibility with external code
+# that may call get_distinct_recipes() directly
 get_distinct_recipes <- function(recipe) {
   tryCatch(
-    {
-      length(unique(
-        sapply(
-          X = seq_along(recipe),
-          FUN = function(x) {
-            recipe <- recipe[[x]]
-            recipe$id
-          }
-        )
-      ))
-    },
-    error = function(e) {
-      return(0)
-    }
-  )
-}
-
-#' API Recipe
-#' @importFrom httr POST add_headers content
-#' @importFrom jsonlite parse_json
-#' @noRd
-#' @keywords internal
-
-request_api <- function(method, filterList) {
-  baseUrl <- url_api_host()
-
-  url <- paste0(
-    baseUrl,
-    method
-  )
-
-  key <- get_api_key()
-
-  headers <- switch(key$methodAuth,
-    apiKey = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "apiKey" = paste(
-          key$token
-        )
-      )
-    },
-    anonUser = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "Authorization" = paste(
-          "Bearer",
-          key$token
-        )
-      )
-    },
-    userPassword = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "email" = key$email,
-        "password" = key$password
-      )
-    }
-  )
-
-  body <- list(
-    collection = "recipes",
-    database = "metasurvey",
-    dataSource = "Cluster0",
-    filter = filterList
-  )
-
-  response <- POST(
-    url,
-    body = body,
-    encode = "json",
-    add_headers(.headers = headers)
-  )
-
-  content <- content(response, "text", encoding = "UTF-8")
-
-  switch(response$status_code,
-    "400" = stop(
-      message(
-        "The API returned an error for a bad request: ",
-        response$status
-      )
-    ),
-    "401" = stop(
-      message(
-        "The API returned an error for unauthorized access: ",
-        response$status
-      )
-    ),
-    "403" = stop(
-      message(
-        "The API returned an error for forbidden access: ",
-        response$status
-      )
-    ),
-    "404" = stop(
-      message(
-        "The API returned an error for not found: ",
-        response$status
-      )
-    )
-  )
-
-
-  return(
-    content_json = parse_json(content)
+    length(unique(sapply(seq_along(recipe), function(x) recipe[[x]]$id))),
+    error = function(e) 0
   )
 }
 
@@ -1058,83 +875,12 @@ request_api <- function(method, filterList) {
 #' @export
 
 publish_recipe <- function(recipe) {
-  recipe <- list(
-    name = recipe$name,
-    user = recipe$user,
-    description = recipe$description,
-    svy_type = recipe$svy_type,
-    svy_edition = recipe$edition,
-    steps = recipe$steps,
-    topic = recipe$topic,
-    doi = recipe$doi,
-    depends_on = unlist(recipe$depends_on)
-  )
-
-  recipe <- recipe
-
-  api_url <- paste0(url_api_host(), "insertOne")
-  database_name <- "metasurvey"
-  collection_name <- "recipes"
-  key <- get_api_key()
-
-  # Verificar que el JSON no esté vacío
-  if (is.null(recipe) || length(recipe) == 0) {
-    stop("No recipe data provided.")
+  if (!inherits(recipe, "Recipe")) {
+    stop("recipe must be a Recipe object", call. = FALSE)
   }
-
-  # Estructurar el payload para MongoDB Atlas Data API
-  payload <- list(
-    dataSource = "Cluster0", # Reemplaza con el nombre de tu clúster si es diferente
-    database = database_name,
-    collection = collection_name,
-    document = recipe
-  )
-
-  # Estructurar encabezados de acuerdo al método de autenticación
-  headers <- switch(key$methodAuth,
-    apiKey = c(
-      "Content-Type" = "application/json",
-      "Access-Control-Request-Headers" = "*",
-      "apiKey" = key$token
-    ),
-    anonUser = c(
-      "Content-Type" = "application/json",
-      "Access-Control-Request-Headers" = "*",
-      "Authorization" = paste("Bearer", key$token)
-    ),
-    userPassword = c(
-      "Content-Type" = "application/ejson",
-      "Accept" = "application/json",
-      "email" = key$email,
-      "password" = key$password
-    )
-  )
-
-  # Realizar la solicitud POST a la Data API de MongoDB Atlas
-  response <- tryCatch(
-    {
-      POST(
-        url = api_url,
-        add_headers(headers),
-        body = jsonlite::toJSON(payload, auto_unbox = TRUE),
-        encode = "json"
-      )
-    },
-    error = function(e) {
-      stop("Failed to publish recipe to MongoDB Atlas Data API: ", e$message)
-    }
-  )
-
-  # Verificar la respuesta de la API
-  if (response$status_code < 300) {
-    message("Recipe successfully published to metasurvey API. Thanks for your contribution :). Status code: ", response$status_code)
-    return(content(response, "parsed")) # Devuelve el contenido de la respuesta
-  } else {
-    stop(
-      "Failed to publish recipe. Status code: ", response$status_code,
-      " - ", content(response, "text", encoding = "UTF-8")
-    )
-  }
+  result <- api_publish_recipe(recipe)
+  message("Recipe successfully published to metasurvey API. Thanks for your contribution :)")
+  invisible(result)
 }
 
 #' Print method for Recipe objects
