@@ -1,8 +1,8 @@
 #' @title RecipeBackend
 #' @description Backend-agnostic factory for recipe storage and retrieval.
-#' Supports "local" (JSON-backed RecipeRegistry) and "mongo" (MongoDB Atlas API) backends.
+#' Supports "local" (JSON-backed RecipeRegistry) and "api" (remote plumber API) backends.
 #'
-#' @field type Character backend type ("local" or "mongo").
+#' @field type Character backend type ("local" or "api").
 #'
 #' @examples
 #' \dontrun{
@@ -11,8 +11,9 @@
 #' backend$publish(my_recipe)
 #' backend$search("labor")
 #'
-#' # Mongo backend
-#' backend <- RecipeBackend$new("mongo")
+#' # API backend (requires configure_api() first)
+#' configure_api("https://metasurvey-api.example.com")
+#' backend <- RecipeBackend$new("api")
 #' }
 #'
 #' @export
@@ -22,10 +23,12 @@ RecipeBackend <- R6::R6Class(
     type = NULL,
 
     #' @description Create a new RecipeBackend
-    #' @param type Character. "local" or "mongo".
+    #' @param type Character. "local" or "api".
     #' @param path Character. File path for local backend (optional).
     initialize = function(type, path = NULL) {
-      valid_types <- c("local", "mongo")
+      # Accept "mongo" as alias for "api" (backward compat)
+      if (type == "mongo") type <- "api"
+      valid_types <- c("local", "api")
       if (!(type %in% valid_types)) {
         stop("Backend type must be one of: ", paste(valid_types, collapse = ", "))
       }
@@ -33,7 +36,6 @@ RecipeBackend <- R6::R6Class(
       if (type == "local") {
         private$.path <- path
         private$.registry <- RecipeRegistry$new()
-        # Load existing if file exists
         if (!is.null(path) && file.exists(path)) {
           private$.registry$load(path)
         }
@@ -48,8 +50,8 @@ RecipeBackend <- R6::R6Class(
         if (!is.null(private$.path)) {
           private$.registry$save(private$.path)
         }
-      } else if (self$type == "mongo") {
-        publish_recipe(recipe)
+      } else if (self$type == "api") {
+        api_publish_recipe(recipe)
       }
     },
 
@@ -59,8 +61,8 @@ RecipeBackend <- R6::R6Class(
     search = function(query) {
       if (self$type == "local") {
         private$.registry$search(query)
-      } else if (self$type == "mongo") {
-        get_recipe(topic = query, allowMultiple = TRUE)
+      } else if (self$type == "api") {
+        tryCatch(api_list_recipes(search = query), error = function(e) list())
       }
     },
 
@@ -70,11 +72,8 @@ RecipeBackend <- R6::R6Class(
     get = function(id) {
       if (self$type == "local") {
         private$.registry$get(id)
-      } else if (self$type == "mongo") {
-        tryCatch(
-          get_recipe(svy_type = NULL, svy_edition = NULL, topic = NULL, allowMultiple = FALSE),
-          error = function(e) NULL
-        )
+      } else if (self$type == "api") {
+        tryCatch(api_get_recipe(id), error = function(e) NULL)
       }
     },
 
@@ -89,8 +88,9 @@ RecipeBackend <- R6::R6Class(
             private$.registry$save(private$.path)
           }
         }
+      } else if (self$type == "api") {
+        api_download_recipe(id)
       }
-      # Mongo: download tracking handled server-side
     },
 
     #' @description Rank recipes by downloads
@@ -99,11 +99,8 @@ RecipeBackend <- R6::R6Class(
     rank = function(n = NULL) {
       if (self$type == "local") {
         private$.registry$rank_by_downloads(n)
-      } else if (self$type == "mongo") {
-        tryCatch(
-          get_recipe(allowMultiple = TRUE),
-          error = function(e) list()
-        )
+      } else if (self$type == "api") {
+        tryCatch(api_list_recipes(limit = n %||% 50), error = function(e) list())
       }
     },
 
@@ -117,9 +114,10 @@ RecipeBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$filter(svy_type = svy_type, edition = edition,
                                  category = category, certification_level = certification_level)
-      } else if (self$type == "mongo") {
+      } else if (self$type == "api") {
         tryCatch(
-          get_recipe(svy_type = svy_type, svy_edition = edition, topic = category, allowMultiple = TRUE),
+          api_list_recipes(svy_type = svy_type, topic = category,
+                           certification = certification_level),
           error = function(e) list()
         )
       }
@@ -130,11 +128,8 @@ RecipeBackend <- R6::R6Class(
     list_all = function() {
       if (self$type == "local") {
         private$.registry$list_all()
-      } else if (self$type == "mongo") {
-        tryCatch(
-          get_recipe(allowMultiple = TRUE),
-          error = function(e) list()
-        )
+      } else if (self$type == "api") {
+        tryCatch(api_list_recipes(), error = function(e) list())
       }
     },
 
@@ -160,12 +155,12 @@ RecipeBackend <- R6::R6Class(
 
 #' @title Set recipe backend
 #' @description Configure the active recipe backend via options.
-#' @param type Character. "local" or "mongo".
+#' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
 #' @param path Character. File path for local backend.
 #' @examples
 #' \dontrun{
 #' set_backend("local", path = "my_recipes.json")
-#' set_backend("mongo")
+#' set_backend("api")
 #' }
 #' @export
 set_backend <- function(type, path = NULL) {
@@ -175,7 +170,7 @@ set_backend <- function(type, path = NULL) {
 
 #' @title Get recipe backend
 #' @description Returns the currently configured recipe backend.
-#' Defaults to "mongo" if not configured.
+#' Defaults to "api" if not configured.
 #' @return RecipeBackend object
 #' @examples
 #' \dontrun{
@@ -186,7 +181,7 @@ set_backend <- function(type, path = NULL) {
 get_backend <- function() {
   backend <- getOption("metasurvey.backend")
   if (is.null(backend)) {
-    backend <- RecipeBackend$new("mongo")
+    backend <- RecipeBackend$new("local")
   }
   backend
 }
