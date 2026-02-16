@@ -224,3 +224,25 @@ See `vignette("stata-transpiler")` for the full reference.
 - [ECH demographics recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.html)
 - [Interactive explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html)
 - [API and database](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
+
+---
+
+## Citation
+
+To cite metasurvey in publications use:
+
+```r
+citation("metasurvey")
+```
+
+> Loprete M, da Silva N, Machado F (2025). _metasurvey: Reproducible
+> Survey Data Processing with Step Pipelines_. R package,
+> <https://github.com/metasurveyr/metasurvey>.
+
+---
+
+## Code of Conduct
+
+Please note that the metasurvey project is released with a
+[Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to
+this project you agree to abide by its terms.
