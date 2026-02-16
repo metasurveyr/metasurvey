@@ -16,7 +16,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
 
     if (!is(.dots, "call") & !is(.dots, "name") & !is(.dots, "numeric") & !is(.dots, "logical")) {
       .exprs <- list()
-      for (i in 2:length(.dots)) {
+      for (i in seq.int(2L, length(.dots))) {
         .exprs <- c(.exprs, .dots[[i]])
       }
     } else {

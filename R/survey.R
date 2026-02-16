@@ -539,17 +539,6 @@ get_design <- function(self) {
   self$active$design_active()
 }
 
-set_data <- function(svy, data, .copy = use_copy_default()) {
-  if (.copy) {
-    clone <- svy$clone()
-    clone$set_data(data)
-    return(clone)
-  } else {
-    svy$set_data(data)
-    return(svy)
-  }
-}
-
 set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
   if (.copy) {
     clone <- svy$clone()
@@ -819,10 +808,6 @@ cat_design <- function(self) {
   design_list <- self$design
 
 
-  green <- "\033[32m"
-  reset <- "\033[39m"
-  red <- "\033[31m"
-
   output_list <- vapply(
     names(design_list),
     function(x) {
@@ -839,13 +824,13 @@ cat_design <- function(self) {
       design_type <- cat_design_type(self, x)
 
       text <- paste0(
-        "\n* ", red, paste(toupper(x), "ESTIMATION"), reset, "\n",
+        "\n* ", crayon::red(paste(toupper(x), "ESTIMATION")), "\n",
         "        ", design_type, "\n",
-        "  * ", green, "PSU:", reset, " ", cluster, "\n",
-        "  * ", green, "Strata:", reset, " ", strata, "\n",
-        "  * ", green, "Weight:", reset, " ", weight, "\n",
-        "  * ", green, "FPC:", reset, " ", fpc, "\n",
-        "  * ", green, "Calibrate formula:", reset, " ", calibrate.formula
+        "  * ", crayon::green("PSU:"), " ", cluster, "\n",
+        "  * ", crayon::green("Strata:"), " ", strata, "\n",
+        "  * ", crayon::green("Weight:"), " ", weight, "\n",
+        "  * ", crayon::green("FPC:"), " ", fpc, "\n",
+        "  * ", crayon::green("Calibrate formula:"), " ", calibrate.formula
       )
 
       return(paste("\n  ", text))
@@ -944,7 +929,7 @@ cat_recipes <- function(self) {
       paste0(x, "\n  - ", y)
     },
     x = vapply(
-      X = 1:n_recipes,
+      X = seq_len(n_recipes),
       FUN = function(x) {
         glue::glue_col(
           " {green Name:} {self$recipes[[x]]$name}
