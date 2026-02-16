@@ -20,12 +20,7 @@ Configure the active workflow backend via
 options.
 }
 \examples{
-\donttest{
 set_workflow_backend("local", path = tempfile(fileext = ".json"))
-}
-\donttest{
-set_workflow_backend("api")
-}
 }
 \seealso{
 Other backends: 

@@ -49,7 +49,7 @@ Read panel survey files from different formats
 and create a RotativePanelSurvey object
 }
 \examples{
-\donttest{
+\dontrun{
 # example code
 path_dir <- here::here("example-data", "ech", "ech_2023")
 ech_2023 <- load_panel_survey(
@@ -86,7 +86,7 @@ ech_2023 <- load_panel_survey(
   )
 )
 }
-\donttest{
+\dontrun{
 # Example of loading a panel survey
 panel_survey <- load_panel_survey(
   path_implantation = "path/to/implantation.csv",

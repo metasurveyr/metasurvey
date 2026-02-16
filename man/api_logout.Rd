@@ -13,7 +13,7 @@ Invisibly, NULL.
 Clear the stored API token from memory and the environment.
 }
 \examples{
-\donttest{
+\dontrun{
 api_logout()
 }
 }

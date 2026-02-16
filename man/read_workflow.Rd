@@ -19,8 +19,7 @@ Read a RecipeWorkflow from a JSON file
 wf <- RecipeWorkflow$new(
   name = "Example", description = "Test",
   survey_type = "ech", edition = "2023",
-  recipe_id = "r_001", estimation_type = "svymean",
-  variables = "income"
+  recipe_ids = "r_001", estimation_type = "svymean"
 )
 f <- tempfile(fileext = ".json")
 save_workflow(wf, f)

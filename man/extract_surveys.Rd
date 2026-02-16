@@ -70,7 +70,7 @@ If no criteria are specified, the function returns the implantation survey
 with a warning.
 }
 \examples{
-\donttest{
+\dontrun{
 # Load rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",

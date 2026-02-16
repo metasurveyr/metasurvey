@@ -54,8 +54,8 @@ r <- recipe(
 )
 r
 
-\donttest{
-# Recipe with steps
+\dontrun{
+# Recipe with steps (requires data with POBPCOAC column)
 r2 <- recipe(
   name = "Labor Market ECH",
   user = "Labor Team",

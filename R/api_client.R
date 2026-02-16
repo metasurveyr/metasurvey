@@ -89,7 +89,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #' @return Invisibly, the previous URL (for restoring).
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' configure_api(url = "https://metasurvey-api.example.com")
 #' }
 #' @family api-auth
@@ -214,7 +214,7 @@ api_request <- function(endpoint, method = "GET",
 #'   \code{token}, \code{user}).
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' configure_api("https://metasurvey-api.example.com")
 #' api_register("Ana Garcia", "ana@example.com", "s3cret")
 #' }
@@ -252,7 +252,7 @@ api_register <- function(name, email, password,
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_login("ana@example.com", "s3cret")
 #' }
 #' @family api-auth
@@ -274,7 +274,7 @@ api_login <- function(email, password) {
 #' @return List with user fields (name, email, user_type, etc.)
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_me()
 #' }
 #' @family api-auth
@@ -290,7 +290,7 @@ api_me <- function() {
 #' @return The new token string (invisibly), or NULL if refresh fails.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_refresh_token()
 #' }
 #' @family api-auth
@@ -312,7 +312,7 @@ api_refresh_token <- function() {
 #' @return Invisibly, NULL.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_logout()
 #' }
 #' @family api-auth
@@ -354,7 +354,7 @@ validate_api_id <- function(id) {
 #' @return List of Recipe objects
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' configure_api("https://metasurvey-api.example.com")
 #' recipes <- api_list_recipes(survey_type = "ech")
 #' }
@@ -384,7 +384,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_get_recipe("r_1739654400_742")
 #' }
 #' @family api-recipes
@@ -429,7 +429,7 @@ api_get_recipe <- function(id) {
 #' @return Invisibly, the API response with the assigned ID.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_publish_recipe(my_recipe)
 #' }
 #' @family api-recipes
@@ -484,7 +484,7 @@ api_download_recipe <- function(id) {
 #' @return List of RecipeWorkflow objects
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_list_workflows(survey_type = "ech")
 #' }
 #' @family api-workflows
@@ -512,7 +512,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 #' @return RecipeWorkflow object or NULL
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_get_workflow("w_1739654400_123")
 #' }
 #' @family api-workflows
@@ -545,7 +545,7 @@ api_get_workflow <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_publish_workflow(my_workflow)
 #' }
 #' @family api-workflows
@@ -679,7 +679,7 @@ parse_recipe_from_json <- function(doc) {
 #' @return A list of variable metadata objects
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' api_get_anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 #' @family anda

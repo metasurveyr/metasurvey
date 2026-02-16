@@ -425,8 +425,8 @@ metadata_recipe <- function() {
 #' )
 #' r
 #'
-#' \donttest{
-#' # Recipe with steps
+#' \dontrun{
+#' # Recipe with steps (requires data with POBPCOAC column)
 #' r2 <- recipe(
 #'   name = "Labor Market ECH",
 #'   user = "Labor Team",
@@ -806,7 +806,7 @@ read_recipe <- function(file) {
 #' must match for a recipe to be returned.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Get specific recipe for ECH 2023
 #' ech_recipe <- get_recipe(
 #'   svy_type = "ech",
@@ -930,7 +930,7 @@ get_recipe <- function(
 #' @return A Recipe object
 #' @keywords recipe
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
 #' my_recipe <- steps_to_recipe(
