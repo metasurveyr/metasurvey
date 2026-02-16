@@ -238,54 +238,20 @@ jobs:
         (needs.build-shiny.result == 'success')
       )
     environment: production
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: |
-          npm install -g @railway/cli@3
-          railway --help | head -1
-
       - name: Deploy API to Railway
         if: needs.build-api.result == 'success'
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_API_WEBHOOK: ${{ secrets.RAILWAY_API_WEBHOOK }}
-          API_IMAGE: ${{ env.API_IMAGE_NAME }}:latest
-        run: |
-          echo "Deploying API service to Railway..."
-          railway up --service metasurvey-api --detach || {
-            echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "$RAILWAY_API_WEBHOOK" ]; then
-              curl -X POST "$RAILWAY_API_WEBHOOK" \
-                -H "Content-Type: application/json" \
-                -d "{\"image\":\"$API_IMAGE\"}"
-            else
-              echo "No webhook configured, deployment may have failed"
-              exit 1
-            fi
-          }
+        run: railway up --service ${{ secrets.RAILWAY_API_SERVICE_ID }}
 
       - name: Deploy Shiny to Railway
         if: needs.build-shiny.result == 'success'
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_SHINY_WEBHOOK: ${{ secrets.RAILWAY_SHINY_WEBHOOK }}
-          SHINY_IMAGE: ${{ env.SHINY_IMAGE_NAME }}:latest
-        run: |
-          echo "Deploying Shiny service to Railway..."
-          railway up --service metasurvey-shiny --detach || {
-            echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "$RAILWAY_SHINY_WEBHOOK" ]; then
-              curl -X POST "$RAILWAY_SHINY_WEBHOOK" \
-                -H "Content-Type: application/json" \
-                -d "{\"image\":\"$SHINY_IMAGE\"}"
-            else
-              echo "No webhook configured, deployment may have failed"
-              exit 1
-            fi
-          }
+        run: railway up --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }}
 
       - name: Deployment summary
         run: |
