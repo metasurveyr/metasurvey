@@ -465,6 +465,26 @@ test_that("extract_time_pattern unknown format returns Unknown format", {
   expect_equal(result$periodicity, "Unknown format")
 })
 
+test_that("extract_time_pattern YYYYMM month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("202300")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern MMYYYY month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("002023")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern MM_YYYY month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("00_2023")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern YYYY_MM month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("2023_00")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
 test_that("extract_time_pattern multi-year format 20192021", {
   result <- metasurvey:::extract_time_pattern("20192022")
   expect_equal(result$periodicity, "Multianual")

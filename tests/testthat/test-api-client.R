@@ -184,6 +184,16 @@ test_that("api_logout clears token", {
   expect_null(getOption("metasurvey.api_token"))
 })
 
+test_that("configure_api returns previous URL invisibly", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  options(metasurvey.api_url = "https://old.example.com")
+  result <- configure_api("https://new.example.com")
+  expect_equal(result, "https://old.example.com")
+  expect_equal(getOption("metasurvey.api_url"), "https://new.example.com")
+})
+
 # ── Recipes API ────────────────────────────────────────────────────────────────
 
 test_that("api_list_recipes parses recipes from response", {
