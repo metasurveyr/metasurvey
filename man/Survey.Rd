@@ -5,11 +5,6 @@
 \alias{Survey}
 \title{Survey R6 class}
 \format{
-An R6 class with public fields: \code{data}, \code{edition}, \code{type},
-\code{periodicity}, \code{default_engine}, \code{weight}, \code{steps}, \code{recipes}, \code{workflows},
-\code{design}; and methods such as \code{initialize()}, \code{get_data()}, \code{set_data()},
-\code{add_step()}, \code{add_recipe()}, \code{bake()}, \code{head()}, \code{str()}, \code{update_design()}.
-
 An R6 class generator (R6ClassGenerator)
 }
 \value{
@@ -28,50 +23,24 @@ and utilities to manage them.
 Only copies the data; reuses design objects and other metadata.
 Much faster than clone(deep=TRUE) but design objects are shared.
 }
-\section{Methods}{
-
-\describe{
-\item{initialize(data, edition, type, psu, engine,
-weight, design, steps, recipes)}{Create a Survey
-object}
-\item{get_data(), get_edition(), get_type()}{Basic accessors}
-\item{set_data(), set_edition(), set_type(), set_weight()}{Mutators}
-\item{add_step(step), add_recipe(recipe),
-add_workflow(wf)}{Pipeline management}
-\item{bake()}{Bake associated recipes}
-}
-}
-
-\section{Active bindings}{
-
-\describe{
-\item{design_active}{Recompute design on-demand
-from current data and weights.}
-}
-}
-
 \section{Main methods}{
 
 \describe{
-\item{$new(data, edition, type, psu, engine,
+\item{$new(data, edition, type, psu, strata, engine,
 weight, design = NULL, steps = NULL,
 recipes = list())}{Constructor.}
-\item{$get_data()}{Return data.}
-\item{$get_edition()}{Return edition.}
-\item{$get_type()}{Return type.}
 \item{$set_data(data)}{Set data.}
 \item{$set_edition(edition)}{Set edition.}
 \item{$set_type(type)}{Set type.}
 \item{$set_weight(weight)}{Set weight specification.}
 \item{$print()}{Print summarized metadata.}
-\item{$add_step(step)}{Add a step and update design.}
-\item{$add_recipe(recipe, bake = lazy_default())}{Add a recipe.}
+\item{$add_step(step)}{Add a step and invalidate design.}
+\item{$add_recipe(recipe)}{Add a recipe (validates type and dependencies).}
 \item{$add_workflow(workflow)}{Add a workflow.}
 \item{$bake()}{Apply recipes and return updated Survey.}
-\item{$head()}{Return data head.}
-\item{$str()}{Structure of data.}
-\item{$set_design(design)}{Set design.}
+\item{$ensure_design()}{Lazily initialize the sampling design.}
 \item{$update_design()}{Update design variables with current data.}
+\item{$shallow_clone()}{Efficient copy (shares design, copies data).}
 }
 }
 
@@ -129,6 +98,8 @@ Other survey-objects:
 
 \item{\code{psu}}{Primary Sampling Unit specification (formula or character).}
 
+\item{\code{strata}}{Stratification variable name (character or NULL).}
+
 \item{\code{design_initialized}}{Logical flag for lazy design initialization.}
 }
 \if{html}{\out{</div>}}
@@ -136,8 +107,7 @@ Other survey-objects:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{design_active}}{Active binding that recomputes
-design on-demand from current data and weights.}
+\item{\code{design_active}}{Deprecated. Use \code{ensure_design()} instead.}
 }
 \if{html}{\out{</div>}}
 }
@@ -177,6 +147,7 @@ Create a Survey object
   edition,
   type,
   psu = NULL,
+  strata = NULL,
   engine,
   weight,
   design = NULL,
@@ -195,6 +166,8 @@ Create a Survey object
 \item{\code{type}}{Survey type (character)}
 
 \item{\code{psu}}{PSU variable or formula (optional)}
+
+\item{\code{strata}}{Stratification variable name (optional)}
 
 \item{\code{engine}}{Default engine}
 

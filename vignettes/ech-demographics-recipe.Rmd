@@ -206,7 +206,7 @@ The pipeline is a DAG (directed acyclic graph) of transformations.
 `view_graph()` renders it as an interactive network -- each node is a step,
 and edges show variable dependencies:
 
-```{r eval=FALSE}
+```{r eval = requireNamespace("visNetwork", quietly = TRUE)}
 view_graph(svy)
 ```
 

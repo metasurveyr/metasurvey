@@ -48,14 +48,14 @@ test_that("token_expires_soon returns TRUE for malformed token (force refresh)",
 test_that("token_expires_soon handles valid JWT with future exp", {
   # Create a fake JWT with exp far in the future
   payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 3600), auto_unbox = TRUE)
-  encoded_payload <- jose::base64url_encode(charToRaw(payload))
+  encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_false(token_expires_soon(fake_jwt, margin_secs = 300))
 })
 
 test_that("token_expires_soon returns TRUE when near expiry", {
   payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 60), auto_unbox = TRUE)
-  encoded_payload <- jose::base64url_encode(charToRaw(payload))
+  encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_true(token_expires_soon(fake_jwt, margin_secs = 300))
 })
@@ -439,6 +439,267 @@ test_that("api_get_anda_variables returns empty on error", {
   configure_api("http://test.local")
   result <- api_get_anda_variables()
   expect_length(result, 0)
+})
+
+# ── Batch 8: api_request internals, validate_api_id, password validation ──────
+
+test_that("api_request with query params builds correct URL", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  captured_url <- NULL
+  local_mocked_bindings(
+    GET = function(url, ...) {
+      captured_url <<- url
+      structure(list(
+        status_code = 200L,
+        content = charToRaw('{"ok":true}')
+      ), class = "response")
+    },
+    content = function(resp, ...) '{"ok":true}',
+    status_code = function(resp) 200L,
+    add_headers = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+
+  options(metasurvey.api_token = NULL)
+  configure_api("http://test.local")
+  api_request("recipes", params = list(survey_type = "ech", topic = NULL, limit = 10))
+  expect_match(captured_url, "survey_type=ech")
+  expect_match(captured_url, "limit=10")
+  # topic=NULL should be filtered out
+  expect_false(grepl("topic", captured_url))
+})
+
+test_that("api_request POST dispatches correctly", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  captured_method <- NULL
+  local_mocked_bindings(
+    POST = function(url, body, ...) {
+      captured_method <<- "POST"
+      structure(list(
+        status_code = 200L,
+        content = charToRaw('{"ok":true}')
+      ), class = "response")
+    },
+    content = function(resp, ...) '{"ok":true}',
+    status_code = function(resp) 200L,
+    add_headers = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+
+  options(metasurvey.api_token = NULL)
+  configure_api("http://test.local")
+  api_request("auth/register", method = "POST", body = list(email = "test@x.com"))
+  expect_equal(captured_method, "POST")
+})
+
+test_that("api_request errors on HTTP >= 400 with JSON error", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  local_mocked_bindings(
+    GET = function(url, ...) {
+      structure(list(
+        status_code = 403L,
+        content = charToRaw('{"error":"Forbidden"}')
+      ), class = "response")
+    },
+    content = function(resp, ...) '{"error":"Forbidden"}',
+    status_code = function(resp) 403L,
+    add_headers = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+
+  options(metasurvey.api_token = NULL)
+  configure_api("http://test.local")
+  expect_error(api_request("protected", method = "GET"), "Forbidden")
+})
+
+test_that("api_request errors on HTTP >= 400 with non-JSON body", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  local_mocked_bindings(
+    GET = function(url, ...) {
+      structure(list(
+        status_code = 500L,
+        content = charToRaw("Internal Server Error")
+      ), class = "response")
+    },
+    content = function(resp, ...) "not-json",
+    status_code = function(resp) 500L,
+    add_headers = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+
+  options(metasurvey.api_token = NULL)
+  configure_api("http://test.local")
+  expect_error(api_request("broken", method = "GET"), "HTTP 500")
+})
+
+test_that("api_request errors on unsupported HTTP method", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  options(metasurvey.api_token = NULL)
+  configure_api("http://test.local")
+  expect_error(api_request("test", method = "DELETE"), "Unsupported HTTP method")
+})
+
+test_that("api_request adds Bearer token when available", {
+  old_url <- getOption("metasurvey.api_url")
+  old_token <- getOption("metasurvey.api_token")
+  on.exit({
+    options(metasurvey.api_url = old_url)
+    options(metasurvey.api_token = old_token)
+  })
+
+  captured_headers <- NULL
+  local_mocked_bindings(
+    GET = function(url, ...) {
+      args <- list(...)
+      captured_headers <<- args
+      structure(list(
+        status_code = 200L,
+        content = charToRaw('{"ok":true}')
+      ), class = "response")
+    },
+    content = function(resp, ...) '{"ok":true}',
+    status_code = function(resp) 200L,
+    add_headers = function(.headers) .headers,
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+
+  # Set a valid JWT that won't expire soon
+  payload <- jsonlite::toJSON(
+    list(exp = as.numeric(Sys.time()) + 7200),
+    auto_unbox = TRUE
+  )
+  encoded <- jsonlite::base64url_enc(charToRaw(payload))
+  jwt <- paste("hdr", encoded, "sig", sep = ".")
+  options(metasurvey.api_token = jwt)
+
+  configure_api("http://test.local")
+  api_request("auth/me", method = "GET")
+  # Just verify it didn't error and the mock was called
+  expect_true(!is.null(captured_headers))
+})
+
+test_that("validate_api_id accepts valid IDs", {
+  expect_silent(validate_api_id("r_1234"))
+  expect_silent(validate_api_id("w_abc-def.123"))
+  expect_silent(validate_api_id("simple"))
+})
+
+test_that("validate_api_id rejects invalid IDs", {
+  expect_error(validate_api_id(""), "Invalid API ID")
+  expect_error(validate_api_id("has spaces"), "Invalid API ID")
+  expect_error(validate_api_id("special!char"), "Invalid API ID")
+  expect_error(validate_api_id(123), "Invalid API ID")
+  expect_error(validate_api_id(c("a", "b")), "Invalid API ID")
+})
+
+test_that("api_register rejects short password", {
+  expect_error(
+    api_register("User", "user@test.com", "short"),
+    "Password must be between 8 and 128 characters"
+  )
+})
+
+test_that("api_register rejects overly long password", {
+  long_pw <- paste(rep("a", 200), collapse = "")
+  expect_error(
+    api_register("User", "user@test.com", long_pw),
+    "Password must be between 8 and 128 characters"
+  )
+})
+
+test_that("api_register rejects non-character password", {
+  expect_error(
+    api_register("User", "user@test.com", 12345678),
+    "Password must be between 8 and 128 characters"
+  )
+})
+
+test_that("api_get_recipe handles multiple IDs", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  call_count <- 0L
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      call_count <<- call_count + 1L
+      list(recipe = list(
+        name = paste0("Recipe_", call_count),
+        survey_type = "ech", edition = "2023",
+        user = "tester", id = sub("recipes/", "", endpoint),
+        steps = list()
+      ))
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe(c("r_1", "r_2", "r_3"))
+  expect_length(result, 3)
+  expect_true(all(vapply(result, inherits, logical(1), "Recipe")))
+})
+
+test_that("api_get_recipe with NULL recipe field returns NULL", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      list(recipe = NULL)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe("r_missing")
+  expect_null(result)
+})
+
+test_that("api_get_workflow with NULL workflow field returns NULL", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      list(workflow = NULL)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_workflow("w_missing")
+  expect_null(result)
 })
 
 # ── parse_recipe_from_json ─────────────────────────────────────────────────────

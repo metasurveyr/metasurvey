@@ -6,7 +6,7 @@
 metadata_args <- function() {
   c(
     "svy_type", "svy_edition", ".engine_name",
-    "svy_weight", "recipes", "steps", "svy_psu", "bake"
+    "svy_weight", "recipes", "steps", "svy_psu", "svy_strata", "bake"
   )
 }
 

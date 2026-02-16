@@ -243,7 +243,6 @@ Recipe <- R6Class("Recipe",
         downloads = self$downloads
       )
 
-      # If we have Step objects, generate doc from them
       if (!is.null(self$step_objects) && length(self$step_objects) > 0) {
         all_outputs <- character(0)
         all_inputs <- character(0)
@@ -255,19 +254,14 @@ Recipe <- R6Class("Recipe",
           step_outputs <- switch(step$type,
             "compute" = ,
             "ast_compute" = {
-              # Try to extract variable names from step
               var_names <- character(0)
 
-              # Check if exprs has names (works for both lists and calls)
               if (!is.null(names(step$exprs)) &&
                 length(names(step$exprs)) > 0) {
-                # Filter out empty names (first element in calls)
                 var_names <- setdiff(names(step$exprs), "")
               }
 
-              # Fallback to parsing new_var if available
               if (length(var_names) == 0 && !is.null(step$new_var)) {
-                # new_var might be comma-separated
                 var_names <- strsplit(step$new_var, ",\\s*")[[1]]
               }
 
@@ -326,7 +320,6 @@ Recipe <- R6Class("Recipe",
         ))
       }
 
-      # Fallback: no step objects and no cached doc
       list(
         meta = meta,
         input_variables = character(0),
@@ -425,21 +418,20 @@ metadata_recipe <- function() {
 #' )
 #' r
 #'
-#' \dontrun{
-#' # Recipe with steps (requires data with POBPCOAC column)
-#' r2 <- recipe(
-#'   name = "Labor Market ECH",
-#'   user = "Labor Team",
-#'   svy = survey_empty(type = "ech", edition = "2023"),
-#'   description = "Full labor market analysis",
-#'   step_recode(
-#'     labor_status,
-#'     POBPCOAC == 2 ~ "Employed",
-#'     POBPCOAC %in% 3:5 ~ "Unemployed",
-#'     .default = "Other"
-#'   ),
-#'   step_compute(activity_rate = active / total * 100)
-#' )
+#' \donttest{
+#' # Recipe with steps using local data
+#' library(data.table)
+#' dt <- data.table(id = 1:50, age = sample(18:65, 50, TRUE),
+#'                  income = runif(50, 1000, 5000), w = runif(50, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' svy <- svy |>
+#'   step_compute(income_cat = ifelse(income > 3000, "high", "low")) |>
+#'   step_recode(age_group, age < 30 ~ "young", .default = "adult")
+#' r2 <- recipe(name = "Demo", user = "test", svy = svy,
+#'             description = "Demo recipe", steps = get_steps(svy))
+#' r2
 #' }
 #'
 #' @seealso
@@ -652,7 +644,6 @@ recipe_to_json <- function(recipe) {
 read_recipe <- function(file) {
   json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
 
-  # Decode steps from JSON (handle errors gracefully)
   steps <- tryCatch(
     decode_step(json_data$steps),
     error = function(e) {
@@ -664,19 +655,15 @@ read_recipe <- function(file) {
     }
   )
 
-  # Check if this is a new format (with metadata) or old format (just steps)
   if ("name" %in% names(json_data)) {
-    # Reconstruct pipeline from doc if available
     cached_doc <- NULL
     if (!is.null(json_data$doc)) {
       pipeline <- list()
       raw_pipeline <- json_data$doc$pipeline
       if (!is.null(raw_pipeline)) {
-        # Handle both list-of-lists and data.frame forms from JSON
         if (is.data.frame(raw_pipeline)) {
           for (i in seq_len(nrow(raw_pipeline))) {
             row <- as.list(raw_pipeline[i, ])
-            # Ensure outputs/inputs are character vectors
             row$outputs <- as.character(unlist(row$outputs))
             row$inputs <- as.character(unlist(row$inputs))
             pipeline[[i]] <- row
@@ -752,7 +739,6 @@ read_recipe <- function(file) {
       labels = json_data$labels
     )
   } else {
-    # Old format - just return steps for backward compatibility
     steps
   }
 }
@@ -930,14 +916,20 @@ get_recipe <- function(
 #' @return A Recipe object
 #' @keywords recipe
 #' @examples
-#' \dontrun{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
-#' svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
+#' \donttest{
+#' library(data.table)
+#' dt <- data.table(id = 1:20, age = sample(18:65, 20, TRUE),
+#'                  w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' svy <- step_compute(svy, age2 = age^2)
 #' my_recipe <- steps_to_recipe(
-#'   name = "employment", user = "analyst",
-#'   svy = svy, description = "Employment indicators",
+#'   name = "age_vars", user = "analyst",
+#'   svy = svy, description = "Age-derived variables",
 #'   steps = get_steps(svy)
 #' )
+#' my_recipe
 #' }
 #' @family recipes
 #' @export
@@ -1149,7 +1141,6 @@ print.Recipe <- function(x, ...) {
     }
   }
 
-  # Steps count if no pipeline doc available
   if (length(doc_info$pipeline) == 0 && length(x$steps) > 0) {
     cat(crayon::silver(paste0("\n  (", length(x$steps), " steps)\n")))
   }

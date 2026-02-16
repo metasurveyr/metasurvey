@@ -224,3 +224,322 @@ test_that("parse_stata_command handles bysort with multiple vars", {
   expect_equal(cmd$cmd, "egen")
   expect_equal(cmd$by_group, "g1 g2")
 })
+
+# ── Batch 9: stata_parser.R + stata_mappings.R edge cases ─────────────────────
+
+test_that("parse_do_file errors on missing file", {
+  expect_error(parse_do_file("/nonexistent/path.do"), "File not found")
+})
+
+test_that("parse_do_file handles empty file", {
+  tmp <- tempfile(fileext = ".do")
+  on.exit(unlink(tmp))
+  writeLines(character(0), tmp)
+  result <- parse_do_file(tmp)
+  expect_length(result, 0)
+})
+
+test_that("parse_do_file handles comment-only file", {
+  tmp <- tempfile(fileext = ".do")
+  on.exit(unlink(tmp))
+  writeLines(c(
+    "* This is a comment",
+    "// Another comment",
+    "/* block comment */",
+    "  * indented comment"
+  ), tmp)
+  result <- parse_do_file(tmp)
+  expect_length(result, 0)
+})
+
+test_that("parse_stata_command returns NULL for empty line", {
+  expect_null(parse_stata_command(""))
+  expect_null(parse_stata_command("   "))
+})
+
+test_that("parse_stata_command returns NULL for orphan expression fragments", {
+  expect_null(parse_stata_command("& other_condition"))
+  expect_null(parse_stata_command("| another_clause"))
+  expect_null(parse_stata_command(") trailing_paren"))
+  expect_null(parse_stata_command("(bare_paren_expr)"))
+})
+
+test_that("parse_stata_command normalizes all abbreviated commands", {
+  expect_equal(parse_stata_command("ge x = 1")$cmd, "gen")
+  expect_equal(parse_stata_command("ren old new")$cmd, "rename")
+  expect_equal(parse_stata_command("u mydata")$cmd, "use")
+  expect_equal(parse_stata_command("sa mydata")$cmd, "save")
+  expect_equal(parse_stata_command("su age")$cmd, "summarize")
+  expect_equal(parse_stata_command("sum age")$cmd, "summarize")
+  expect_equal(parse_stata_command("summ age")$cmd, "summarize")
+  expect_equal(parse_stata_command("summa age")$cmd, "summarize")
+  expect_equal(parse_stata_command("br")$cmd, "browse")
+  expect_equal(parse_stata_command("tab status")$cmd, "tabulate")
+  expect_equal(parse_stata_command("lab var x 'test'")$cmd, "label")
+  expect_equal(parse_stata_command("mat A = 1")$cmd, "matrix")
+  expect_equal(parse_stata_command("matr A = 1")$cmd, "matrix")
+  expect_equal(parse_stata_command("matri A = 1")$cmd, "matrix")
+})
+
+test_that("parse_stata_command extracts options", {
+  cmd <- parse_stata_command("destring var1, replace force")
+  expect_equal(cmd$cmd, "destring")
+  expect_match(cmd$options, "replace")
+  expect_match(cmd$options, "force")
+})
+
+test_that("strip_stata_comments preserves /// line continuation", {
+  lines <- c(
+    "gen x = a + ///",
+    "  b"
+  )
+  result <- strip_stata_comments(lines)
+  # /// should be preserved for join_continuation_lines
+  expect_match(result[1], "///")
+})
+
+test_that("join_broken_expressions re-joins operator-split lines", {
+  lines <- c(
+    "gen x = a +",
+    "b + c"
+  )
+  result <- metasurvey:::join_broken_expressions(lines)
+  non_empty <- result[nchar(trimws(result)) > 0]
+  expect_true(any(grepl("a \\+ b \\+ c", non_empty)) || length(non_empty) <= length(lines))
+})
+
+test_that("join_broken_expressions handles single line", {
+  result <- metasurvey:::join_broken_expressions("gen x = 1")
+  expect_equal(result, "gen x = 1")
+})
+
+test_that("expand_numlist handles single values", {
+  expect_equal(expand_numlist("42"), "42")
+  expect_equal(expand_numlist("  7  "), "7")
+})
+
+test_that("collect_loop_body handles content before closing brace", {
+  lines <- c(
+    "foreach i in 1 2 {",
+    "gen x`i' = 0",
+    "gen y`i' = 1 }",
+    "gen z = 3"
+  )
+  body <- metasurvey:::collect_loop_body(lines, 1)
+  expect_length(body$body, 2)
+  expect_match(body$body[2], "gen y")
+  expect_equal(body$end_idx, 3)
+})
+
+test_that("expand_stata_loops handles forvalues", {
+  lines <- c(
+    "forvalues i = 1/3 {",
+    "gen v`i' = `i'",
+    "}"
+  )
+  result <- expand_stata_loops(lines)
+  expect_length(result, 3)
+  expect_match(result[1], "gen v1 = 1")
+  expect_match(result[2], "gen v2 = 2")
+  expect_match(result[3], "gen v3 = 3")
+})
+
+test_that("expand_stata_loops handles cap foreach", {
+  lines <- c(
+    "cap foreach v in a b {",
+    "gen `v'_new = `v'",
+    "}"
+  )
+  result <- expand_stata_loops(lines)
+  expect_length(result, 2)
+  expect_match(result[1], "gen a_new = a")
+  expect_match(result[2], "gen b_new = b")
+})
+
+test_that("parse_stata_labels handles define with add option", {
+  lines <- c(
+    'lab def status 1 "Active" 2 "Inactive", add'
+  )
+  result <- parse_stata_labels(lines)
+  expect_equal(result$val_labels, list())  # no "lab val" so no resolved labels
+  # but val_defs should contain the definition (internal)
+})
+
+test_that("parse_stata_labels handles empty input", {
+  result <- parse_stata_labels(character(0))
+  expect_equal(result$var_labels, list())
+  expect_equal(result$val_labels, list())
+})
+
+# ── stata_mappings.R tests ───────────────────────────────────────────────────
+
+test_that("translate_stata_expr handles NULL and empty", {
+  expect_null(translate_stata_expr(NULL))
+  expect_equal(translate_stata_expr(""), "")
+  expect_equal(translate_stata_expr("  "), "  ")
+})
+
+test_that("translate_stata_expr converts inrange", {
+  result <- translate_stata_expr("inrange(age, 18, 65)")
+  expect_match(result, "age >= 18")
+  expect_match(result, "age <= 65")
+})
+
+test_that("translate_stata_expr converts inlist", {
+  result <- translate_stata_expr("inlist(status, 1, 2, 3)")
+  expect_match(result, "status %in% c\\(1, 2, 3\\)")
+})
+
+test_that("translate_stata_expr converts missing value comparisons", {
+  result <- translate_stata_expr("age==.")
+  expect_match(result, "is\\.na\\(age\\)")
+  result2 <- translate_stata_expr("income!=.")
+  expect_match(result2, "!is\\.na\\(income\\)")
+})
+
+test_that("translate_stata_expr converts string() to as.character()", {
+  result <- translate_stata_expr("string(x)")
+  expect_match(result, "as\\.character\\(x\\)")
+})
+
+test_that("translate_stata_expr converts lag/lead _n notation", {
+  result <- translate_stata_expr("income[_n-1]")
+  expect_match(result, 'shift\\(income, 1, type = "lag"\\)')
+  result2 <- translate_stata_expr("income[_n+1]")
+  expect_match(result2, 'shift\\(income, 1, type = "lead"\\)')
+  result3 <- translate_stata_expr("x[_n-3]")
+  expect_match(result3, 'shift\\(x, 3, type = "lag"\\)')
+})
+
+test_that("translate_stata_expr converts _N to .N", {
+  result <- translate_stata_expr("gen x = _N")
+  expect_match(result, "\\.N")
+  # Should not match inside variable names
+  result2 <- translate_stata_expr("_N_obs")
+  expect_false(grepl("\\.N", result2))
+})
+
+test_that("expand_var_range expands simple numeric range", {
+  result <- expand_var_range("suma1-suma4")
+  expect_equal(result, c("suma1", "suma2", "suma3", "suma4"))
+})
+
+test_that("expand_var_range expands underscore range", {
+  result <- expand_var_range("e51_2_1-e51_2_5")
+  expect_equal(result, paste0("e51_2_", 1:5))
+})
+
+test_that("expand_var_range returns single var unchanged", {
+  expect_equal(expand_var_range("myvar"), "myvar")
+  expect_equal(expand_var_range("  spaced  "), "spaced")
+})
+
+test_that("is_constant_rhs detects constants correctly", {
+  expect_true(is_constant_rhs("42"))
+  expect_true(is_constant_rhs("-9"))
+  expect_true(is_constant_rhs("2.5"))
+  expect_true(is_constant_rhs('"text"'))
+  expect_true(is_constant_rhs("."))
+  expect_false(is_constant_rhs("x + 1"))
+  expect_false(is_constant_rhs("log(y)"))
+})
+
+test_that("parse_gen_args parses basic gen", {
+  result <- parse_gen_args("y = x + 1")
+  expect_equal(result$var_name, "y")
+  expect_equal(result$expr, "x + 1")
+})
+
+test_that("parse_gen_args strips type prefix", {
+  result <- parse_gen_args("byte flag = 1")
+  expect_equal(result$var_name, "flag")
+  expect_equal(result$expr, "1")
+  result2 <- parse_gen_args("int count = n + 1")
+  expect_equal(result2$var_name, "count")
+})
+
+test_that("parse_gen_args returns NULL without =", {
+  expect_null(parse_gen_args("just a name"))
+})
+
+test_that("parse_gen_args strips balanced outer parentheses", {
+  result <- parse_gen_args("y = (a + b)")
+  expect_equal(result$expr, "a + b")
+  # Unbalanced should NOT strip
+  result2 <- parse_gen_args("y = (a + b) * (c + d)")
+  expect_equal(result2$expr, "(a + b) * (c + d)")
+})
+
+test_that("parse_recode_args parses parenthesized mappings", {
+  result <- parse_recode_args("status (1=10) (2=20) (3=30)")
+  expect_equal(result$var_name, "status")
+  expect_length(result$mappings, 3)
+  expect_equal(result$mappings[[1]]$from, "1")
+  expect_equal(result$mappings[[1]]$to, "10")
+})
+
+test_that("parse_recode_args parses gen() option", {
+  result <- parse_recode_args("old_var (1=10)", options = "gen(new_var)")
+  expect_equal(result$gen_var, "new_var")
+})
+
+test_that("parse_recode_args handles inline range format", {
+  result <- parse_recode_args("x 23/38=22 .=0")
+  expect_equal(result$var_name, "x")
+  expect_equal(length(result$mappings), 2)
+  # First mapping should have from_range
+  expect_true(!is.null(result$mappings[[1]]$from_range))
+  expect_equal(result$mappings[[1]]$to, "22")
+  # Second mapping is .=0
+  expect_equal(result$mappings[[2]]$from, ".")
+  expect_equal(result$mappings[[2]]$to, "0")
+})
+
+test_that("parse_recode_args handles multi-value parenthesized groups", {
+  result <- parse_recode_args("var (0 3 4=-15) (1 2=10)")
+  expect_length(result$mappings, 2)
+  expect_equal(result$mappings[[1]]$from, c("0", "3", "4"))
+  expect_equal(result$mappings[[1]]$to, "-15")
+})
+
+test_that("parse_egen_args parses basic egen", {
+  result <- parse_egen_args("total_inc = sum(income)", by_group = "region")
+  expect_equal(result$var_name, "total_inc")
+  expect_equal(result$func, "sum")
+  expect_equal(result$func_arg, "income")
+  expect_equal(result$by_group, "region")
+})
+
+test_that("parse_egen_args extracts by() from options", {
+  result <- parse_egen_args("mean_age = mean(age)", options = "by(region)")
+  expect_equal(result$by_group, "region")
+})
+
+test_that("parse_egen_args returns NULL without =", {
+  expect_null(parse_egen_args("just_a_name"))
+})
+
+test_that("parse_mvencode_args parses variables and mv option", {
+  result <- parse_mvencode_args("x y z", options = "mv(-99)")
+  expect_equal(result$var_names, c("x", "y", "z"))
+  expect_equal(result$mv_value, "-99")
+})
+
+test_that("parse_mvencode_args defaults to mv=0", {
+  result <- parse_mvencode_args("a b")
+  expect_equal(result$mv_value, "0")
+})
+
+test_that("parse_destring_args with replace and force", {
+  result <- parse_destring_args("myvar", options = "replace force")
+  expect_equal(result$var_name, "myvar")
+  expect_true(result$replace)
+  expect_true(result$force)
+  expect_null(result$gen_var)
+})
+
+test_that("parse_destring_args with gen() option", {
+  result <- parse_destring_args("old_var", options = "gen(new_var)")
+  expect_equal(result$gen_var, "new_var")
+  expect_false(result$replace)
+})

@@ -184,7 +184,6 @@ RecipeRegistry <- R6::R6Class(
             error = function(e) NULL
           )
         }
-        # Decode steps
         steps <- tryCatch(
           decode_step(item$steps),
           error = function(e) as.list(item$steps %||% list())

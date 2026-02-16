@@ -9,7 +9,8 @@ survey_empty(
   type = NULL,
   weight = NULL,
   engine = NULL,
-  psu = NULL
+  psu = NULL,
+  strata = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ survey_empty(
 \item{engine}{Engine of survey}
 
 \item{psu}{PSU variable or formula (optional)}
+
+\item{strata}{Stratification variable name (optional)}
 }
 \value{
 Survey object

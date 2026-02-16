@@ -18,3 +18,15 @@ A list with var_labels (named list) and val_labels
 Extracts variable labels, value label definitions, and
 value label assignments from label commands.
 }
+\examples{
+\donttest{
+lines <- c(
+  'label variable edad "Age in years"',
+  'label define sexo_lbl 1 "Male" 2 "Female"',
+  'label values sexo sexo_lbl'
+)
+labels <- parse_stata_labels(lines)
+labels$var_labels
+labels$val_labels
+}
+}

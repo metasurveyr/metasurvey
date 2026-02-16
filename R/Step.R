@@ -111,13 +111,9 @@ Step <- R6Class("Step",
       self$new_var <- new_var
       self$exprs <- exprs
       self$call <- call
-      # svy_before is always NULL to prevent memory retention chains.
-      # Previously stored a reference to the full survey before the step,
-      # which prevented GC from freeing N copies when N steps were chained.
       self$svy_before <- NULL
       self$default_engine <- default_engine
       self$depends_on <- depends_on
-      # accept both 'comment' and legacy 'comments'
       self$comment <- comment %||% comments
       self$bake <- bake
     }
@@ -140,7 +136,6 @@ validate_step <- function(svy, step) {
 
   missing_vars <- depends_on[!depends_on %in% names_svy]
 
-  # If there are missing variables, throw an error with their names
   if (length(missing_vars) > 0) {
     stop(
       paste0(
@@ -172,17 +167,11 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
 
   validate_step(svy, step)
 
-  # Prepare the list of arguments for do.call
   args <- list()
-
-  # Add mandatory arguments for baking
   args$svy <- svy
   args$lazy <- FALSE
   args$.copy <- .copy
 
-  # Add step-specific arguments from exprs
-  # step$exprs may be a call (e.g., list(var = expr)) from substitute(list(...))
-  # or a regular list — handle both cases
   if (is.call(step$exprs) &&
       identical(step$exprs[[1]], as.name("list"))) {
     args <- c(args, as.list(step$exprs)[-1])
@@ -190,12 +179,9 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
     args <- c(args, step$exprs)
   }
 
-  # Special case for step_recode, which has `new_var` as a separate argument
   if (step$type == "recode") {
     args$new_var <- step$new_var
   }
-
-  # Validate step type before dispatch
 
   valid_types <- c(
     "compute", "recode", "step_join",
@@ -208,13 +194,10 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
     )
   }
 
-  # For step types that accept 'record', disable re-recording
-  # during bake — the step is already recorded in the survey.
   if (step$type %in% c("step_join", "step_remove", "step_rename")) {
     args$record <- FALSE
   }
 
-  # Execute the step function
   updated_svy <- do.call(step$type, args)
 
   return(updated_svy)
@@ -275,8 +258,6 @@ bake_steps <- function(svy) {
 
 bake_steps_rotative <- function(svy) {
   if (use_copy_default()) {
-    # Shallow copy of panel structure; bake_steps_survey handles
-    # its own data copy internally via shallow_clone
     svy_copy <- svy$clone(deep = FALSE)
     svy_copy$implantation <- bake_steps_survey(svy$implantation)
     svy_copy$follow_up <- lapply(svy$follow_up, bake_steps_survey)
@@ -302,12 +283,7 @@ bake_steps_rotative <- function(svy) {
 
 bake_steps_survey <- function(svy) {
   if (use_copy_default()) {
-    # Use shallow_clone (data copy only) instead of clone(deep=TRUE)
-    # to avoid duplicating the entire step chain and svy_before references.
-    # Since we already have a data copy, pass .copy=FALSE to bake_step
-    # to prevent creating yet another copy inside each step function.
     svy_copy <- svy$shallow_clone()
-    # Copy step objects (shallow) so we can mark them as baked
     svy_copy$steps <- lapply(svy$steps, function(s) s$clone())
     for (i in seq_along(svy_copy$steps)) {
       svy_copy <- bake_step(svy_copy, svy_copy$steps[[i]],
