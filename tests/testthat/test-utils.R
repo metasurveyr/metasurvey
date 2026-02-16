@@ -582,3 +582,51 @@ test_that("extract_time_pattern handles YYYYMM format", {
   expect_equal(result$periodicity, "Monthly")
   expect_equal(result$month, 5)
 })
+
+# --- .onLoad / .onAttach coverage ---
+
+test_that(".onAttach emits startup message", {
+  expect_message(
+    metasurvey:::.onAttach(NULL, "metasurvey"),
+    "metasurvey"
+  )
+})
+
+test_that(".onLoad reads METASURVEY_API_URL env var", {
+  old_url <- Sys.getenv("METASURVEY_API_URL", "")
+  old_opt <- getOption("metasurvey.api_url")
+  on.exit({
+    if (nzchar(old_url)) Sys.setenv(METASURVEY_API_URL = old_url) else Sys.unsetenv("METASURVEY_API_URL")
+    options(metasurvey.api_url = old_opt)
+  })
+  Sys.setenv(METASURVEY_API_URL = "http://example.com/api/")
+  metasurvey:::.onLoad(NULL, "metasurvey")
+  expect_equal(getOption("metasurvey.api_url"), "http://example.com/api")
+})
+
+test_that(".onLoad reads METASURVEY_TOKEN env var", {
+  old_token <- Sys.getenv("METASURVEY_TOKEN", "")
+  old_opt <- getOption("metasurvey.api_token")
+  on.exit({
+    if (nzchar(old_token)) Sys.setenv(METASURVEY_TOKEN = old_token) else Sys.unsetenv("METASURVEY_TOKEN")
+    options(metasurvey.api_token = old_opt)
+  })
+  Sys.setenv(METASURVEY_TOKEN = "test-token-123")
+  metasurvey:::.onLoad(NULL, "metasurvey")
+  expect_equal(getOption("metasurvey.api_token"), "test-token-123")
+})
+
+# --- set_engine warns on missing engine package ---
+
+test_that("set_engine warns when engine package not installed", {
+  old <- getOption("metasurvey.engine")
+  on.exit(options(metasurvey.engine = old))
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) FALSE,
+    .package = "base"
+  )
+  expect_warning(
+    expect_message(set_engine("data.table")),
+    "required"
+  )
+})

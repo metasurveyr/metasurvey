@@ -678,3 +678,60 @@ test_that("step_rename with multiple renames", {
   expect_true("edad" %in% names(get_data(result)))
   expect_true("ingreso" %in% names(get_data(result)))
 })
+
+# --- Deprecation warnings for use_copy ---
+
+test_that("step_join warns on deprecated use_copy param", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(id = 1:5, extra = rnorm(5))
+  lifecycle::expect_deprecated(
+    step_join(s, extra, by = "id", type = "left", use_copy = TRUE)
+  )
+})
+
+test_that("step_remove warns on deprecated use_copy param", {
+  s <- make_test_survey()
+  lifecycle::expect_deprecated(
+    step_remove(s, x, use_copy = TRUE)
+  )
+})
+
+test_that("step_rename warns on deprecated use_copy param", {
+  s <- make_test_survey()
+  lifecycle::expect_deprecated(
+    step_rename(s, edad = age, use_copy = TRUE)
+  )
+})
+
+# --- step_remove with character vector via ... ---
+
+test_that("step_remove evaluates character vector in dots", {
+  s <- make_test_survey()
+  cols_to_remove <- c("x", "y")
+  result <- step_remove(s, cols_to_remove)
+  result <- bake_steps(result)
+  expect_false("x" %in% names(get_data(result)))
+  expect_false("y" %in% names(get_data(result)))
+})
+
+# --- view_graph package requirement checks ---
+
+test_that("view_graph errors when visNetwork not available", {
+  s <- make_test_survey()
+  s <- step_compute(s, age2 = age * 2)
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) pkg != "visNetwork",
+    .package = "base"
+  )
+  expect_error(view_graph(s), "visNetwork")
+})
+
+test_that("view_graph errors when htmltools not available", {
+  s <- make_test_survey()
+  s <- step_compute(s, age2 = age * 2)
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) pkg != "htmltools",
+    .package = "base"
+  )
+  expect_error(view_graph(s), "htmltools")
+})
