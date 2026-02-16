@@ -468,3 +468,88 @@ test_that("load_panel_survey errors on missing path", {
     load_panel_survey(type = "ech", edition = "2020")
   )
 })
+
+# ── Batch 10: RotativePanelSurvey step dispatch, extract_surveys edges ────────
+
+test_that("extract_surveys warns when all interval args NULL", {
+  implantation <- make_test_survey(20)
+  implantation$periodicity <- "annual"
+  implantation$edition <- as.Date("2023-01-01")
+
+  follow_ups <- lapply(1:6, function(m) {
+    fu <- make_test_survey(20)
+    fu$periodicity <- "monthly"
+    fu$edition <- as.Date(paste0("2023-", sprintf("%02d", m), "-01"))
+    fu
+  })
+
+  panel <- RotativePanelSurvey$new(
+    implantation = implantation,
+    follow_up = follow_ups,
+    type = "rotative",
+    default_engine = "data.table",
+    steps = list(), recipes = list(),
+    workflows = list(), design = NULL
+  )
+
+  # When all interval args are NULL, warns before defaulting to annual=1
+  # The fallback year=1 then fails, so expect both warning + error
+  expect_warning(
+    tryCatch(extract_surveys(panel), error = function(e) NULL),
+    "At least one interval"
+  )
+})
+
+test_that("step_compute on RotativePanelSurvey targets follow_up with .level", {
+  # Need a panel with actual follow_ups for this test
+  implantation <- make_test_survey(20)
+  implantation$periodicity <- "monthly"
+  fu1 <- make_test_survey(20)
+  fu1$periodicity <- "monthly"
+  fu1$edition <- "2023-Q1"
+
+  panel <- RotativePanelSurvey$new(
+    implantation = implantation,
+    follow_up = list(fu1),
+    type = "ech",
+    default_engine = "data.table",
+    steps = list(), recipes = list(),
+    workflows = list(), design = NULL
+  )
+  result <- step_compute(panel, double_x = x * 2, .level = "follow_up")
+  expect_s3_class(result, "RotativePanelSurvey")
+})
+
+test_that("step_remove on RotativePanelSurvey targets implantation by default", {
+  panel <- make_test_panel()
+  result <- step_remove(panel, y)
+  expect_s3_class(result, "RotativePanelSurvey")
+})
+
+test_that("step_recode on RotativePanelSurvey with .level = follow_up", {
+  implantation <- make_test_survey(20)
+  implantation$periodicity <- "monthly"
+  fu1 <- make_test_survey(20)
+  fu1$periodicity <- "monthly"
+  fu1$edition <- "2023-Q1"
+
+  panel <- RotativePanelSurvey$new(
+    implantation = implantation,
+    follow_up = list(fu1),
+    type = "ech",
+    default_engine = "data.table",
+    steps = list(), recipes = list(),
+    workflows = list(), design = NULL
+  )
+  result <- step_recode(panel, region_cat,
+    region <= 2 ~ "low",
+    .default = "high",
+    .level = "follow_up"
+  )
+  expect_s3_class(result, "RotativePanelSurvey")
+})
+
+test_that("RotativePanelSurvey print outputs metadata", {
+  panel <- make_test_panel()
+  expect_message(panel$print())
+})

@@ -392,3 +392,180 @@ test_that("anda_variable_detail returns NULL when not found", {
   result <- anda_variable_detail("ech", "nonexistent")
   expect_null(result)
 })
+
+# ── .anda_select_resource: bootstrap_semestral ───────────────────────────────
+
+test_that(".anda_select_resource selects bootstrap_semestral", {
+  resources <- data.frame(
+    id = c("1264", "1275"),
+    title = c("Implantacion 2023", "Pesos replicados Bootstrap semestrales 2023"),
+    stringsAsFactors = FALSE
+  )
+  selected <- .anda_select_resource(resources, "bootstrap_semestral", "2023")
+  expect_equal(nrow(selected), 1)
+  expect_equal(selected$id, "1275")
+})
+
+test_that(".anda_select_resource errors when no bootstrap_semestral found", {
+  resources <- data.frame(
+    id = "1264", title = "Implantacion 2023", stringsAsFactors = FALSE
+  )
+  expect_error(
+    .anda_select_resource(resources, "bootstrap_semestral", "2023"),
+    "No semestral bootstrap"
+  )
+})
+
+# ── .anda_select_resource: implantation pre-2022 paths ──────────────────────
+
+test_that(".anda_select_resource pre-2022 prefers CSV over SAV", {
+  resources <- data.frame(
+    id = c("100", "101", "102"),
+    title = c("FIES_2018.csv", "ECH_2018.csv", "ECH_2018_sav"),
+    stringsAsFactors = FALSE
+  )
+  selected <- .anda_select_resource(resources, "implantation", "2018")
+  expect_equal(nrow(selected), 1)
+  # Should select ECH_2018.csv (not FIES)
+  expect_equal(selected$id, "101")
+})
+
+test_that(".anda_select_resource pre-2022 falls back to SAV when no CSV", {
+  resources <- data.frame(
+    id = c("100", "101"),
+    title = c("FIES_2018", "ECH_2018_sav"),
+    stringsAsFactors = FALSE
+  )
+  selected <- .anda_select_resource(resources, "implantation", "2018")
+  expect_equal(nrow(selected), 1)
+  expect_equal(selected$id, "101")
+})
+
+test_that(".anda_select_resource pre-2022 fallback to first non-excluded", {
+  resources <- data.frame(
+    id = c("100", "101"),
+    title = c("FIES_2018", "ECH_raw_2018"),
+    stringsAsFactors = FALSE
+  )
+  selected <- .anda_select_resource(resources, "implantation", "2018")
+  expect_equal(nrow(selected), 1)
+  # FIES is excluded, so selects ECH_raw_2018
+  expect_equal(selected$id, "101")
+})
+
+test_that(".anda_select_resource >= 2022 errors when no implantation found", {
+  resources <- data.frame(
+    id = c("100", "101"),
+    title = c("ech_01_2023", "ech_02_2023"),
+    stringsAsFactors = FALSE
+  )
+  expect_error(
+    .anda_select_resource(resources, "implantation", "2023"),
+    "No implantation file found"
+  )
+})
+
+# ── .anda_extract_file: RAR detection branch ─────────────────────────────────
+
+test_that(".anda_extract_file detects RAR but errors without archive package", {
+  tmp_dir <- tempfile("anda_rar_test_")
+  dir.create(tmp_dir, recursive = TRUE)
+  on.exit(unlink(tmp_dir, recursive = TRUE))
+
+  # Create file with RAR magic bytes
+  rar_path <- file.path(tmp_dir, "test_raw_rar")
+  con <- file(rar_path, "wb")
+  writeBin(as.raw(c(0x52, 0x61, 0x72, 0x21, 0x1a, 0x07, 0x00)), con)
+  writeBin(charToRaw("fake rar content"), con)
+  close(con)
+
+  # If archive package is not installed, should error; otherwise would extract
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) FALSE,
+    .package = "base"
+  )
+  expect_error(.anda_extract_file(rar_path, tmp_dir, "rartest"), "archive")
+})
+
+# ── .anda_find_data_file: XLSX fallback ──────────────────────────────────────
+
+test_that(".anda_find_data_file falls back to XLSX when no CSV/SAV", {
+  tmp_dir <- tempfile("anda_xlsx_test_")
+  dir.create(tmp_dir, recursive = TRUE)
+  on.exit(unlink(tmp_dir, recursive = TRUE))
+
+  writeLines("fake xlsx", file.path(tmp_dir, "data.xlsx"))
+  result <- .anda_find_data_file(tmp_dir, "test")
+  expect_match(result, "\\.xlsx$")
+})
+
+# ── anda_fetch_ddi / anda_catalog_search: mocked HTTP ────────────────────────
+
+test_that("anda_fetch_ddi errors on non-200 response", {
+  local_mocked_bindings(
+    GET = function(...) {
+      structure(list(status_code = 404L), class = "response")
+    },
+    status_code = function(resp) resp$status_code,
+    write_disk = function(...) list(),
+    config = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+  expect_error(anda_fetch_ddi(999), "Failed to download DDI")
+})
+
+test_that("anda_catalog_search returns data.frame on success", {
+  local_mocked_bindings(
+    GET = function(...) {
+      structure(list(
+        status_code = 200L,
+        content = list(result = list(rows = list(
+          list(id = 735, title = "ECH 2023", year_start = "2023", year_end = "2023"),
+          list(id = 767, title = "ECH 2024", year_start = "2024", year_end = "2024")
+        )))
+      ), class = "response")
+    },
+    status_code = function(resp) resp$status_code,
+    content = function(resp, ...) resp$content,
+    config = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+  result <- anda_catalog_search("ECH")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 2)
+  expect_true("title" %in% names(result))
+})
+
+test_that("anda_catalog_search errors on non-200", {
+  local_mocked_bindings(
+    GET = function(...) {
+      structure(list(status_code = 500L), class = "response")
+    },
+    status_code = function(resp) resp$status_code,
+    config = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+  expect_error(anda_catalog_search("ECH"), "catalog search failed")
+})
+
+test_that("anda_catalog_search returns empty df when no results", {
+  local_mocked_bindings(
+    GET = function(...) {
+      structure(list(
+        status_code = 200L,
+        content = list(result = list(rows = list()))
+      ), class = "response")
+    },
+    status_code = function(resp) resp$status_code,
+    content = function(resp, ...) resp$content,
+    config = function(...) list(),
+    timeout = function(...) list(),
+    .package = "httr"
+  )
+  result <- anda_catalog_search("nonexistent")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 0)
+})

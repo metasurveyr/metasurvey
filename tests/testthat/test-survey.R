@@ -1003,3 +1003,169 @@ test_that("has_design returns FALSE for basic survey", {
   s <- make_test_survey()
   expect_false(has_design(s))
 })
+
+# ── Batch 6: cat_design, print formatting, design paths ─────────────────────
+
+test_that("cat_design shows design details after ensure_design", {
+  s <- make_test_survey()
+  s$ensure_design()
+  result <- cat_design(s)
+  expect_true(is.character(result) || inherits(result, "glue"))
+  expect_match(as.character(result), "ANNUAL ESTIMATION", ignore.case = TRUE)
+  expect_match(as.character(result), "Weight")
+})
+
+test_that("cat_design returns lazy message when design not initialized", {
+  s <- make_test_survey()
+  result <- cat_design(s)
+  expect_match(result, "lazy initialization")
+})
+
+test_that("cat_design_type returns design class after initialization", {
+  s <- make_test_survey()
+  s$ensure_design()
+  result <- metasurvey:::cat_design_type(s, "annual")
+  expect_true(is.character(result))
+})
+
+test_that("Survey$print with numeric edition formats correctly", {
+  s <- make_test_survey()
+  s$edition <- 2023
+  expect_message(s$print(), "2023")
+})
+
+test_that("is_baked returns FALSE when unbaked steps exist", {
+  s <- make_test_survey()
+  s <- step_compute(s, x2 = x * 2) # lazy step, not baked
+  expect_false(is_baked(s))
+})
+
+test_that("update_design warns on design length mismatch", {
+  s <- make_test_survey()
+  s$ensure_design()
+  # Corrupt design by adding extra entry
+  s$design$extra <- s$design$annual
+  expect_warning(s$update_design(), "mismatch")
+})
+
+# ── Additional survey coverage push ──────────────────────────────────────────
+
+test_that("get_design initializes and returns design list", {
+  s <- make_test_survey()
+  result <- get_design(s)
+  expect_true(is.list(result))
+  expect_true("annual" %in% names(result))
+  expect_true(inherits(result$annual, "survey.design"))
+})
+
+test_that("Survey with multiple weight types has proper info_weight", {
+  s <- make_test_survey()
+  s$weight <- add_weight(annual = "w", quarterly = "w")
+  info <- metasurvey:::get_info_weight(s)
+  expect_true(is.character(info))
+  expect_match(info, "annual", ignore.case = TRUE)
+  expect_match(info, "quarterly", ignore.case = TRUE)
+})
+
+# --- strata support ---
+
+test_that("Survey$new stores strata field", {
+  df <- data.table::data.table(
+    id = 1:20, stratum = rep(1:4, each = 5), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, strata = "stratum", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  expect_equal(s$strata, "stratum")
+})
+
+test_that("strata=NULL is backwards compatible", {
+  s <- make_test_survey()
+  expect_null(s$strata)
+})
+
+test_that("ensure_design with strata creates stratified design", {
+  df <- data.table::data.table(
+    id = 1:20, stratum = rep(1:4, each = 5), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, strata = "stratum", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s$ensure_design()
+  expect_true(s$design_initialized)
+  expect_true(inherits(s$design[[1]], "survey.design"))
+  expect_false(is.null(s$design[[1]]$call$strata))
+})
+
+test_that("ensure_design with strata + PSU works", {
+  df <- data.table::data.table(
+    id = 1:20, psu_var = rep(1:4, each = 5),
+    stratum = rep(1:2, each = 10), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = "psu_var", strata = "stratum", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s$ensure_design()
+  expect_true(inherits(s$design[[1]], "survey.design"))
+})
+
+test_that("ensure_design errors on nonexistent strata variable", {
+  df <- data.table::data.table(id = 1:10, w = 1)
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, strata = "nonexistent", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  expect_error(s$ensure_design(), "not found")
+})
+
+test_that("cat_design shows strata after stratified design", {
+  df <- data.table::data.table(
+    id = 1:20, stratum = rep(1:4, each = 5), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, strata = "stratum", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s$ensure_design()
+  result <- cat_design(s)
+  # Strata line should not be "None" when strata is set
+  expect_false(grepl("Strata:.*None", as.character(result)))
+})
+
+test_that("shallow_clone preserves strata", {
+  df <- data.table::data.table(
+    id = 1:20, stratum = rep(1:4, each = 5), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, strata = "stratum", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s2 <- s$shallow_clone()
+  expect_equal(s2$strata, "stratum")
+})
+
+test_that("workflow with stratified design produces results", {
+  data(api, package = "survey")
+  dt <- data.table::data.table(apistrat)
+  s <- Survey$new(
+    data = dt, edition = "2000", type = "api",
+    psu = NULL, strata = "stype", engine = "data.table",
+    weight = add_weight(annual = "pw")
+  )
+  result <- workflow(
+    list(s),
+    survey::svymean(~api00, na.rm = TRUE),
+    estimation_type = "annual"
+  )
+  expect_true(nrow(result) > 0)
+  expect_true(result$value > 0)
+})

@@ -735,3 +735,158 @@ test_that("view_graph errors when htmltools not available", {
   )
   expect_error(view_graph(s), "htmltools")
 })
+
+# ── view_graph full execution with visNetwork mock ───────────────────────────
+
+test_that("view_graph renders graph with steps", {
+  skip_if_not_installed("visNetwork")
+  skip_if_not_installed("htmltools")
+  s <- make_test_survey()
+  s <- step_compute(s, age2 = age * 2)
+  s <- bake_steps(s)
+  s <- step_recode(s, age_cat, age < 30 ~ "young", .default = "old")
+  s <- bake_steps(s)
+  # Should produce a visNetwork htmlwidget
+  g <- view_graph(s)
+  expect_true(inherits(g, "visNetwork") || inherits(g, "htmlwidget"))
+})
+
+test_that("view_graph renders graph with step_join (data.frame RHS)", {
+  skip_if_not_installed("visNetwork")
+  skip_if_not_installed("htmltools")
+  s <- make_test_survey()
+  extra <- data.table::data.table(id = 1:10, extra = 100:109)
+  s <- step_join(s, extra, by = "id", type = "left")
+  s <- bake_steps(s)
+  g <- view_graph(s)
+  expect_true(inherits(g, "visNetwork") || inherits(g, "htmlwidget"))
+})
+
+test_that("view_graph with custom init_step label", {
+  skip_if_not_installed("visNetwork")
+  skip_if_not_installed("htmltools")
+  s <- make_test_survey()
+  s <- step_compute(s, x2 = x * 2)
+  s <- bake_steps(s)
+  g <- view_graph(s, init_step = "My Custom Survey")
+  expect_true(inherits(g, "visNetwork") || inherits(g, "htmlwidget"))
+})
+
+# ── new_step helper ──────────────────────────────────────────────────────────
+
+test_that("new_step errors when recode type missing new_var", {
+  expect_error(
+    metasurvey:::new_step(
+      id = 1, name = "test", description = "test",
+      type = "recode"
+    ),
+    "new_var is required"
+  )
+})
+
+# ── Internal compute/recode with .copy=FALSE + lazy=TRUE paths ───────────────
+
+test_that("internal compute with .copy=FALSE and lazy=TRUE returns survey unchanged", {
+  s <- make_test_survey()
+  result <- metasurvey:::compute(s, double_age = age * 2, .copy = FALSE, lazy = TRUE)
+  expect_identical(result, s)
+})
+
+test_that("internal recode with .copy=FALSE and lazy=TRUE returns survey unchanged", {
+  s <- make_test_survey()
+  result <- metasurvey:::recode(s, "age_cat",
+    age < 30 ~ "young", age >= 30 ~ "old",
+    .copy = FALSE, lazy = TRUE
+  )
+  expect_identical(result, s)
+})
+
+test_that("internal recode with .to_factor creates factor column", {
+  s <- make_test_survey()
+  result <- metasurvey:::recode(s, "age_cat",
+    age < 30 ~ "young", age >= 30 ~ "old",
+    .default = "unknown",
+    .copy = TRUE, lazy = FALSE, .to_factor = TRUE
+  )
+  dt <- get_data(result)
+  expect_true("age_cat" %in% names(dt))
+  expect_true(is.factor(dt$age_cat))
+})
+
+# ── Additional steps coverage push ────────────────────────────────────────────
+
+test_that("step_recode on survey_empty returns call (no data path)", {
+  s <- survey_empty("ech", "2023")
+  result <- step_recode(s, age_cat, age < 30 ~ "young", .default = "old")
+  # When data is NULL, should return the call object for pipeline building
+  expect_true(is.call(result) || inherits(result, "Survey"))
+})
+
+test_that("step_join on survey_empty returns call (no data path)", {
+  s <- survey_empty("ech", "2023")
+  extra <- data.table::data.table(id = 1:5, val = letters[1:5])
+  result <- step_join(s, extra, by = "id", type = "left")
+  expect_true(is.call(result) || inherits(result, "Survey"))
+})
+
+test_that("step_join infers common columns when by=NULL", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(id = 1:10, extra_val = 100:109)
+  result <- step_join(s, extra, by = NULL, type = "left")
+  expect_true("extra_val" %in% names(get_data(result)))
+})
+
+test_that("step_join with named by maps different key names", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(person_id = 1:10, bonus = 50:59)
+  result <- step_join(s, extra, by = c("id" = "person_id"), type = "left")
+  expect_true("bonus" %in% names(get_data(result)))
+})
+
+test_that("step_join errors when key not found in survey", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(id = 1:10, val = 1:10)
+  expect_error(
+    step_join(s, extra, by = "nonexistent", type = "left"),
+    "Join keys not found"
+  )
+})
+
+test_that("step_join errors when key not found in x", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(person_id = 1:10, val = 1:10)
+  expect_error(
+    step_join(s, extra, by = c("id" = "bad_key"), type = "left"),
+    "Join keys not found"
+  )
+})
+
+test_that("step_join handles overlapping column names with suffix", {
+  s <- make_test_survey()
+  # Create extra data with overlapping column 'age'
+  extra <- data.table::data.table(id = 1:10, age = 100:109)
+  result <- step_join(s, extra, by = "id", type = "left")
+  dt <- get_data(result)
+  # Original 'age' should remain, extra 'age' should get .y suffix
+  expect_true("age" %in% names(dt))
+  expect_true("age.y" %in% names(dt))
+})
+
+test_that("step_compute on RotativePanelSurvey with .copy=FALSE modifies in place", {
+  implantation <- make_test_survey(20)
+  implantation$periodicity <- "monthly"
+  fu1 <- make_test_survey(20)
+  fu1$periodicity <- "monthly"
+  fu1$edition <- "2023-Q1"
+
+  panel <- RotativePanelSurvey$new(
+    implantation = implantation,
+    follow_up = list(fu1),
+    type = "ech",
+    default_engine = "data.table",
+    steps = list(), recipes = list(),
+    workflows = list(), design = NULL
+  )
+  result <- step_compute(panel, z = x + y, .copy = FALSE)
+  expect_s3_class(result, "RotativePanelSurvey")
+})

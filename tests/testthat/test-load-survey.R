@@ -438,7 +438,44 @@ test_that("load_panel_survey validates weight time pattern", {
 })
 
 test_that("load_panel_survey basic structure validation", {
-  # Just test the function signature exists
   expect_true(exists("load_panel_survey"))
   expect_type(load_panel_survey, "closure")
+})
+
+# --- strata support in load_survey ---
+
+test_that("load_survey passes svy_strata through to Survey", {
+  df <- data.table::data.table(
+    id = 1:10, stratum = rep(1:2, each = 5), w = 1
+  )
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp), add = TRUE)
+  data.table::fwrite(df, tmp)
+
+  s <- load_survey(
+    path = tmp,
+    svy_type = "ech",
+    svy_edition = "2023",
+    svy_weight = add_weight(annual = "w"),
+    svy_strata = "stratum"
+  )
+
+  expect_s3_class(s, "Survey")
+  expect_equal(s$strata, "stratum")
+})
+
+test_that("load_survey without svy_strata defaults to NULL", {
+  df <- data.table::data.table(id = 1:5, w = 1)
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp), add = TRUE)
+  data.table::fwrite(df, tmp)
+
+  s <- load_survey(
+    path = tmp,
+    svy_type = "ech",
+    svy_edition = "2023",
+    svy_weight = add_weight(annual = "w")
+  )
+
+  expect_null(s$strata)
 })

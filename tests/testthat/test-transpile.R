@@ -571,3 +571,659 @@ test_that("transpile single do-file produces valid steps for bake", {
   expect_equal(as.character(baked$data$bc_pe4), c("1", "2", "3", "5"))
   expect_equal(baked$data$bc_pe2, c(1, 2, 1, 2))
 })
+
+# --- translate_commands, translate_replace, translate_keep, etc. ---
+
+test_that("translate_commands skips label and sort commands", {
+  cmds <- list(
+    list(cmd = "sort", args = "id", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "sort id", line_num = 1L, capture = FALSE),
+    list(cmd = "label", args = "variable x 'test'", if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = "label variable x 'test'",
+         line_num = 2L, capture = FALSE),
+    list(cmd = "gen", args = "y = 1", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "gen y = 1", line_num = 3L, capture = FALSE)
+  )
+  result <- translate_commands(cmds)
+  expect_equal(result$stats$skipped, 2L)
+  expect_equal(result$stats$translated, 1L)
+  expect_true(length(result$steps) == 1)
+})
+
+test_that("translate_commands emits MANUAL_REVIEW for unhandled commands", {
+  cmds <- list(
+    list(cmd = "regress", args = "y x1 x2", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "regress y x1 x2", line_num = 1L,
+         capture = FALSE)
+  )
+  result <- translate_commands(cmds, strict = FALSE)
+  expect_equal(result$stats$manual_review, 1L)
+  expect_true(length(result$warnings) == 1)
+  expect_match(result$warnings[1], "MANUAL_REVIEW")
+})
+
+test_that("translate_commands strict mode errors on unhandled command", {
+  cmds <- list(
+    list(cmd = "regress", args = "y x1 x2", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "regress y x1 x2", line_num = 1L,
+         capture = FALSE)
+  )
+  expect_error(translate_commands(cmds, strict = TRUE), "MANUAL_REVIEW")
+})
+
+test_that("translate_replace standalone without if clause", {
+  cmd <- list(
+    cmd = "replace", args = "x = 0", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "replace x = 0", line_num = 1L, capture = FALSE
+  )
+  result <- translate_replace(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], "step_compute.*x = 0")
+  expect_no_error(parse(text = result$steps[[1]]))
+})
+
+test_that("translate_replace with if clause uses fifelse", {
+  cmd <- list(
+    cmd = "replace", args = "x = 1", if_clause = "age > 30",
+    options = NULL, by_group = NULL, raw_line = "replace x = 1 if age > 30",
+    line_num = 1L, capture = FALSE
+  )
+  result <- translate_replace(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], "fifelse")
+  expect_match(result$steps[[1]], "age > 30")
+})
+
+test_that("translate_replace returns NULL for unparseable args", {
+  cmd <- list(
+    cmd = "replace", args = "", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "replace", line_num = 1L, capture = FALSE
+  )
+  result <- translate_replace(cmd)
+  expect_null(result)
+})
+
+test_that("translate_keep emits MANUAL_REVIEW", {
+  cmd <- list(
+    cmd = "keep", args = "id age income", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "keep id age income", line_num = 1L,
+    capture = FALSE
+  )
+  result <- translate_keep(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], "MANUAL_REVIEW")
+  expect_match(result$steps[[1]], "keep")
+})
+
+test_that("translate_tostring produces as.character step", {
+  cmd <- list(
+    cmd = "tostring", args = "edad", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "tostring edad", line_num = 1L, capture = FALSE
+  )
+  result <- translate_tostring(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], "as.character\\(edad\\)")
+  expect_no_error(parse(text = result$steps[[1]]))
+})
+
+test_that("translate_tostring strips options", {
+  cmd <- list(
+    cmd = "tostring", args = "x, replace force", if_clause = NULL,
+    options = "replace force", by_group = NULL,
+    raw_line = "tostring x, replace force", line_num = 1L, capture = FALSE
+  )
+  result <- translate_tostring(cmd)
+  expect_match(result$steps[[1]], "step_compute.*x = as.character\\(x\\)")
+})
+
+test_that("translate_merge emits MANUAL_REVIEW", {
+  cmd <- list(
+    cmd = "merge", args = "1:1 id using data2.dta", if_clause = NULL,
+    options = NULL, by_group = NULL,
+    raw_line = "merge 1:1 id using data2.dta", line_num = 1L, capture = FALSE
+  )
+  result <- translate_merge(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], "MANUAL_REVIEW")
+  expect_match(result$steps[[1]], "merge")
+})
+
+test_that("translate_rename returns NULL for single token", {
+  cmd <- list(
+    cmd = "rename", args = "only_one", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "rename only_one", line_num = 1L,
+    capture = FALSE
+  )
+  result <- translate_rename(cmd)
+  expect_null(result)
+})
+
+test_that("translate_rename produces step_rename", {
+  cmd <- list(
+    cmd = "rename", args = "old_name new_name", if_clause = NULL,
+    options = NULL, by_group = NULL, raw_line = "rename old_name new_name",
+    line_num = 1L, capture = FALSE
+  )
+  result <- translate_rename(cmd)
+  expect_true(length(result$steps) == 1)
+  expect_match(result$steps[[1]], 'step_rename.*new_name.*=.*"old_name"')
+})
+
+# --- extract_input_vars, build_doc_from_steps, transpile_coverage, filter_labels ---
+
+test_that("extract_input_vars finds referenced variables excluding outputs", {
+  steps <- c(
+    "step_compute(svy, z = age + income)",
+    "step_compute(svy, w = z * 2)"
+  )
+  inputs <- extract_input_vars(steps)
+  # age, income are inputs (not created by any step)
+  expect_true("age" %in% inputs)
+  expect_true("income" %in% inputs)
+  # z is created by step 1, so NOT an input
+  expect_false("z" %in% inputs)
+  # svy, step_compute are stripped as known non-variables
+  expect_false("svy" %in% inputs)
+})
+
+test_that("extract_input_vars skips comment lines", {
+  steps <- c(
+    "# MANUAL_REVIEW: some comment",
+    "step_compute(svy, x = age + 1)"
+  )
+  inputs <- extract_input_vars(steps)
+  expect_true("age" %in% inputs)
+})
+
+test_that("build_doc_from_steps produces pipeline with compute steps", {
+  steps <- c(
+    "step_compute(svy, x = age + 1)",
+    "step_compute(svy, y = x * 2)"
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_true(is.list(doc))
+  expect_true("input_variables" %in% names(doc))
+  expect_true("output_variables" %in% names(doc))
+  expect_true("pipeline" %in% names(doc))
+  expect_true("x" %in% doc$output_variables)
+  expect_true("y" %in% doc$output_variables)
+  expect_true("age" %in% doc$input_variables)
+  expect_equal(length(doc$pipeline), 2)
+  expect_equal(doc$pipeline[[1]]$type, "compute")
+})
+
+test_that("build_doc_from_steps handles recode steps", {
+  steps <- c(
+    "step_recode(svy, age_cat, age < 30 ~ 'young', .default = 'old')"
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_equal(doc$pipeline[[1]]$type, "recode")
+  expect_true("age_cat" %in% doc$output_variables)
+})
+
+test_that("build_doc_from_steps handles rename steps", {
+  steps <- c(
+    'step_rename(svy, edad = "age", sexo = "sex")'
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_equal(doc$pipeline[[1]]$type, "rename")
+  expect_true("edad" %in% doc$output_variables)
+  expect_true("sexo" %in% doc$output_variables)
+})
+
+test_that("build_doc_from_steps handles remove steps", {
+  steps <- c(
+    "step_remove(svy, tmp1, tmp2)"
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_equal(doc$pipeline[[1]]$type, "remove")
+  expect_true("tmp1" %in% doc$output_variables)
+})
+
+test_that("build_doc_from_steps skips comment lines", {
+  steps <- c(
+    "# MANUAL_REVIEW: skip this",
+    "step_compute(svy, x = 1)"
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_equal(length(doc$pipeline), 1)
+})
+
+test_that("transpile_coverage reports on a single .do file", {
+  fixture <- system.file("stata-test-cases/gen_replace.do",
+    package = "metasurvey"
+  )
+  skip_if_not(file.exists(fixture))
+  result <- transpile_coverage(fixture)
+  expect_true(is.data.frame(result))
+  expect_true("coverage_pct" %in% names(result))
+  expect_true("TOTAL" %in% result$file)
+  expect_true(nrow(result) >= 2) # file row + TOTAL row
+  expect_true(result$translated[1] >= 1)
+})
+
+test_that("transpile_coverage reports on a directory", {
+  fixture_dir <- system.file("stata-test-cases", package = "metasurvey")
+  skip_if_not(dir.exists(fixture_dir))
+  result <- transpile_coverage(fixture_dir)
+  expect_true(is.data.frame(result))
+  # Should have one row per .do file plus TOTAL
+  n_do <- length(list.files(fixture_dir, "\\.do$"))
+  expect_equal(nrow(result), n_do + 1)
+})
+
+test_that("transpile_coverage errors on non-existent path", {
+  expect_error(transpile_coverage("/nonexistent/path"), "Path not found")
+})
+
+test_that("filter_labels filters to specified variables", {
+  labels <- list(
+    var_labels = list(age = "Age", sex = "Sex", income = "Income"),
+    val_labels = list(sex = list("1" = "M", "2" = "F"), region = list("1" = "N"))
+  )
+  filtered <- filter_labels(labels, c("age", "sex"))
+  expect_equal(names(filtered$var_labels), c("age", "sex"))
+  expect_equal(names(filtered$val_labels), "sex")
+})
+
+# --- translate_gen_block edge cases, recode range ---
+
+test_that("translate_gen_block with if clause (no replace) uses fifelse", {
+  cmd <- list(
+    cmd = "gen", args = "eligible = 1", if_clause = "age >= 18",
+    options = NULL, by_group = NULL, raw_line = "gen eligible = 1 if age >= 18",
+    line_num = 1L, capture = FALSE
+  )
+  result <- translate_gen_block(list(cmd), 1)
+  expect_true(length(result$steps) >= 1)
+  expect_match(result$steps[[1]], "fifelse")
+  expect_match(result$steps[[1]], "age >= 18")
+  expect_match(result$steps[[1]], "eligible")
+  expect_no_error(parse(text = result$steps[[1]]))
+})
+
+test_that("translate_gen_block gen+replace all constants produces step_recode", {
+  cmds <- list(
+    list(cmd = "gen", args = "cat = 0", if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = "gen cat = 0",
+         line_num = 1L, capture = FALSE),
+    list(cmd = "replace", args = "cat = 1", if_clause = "age < 30",
+         options = NULL, by_group = NULL, raw_line = "replace cat = 1 if age < 30",
+         line_num = 2L, capture = FALSE),
+    list(cmd = "replace", args = "cat = 2", if_clause = "age >= 30 & age < 65",
+         options = NULL, by_group = NULL,
+         raw_line = "replace cat = 2 if age >= 30 & age < 65",
+         line_num = 3L, capture = FALSE)
+  )
+  result <- translate_gen_block(cmds, 1)
+  expect_true(length(result$steps) >= 1)
+  expect_match(result$steps[[1]], "step_recode")
+  expect_match(result$steps[[1]], ".default")
+  expect_equal(result$advance, 3)
+})
+
+test_that("translate_gen_block gen+replace mixed (expression RHS) uses fifelse chain", {
+  cmds <- list(
+    list(cmd = "gen", args = "ratio = 0", if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = "gen ratio = 0",
+         line_num = 1L, capture = FALSE),
+    list(cmd = "replace", args = "ratio = income / 1000", if_clause = "age > 18",
+         options = NULL, by_group = NULL,
+         raw_line = "replace ratio = income / 1000 if age > 18",
+         line_num = 2L, capture = FALSE)
+  )
+  result <- translate_gen_block(cmds, 1)
+  expect_true(length(result$steps) >= 2) # init + fifelse
+  expect_match(result$steps[[1]], "step_compute.*ratio = 0")
+  expect_match(result$steps[[2]], "fifelse")
+  for (s in result$steps) expect_no_error(parse(text = s))
+})
+
+test_that("translate_gen_block bare gen with byte type prefix", {
+  cmds <- list(
+    list(cmd = "gen", args = "byte flag", if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = "gen byte flag",
+         line_num = 1L, capture = TRUE)
+  )
+  result <- translate_gen_block(cmds, 1)
+  expect_true(length(result$steps) >= 1)
+  expect_match(result$steps[[1]], "flag = NA")
+})
+
+test_that("translate_recode_single handles range mapping (23/38=22)", {
+  parsed <- list(
+    var_name = "edad",
+    gen_var = NULL,
+    mappings = list(
+      list(from_range = c(23, 38), to = "22"),
+      list(from = ".", to = "0")
+    )
+  )
+  steps <- translate_recode_single(parsed)
+  expect_true(length(steps) >= 2)
+  expect_match(steps[1], "edad >= 23")
+  expect_match(steps[1], "edad <= 38")
+  expect_match(steps[2], "is.na")
+})
+
+test_that("translate_recode_single handles multi-value from", {
+  parsed <- list(
+    var_name = "x",
+    gen_var = NULL,
+    mappings = list(
+      list(from = c("1", "2", "3"), to = "99")
+    )
+  )
+  steps <- translate_recode_single(parsed)
+  expect_true(length(steps) >= 1)
+  expect_match(steps[1], "%in%")
+  expect_match(steps[1], "c\\(1, 2, 3\\)")
+})
+
+test_that("translate_recode_single with gen() copies variable first", {
+  parsed <- list(
+    var_name = "source",
+    gen_var = "target",
+    mappings = list(
+      list(from = c("1"), to = "99")
+    )
+  )
+  steps <- translate_recode_single(parsed)
+  # First step should be copy: step_compute(svy, target = source)
+  expect_match(steps[1], "target = source")
+  # Second step should be the recode
+  expect_match(steps[2], "target.*fifelse")
+})
+
+test_that("translate_drop with if clause emits MANUAL_REVIEW", {
+  cmd <- list(
+    cmd = "drop", args = "x", if_clause = "age < 18", options = NULL,
+    by_group = NULL, raw_line = "drop if age < 18", line_num = 1L,
+    capture = FALSE
+  )
+  result <- translate_drop(cmd)
+  expect_match(result$steps[[1]], "MANUAL_REVIEW")
+  expect_match(result$steps[[1]], "observation deletion")
+})
+
+# ── Additional transpile coverage push ────────────────────────────────────────
+
+test_that("translate_egen without by-group produces simple step_compute", {
+  cmd <- list(
+    cmd = "egen", args = "total_inc = sum(income)", if_clause = NULL,
+    options = NULL, by_group = NULL,
+    raw_line = "egen total_inc = sum(income)", line_num = 1L, capture = FALSE
+  )
+  result <- translate_egen(cmd)
+  expect_match(result$steps, "step_compute")
+  expect_match(result$steps, "total_inc")
+  expect_match(result$steps, "sum.*income.*na.rm = TRUE")
+  # No .by argument
+  expect_false(grepl("\\.by", result$steps))
+})
+
+test_that("translate_egen with multiple by-group vars produces c() for .by", {
+  cmd <- list(
+    cmd = "egen", args = "mean_age = mean(age)", if_clause = NULL,
+    options = NULL, by_group = "region status",
+    raw_line = "bysort region status: egen mean_age = mean(age)",
+    line_num = 1L, capture = FALSE
+  )
+  result <- translate_egen(cmd)
+  expect_match(result$steps, "\\.by = c\\(")
+  expect_match(result$steps, '"region"')
+  expect_match(result$steps, '"status"')
+})
+
+test_that("translate_egen with unknown function passes through", {
+  cmd <- list(
+    cmd = "egen", args = "val = rowtotal(a b c)", if_clause = NULL,
+    options = NULL, by_group = NULL,
+    raw_line = "egen val = rowtotal(a b c)", line_num = 1L, capture = FALSE
+  )
+  result <- translate_egen(cmd)
+  expect_match(result$steps, "rowtotal\\(a b c\\)")
+})
+
+test_that("translate_egen returns NULL for invalid egen syntax", {
+  cmd <- list(
+    cmd = "egen", args = "no_equals_sign", if_clause = NULL,
+    options = NULL, by_group = NULL,
+    raw_line = "egen no_equals_sign", line_num = 1L, capture = FALSE
+  )
+  expect_null(translate_egen(cmd))
+})
+
+test_that("translate_destring produces as.numeric conversion", {
+  cmd <- list(
+    cmd = "destring", args = "income_str", if_clause = NULL,
+    options = "replace", by_group = NULL,
+    raw_line = "destring income_str, replace", line_num = 1L, capture = FALSE
+  )
+  result <- translate_destring(cmd)
+  expect_match(result$steps, "step_compute")
+  expect_match(result$steps, "as\\.numeric.*as\\.character.*income_str")
+})
+
+test_that("translate_destring with force uses suppressWarnings", {
+  cmd <- list(
+    cmd = "destring", args = "x", if_clause = NULL,
+    options = "replace force", by_group = NULL,
+    raw_line = "destring x, replace force", line_num = 1L, capture = FALSE
+  )
+  result <- translate_destring(cmd)
+  expect_match(result$steps, "suppressWarnings")
+})
+
+test_that("translate_mvencode handles multiple variables with range", {
+  cmd <- list(
+    cmd = "mvencode", args = "a b c", if_clause = NULL,
+    options = "mv(-99)", by_group = NULL,
+    raw_line = "mvencode a b c, mv(-99)", line_num = 1L, capture = FALSE
+  )
+  result <- translate_mvencode(cmd)
+  expect_length(result$steps, 3)
+  expect_match(result$steps[1], "fifelse.*is\\.na.*a.*-99")
+  expect_match(result$steps[2], "fifelse.*is\\.na.*b.*-99")
+})
+
+test_that("translate_drop with empty args returns NULL", {
+  cmd <- list(
+    cmd = "drop", args = "", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "drop", line_num = 1L, capture = FALSE
+  )
+  result <- translate_drop(cmd)
+  expect_null(result)
+})
+
+test_that("translate_drop with variable range expands correctly", {
+  cmd <- list(
+    cmd = "drop", args = "aux1-aux3", if_clause = NULL, options = NULL,
+    by_group = NULL, raw_line = "drop aux1-aux3", line_num = 1L, capture = FALSE
+  )
+  result <- translate_drop(cmd)
+  expect_match(result$steps, "step_remove")
+  expect_match(result$steps, "aux1.*aux2.*aux3")
+})
+
+test_that("translate_gen_block with gen followed by non-replace breaks lookahead", {
+  cmds <- list(
+    list(cmd = "gen", args = "x = 1", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "gen x = 1", line_num = 1L, capture = FALSE),
+    list(cmd = "drop", args = "y", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "drop y", line_num = 2L, capture = FALSE)
+  )
+  result <- translate_gen_block(cmds, 1)
+  expect_equal(result$advance, 1)  # only consumed the gen, not the drop
+  expect_match(result$steps, "step_compute.*x = 1")
+})
+
+test_that("translate_gen_block with invalid gen returns NULL", {
+  cmds <- list(
+    list(cmd = "gen", args = "bad bad bad = =", if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = "gen bad bad bad = =",
+         line_num = 1L, capture = FALSE)
+  )
+  # parse_gen_args will return something because there's an = sign
+  # Let's use a case that truly returns NULL: no = sign and not matching bare var
+  cmds2 <- list(
+    list(cmd = "gen", args = "", if_clause = NULL, options = NULL,
+         by_group = NULL, raw_line = "gen", line_num = 1L, capture = FALSE)
+  )
+  result <- translate_gen_block(cmds2, 1)
+  expect_null(result)
+})
+
+test_that("translate_gen_block recode path with quoted string constants", {
+  cmds <- list(
+    list(cmd = "gen", args = 'status = "unknown"', if_clause = NULL,
+         options = NULL, by_group = NULL, raw_line = 'gen status = "unknown"',
+         line_num = 1L, capture = FALSE),
+    list(cmd = "replace", args = 'status = "active"', if_clause = "flag == 1",
+         options = NULL, by_group = NULL,
+         raw_line = 'replace status = "active" if flag == 1',
+         line_num = 2L, capture = FALSE),
+    list(cmd = "replace", args = 'status = "inactive"', if_clause = "flag == 0",
+         options = NULL, by_group = NULL,
+         raw_line = 'replace status = "inactive" if flag == 0',
+         line_num = 3L, capture = FALSE)
+  )
+  result <- translate_gen_block(cmds, 1)
+  # All RHS are quoted strings (constants), so should produce step_recode
+  expect_match(result$steps, "step_recode")
+  expect_equal(result$advance, 3)
+})
+
+test_that("translate_recode with multiple variables", {
+  cmd <- list(
+    cmd = "recode", args = "v1 v2 v3 (.=0)", if_clause = NULL,
+    options = NULL, by_group = NULL,
+    raw_line = "recode v1 v2 v3 (.=0)", line_num = 1L, capture = FALSE
+  )
+  result <- translate_recode(cmd)
+  expect_true(length(result$steps) == 3)
+})
+
+test_that("build_doc_from_steps handles rename and remove step types", {
+  steps <- c(
+    'step_rename(svy, new_name = "old_name")',
+    'step_remove(svy, drop_var1, drop_var2)'
+  )
+  doc <- build_doc_from_steps(steps)
+  expect_true("new_name" %in% doc$output_variables)
+  expect_true("drop_var1" %in% doc$output_variables)
+  expect_equal(length(doc$pipeline), 2)
+})
+
+# ── transpile_stata_module with temp .do files ────────────────────────────────
+
+test_that("transpile_stata_module errors on missing directory", {
+  expect_error(transpile_stata_module("/nonexistent/dir", 2023), "Directory not found")
+})
+
+test_that("transpile_stata_module processes a year directory with .do files", {
+  year_dir <- file.path(tempdir(), "test_module_2023")
+  dir.create(year_dir, showWarnings = FALSE)
+  on.exit(unlink(year_dir, recursive = TRUE))
+
+  # Create data_prep module file (matches "2_correc")
+  writeLines(c(
+    "gen bc_anio = 2023",
+    "gen bc_mes = 1",
+    "rename id bc_correlat"
+  ), file.path(year_dir, "2_correcciones.do"))
+
+  # Create demographics module file (matches "3_compat")
+  writeLines(c(
+    "gen bc_pe2 = e26",
+    "gen bc_pe3 = e27",
+    "replace bc_pe3 = 1 if e30 == 1",
+    "replace bc_pe3 = 2 if e30 == 2"
+  ), file.path(year_dir, "3_compatibiliza.do"))
+
+  # Create a label file
+  writeLines(c(
+    'label variable bc_pe2 "Sexo"',
+    'label define pe2l 1 "Hombre" 2 "Mujer"',
+    'label values bc_pe2 pe2l'
+  ), file.path(year_dir, "label_pe2.do"))
+
+  result <- transpile_stata_module(year_dir, 2023)
+  expect_true(is.list(result))
+  expect_true("data_prep" %in% names(result))
+  expect_true("demographics" %in% names(result))
+
+  # Each module should be a Recipe
+  expect_true(inherits(result$data_prep, "Recipe"))
+  expect_true(inherits(result$demographics, "Recipe"))
+
+  # Steps should be populated
+  expect_true(length(result$data_prep$steps) > 0)
+  expect_true(length(result$demographics$steps) > 0)
+
+  # Demographics recipe should depend on data_prep
+  expect_true("data_prep" %in%
+    sub("^ech_2023_", "", result$demographics$depends_on_recipes))
+})
+
+test_that("transpile_stata_module with output_dir writes JSON files", {
+  year_dir <- file.path(tempdir(), "test_module_out")
+  out_dir <- file.path(tempdir(), "test_recipes_out")
+  dir.create(year_dir, showWarnings = FALSE)
+  on.exit({
+    unlink(year_dir, recursive = TRUE)
+    unlink(out_dir, recursive = TRUE)
+  })
+
+  writeLines(c(
+    "gen x = 1",
+    "gen y = x + 1"
+  ), file.path(year_dir, "2_correcciones.do"))
+
+  result <- transpile_stata_module(year_dir, 2023, output_dir = out_dir)
+  expect_true(dir.exists(out_dir))
+  json_files <- list.files(out_dir, pattern = "\\.json$")
+  expect_true(length(json_files) > 0)
+})
+
+test_that("transpile_stata works on temp .do file with mixed commands", {
+  tmp <- tempfile(fileext = ".do")
+  on.exit(unlink(tmp))
+  writeLines(c(
+    "gen x = 1",
+    "replace x = 2 if y == 1",
+    "replace x = 3 if y == 2",
+    "recode z (1=10) (2=20)",
+    "drop aux1 aux2",
+    "rename old_name new_name",
+    "destring income_str, replace force",
+    "tostring age",
+    "mvencode a b, mv(0)",
+    "bysort region: egen mean_inc = mean(income)",
+    "keep important_var",
+    "merge 1:1 id using other_data",
+    "tab status"
+  ), tmp)
+
+  result <- transpile_stata(tmp)
+  expect_true(length(result$steps) > 0)
+  expect_true(length(result$stats) > 0)
+  expect_true(result$stats$translated > 0)
+  expect_true(result$stats$skipped > 0)  # tab is skipped
+})
+
+test_that("transpile_stata with labels extracts label info", {
+  tmp <- tempfile(fileext = ".do")
+  on.exit(unlink(tmp))
+  writeLines(c(
+    "gen x = 1",
+    'label variable x "My variable"',
+    'label define xl 1 "One" 2 "Two"',
+    "label values x xl"
+  ), tmp)
+
+  result <- transpile_stata(tmp)
+  expect_true(length(result$steps) > 0)
+  expect_equal(result$labels$var_labels$x, "My variable")
+  expect_equal(result$labels$val_labels$x[["1"]], "One")
+})
