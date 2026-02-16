@@ -51,8 +51,8 @@ operations.}
 
 \item{\code{call}}{The function call associated with the step.}
 
-\item{\code{svy_before}}{The survey object before the step is
-applied.}
+\item{\code{svy_before}}{Deprecated. Always NULL to prevent memory
+retention chains. Kept for backwards compatibility.}
 
 \item{\code{default_engine}}{The default engine used for
 processing the step.}
@@ -118,8 +118,8 @@ step's operations.}
 \item{\code{call}}{The function call associated with the
 step.}
 
-\item{\code{svy_before}}{The survey object before the step
-is applied.}
+\item{\code{svy_before}}{Deprecated. Ignored (always set to
+NULL) to prevent memory retention chains.}
 
 \item{\code{default_engine}}{The default engine used for
 processing the step.}

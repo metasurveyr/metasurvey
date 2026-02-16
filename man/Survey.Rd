@@ -317,7 +317,7 @@ Print summarized metadata to console
 \if{html}{\out{<a id="method-Survey-add_step"></a>}}
 \if{latex}{\out{\hypertarget{method-Survey-add_step}{}}}
 \subsection{Method \code{add_step()}}{
-Add a step and update design
+Add a step and invalidate design
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Survey$add_step(step)}\if{html}{\out{</div>}}
 }
