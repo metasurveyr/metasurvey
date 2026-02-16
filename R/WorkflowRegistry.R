@@ -156,7 +156,7 @@ WorkflowRegistry <- R6::R6Class(
       }
       if (length(s$by_certification) > 0) {
         cat("  Certification:", paste(
-          sapply(names(s$by_certification), function(k) paste0(k, ": ", s$by_certification[[k]])),
+          vapply(names(s$by_certification), function(k) paste0(k, ": ", s$by_certification[[k]]), character(1)),
           collapse = ", "
         ), "\n")
       }

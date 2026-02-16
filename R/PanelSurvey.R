@@ -55,7 +55,7 @@ RotativePanelSurvey <- R6Class(
       self$workflows <- workflows
       self$design <- design
 
-      follow_up_types <- sapply(self$follow_up, function(f) f$periodicity)
+      follow_up_types <- vapply(self$follow_up, function(f) f$periodicity, character(1))
 
       if (length(unique(follow_up_types)) > 1) {
         stop("All follow-up surveys must have the same type")
@@ -100,7 +100,7 @@ RotativePanelSurvey <- R6Class(
     #' @return A list containing the steps for the implantation and follow-up surveys.
     get_steps = function() {
       steps_implantation <- self$implantation$steps
-      steps_follow_up <- sapply(self$follow_up, function(f) f$steps)
+      steps_follow_up <- lapply(self$follow_up, function(f) f$steps)
 
       return(list(
         implantation = steps_implantation,
@@ -254,7 +254,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
     return(follow_up[[index]])
   }
 
-  dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))
+  dates <- as.Date(vapply(unname(follow_up), function(x) as.character(x$edition), character(1)))
 
   ts_series <- stats::ts(seq_along(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
 

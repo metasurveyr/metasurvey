@@ -229,11 +229,11 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   if (estimation_type_first == estimation_type) {
     out <- data.table(result)
   } else {
-    numeric_vars <- names(result)[sapply(result, is.numeric)]
+    numeric_vars <- names(result)[vapply(result, is.numeric, logical(1))]
     agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
-    agg[, se := sapply(variance, adj_se, rho = rho, R = R)]
+    agg[, se := vapply(variance, adj_se, numeric(1), rho = rho, R = R)]
     agg[, cv := se / value]
-    agg[, evaluate := sapply(cv, evaluate_cv)]
+    agg[, evaluate := vapply(cv, evaluate_cv, character(1))]
     out <- data.table(agg[order(stat), ])
   }
 
