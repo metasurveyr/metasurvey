@@ -433,3 +433,34 @@ test_that("workflow errors on quarterly without quarterly weight", {
              estimation_type = "quarterly")
   )
 })
+
+# ── Batch 10: workflow additional edge cases ──────────────────────────────────
+
+test_that("workflow with svyby includes margin columns", {
+  survey <- make_test_survey(100)
+  des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
+  estimation <- survey::svyby(~income, ~region, des, survey::svymean, na.rm = TRUE)
+
+  result <- metasurvey:::cat_estimation.svyby(estimation, "survey::svyby")
+  expect_true("region" %in% names(result) || "stat" %in% names(result))
+  expect_true(nrow(result) > 0)
+})
+
+test_that("cat_estimation.svyratio handles multi-variable ratio", {
+  survey <- make_test_survey(100)
+  des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
+  estimation <- survey::svyratio(~income, ~age, des, na.rm = TRUE)
+
+  result <- metasurvey:::cat_estimation.svyratio(estimation, "survey::svyratio")
+  expect_true("cv" %in% names(result))
+  expect_true(all(is.finite(result$cv) | is.na(result$cv)))
+})
+
+test_that("evaluate_cv classifies CV correctly on percentage scale", {
+  expect_equal(evaluate_cv(3), "Excellent")
+  expect_equal(evaluate_cv(7), "Very good")
+  expect_equal(evaluate_cv(12), "Good")
+  expect_equal(evaluate_cv(20), "Acceptable")
+  expect_equal(evaluate_cv(30), "Use with caution")
+  expect_equal(evaluate_cv(40), "Do not publish")
+})

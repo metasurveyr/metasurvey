@@ -630,3 +630,126 @@ test_that("set_engine warns when engine package not installed", {
     "required"
   )
 })
+
+# ── Batch 7: utils.R coverage ───────────────────────────────────────────────
+
+test_that("extract_time_pattern handles quarterly format YYYY_Q1", {
+  result <- metasurvey:::extract_time_pattern("2023_Q1")
+  expect_equal(result$periodicity, "Quarterly")
+  expect_equal(result$year, 2023)
+  expect_equal(result$month, 1) # Q1 starts at month 1
+})
+
+test_that("extract_time_pattern handles quarterly format YYYY_T3", {
+  result <- metasurvey:::extract_time_pattern("2023_T3")
+  expect_equal(result$periodicity, "Quarterly")
+  expect_equal(result$year, 2023)
+  expect_equal(result$month, 7) # T3 starts at month 7
+})
+
+test_that("validate_time_pattern with NULL edition and valid type", {
+  result <- metasurvey:::validate_time_pattern(
+    svy_type = "ech", svy_edition = NULL
+  )
+  expect_true(is.list(result))
+  expect_equal(result$svy_type, "ech")
+  expect_true(is.na(result$svy_edition))
+})
+
+test_that("validate_time_pattern errors when both NULL", {
+  expect_error(
+    metasurvey:::validate_time_pattern(svy_type = NULL, svy_edition = NULL),
+    "Both svy_edition and svy_type are NULL"
+  )
+})
+
+test_that("load_survey_example errors on download failure", {
+  local_mocked_bindings(
+    download.file = function(...) stop("Cannot reach server"),
+    .package = "utils"
+  )
+  expect_error(
+    load_survey_example("fake_type", "9999"),
+    "Failed to download"
+  )
+})
+
+test_that("use_copy_default and set_use_copy round-trip", {
+  old <- use_copy_default()
+  on.exit(set_use_copy(old))
+  set_use_copy(TRUE)
+  expect_true(use_copy_default())
+  set_use_copy(FALSE)
+  expect_false(use_copy_default())
+})
+
+test_that("api_url returns NULL when not configured", {
+  old <- getOption("metasurvey.api_url")
+  old_env <- Sys.getenv("METASURVEY_API_URL", "")
+  on.exit({
+    options(metasurvey.api_url = old)
+    if (nzchar(old_env)) Sys.setenv(METASURVEY_API_URL = old_env) else Sys.unsetenv("METASURVEY_API_URL")
+  })
+  options(metasurvey.api_url = NULL)
+  Sys.unsetenv("METASURVEY_API_URL")
+  result <- api_url()
+  expect_null(result)
+})
+
+test_that("api_url returns configured URL", {
+  old <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old))
+  options(metasurvey.api_url = "http://test.example.com")
+  result <- api_url()
+  expect_equal(result, "http://test.example.com")
+})
+
+test_that("reproduce_workflow errors for non-RecipeWorkflow input", {
+  expect_error(
+    reproduce_workflow("not a workflow"),
+    "RecipeWorkflow"
+  )
+})
+
+# ── Additional utils coverage push ────────────────────────────────────────────
+
+test_that(".serialize_weight_spec returns NULL for NULL or empty weight", {
+  expect_null(metasurvey:::.serialize_weight_spec(NULL))
+  expect_null(metasurvey:::.serialize_weight_spec(list()))
+})
+
+test_that(".serialize_weight_spec handles simple character weight", {
+  result <- metasurvey:::.serialize_weight_spec(list(annual = "w"))
+  expect_equal(result$annual$type, "simple")
+  expect_equal(result$annual$variable, "w")
+})
+
+test_that(".serialize_weight_spec handles replicate weight spec", {
+  rep_spec <- list(
+    weight = "pesoano",
+    replicate_pattern = "^wr_",
+    replicate_type = "bootstrap",
+    replicate_id = c(id = "id"),
+    replicate_path = "/some/path.csv"
+  )
+  result <- metasurvey:::.serialize_weight_spec(list(annual = rep_spec))
+  expect_equal(result$annual$type, "replicate")
+  expect_equal(result$annual$variable, "pesoano")
+  expect_equal(result$annual$replicate_pattern, "^wr_")
+})
+
+test_that("evaluate_cv covers all branches", {
+  expect_equal(evaluate_cv(3), "Excellent")
+  expect_equal(evaluate_cv(7), "Very good")
+  expect_equal(evaluate_cv(12), "Good")
+  expect_equal(evaluate_cv(18), "Acceptable")
+  expect_equal(evaluate_cv(28), "Use with caution")
+  expect_equal(evaluate_cv(50), "Do not publish")
+})
+
+test_that("get_design wrapper initializes and returns design", {
+  s <- make_test_survey()
+  result <- get_design(s)
+  expect_true(is.list(result))
+  expect_true("annual" %in% names(result))
+})
