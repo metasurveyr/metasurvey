@@ -311,3 +311,17 @@ test_that("bake_step errors on validation failure", {
     "not in the survey"
   )
 })
+
+test_that("bake_step rejects invalid step type", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "bad_type", edition = "2023", survey_type = "ech",
+    type = "invalid_type", new_var = NULL,
+    exprs = list(), call = NULL, svy_before = NULL,
+    default_engine = "data.table", depends_on = list(), bake = FALSE
+  )
+  expect_error(
+    metasurvey:::bake_step(s, step),
+    "Invalid step type"
+  )
+})
