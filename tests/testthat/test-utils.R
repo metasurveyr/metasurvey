@@ -39,14 +39,14 @@ test_that("extract_time_pattern monthly YYYYMM", {
 
 test_that("extract_time_pattern multianual", {
   result <- metasurvey:::extract_time_pattern("ECH_2019_2022")
-  expect_equal(result$periodicity, "Multianual")
+  expect_equal(result$periodicity, "Multi-year")
   expect_equal(result$year_start, 2019)
   expect_equal(result$year_end, 2022)
 })
 
 test_that("extract_time_pattern trianual", {
   result <- metasurvey:::extract_time_pattern("EAII_2019_2021")
-  expect_equal(result$periodicity, "Trianual")
+  expect_equal(result$periodicity, "Triennial")
 })
 
 test_that("validate_time_pattern returns correct structure", {
@@ -85,7 +85,7 @@ test_that("validate_time_pattern handles different edition formats", {
 
   # Test year range format
   result2 <- validate_time_pattern(svy_type = "eaii", svy_edition = "2019-2021")
-  expect_equal(result2$svy_periodicity, "Trianual")
+  expect_equal(result2$svy_periodicity, "Triennial")
 })
 
 test_that("group_dates handles annual grouping", {
@@ -144,7 +144,7 @@ test_that("add_weight preserves order of arguments", {
 test_that("validate_time_pattern handles multianual correctly", {
   result <- validate_time_pattern(svy_type = "eaii", svy_edition = "2018-2020")
 
-  expect_equal(result$svy_periodicity, "Trianual")
+  expect_equal(result$svy_periodicity, "Triennial")
   expect_equal(result$svy_type, "eaii")
 })
 
@@ -487,7 +487,7 @@ test_that("extract_time_pattern YYYY_MM month=0 returns Invalid format", {
 
 test_that("extract_time_pattern multi-year format 20192021", {
   result <- metasurvey:::extract_time_pattern("20192022")
-  expect_equal(result$periodicity, "Multianual")
+  expect_equal(result$periodicity, "Multi-year")
   expect_equal(result$year_start, 2019)
   expect_equal(result$year_end, 2022)
 })

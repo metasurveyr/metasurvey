@@ -9,10 +9,12 @@ recipe_category(name, description = "", parent = NULL)
 \arguments{
 \item{name}{Character. Category identifier (e.g. \code{"labor_market"}).}
 
-\item{description}{Character. Human-readable description. Defaults to empty.}
+\item{description}{Character. Human-readable description.
+Defaults to empty.}
 
-\item{parent}{RecipeCategory object or character parent category name.
-If a string is provided, it creates a parent category with that name.}
+\item{parent}{RecipeCategory object or character parent
+category name. If a string is provided, it creates a
+parent category with that name.}
 }
 \value{
 A \code{\link{RecipeCategory}} object.
@@ -24,10 +26,36 @@ Creates a \code{\link{RecipeCategory}} object for classifying recipes.
 cat <- recipe_category("labor_market", "Labor market indicators")
 
 # With parent hierarchy
-sub <- recipe_category("employment", "Employment stats", parent = "labor_market")
+sub <- recipe_category(
+  "employment", "Employment stats",
+  parent = "labor_market"
+)
 
 }
 \seealso{
 \code{\link{RecipeCategory}}, \code{\link{add_category}},
 \code{\link{default_categories}}
+
+Other tidy-api: 
+\code{\link{RecipeCategory}},
+\code{\link{RecipeCertification}},
+\code{\link{RecipeUser}},
+\code{\link{add_category}()},
+\code{\link{certify_recipe}()},
+\code{\link{default_categories}()},
+\code{\link{filter_recipes}()},
+\code{\link{filter_workflows}()},
+\code{\link{find_workflows_for_recipe}()},
+\code{\link{list_recipes}()},
+\code{\link{list_workflows}()},
+\code{\link{rank_recipes}()},
+\code{\link{rank_workflows}()},
+\code{\link{recipe_certification}()},
+\code{\link{recipe_user}()},
+\code{\link{remove_category}()},
+\code{\link{search_recipes}()},
+\code{\link{search_workflows}()},
+\code{\link{set_user_info}()},
+\code{\link{set_version}()}
 }
+\concept{tidy-api}

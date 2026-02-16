@@ -7,16 +7,44 @@
 An object of class \code{RecipeUser}.
 }
 \description{
-User identity for the recipe ecosystem. Supports three account types:
-individual, institutional_member, and institution.
+User identity for the recipe ecosystem.
+Supports three account types: individual,
+institutional_member, and institution.
 }
 \examples{
 # Use recipe_user() for the public API:
 user <- recipe_user("Juan Perez", email = "juan@example.com")
 inst <- recipe_user("IECON", type = "institution")
-member <- recipe_user("Maria", type = "institutional_member", institution = inst)
+member <- recipe_user(
+  "Maria", type = "institutional_member",
+  institution = inst
+)
 
 }
+\seealso{
+Other tidy-api: 
+\code{\link{RecipeCategory}},
+\code{\link{RecipeCertification}},
+\code{\link{add_category}()},
+\code{\link{certify_recipe}()},
+\code{\link{default_categories}()},
+\code{\link{filter_recipes}()},
+\code{\link{filter_workflows}()},
+\code{\link{find_workflows_for_recipe}()},
+\code{\link{list_recipes}()},
+\code{\link{list_workflows}()},
+\code{\link{rank_recipes}()},
+\code{\link{rank_workflows}()},
+\code{\link{recipe_category}()},
+\code{\link{recipe_certification}()},
+\code{\link{recipe_user}()},
+\code{\link{remove_category}()},
+\code{\link{search_recipes}()},
+\code{\link{search_workflows}()},
+\code{\link{set_user_info}()},
+\code{\link{set_version}()}
+}
+\concept{tidy-api}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -24,17 +52,20 @@ member <- recipe_user("Maria", type = "institutional_member", institution = inst
 
 \item{\code{email}}{Character or NULL. Email address.}
 
-\item{\code{user_type}}{Character. One of "individual", "institutional_member", "institution".}
+\item{\code{user_type}}{Character. One of "individual",
+"institutional_member", "institution".}
 
 \item{\code{affiliation}}{Character or NULL. Organizational affiliation.}
 
-\item{\code{institution}}{RecipeUser or NULL. Parent institution (for institutional_member).}
+\item{\code{institution}}{RecipeUser or NULL. Parent institution
+(for institutional_member).}
 
 \item{\code{url}}{Character or NULL. Institution URL.}
 
 \item{\code{verified}}{Logical. Whether the account is verified.}
 
-\item{\code{review_status}}{Character. One of "approved", "pending", "rejected".}
+\item{\code{review_status}}{Character. One of "approved",
+"pending", "rejected".}
 }
 \if{html}{\out{</div>}}
 }
@@ -72,19 +103,22 @@ Create a new RecipeUser
 \describe{
 \item{\code{name}}{Character. User or institution name.}
 
-\item{\code{user_type}}{Character. One of "individual", "institutional_member", "institution".}
+\item{\code{user_type}}{Character. One of "individual",
+"institutional_member", "institution".}
 
 \item{\code{email}}{Character or NULL. Email address.}
 
 \item{\code{affiliation}}{Character or NULL. Organizational affiliation.}
 
-\item{\code{institution}}{RecipeUser or NULL. Parent institution for institutional_member.}
+\item{\code{institution}}{RecipeUser or NULL. Parent
+institution for institutional_member.}
 
 \item{\code{url}}{Character or NULL. Institution URL.}
 
 \item{\code{verified}}{Logical. Whether account is verified.}
 
-\item{\code{review_status}}{Character. "approved", "pending", or "rejected".}
+\item{\code{review_status}}{Character. "approved", "pending",
+or "rejected".}
 }
 \if{html}{\out{</div>}}
 }
@@ -114,7 +148,8 @@ Check if user can certify at a given level
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{level}}{Character. Certification level ("reviewed" or "official").}
+\item{\code{level}}{Character. Certification level
+("reviewed" or "official").}
 }
 \if{html}{\out{</div>}}
 }

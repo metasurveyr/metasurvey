@@ -2,7 +2,7 @@
 % Please edit documentation in R/set_engine.R
 \name{get_engine}
 \alias{get_engine}
-\title{get_engine}
+\title{Get the current survey data engine}
 \usage{
 get_engine()
 }
@@ -10,9 +10,21 @@ get_engine()
 Character vector with the name of the configured engine.
 }
 \description{
-This function retrieves the currently configured engine for loading surveys. It returns the engine configured in the system options or environment variables.
+Retrieves the currently configured engine
+for loading surveys from system options or environment
+variables.
 }
 \examples{
 get_engine()
 }
+\seealso{
+Other options: 
+\code{\link{lazy_default}()},
+\code{\link{set_engine}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{set_use_copy}()},
+\code{\link{show_engines}()},
+\code{\link{use_copy_default}()}
+}
+\concept{options}
 \keyword{engine}

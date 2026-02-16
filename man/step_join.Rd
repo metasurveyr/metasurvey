@@ -17,17 +17,20 @@ step_join(
 )
 }
 \arguments{
-\item{svy}{A Survey or RotativePanelSurvey object. If NULL, returns a step call}
+\item{svy}{A Survey or RotativePanelSurvey object.
+If NULL, returns a step call}
 
 \item{x}{A data.frame/data.table or a Survey to join into \code{svy}}
 
 \item{by}{Character vector of join keys. Named vector for different names
-between \code{svy} and \code{x} (names are keys in \code{svy}, values are keys in \code{x}).
+between \code{svy} and \code{x} (names are keys in \code{svy},
+values are keys in \code{x}).
 If NULL, tries to infer common column names}
 
 \item{type}{Join type: "left" (default), "inner", "right", or "full"}
 
-\item{suffixes}{Length-2 character vector of suffixes for conflicting columns
+\item{suffixes}{Length-2 character vector of suffixes
+for conflicting columns
 from \code{svy} and \code{x} respectively. Defaults to c("", ".y")}
 
 \item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
@@ -39,19 +42,22 @@ from \code{svy} and \code{x} respectively. Defaults to c("", ".y")}
 \item{record}{Logical, whether to record the step.}
 }
 \value{
-Modified survey object with the join recorded as a step (and applied
-immediately when baked). For RotativePanelSurvey, the join is applied to
+Modified survey object with the join
+recorded as a step (and applied immediately
+when baked). For RotativePanelSurvey, the join is applied to
 implantation and every follow_up survey.
 }
 \description{
-Creates a step that joins additional data into a Survey or RotativePanelSurvey.
+Creates a step that joins additional data into a
+Survey or RotativePanelSurvey.
 Works with a data.frame/data.table or another Survey as the right-hand side.
 }
 \details{
 \itemize{
 \item Supports left, inner, right, and full joins
 \item Allows named \code{by} mapping (e.g., c("id" = "code")) or simple vector
-\item Avoids extra dependencies; resolves name conflicts by suffixing RHS columns
+\item Avoids extra dependencies; resolves name
+conflicts by suffixing RHS columns
 }
 }
 \examples{
@@ -75,4 +81,15 @@ s3 <- step_join(s, s_right, by = c("id" = "id"), type = "inner")
 s3 <- bake_steps(s3)
 
 }
-\keyword{Steps}
+\seealso{
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
+}
+\concept{steps}
+\keyword{step}

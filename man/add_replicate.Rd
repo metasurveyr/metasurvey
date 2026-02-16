@@ -106,5 +106,10 @@ ech <- load_survey(
 \code{\link{add_weight}} for complete weight configuration
 \code{\link[survey]{svrepdesign}} for replicate design in survey package
 \code{\link{load_survey}} where this configuration is used
+
+Other weights: 
+\code{\link{add_weight}()},
+\code{\link{resolve_weight_spec}()}
 }
+\concept{weights}
 \keyword{utils}

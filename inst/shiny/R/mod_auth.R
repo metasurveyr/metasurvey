@@ -72,7 +72,10 @@ auth_ui <- function(id) {
               )
             ),
             shiny::conditionalPanel(
-              condition = sprintf("input['%s'] == 'institutional_member'", ns("reg_type")),
+              condition = sprintf(
+                "input['%s'] == 'institutional_member'",
+                ns("reg_type")
+              ),
               shiny::textInput(ns("reg_institution"), "Institution Name",
                 placeholder = "e.g., Instituto de Economia"
               )
@@ -122,20 +125,30 @@ auth_server <- function(id, auth_state) {
           paste("Welcome,", result$user$name, "!"),
           type = "message", duration = 3
         )
-      } else if (!is.null(result$review_status) && result$review_status == "pending") {
+      } else if (!is.null(result$review_status) &&
+        result$review_status == "pending") {
         output$login_feedback <- shiny::renderUI(
           htmltools::tags$div(
             class = "alert alert-info mt-3",
             bsicons::bs_icon("hourglass-split"),
-            " Your account is pending admin review. You will be notified once approved."
+            paste0(
+              " Your account is pending ",
+              "admin review. You will be ",
+              "notified once approved."
+            )
           )
         )
-      } else if (!is.null(result$review_status) && result$review_status == "rejected") {
+      } else if (!is.null(result$review_status) &&
+        result$review_status == "rejected") {
         output$login_feedback <- shiny::renderUI(
           htmltools::tags$div(
             class = "alert alert-danger mt-3",
             bsicons::bs_icon("x-circle-fill"),
-            " Your institutional account was not approved. Contact the administrator."
+            paste0(
+              " Your institutional account ",
+              "was not approved. ",
+              "Contact the administrator."
+            )
           )
         )
       } else {
@@ -179,7 +192,10 @@ auth_server <- function(id, auth_state) {
         return()
       }
 
-      inst_arg <- if (user_type == "institutional_member" && nzchar(institution)) institution else NULL
+      inst_arg <- if (
+        user_type == "institutional_member" &&
+        nzchar(institution)
+      ) institution else NULL
 
       result <- tryCatch(
         shiny_register(name, email, password, user_type, inst_arg),

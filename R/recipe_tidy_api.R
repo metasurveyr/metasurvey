@@ -1,11 +1,13 @@
 # Tidyverse-style functional API for the Recipe Ecosystem
-# These are user-facing wrappers around the R6 classes, designed for pipe-friendly workflows.
+# These are user-facing wrappers around the R6 classes,
+# designed for pipe-friendly workflows.
 
 # --- Constructors ---
 
 #' Create a recipe user
 #'
-#' Creates a \code{\link{RecipeUser}} object with a simple functional interface.
+#' Creates a \code{\link{RecipeUser}} object with a simple
+#' functional interface.
 #'
 #' @param name Character. User or institution name.
 #' @param type Character. One of \code{"individual"} (default),
@@ -14,7 +16,8 @@
 #' @param affiliation Character or NULL. Organizational affiliation.
 #' @param institution RecipeUser object or character institution name.
 #'   Required for \code{"institutional_member"} type. If a string is provided,
-#'   it creates an institution user with that name automatically.
+#'   it creates an institution user with that name
+#'   automatically.
 #' @param url Character or NULL. Institution URL.
 #' @param verified Logical. Whether the account is verified.
 #'
@@ -25,21 +28,35 @@
 #' user <- recipe_user("Juan Perez", email = "juan@example.com")
 #'
 #' # Institution
-#' inst <- recipe_user("Instituto de Economia", type = "institution", verified = TRUE)
+#' inst <- recipe_user(
+#'   "Instituto de Economia",
+#'   type = "institution", verified = TRUE
+#' )
 #'
 #' # Member linked to institution
-#' member <- recipe_user("Maria", type = "institutional_member", institution = inst)
+#' member <- recipe_user(
+#'   "Maria", type = "institutional_member",
+#'   institution = inst
+#' )
 #'
 #' # Member with institution name shortcut
-#' member2 <- recipe_user("Pedro", type = "institutional_member", institution = "IECON")
+#' member2 <- recipe_user(
+#'   "Pedro", type = "institutional_member",
+#'   institution = "IECON"
+#' )
 #'
-#' @seealso \code{\link{RecipeUser}}, \code{\link{set_user_info}}, \code{\link{certify_recipe}}
+#' @seealso \code{\link{RecipeUser}},
+#'   \code{\link{set_user_info}},
+#'   \code{\link{certify_recipe}}
+#' @family tidy-api
 #' @export
 recipe_user <- function(name, type = "individual", email = NULL,
                         affiliation = NULL, institution = NULL,
                         url = NULL, verified = FALSE) {
   if (is.character(institution)) {
-    institution <- RecipeUser$new(name = institution, user_type = "institution")
+    institution <- RecipeUser$new(
+      name = institution, user_type = "institution"
+    )
   }
   RecipeUser$new(
     name = name, user_type = type, email = email,
@@ -53,9 +70,11 @@ recipe_user <- function(name, type = "individual", email = NULL,
 #' Creates a \code{\link{RecipeCategory}} object for classifying recipes.
 #'
 #' @param name Character. Category identifier (e.g. \code{"labor_market"}).
-#' @param description Character. Human-readable description. Defaults to empty.
-#' @param parent RecipeCategory object or character parent category name.
-#'   If a string is provided, it creates a parent category with that name.
+#' @param description Character. Human-readable description.
+#'   Defaults to empty.
+#' @param parent RecipeCategory object or character parent
+#'   category name. If a string is provided, it creates a
+#'   parent category with that name.
 #'
 #' @return A \code{\link{RecipeCategory}} object.
 #'
@@ -63,16 +82,23 @@ recipe_user <- function(name, type = "individual", email = NULL,
 #' cat <- recipe_category("labor_market", "Labor market indicators")
 #'
 #' # With parent hierarchy
-#' sub <- recipe_category("employment", "Employment stats", parent = "labor_market")
+#' sub <- recipe_category(
+#'   "employment", "Employment stats",
+#'   parent = "labor_market"
+#' )
 #'
 #' @seealso \code{\link{RecipeCategory}}, \code{\link{add_category}},
 #'   \code{\link{default_categories}}
+#' @family tidy-api
 #' @export
 recipe_category <- function(name, description = "", parent = NULL) {
   if (is.character(parent)) {
     parent <- RecipeCategory$new(name = parent, description = "")
   }
-  RecipeCategory$new(name = name, description = description, parent = parent)
+  RecipeCategory$new(
+    name = name, description = description,
+    parent = parent
+  )
 }
 
 #' Create a recipe certification
@@ -80,8 +106,9 @@ recipe_category <- function(name, description = "", parent = NULL) {
 #' Creates a \code{\link{RecipeCertification}} object. Typically you would use
 #' \code{\link{certify_recipe}} to certify a recipe in a pipeline instead.
 #'
-#' @param level Character. One of \code{"community"} (default), \code{"reviewed"},
-#'   or \code{"official"}.
+#' @param level Character. One of \code{"community"}
+#'   (default), \code{"reviewed"}, or
+#'   \code{"official"}.
 #' @param certified_by RecipeUser or NULL. Required for reviewed/official.
 #' @param notes Character or NULL. Additional notes.
 #'
@@ -96,9 +123,15 @@ recipe_category <- function(name, description = "", parent = NULL) {
 #' cert <- recipe_certification("official", certified_by = inst)
 #'
 #' @seealso \code{\link{RecipeCertification}}, \code{\link{certify_recipe}}
+#' @family tidy-api
 #' @export
-recipe_certification <- function(level = "community", certified_by = NULL, notes = NULL) {
-  RecipeCertification$new(level = level, certified_by = certified_by, notes = notes)
+recipe_certification <- function(level = "community",
+                                 certified_by = NULL,
+                                 notes = NULL) {
+  RecipeCertification$new(
+    level = level, certified_by = certified_by,
+    notes = notes
+  )
 }
 
 # --- Pipe-friendly recipe modifiers ---
@@ -106,7 +139,8 @@ recipe_certification <- function(level = "community", certified_by = NULL, notes
 #' Add a category to a recipe
 #'
 #' Pipe-friendly function to add a category to a Recipe object.
-#' Accepts either a category name (string) or a \code{\link{RecipeCategory}} object.
+#' Accepts either a category name (string) or a
+#' \code{\link{RecipeCategory}} object.
 #'
 #' @param recipe A Recipe object.
 #' @param category Character category name or RecipeCategory object.
@@ -127,10 +161,13 @@ recipe_certification <- function(level = "community", certified_by = NULL, notes
 #'
 #' @seealso \code{\link{remove_category}}, \code{\link{recipe_category}},
 #'   \code{\link{default_categories}}
+#' @family tidy-api
 #' @export
 add_category <- function(recipe, category, description = "") {
   if (is.character(category)) {
-    category <- RecipeCategory$new(name = category, description = description)
+    category <- RecipeCategory$new(
+      name = category, description = description
+    )
   }
   recipe$add_category(category)
   recipe
@@ -156,6 +193,7 @@ add_category <- function(recipe, category, description = "") {
 #'   remove_category("labor_market")
 #'
 #' @seealso \code{\link{add_category}}
+#' @family tidy-api
 #' @export
 remove_category <- function(recipe, name) {
   recipe$remove_category(name)
@@ -168,7 +206,8 @@ remove_category <- function(recipe, name) {
 #'
 #' @param recipe A Recipe object.
 #' @param user RecipeUser who is certifying.
-#' @param level Character. Certification level: \code{"reviewed"} or \code{"official"}.
+#' @param level Character. Certification level:
+#'   \code{"reviewed"} or \code{"official"}.
 #'
 #' @return The modified Recipe object.
 #'
@@ -182,6 +221,7 @@ remove_category <- function(recipe, name) {
 #' r <- r |> certify_recipe(inst, "official")
 #'
 #' @seealso \code{\link{recipe_certification}}, \code{\link{recipe_user}}
+#' @family tidy-api
 #' @export
 certify_recipe <- function(recipe, user, level) {
   recipe$certify(user, level)
@@ -207,6 +247,7 @@ certify_recipe <- function(recipe, user, level) {
 #' r <- r |> set_user_info(user)
 #'
 #' @seealso \code{\link{recipe_user}}
+#' @family tidy-api
 #' @export
 set_user_info <- function(recipe, user) {
   recipe$user_info <- user
@@ -230,6 +271,7 @@ set_user_info <- function(recipe, user) {
 #' )
 #' r <- r |> set_version("2.0.0")
 #'
+#' @family tidy-api
 #' @export
 set_version <- function(recipe, version) {
   recipe$version <- version
@@ -259,6 +301,7 @@ set_version <- function(recipe, version) {
 #'
 #' @seealso \code{\link{filter_recipes}}, \code{\link{rank_recipes}},
 #'   \code{\link{set_backend}}
+#' @family tidy-api
 #' @export
 search_recipes <- function(query) {
   get_backend()$search(query)
@@ -277,6 +320,7 @@ search_recipes <- function(query) {
 #' top10 <- rank_recipes(n = 10)
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{filter_recipes}}
+#' @family tidy-api
 #' @export
 rank_recipes <- function(n = NULL) {
   get_backend()$rank(n = n)
@@ -300,6 +344,7 @@ rank_recipes <- function(n = NULL) {
 #' length(ech_recipes)
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{rank_recipes}}
+#' @family tidy-api
 #' @export
 filter_recipes <- function(survey_type = NULL, edition = NULL,
                            category = NULL, certification_level = NULL) {
@@ -321,6 +366,7 @@ filter_recipes <- function(survey_type = NULL, edition = NULL,
 #' length(all)
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{filter_recipes}}
+#' @family tidy-api
 #' @export
 list_recipes <- function() {
   get_backend()$list_all()

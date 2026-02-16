@@ -2,45 +2,47 @@
 % Please edit documentation in R/Recipes.R
 \name{recipe}
 \alias{recipe}
-\title{Crear receta de transformación de datos de encuesta}
+\title{Create a survey data transformation recipe}
 \usage{
 recipe(...)
 }
 \arguments{
-\item{...}{A list with the following metadata: name, user, svy, description}
+\item{...}{Required metadata and optional steps. Required parameters:
+\itemize{
+\item \code{name}: Descriptive name for the recipe
+\item \code{user}: User/author creating the recipe
+\item \code{svy}: Base Survey object
+(use \code{survey_empty()} for generic recipes)
+\item \code{description}: Detailed description of the recipe's purpose
+}
+Optional parameters include data transformation steps.}
 }
 \value{
-Objeto \code{Recipe} que contiene:
-\itemize{
-\item Metadata completa de la receta
-\item Lista de steps de transformación
-\item Información de dependencias
-\item Configuración de motor por defecto
-}
-
-A Recipe object
+A \code{Recipe} object containing metadata, transformation steps,
+dependency information, and default engine configuration.
 }
 \description{
-Esta función crea un objeto Recipe que encapsula una secuencia de
-transformaciones de datos que pueden ser aplicadas a encuestas de manera
-reproducible. Las recetas permiten documentar, compartir y reutilizar
-workflows de procesamiento de datos.
+Creates a Recipe object that encapsulates a sequence of data transformations
+that can be applied to surveys in a reproducible manner. Recipes allow
+documenting, sharing, and reusing data processing workflows.
 }
 \details{
-Las recetas son fundamentales para:
+Recipes are essential for:
 \itemize{
-\item Reproducibilidad: Garantizar que las transformaciones se apliquen consistentemente
-\item Documentación: Mantener registro de qué transformaciones se realizan y por qué
-\item Colaboración: Compartir workflows entre usuarios y equipos
-\item Versionado: Mantener diferentes versiones de procesamiento para distintas ediciones
-\item Automatización: Aplicar transformaciones complejas automáticamente
+\item Reproducibility: Ensure transformations are applied consistently
+\item Documentation: Keep a record of what
+transformations are performed and why
+\item Collaboration: Share workflows between users and teams
+\item Versioning: Maintain different processing
+versions for different editions
+\item Automation: Apply complex transformations automatically
 }
 
-Los steps incluidos en la receta pueden ser cualquier combinación de
-\code{step_compute}, \code{step_recode}, u otros steps de transformación.
+Steps included in the recipe can be any combination of
+\code{step_compute}, \code{step_recode}, or other transformation steps.
 
-Las recetas se pueden guardar con \code{save_recipe()}, cargar con
-\code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
+Recipes can be saved with \code{save_recipe()}, loaded with
+\code{read_recipe()}, and applied automatically with \code{bake_recipes()}.
 }
 \examples{
 # Basic recipe without steps
@@ -71,13 +73,23 @@ r2 <- recipe(
 
 }
 \seealso{
-\code{\link{Recipe}} para la definición de la clase
-\code{\link{save_recipe}} para guardar recetas
-\code{\link{read_recipe}} para cargar recetas
-\code{\link{get_recipe}} para obtener recetas del repositorio
-\code{\link{bake_recipes}} para aplicar recetas a datos
+\code{\link{Recipe}} for class definition
+\code{\link{save_recipe}} to save recipes
+\code{\link{read_recipe}} to load recipes
+\code{\link{get_recipe}} to retrieve recipes from repository
+\code{\link{bake_recipes}} to apply recipes to data
+
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
-\keyword{methods,}
+\concept{recipes}
+\keyword{recipe}

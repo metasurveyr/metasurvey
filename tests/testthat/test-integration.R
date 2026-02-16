@@ -1,5 +1,4 @@
-# Integration tests - end-to-end pipelines
-# These tests use example-data/ and are skipped on CRAN
+# Integration tests - end-to-end pipelines using in-memory data
 
 test_that("Pipeline: step_compute -> bake -> step_recode", {
   s <- make_test_survey(n = 50)

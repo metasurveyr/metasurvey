@@ -17,3 +17,12 @@ Returns profile info for the currently authenticated user.
 api_me()
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_login}()},
+\code{\link{api_logout}()},
+\code{\link{api_refresh_token}()},
+\code{\link{api_register}()},
+\code{\link{configure_api}()}
+}
+\concept{api-auth}

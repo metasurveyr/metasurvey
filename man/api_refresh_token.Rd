@@ -20,3 +20,12 @@ minutes).
 api_refresh_token()
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_login}()},
+\code{\link{api_logout}()},
+\code{\link{api_me}()},
+\code{\link{api_register}()},
+\code{\link{configure_api}()}
+}
+\concept{api-auth}

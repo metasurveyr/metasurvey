@@ -7,8 +7,10 @@
 An object of class \code{RotativePanelSurvey}.
 }
 \description{
-This class represents a rotative panel survey, which includes implantation and follow-up surveys.
-It provides methods to access and manipulate survey data, steps, recipes, workflows, and designs.
+This class represents a rotative panel survey,
+which includes implantation and follow-up surveys.
+It provides methods to access and manipulate survey data,
+steps, recipes, workflows, and designs.
 }
 \examples{
 \dontrun{
@@ -20,8 +22,15 @@ panel <- RotativePanelSurvey$new(
 }
 
 }
-\keyword{RotativePanelSurvey}
-\keyword{Surveymethods,}
+\seealso{
+Other panel-surveys: 
+\code{\link{PoolSurvey}},
+\code{\link{extract_surveys}()},
+\code{\link{get_follow_up}()},
+\code{\link{get_implantation}()}
+}
+\concept{panel-surveys}
+\keyword{panel-survey}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -31,7 +40,8 @@ panel <- RotativePanelSurvey$new(
 
 \item{\code{type}}{A string indicating the type of the survey.}
 
-\item{\code{default_engine}}{A string specifying the default engine used for processing.}
+\item{\code{default_engine}}{A string specifying the default
+engine used for processing.}
 
 \item{\code{steps}}{A list of steps applied to the survey.}
 
@@ -41,7 +51,8 @@ panel <- RotativePanelSurvey$new(
 
 \item{\code{design}}{A design object for the survey.}
 
-\item{\code{periodicity}}{A list containing the periodicity of the implantation and follow-up surveys.}
+\item{\code{periodicity}}{A list containing the periodicity of
+the implantation and follow-up surveys.}
 }
 \if{html}{\out{</div>}}
 }
@@ -65,7 +76,8 @@ panel <- RotativePanelSurvey$new(
 \if{html}{\out{<a id="method-RotativePanelSurvey-new"></a>}}
 \if{latex}{\out{\hypertarget{method-RotativePanelSurvey-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes a new instance of the RotativePanelSurvey class.
+Initializes a new instance of the
+RotativePanelSurvey class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{RotativePanelSurvey$new(
   implantation,
@@ -84,11 +96,13 @@ Initializes a new instance of the RotativePanelSurvey class.
 \describe{
 \item{\code{implantation}}{A survey object representing the implantation survey.}
 
-\item{\code{follow_up}}{A list of survey objects representing the follow-up surveys.}
+\item{\code{follow_up}}{A list of survey objects representing
+the follow-up surveys.}
 
 \item{\code{type}}{A string indicating the type of the survey.}
 
-\item{\code{default_engine}}{A string specifying the default engine used for processing.}
+\item{\code{default_engine}}{A string specifying the default
+engine used for processing.}
 
 \item{\code{steps}}{A list of steps applied to the survey.}
 
@@ -132,7 +146,8 @@ Retrieves the follow-up surveys.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{index}}{An integer specifying the index of the follow-up survey to retrieve.}
+\item{\code{index}}{An integer specifying the index of the
+follow-up survey to retrieve.}
 
 \item{\code{monthly}}{A vector of integers specifying monthly intervals.}
 
@@ -184,7 +199,8 @@ Retrieves the steps applied to the survey.
 }
 
 \subsection{Returns}{
-A list containing the steps for the implantation and follow-up surveys.
+A list containing the steps for the
+implantation and follow-up surveys.
 }
 }
 \if{html}{\out{<hr>}}

@@ -2,22 +2,40 @@
 % Please edit documentation in R/set_engine.R
 \name{set_engine}
 \alias{set_engine}
-\title{set_engine}
+\title{Configure the survey data engine}
 \usage{
 set_engine(.engine = show_engines())
 }
 \arguments{
-\item{.engine}{Character vector with the name of the engine to configure. By default, the engine returned by the \code{show_engines()} function is used.}
+\item{.engine}{Character vector with the name of the
+engine to configure. By default, the engine returned
+by the \code{show_engines()} function is used.}
 }
 \value{
 Invisibly, the previous engine name (for restoring).
 }
 \description{
-This function configures the engine to be used for loading surveys. It checks if the provided engine is supported, sets the default engine if none is specified, and generates a message indicating the configured engine. If the engine is not supported, it throws an error.
+Configures the engine to be used for
+loading surveys. Checks if the provided engine is
+supported, sets the default engine if none is specified,
+and generates a message indicating the configured
+engine. If the engine is not supported, it throws an
+error.
 }
 \examples{
-\dontrun{
-set_engine("data.table")
+\donttest{
+old <- set_engine("data.table")
+get_engine()
 }
 }
+\seealso{
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{lazy_default}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{set_use_copy}()},
+\code{\link{show_engines}()},
+\code{\link{use_copy_default}()}
+}
+\concept{options}
 \keyword{engine}

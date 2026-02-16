@@ -16,7 +16,21 @@ A RecipeWorkflow object
 Construct a RecipeWorkflow from a plain list
 }
 \examples{
-lst <- list(name = "example", user = "test", survey_type = "ech",
-            edition = "2023", estimation_type = "svymean")
+lst <- list(
+  name = "example", user = "test", survey_type = "ech",
+  edition = "2023", estimation_type = "svymean"
+)
 wf <- workflow_from_list(lst)
 }
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()}
+}
+\concept{workflows}

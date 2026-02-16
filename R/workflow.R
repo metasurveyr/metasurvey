@@ -8,10 +8,13 @@
 #'   contain properly configured sample design
 #' @param ... Calls to survey package functions (such as \code{svymean},
 #'   \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially
-#' @param estimation_type Type of estimation that determines which weight to use.
-#'   Options: "monthly", "quarterly", "annual", or vector with multiple types
+#' @param estimation_type Type of estimation that
+#'   determines which weight to use. Options:
+#'   "monthly", "quarterly", "annual", or vector
+#'   with multiple types
 #'
-#' @return \code{data.table} with results from all estimations, including columns:
+#' @return \code{data.table} with results from all
+#'   estimations, including columns:
 #'   \itemize{
 #'     \item \code{stat}: Name of estimated statistic
 #'     \item \code{value}: Estimation value
@@ -38,36 +41,28 @@
 #' pooling of multiple surveys.
 #'
 #' @examples
-#' \dontrun{
-#' # Basic estimations
+#' # Simple estimation with a test survey
+#' dt <- data.table::data.table(
+#'   x = rnorm(100), g = sample(c("a", "b"), 100, TRUE),
+#'   w = rep(1, 100)
+#' )
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
 #' result <- workflow(
-#'   survey = list(ech_2023),
-#'   svymean(~unemployed, na.rm = TRUE),
-#'   svytotal(~active_population, na.rm = TRUE),
+#'   survey = list(svy),
+#'   survey::svymean(~x, na.rm = TRUE),
 #'   estimation_type = "annual"
 #' )
 #'
-#' # Multiple periods
-#' result_multiple <- workflow(
-#'   survey = list(ech_jan, ech_feb, ech_mar),
-#'   svymean(~labor_income, na.rm = TRUE),
-#'   svyratio(~total_income, ~persons, na.rm = TRUE),
-#'   estimation_type = "monthly"
-#' )
-#'
-#' # Domain estimations
-#' result_domains <- workflow(
-#'   survey = list(ech_2023),
-#'   svyby(~unemployed, ~region_4, svymean, na.rm = TRUE),
-#'   estimation_type = "annual"
-#' )
-#'
-#' # Multiple estimation types
-#' result_complete <- workflow(
-#'   survey = list(ech_quarter),
-#'   svymean(~activity_rate, na.rm = TRUE),
-#'   estimation_type = c("monthly", "quarterly")
-#' )
+#' \donttest{
+#' # ECH example with domain estimations
+#' # result <- workflow(
+#' #   survey = list(ech_2023),
+#' #   svyby(~unemployed, ~region, svymean, na.rm = TRUE),
+#' #   estimation_type = "annual")
 #' }
 #'
 #' @seealso
@@ -77,21 +72,26 @@
 #' \code{\link[survey]{svyby}} for domain estimations
 #' \code{\link{PoolSurvey}} for survey pooling
 #'
-#' @keywords Surveymethods
+#' @keywords survey
+#' @family workflows
 #' @export
 
 workflow <- function(survey, ..., estimation_type = "monthly") {
   if (is(survey, "PoolSurvey")) {
-    return(workflow_pool(survey, ..., estimation_type = estimation_type))
+    return(workflow_pool(
+      survey, ..., estimation_type = estimation_type
+    ))
   } else {
-    return(workflow_default(survey, ..., estimation_type = estimation_type))
+    return(workflow_default(
+      survey, ..., estimation_type = estimation_type
+    ))
   }
 }
 
 
 #' @title Workflow default
 #' @description Workflow default
-#' @keywords Surveymethods
+#' @keywords survey
 #' @param survey Survey object
 #' @param ... Calls
 #' @param estimation_type Estimation type
@@ -123,9 +123,14 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
                     name_function <- deparse(call[[1]])
                     call[["design"]] <- substitute(design)
                     call <- as.call(call)
-                    estimation <- eval(call, envir = list(design = survey$design[[x]]))
+                    estimation <- eval(
+                      call,
+                      envir = list(design = survey$design[[x]])
+                    )
 
-                    return(cat_estimation(estimation, name_function))
+                    return(cat_estimation(
+                      estimation, name_function
+                    ))
                   }
                 )
               )
@@ -148,7 +153,7 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
 
 #' @title Workflow pool
 #' @description Workflow pool
-#' @keywords Surveymethods
+#' @keywords survey
 #' @param survey Pool Survey object
 #' @param ... Calls
 #' @param estimation_type Estimation type
@@ -201,8 +206,15 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
                     name_function <- deparse(call[[1]])
                     call[["design"]] <- substitute(design)
                     call <- as.call(call)
-                    estimation <- eval(call, envir = list(design = survey_item$design[[estimation_type]]))
-                    return(cat_estimation(estimation, name_function))
+                    estimation <- eval(
+                      call,
+                      envir = list(
+                        design = survey_item$design[[estimation_type]]
+                      )
+                    )
+                    return(cat_estimation(
+                      estimation, name_function
+                    ))
                   }
                 )
               )
@@ -229,9 +241,16 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
   if (estimation_type_first == estimation_type) {
     out <- data.table(result)
   } else {
-    numeric_vars <- names(result)[vapply(result, is.numeric, logical(1))]
-    agg <- result[, lapply(.SD, mean), by = list(stat, type), .SDcols = numeric_vars]
-    agg[, se := vapply(variance, adj_se, numeric(1), rho = rho, R = R)]
+    numeric_vars <- names(result)[
+      vapply(result, is.numeric, logical(1))
+    ]
+    agg <- result[
+      , lapply(.SD, mean),
+      by = list(stat, type), .SDcols = numeric_vars
+    ]
+    agg[, se := vapply(
+      variance, adj_se, numeric(1), rho = rho, R = R
+    )]
     agg[, cv := se / value]
     agg[, evaluate := vapply(cv, evaluate_cv, character(1))]
     out <- data.table(agg[order(stat), ])
@@ -295,11 +314,17 @@ cat_estimation.svyby <- function(estimation, call) {
 
     vals <- as.numeric(estimation[[s]])
     ses <- as.numeric(
-      if (se_col %in% all_names) estimation[[se_col]] else rep(NA_real_, n_groups)
+      if (se_col %in% all_names) {
+        estimation[[se_col]]
+      } else {
+        rep(NA_real_, n_groups)
+      }
     )
 
     if (!is.null(cv_mat)) {
-      cvs <- as.numeric(if (is.matrix(cv_mat)) cv_mat[, j] else cv_mat)
+      cvs <- as.numeric(
+        if (is.matrix(cv_mat)) cv_mat[, j] else cv_mat
+      )
     } else {
       cvs <- ses / vals
     }
@@ -442,19 +467,27 @@ cat_estimation.svyratio <- function(estimation, call) {
     for (i in seq.int(2L, length(.calls))) {
       raw_call <- .calls[[i]]
       deparsed <- deparse(raw_call, width.cutoff = 200)
-      calls_str[[length(calls_str) + 1]] <- paste(deparsed, collapse = " ")
+      calls_str[[length(calls_str) + 1]] <- paste(
+        deparsed, collapse = " "
+      )
 
       # Extract type and formula from the call
       call_list <- as.list(raw_call)
       fn_name <- deparse(call_list[[1]])
 
       # Extract formula (first argument after function name)
-      formula_str <- if (length(call_list) > 1) deparse(call_list[[2]], width.cutoff = 200) else ""
+      formula_str <- if (length(call_list) > 1) {
+        deparse(call_list[[2]], width.cutoff = 200)
+      } else {
+        ""
+      }
 
       # Extract by= for svyby
       by_str <- NULL
       if (fn_name == "svyby" && length(call_list) > 2) {
-        by_str <- deparse(call_list[[3]], width.cutoff = 200)
+        by_str <- deparse(
+          call_list[[3]], width.cutoff = 200
+        )
       }
 
       call_metadata[[length(call_metadata) + 1]] <- list(
@@ -468,7 +501,10 @@ cat_estimation.svyratio <- function(estimation, call) {
 
   RecipeWorkflow$new(
     name = paste("Workflow:", svy_type, svy_edition),
-    description = paste("Auto-captured workflow with", length(calls_str), "estimations"),
+    description = paste(
+      "Auto-captured workflow with",
+      length(calls_str), "estimations"
+    ),
     user = svy_user,
     survey_type = svy_type,
     edition = svy_edition,

@@ -16,7 +16,8 @@ A Recipe object.
 Reads a Recipe object from a JSON file.
 }
 \details{
-This function reads a JSON file and decodes it into a Recipe object.
+This function reads a JSON file and
+decodes it into a Recipe object.
 }
 \examples{
 r <- recipe(
@@ -29,4 +30,18 @@ save_recipe(r, f)
 r2 <- read_recipe(f)
 r2
 }
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}
 \keyword{utils}

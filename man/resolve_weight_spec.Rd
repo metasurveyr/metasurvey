@@ -26,3 +26,9 @@ wf <- api_get_workflow("w_123")
 weight <- resolve_weight_spec(wf$weight_spec)
 }
 }
+\seealso{
+Other weights: 
+\code{\link{add_replicate}()},
+\code{\link{add_weight}()}
+}
+\concept{weights}

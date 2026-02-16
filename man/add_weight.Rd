@@ -45,7 +45,6 @@ Weights are automatically selected in \code{workflow()} according to the
 specified \code{estimation_type} parameter.
 }
 \examples{
-\dontrun{
 # Basic configuration with simple weight variables
 ech_weights <- add_weight(
   monthly = "pesomes",
@@ -53,6 +52,7 @@ ech_weights <- add_weight(
   annual = "pesoano"
 )
 
+\dontrun{
 # With bootstrap replicates for variance estimation
 weights_with_replicates <- add_weight(
   monthly = add_replicate(
@@ -82,5 +82,10 @@ ech <- load_survey(
 \code{\link{add_replicate}} to configure bootstrap/jackknife replicates
 \code{\link{load_survey}} where this configuration is used
 \code{\link{workflow}} that automatically selects weights
+
+Other weights: 
+\code{\link{add_replicate}()},
+\code{\link{resolve_weight_spec}()}
 }
+\concept{weights}
 \keyword{utils}

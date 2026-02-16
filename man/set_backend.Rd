@@ -7,7 +7,8 @@
 set_backend(type, path = NULL)
 }
 \arguments{
-\item{type}{Character. "local" or "api" (also accepts "mongo" for backward compat).}
+\item{type}{Character. "local" or "api" (also accepts
+"mongo" for backward compat).}
 
 \item{path}{Character. File path for local backend.}
 }
@@ -20,3 +21,10 @@ Configure the active recipe backend via options.
 \examples{
 set_backend("local", path = tempfile(fileext = ".json"))
 }
+\seealso{
+Other backends: 
+\code{\link{get_backend}()},
+\code{\link{get_workflow_backend}()},
+\code{\link{set_workflow_backend}()}
+}
+\concept{backends}

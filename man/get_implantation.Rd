@@ -2,86 +2,86 @@
 % Please edit documentation in R/PanelSurvey.R
 \name{get_implantation}
 \alias{get_implantation}
-\title{Obtener encuesta de implantación de panel rotativo}
+\title{Get implantation survey from a rotating panel}
 \usage{
 get_implantation(RotativePanelSurvey)
 }
 \arguments{
-\item{RotativePanelSurvey}{Objeto \code{RotativePanelSurvey} del cual extraer
-la encuesta de implantación}
+\item{RotativePanelSurvey}{A \code{RotativePanelSurvey} object from which
+to extract the implantation survey}
 }
 \value{
-Objeto \code{Survey} que contiene la encuesta de implantación con todos
-sus metadatos, datos y configuración de diseño
+A \code{Survey} object containing the implantation survey with all
+its metadata, data, and design configuration
 }
 \description{
-Esta función extrae la encuesta de implantación (primera onda) de un objeto
-RotativePanelSurvey. La encuesta de implantación representa la primera
-recolección de datos del panel y es fundamental para establecer la línea base
-y las características estructurales del panel.
+Extracts the implantation (baseline) survey from a RotativePanelSurvey
+object. The implantation survey represents the first data collection wave
+and is essential for establishing the baseline and structural
+characteristics of the panel.
 }
 \details{
-La encuesta de implantación es especial en un panel rotativo porque:
+The implantation survey is special in a rotating panel because:
 \itemize{
-\item Establece la línea base: Define las características iniciales de
-todas las unidades del panel
-\item Contiene toda la muestra: Incluye todas las unidades que participarán
-en las diferentes ondas del panel
-\item Define estructura temporal: Establece los patrones de rotación y
-seguimiento del panel
-\item Configura metadatos: Contiene información sobre periodicidad,
-variables clave y estratificación
-\item Base para seguimiento: Sirve como referencia para tracking de
-unidades en ondas posteriores
+\item Establishes the baseline: Defines initial characteristics of all
+panel units
+\item Contains the full sample: Includes all units that will participate
+in the different panel waves
+\item Defines temporal structure: Establishes rotation and follow-up
+patterns
+\item Configures metadata: Contains information about periodicity,
+key variables, and stratification
+\item Serves as tracking reference: Basis for unit tracking in
+subsequent waves
 }
 
-Esta función es esencial para análisis que requieren:
+This function is essential for analysis requiring:
 \itemize{
-\item Comparaciones temporales desde la línea base
-\item Análisis de la estructura completa del panel
-\item Configuración de modelos longitudinales
-\item Evaluación de la calidad del diseño muestral
+\item Temporal comparisons from the baseline
+\item Analysis of the complete panel structure
+\item Configuration of longitudinal models
+\item Evaluation of sampling design quality
 }
 }
 \examples{
 \dontrun{
-# Cargar panel rotativo de ECH
+# Load ECH rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
-# Obtener encuesta de implantación
-ech_implantacion <- get_implantation(panel_ech)
+# Get implantation survey
+ech_baseline <- get_implantation(panel_ech)
 
-# Verificar características de la implantación
-cat("Tamaño muestra implantación:", nrow(ech_implantacion$data))
-cat("Variables disponibles:", ncol(ech_implantacion$data))
+# Check implantation characteristics
+cat("Implantation sample size:", nrow(ech_baseline$data))
+cat("Available variables:", ncol(ech_baseline$data))
 
-# Usar en análisis de línea base
+# Use in baseline analysis
 baseline_stats <- workflow(
-  survey = ech_implantacion,
-  svymean(~tasa_actividad, na.rm = TRUE),
+  survey = ech_baseline,
+  svymean(~activity_rate, na.rm = TRUE),
   estimation_type = "baseline"
 )
 
-# Comparar con follow-up
+# Compare with follow-up
 followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-
-# Análisis de cambios desde implantación
-panel_comparison <- list(
-  implantacion = ech_implantacion,
-  seguimiento = followup_1
-)
 }
 
 }
 \seealso{
-\code{\link{get_follow_up}} para obtener encuestas de seguimiento
-\code{\link{extract_surveys}} para extraer múltiples encuestas por criterios
-\code{\link{load_panel_survey}} para cargar paneles rotativos
-\code{\link{workflow}} para análisis con la encuesta de implantación
+\code{\link{get_follow_up}} for obtaining follow-up surveys
+\code{\link{extract_surveys}} for extracting multiple surveys by criteria
+\code{\link{load_panel_survey}} for loading rotating panels
+\code{\link{workflow}} for analysis with the implantation survey
+
+Other panel-surveys: 
+\code{\link{PoolSurvey}},
+\code{\link{RotativePanelSurvey}},
+\code{\link{extract_surveys}()},
+\code{\link{get_follow_up}()}
 }
-\keyword{RotativePanelSurvey}
-\keyword{Surveymethods}
+\concept{panel-surveys}
+\keyword{panel-survey}

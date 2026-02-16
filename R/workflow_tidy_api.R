@@ -13,6 +13,7 @@
 #' }
 #'
 #' @seealso \code{\link{filter_workflows}}, \code{\link{rank_workflows}}
+#' @family tidy-api
 #' @export
 search_workflows <- function(query) {
   get_workflow_backend()$search(query)
@@ -31,6 +32,7 @@ search_workflows <- function(query) {
 #' }
 #'
 #' @seealso \code{\link{search_workflows}}, \code{\link{filter_workflows}}
+#' @family tidy-api
 #' @export
 rank_workflows <- function(n = NULL) {
   get_workflow_backend()$rank(n = n)
@@ -43,7 +45,8 @@ rank_workflows <- function(n = NULL) {
 #'
 #' @param survey_type Character survey type or NULL.
 #' @param edition Character edition or NULL.
-#' @param recipe_id Character recipe ID or NULL (find workflows using this recipe).
+#' @param recipe_id Character recipe ID or NULL (find
+#'   workflows using this recipe).
 #' @param certification_level Character certification level or NULL.
 #' @return List of matching RecipeWorkflow objects.
 #'
@@ -53,7 +56,9 @@ rank_workflows <- function(n = NULL) {
 #' for_recipe <- filter_workflows(recipe_id = "recipe_001")
 #' }
 #'
-#' @seealso \code{\link{search_workflows}}, \code{\link{find_workflows_for_recipe}}
+#' @seealso \code{\link{search_workflows}},
+#'   \code{\link{find_workflows_for_recipe}}
+#' @family tidy-api
 #' @export
 filter_workflows <- function(survey_type = NULL, edition = NULL,
                              recipe_id = NULL, certification_level = NULL) {
@@ -75,6 +80,7 @@ filter_workflows <- function(survey_type = NULL, edition = NULL,
 #' }
 #'
 #' @seealso \code{\link{search_workflows}}, \code{\link{filter_workflows}}
+#' @family tidy-api
 #' @export
 list_workflows <- function() {
   get_workflow_backend()$list_all()
@@ -93,6 +99,7 @@ list_workflows <- function() {
 #' }
 #'
 #' @seealso \code{\link{filter_workflows}}
+#' @family tidy-api
 #' @export
 find_workflows_for_recipe <- function(recipe_id) {
   get_workflow_backend()$find_by_recipe(recipe_id)
@@ -112,6 +119,7 @@ find_workflows_for_recipe <- function(recipe_id) {
 #' }
 #'
 #' @seealso \code{\link{set_workflow_backend}}, \code{\link{RecipeWorkflow}}
+#' @family workflows
 #' @export
 publish_workflow <- function(wf) {
   get_workflow_backend()$publish(wf)
