@@ -132,14 +132,17 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
                       estimation, name_function
                     ))
                   }
-                )
+                ),
+                fill = TRUE
               )
               return(partial_result)
             }
-          )
+          ),
+          fill = TRUE
         )
       }
-    )
+    ),
+    fill = TRUE
   )
 
   # Auto-capture: build RecipeWorkflow if surveys have recipes
@@ -296,10 +299,16 @@ cat_estimation <- function(estimation, call) {
 
 cat_estimation.svyby <- function(estimation, call) {
   by_vars <- attr(estimation, "svyby")$margins
+  all_names <- names(estimation)
+
+  # margins can be integer indices — convert to names
+  if (is.numeric(by_vars)) {
+    by_vars <- all_names[by_vars]
+  }
   if (is.null(by_vars)) by_vars <- character(0)
 
-  all_names <- names(estimation)
-  se_cols <- grep("^se\\.", all_names, value = TRUE)
+  # SE columns: "se.varname" (multi-stat) or "se" (single-stat)
+  se_cols <- grep("^se(\\.|$)", all_names, value = TRUE)
   stat_cols <- setdiff(all_names, c(by_vars, se_cols))
 
   ci <- tryCatch(stats::confint(estimation), error = function(e) NULL)
@@ -310,7 +319,12 @@ cat_estimation.svyby <- function(estimation, call) {
 
   for (j in seq_along(stat_cols)) {
     s <- stat_cols[j]
+
+    # Match SE column: try "se.varname" first, fall back to "se"
     se_col <- paste0("se.", s)
+    if (!se_col %in% all_names && "se" %in% all_names) {
+      se_col <- "se"
+    }
 
     vals <- as.numeric(estimation[[s]])
     ses <- as.numeric(
@@ -323,7 +337,11 @@ cat_estimation.svyby <- function(estimation, call) {
 
     if (!is.null(cv_mat)) {
       cvs <- as.numeric(
-        if (is.matrix(cv_mat)) cv_mat[, j] else cv_mat
+        if (is.matrix(cv_mat) || is.data.frame(cv_mat)) {
+          cv_mat[, j]
+        } else {
+          cv_mat
+        }
       )
     } else {
       cvs <- ses / vals
@@ -339,8 +357,18 @@ cat_estimation.svyby <- function(estimation, call) {
       ci_hi <- vals + 1.96 * ses
     }
 
+    # Build by-variable label for stat column
+    by_labels <- vapply(seq_len(n_groups), function(i) {
+      paste(
+        vapply(by_vars, function(bv) {
+          paste0(bv, "=", estimation[[bv]][i])
+        }, character(1)),
+        collapse = ", "
+      )
+    }, character(1))
+
     cols <- list(
-      stat = rep(paste0(call, ": ", s), n_groups),
+      stat = paste0(call, ": ", s, " [", by_labels, "]"),
       value = vals,
       se = ses,
       cv = cvs,
