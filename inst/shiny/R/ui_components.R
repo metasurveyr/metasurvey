@@ -47,7 +47,9 @@ app_css <- function() {
       border: 1px solid var(--slate-200);
       border-radius: 10px;
       overflow: hidden;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      transition: transform .15s ease,
+        box-shadow .15s ease,
+        border-color .15s ease;
       cursor: pointer;
       background: #fff;
     }
@@ -153,9 +155,21 @@ app_css <- function() {
       text-transform: uppercase;
       letter-spacing: .04em;
     }
-    .cert-badge-community { background: var(--amber-50); color: #92400e; border: 1px solid #fde68a; }
-    .cert-badge-reviewed  { background: var(--sky-50); color: #0369a1; border: 1px solid #bae6fd; }
-    .cert-badge-official  { background: var(--emerald-50); color: #065f46; border: 1px solid #a7f3d0; }
+    .cert-badge-community {
+      background: var(--amber-50);
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .cert-badge-reviewed {
+      background: var(--sky-50);
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+    .cert-badge-official {
+      background: var(--emerald-50);
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
 
     /* ── Modal Positioning Fix ── */
     .modal-dialog {
@@ -333,9 +347,21 @@ app_css <- function() {
       margin: .1rem;
       font-weight: 500;
     }
-    .var-chip-input  { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-    .var-chip-output { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-    .var-chip-output-cat { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+    .var-chip-input {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+    .var-chip-output {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .var-chip-output-cat {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border: 1px solid #e9d5ff;
+    }
 
     /* ── Cross-reference Chips ── */
     .cross-ref-chip {
@@ -350,7 +376,9 @@ app_css <- function() {
       text-decoration: none;
     }
     .cross-ref-recipe {
-      background: var(--indigo-50); color: var(--indigo); border: 1px solid #c7d2fe;
+      background: var(--indigo-50);
+      color: var(--indigo);
+      border: 1px solid #c7d2fe;
     }
     .cross-ref-recipe:hover {
       background: var(--indigo); color: #fff;
@@ -464,7 +492,11 @@ app_css <- function() {
 
     /* ── Hero Section ── */
     .hero-section {
-      background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--slate-900) 0%,
+        var(--slate-800) 100%
+      );
       border-radius: 12px;
       padding: 2rem 2.25rem;
       margin-bottom: 1.25rem;
@@ -479,7 +511,11 @@ app_css <- function() {
       right: -10%;
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, rgba(99,102,241,.2) 0%, transparent 70%);
+      background: radial-gradient(
+        circle,
+        rgba(99,102,241,.2) 0%,
+        transparent 70%
+      );
       border-radius: 50%;
     }
     .hero-section h2 {
@@ -525,7 +561,11 @@ app_css <- function() {
       box-shadow: 0 4px 24px rgba(15,23,42,.08);
     }
     .auth-branding {
-      background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--slate-900) 0%,
+        var(--slate-800) 100%
+      );
       color: #fff;
       padding: 2.5rem 2rem;
       display: flex;
@@ -541,7 +581,11 @@ app_css <- function() {
       right: -20%;
       width: 250px;
       height: 250px;
-      background: radial-gradient(circle, rgba(99,102,241,.25) 0%, transparent 70%);
+      background: radial-gradient(
+        circle,
+        rgba(99,102,241,.25) 0%,
+        transparent 70%
+      );
       border-radius: 50%;
     }
     .auth-branding h2 {
@@ -790,6 +834,55 @@ app_css <- function() {
         gap: .4rem;
       }
     }
+
+    /* ── Pipeline graph spinner ── */
+    .graph-loading-wrapper {
+      position: relative;
+      min-height: 350px;
+    }
+    .graph-loading-wrapper .graph-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .75rem;
+      color: var(--slate-400);
+      font-size: .85rem;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .graph-loading-wrapper .graph-spinner .spinner-ring {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--slate-200);
+      border-top-color: var(--indigo);
+      border-radius: 50%;
+      animation: graph-spin .8s linear infinite;
+    }
+    .graph-loading-wrapper.loaded .graph-spinner {
+      display: none;
+    }
+    @keyframes graph-spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* ── Pipeline graph disclaimer ── */
+    .graph-disclaimer {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem .75rem;
+      margin-bottom: .5rem;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      font-size: .78rem;
+      line-height: 1.4;
+    }
   "))
 }
 
@@ -813,9 +906,16 @@ cert_badge <- function(level) {
 }
 
 category_tag <- function(name) {
+  if (is.null(name) || length(name) == 0 || !nzchar(name)) {
+    return(NULL)
+  }
   cls <- paste0("category-tag tag-", name)
   # Fallback for unknown categories
-  if (!name %in% c("labor_market", "income", "education", "health", "demographics", "housing")) {
+  known <- c(
+    "labor_market", "income", "education",
+    "health", "demographics", "housing"
+  )
+  if (!name %in% known) {
     cls <- "category-tag tag-default"
   }
   pretty <- gsub("_", " ", name)
@@ -833,7 +933,12 @@ format_downloads <- function(n) {
 
 # Reusable code block with copy button
 code_block_ui <- function(code, label = "R Code", block_id = NULL) {
-  if (is.null(block_id)) block_id <- paste0("cb_", as.integer(Sys.time() * 1000) %% 1e6)
+  if (is.null(block_id)) {
+    block_id <- paste0(
+      "cb_",
+      as.integer(Sys.time() * 1000) %% 1e6
+    )
+  }
   # Strip HTML tags and decode entities for clipboard
   plain_code <- gsub("<[^>]+>", "", code)
   plain_code <- gsub("&lt;", "<", plain_code)
@@ -841,7 +946,14 @@ code_block_ui <- function(code, label = "R Code", block_id = NULL) {
   plain_code <- gsub("&amp;", "&", plain_code)
   escaped_code <- gsub("'", "\\\\'", gsub("\n", "\\\\n", plain_code))
   copy_js <- sprintf(
-    "var btn=this; navigator.clipboard.writeText('%s').then(function(){btn.textContent='Copied!'; setTimeout(function(){btn.textContent='Copy'},1500)});",
+    paste0(
+      "var btn=this; ",
+      "navigator.clipboard.writeText('%s')",
+      ".then(function(){",
+      "btn.textContent='Copied!'; ",
+      "setTimeout(function(){",
+      "btn.textContent='Copy'},1500)});"
+    ),
     escaped_code
   )
 
@@ -929,23 +1041,46 @@ s3_object_path <- function(recipe, edition_str) {
           'resource = <span class="code-string">"', src$resource, '"</span>)'
         )
       } else {
-        rep_path <- '<span class="code-string">"path/to/replicate_weights"</span>'
+        rep_path <- paste0(
+        '<span class="code-string">',
+        '"path/to/replicate_weights"',
+        '</span>'
+      )
       }
-      rep_id_str <- 'c(<span class="code-string">"ID"</span> = <span class="code-string">"ID"</span>)'
+      rep_id_str <- paste0(
+        'c(<span class="code-string">',
+        '"ID"</span> = ',
+        '<span class="code-string">',
+        '"ID"</span>)'
+      )
       if (!is.null(entry$replicate_id)) {
         sk <- entry$replicate_id$survey_key %||% "ID"
         rk <- entry$replicate_id$replicate_key %||% "ID"
         rep_id_str <- paste0(
-          'c(<span class="code-string">"', sk, '"</span> = <span class="code-string">"', rk, '"</span>)'
+          paste0(
+            'c(<span class="code-string">"',
+            sk,
+            '"</span> = ',
+            '<span class="code-string">"',
+            rk, '"</span>)'
+          )
         )
       }
       parts <- c(parts, paste0(
         pname, ' = <span class="code-func">add_replicate</span>(\n',
-        '    <span class="code-string">"', entry$variable %||% "W", '"</span>,\n',
+        '    <span class="code-string">"',
+        entry$variable %||% "W",
+        '"</span>,\n',
         "    replicate_path = ", rep_path, ",\n",
-        '    replicate_pattern = <span class="code-string">"', entry$replicate_pattern %||% "wr[0-9]+", '"</span>,\n',
+        '    replicate_pattern = ',
+        '<span class="code-string">"',
+        entry$replicate_pattern %||% "wr[0-9]+",
+        '"</span>,\n',
         "    replicate_id = ", rep_id_str, ",\n",
-        '    replicate_type = <span class="code-string">"', entry$replicate_type %||% "bootstrap", '"</span>\n',
+        '    replicate_type = ',
+        '<span class="code-string">"',
+        entry$replicate_type %||% "bootstrap",
+        '"</span>\n',
         "  )"
       ))
     }
@@ -971,14 +1106,25 @@ recipe_code_snippet <- function(recipe) {
   lines <- c(
     lines,
     '<span class="code-comment"># Get recipe from registry</span>',
-    paste0('recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)')
+    paste0(
+      'recipe &lt;- ',
+      '<span class="code-func">',
+      'api_get_recipe</span>(',
+      '<span class="code-string">"',
+      rid, '"</span>)'
+    )
   )
 
   if (length(dep_recipes) > 0) {
     for (i in seq_along(dep_recipes)) {
       lines <- c(lines, paste0(
-        "dep_", i, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
-        dep_recipes[i], '"</span>)'
+        "dep_", i,
+        ' &lt;- ',
+        '<span class="code-func">',
+        'api_get_recipe</span>(',
+        '<span class="code-string">"',
+        dep_recipes[i],
+        '"</span>)'
       ))
     }
   }
@@ -988,32 +1134,79 @@ recipe_code_snippet <- function(recipe) {
   if (tolower(stype) == "ech") {
     weight_name <- if (as.integer(edition_str) >= 2022) "W_ANO" else "pesoano"
     weight_code <- paste0(
-      '<span class="code-func">add_weight</span>(annual = <span class="code-string">"', weight_name, '"</span>)'
+      '<span class="code-func">',
+      'add_weight</span>(annual = ',
+      '<span class="code-string">"',
+      weight_name, '"</span>)'
     )
   } else {
-    weight_code <- '<span class="code-func">add_weight</span>(annual = <span class="code-string">"weight"</span>)'
+    weight_code <- paste0(
+      '<span class="code-func">',
+      'add_weight</span>(annual = ',
+      '<span class="code-string">',
+      '"weight"</span>)'
+    )
   }
 
   # Load survey with load_survey
   if (tolower(stype) == "ech") {
     lines <- c(
       lines,
-      '<span class="code-comment"># Load ECH microdata from ANDA and apply recipe</span>',
+      paste0(
+        '<span class="code-comment">',
+        '# Load ECH microdata from ANDA',
+        ' and apply recipe</span>'
+      ),
       'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition_str, '"</span>),'),
-      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
-      paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
+      paste0(
+        '  <span class="code-func">',
+        'anda_download_microdata</span>(',
+        '<span class="code-string">"',
+        edition_str, '"</span>),'
+      ),
+      paste0(
+        '  svy_type    = ',
+        '<span class="code-string">"',
+        stype, '"</span>,'
+      ),
+      paste0(
+        '  svy_edition = ',
+        '<span class="code-string">"',
+        edition_str, '"</span>,'
+      ),
       paste0("  svy_weight  = ", weight_code, ",")
     )
   } else {
     lines <- c(
       lines,
-      '<span class="code-comment"># Load survey with recipe</span>',
-      'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-string">"path/to/', stype, "_", edition_str, '.csv"</span>,'),
-      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
-      paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
-      paste0("  svy_weight  = ", weight_code, ",")
+      paste0(
+        '<span class="code-comment">',
+        '# Load survey with recipe</span>'
+      ),
+      paste0(
+        'svy &lt;- ',
+        '<span class="code-func">',
+        'load_survey</span>('
+      ),
+      paste0(
+        '  <span class="code-string">',
+        '"path/to/', stype, "_",
+        edition_str, '.csv"</span>,'
+      ),
+      paste0(
+        '  svy_type    = ',
+        '<span class="code-string">"',
+        stype, '"</span>,'
+      ),
+      paste0(
+        '  svy_edition = ',
+        '<span class="code-string">"',
+        edition_str, '"</span>,'
+      ),
+      paste0(
+        "  svy_weight  = ",
+        weight_code, ","
+      )
     )
   }
 
@@ -1050,27 +1243,48 @@ workflow_code_snippet <- function(wf) {
 
   # Fetch recipes
   if (length(recipe_ids) > 0) {
-    lines <- c(lines, '<span class="code-comment"># Get recipes from registry</span>')
+    lines <- c(lines, paste0(
+      '<span class="code-comment">',
+      '# Get recipes from registry',
+      '</span>'
+    ))
     for (i in seq_along(recipe_ids)) {
       rvar <- paste0("r", i)
       lines <- c(lines, paste0(
-        rvar, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
+        rvar,
+        ' &lt;- ',
+        '<span class="code-func">',
+        'api_get_recipe</span>(',
+        '<span class="code-string">"',
         recipe_ids[i], '"</span>)'
       ))
     }
     lines <- c(lines, "")
   }
 
-  # Build weight code from weight_spec if available, else fallback to heuristic
-  weight_code <- .weight_spec_to_code(wf$weight_spec)
+  # Build weight code from weight_spec if available,
+  # else fallback to heuristic
+  weight_code <- .weight_spec_to_code(
+    wf$weight_spec
+  )
   if (is.null(weight_code)) {
     if (tolower(stype) == "ech") {
-      weight_name <- if (as.integer(edition) >= 2022) "W_ANO" else "pesoano"
+      weight_name <- if (
+        as.integer(edition) >= 2022
+      ) "W_ANO" else "pesoano"
       weight_code <- paste0(
-        '<span class="code-func">add_weight</span>(annual = <span class="code-string">"', weight_name, '"</span>)'
+        '<span class="code-func">',
+        'add_weight</span>(annual = ',
+        '<span class="code-string">"',
+        weight_name, '"</span>)'
       )
     } else {
-      weight_code <- '<span class="code-func">add_weight</span>(annual = <span class="code-string">"weight"</span>)'
+      weight_code <- paste0(
+        '<span class="code-func">',
+        'add_weight</span>(annual = ',
+        '<span class="code-string">',
+        '"weight"</span>)'
+      )
     }
   }
 
@@ -1078,22 +1292,68 @@ workflow_code_snippet <- function(wf) {
   if (tolower(stype) == "ech") {
     lines <- c(
       lines,
-      '<span class="code-comment"># Load ECH microdata from ANDA and apply recipes</span>',
-      'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition, '"</span>),'),
-      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
-      paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
-      paste0("  svy_weight  = ", weight_code, ",")
+      paste0(
+        '<span class="code-comment">',
+        '# Load ECH microdata from ANDA',
+        ' and apply recipes</span>'
+      ),
+      paste0(
+        'svy &lt;- ',
+        '<span class="code-func">',
+        'load_survey</span>('
+      ),
+      paste0(
+        '  <span class="code-func">',
+        'anda_download_microdata</span>(',
+        '<span class="code-string">"',
+        edition, '"</span>),'
+      ),
+      paste0(
+        '  svy_type    = ',
+        '<span class="code-string">"',
+        stype, '"</span>,'
+      ),
+      paste0(
+        '  svy_edition = ',
+        '<span class="code-string">"',
+        edition, '"</span>,'
+      ),
+      paste0(
+        "  svy_weight  = ",
+        weight_code, ","
+      )
     )
   } else {
     lines <- c(
       lines,
-      '<span class="code-comment"># Load survey with recipes</span>',
-      'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-string">"path/to/', stype, "_", edition, '.csv"</span>,'),
-      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
-      paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
-      paste0("  svy_weight  = ", weight_code, ",")
+      paste0(
+        '<span class="code-comment">',
+        '# Load survey with recipes</span>'
+      ),
+      paste0(
+        'svy &lt;- ',
+        '<span class="code-func">',
+        'load_survey</span>('
+      ),
+      paste0(
+        '  <span class="code-string">',
+        '"path/to/', stype, "_",
+        edition, '.csv"</span>,'
+      ),
+      paste0(
+        '  svy_type    = ',
+        '<span class="code-string">"',
+        stype, '"</span>,'
+      ),
+      paste0(
+        '  svy_edition = ',
+        '<span class="code-string">"',
+        edition, '"</span>,'
+      ),
+      paste0(
+        "  svy_weight  = ",
+        weight_code, ","
+      )
     )
   }
 
@@ -1139,7 +1399,10 @@ recipe_card_ui <- function(recipe, ns, index) {
   cert_cls <- paste0("cert-", cert_level)
 
   cat_tags <- if (length(recipe$categories) > 0) {
-    htmltools::tagList(lapply(recipe$categories, function(c) category_tag(c$name)))
+    htmltools::tagList(lapply(
+      recipe$categories,
+      function(c) category_tag(c$name)
+    ))
   } else if (!is.null(recipe$topic)) {
     category_tag(recipe$topic)
   }
@@ -1203,7 +1466,13 @@ recipe_card_ui <- function(recipe, ns, index) {
   )
 }
 
-recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), graph_output_id = "recipe_graph", all_recipes = list(), anda_labels = list()) {
+recipe_detail_ui <- function(
+    recipe,
+    ns = NULL,
+    referencing_workflows = list(),
+    graph_output_id = "recipe_graph",
+    all_recipes = list(),
+    anda_labels = list()) {
   doc <- recipe$doc()
   cert_level <- recipe$certification$level %||% "community"
   cert_cls <- paste0("cert-", cert_level)
@@ -1244,7 +1513,11 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       cert_badge(cert_level),
       if (!is.null(recipe$certification$certified_by)) {
         htmltools::tags$span(
-          style = "color: rgba(255,255,255,.85); font-size: .8rem; margin-left: .5rem;",
+          style = paste0(
+            "color: rgba(255,255,255,.85);",
+            " font-size: .8rem;",
+            " margin-left: .5rem;"
+          ),
           paste("by", recipe$certification$certified_by$name)
         )
       }
@@ -1254,7 +1527,11 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       htmltools::tags$div(
         style = "margin-top: .6rem;",
         htmltools::tags$span(
-          style = "color: rgba(255,255,255,.6); font-size: .75rem; margin-right: .4rem;",
+          style = paste0(
+            "color: rgba(255,255,255,.6);",
+            " font-size: .75rem;",
+            " margin-right: .4rem;"
+          ),
           "Compatible:"
         ),
         htmltools::tags$div(
@@ -1262,7 +1539,14 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           lapply(eds, function(ed) {
             htmltools::tags$span(
               class = "edition-badge",
-              style = "background: rgba(255,255,255,.1); color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.15);",
+              style = paste0(
+                "background:",
+                " rgba(255,255,255,.1);",
+                " color:",
+                " rgba(255,255,255,.85);",
+                " border-color:",
+                " rgba(255,255,255,.15);"
+              ),
               ed
             )
           })
@@ -1272,7 +1556,9 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   )
 
   # Description
-  desc_section <- if (!is.null(recipe$description) && nzchar(recipe$description)) {
+  desc_section <- if (
+    !is.null(recipe$description) &&
+    nzchar(recipe$description)) {
     htmltools::tags$div(
       style = "padding: 1.25rem 0;",
       htmltools::tags$p(
@@ -1294,21 +1580,38 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
       ),
       htmltools::tags$div(
-        style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        style = paste0(
+          "display: flex;",
+          " flex-wrap: wrap;",
+          " gap: .75rem;",
+          " align-items: center;"
+        ),
         htmltools::tags$span(
           class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
-          bsicons::bs_icon("database", size = ".75rem"),
+          bsicons::bs_icon(
+            "database", size = ".75rem"
+          ),
           " INE Uruguay (ANDA5)"
         ),
         htmltools::tags$span(
           class = "var-chip",
-          style = "font-size: .72rem; background: var(--emerald-50); color: #065f46; border: 1px solid #a7f3d0;",
+          style = paste0(
+            "font-size: .72rem;",
+            " background:",
+            " var(--emerald-50);",
+            " color: #065f46;",
+            " border: 1px solid #a7f3d0;"
+          ),
           paste0("anda_download_microdata(\"", eds[length(eds)], "\")")
         )
       ),
       htmltools::tags$div(
-        style = "margin-top: .5rem; font-size: .78rem; color: var(--slate-500);",
+        style = paste0(
+          "margin-top: .5rem;",
+          " font-size: .78rem;",
+          " color: var(--slate-500);"
+        ),
         paste0("Ediciones disponibles: ", paste(eds, collapse = ", "))
       )
     )
@@ -1325,16 +1628,30 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
       ),
       htmltools::tags$div(
-        style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        style = paste0(
+          "display: flex;",
+          " flex-wrap: wrap;",
+          " gap: .75rem;",
+          " align-items: center;"
+        ),
         htmltools::tags$span(
           class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
-          bsicons::bs_icon("database", size = ".75rem"),
+          bsicons::bs_icon(
+            "database", size = ".75rem"
+          ),
           paste0(" ", ds$provider %||% "")
         ),
         htmltools::tags$span(
           class = "var-chip",
-          style = "font-size: .72rem; background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200);",
+          style = paste0(
+            "font-size: .72rem;",
+            " background:",
+            " var(--slate-100);",
+            " color: var(--slate-600);",
+            " border: 1px solid",
+            " var(--slate-200);"
+          ),
           s3_full
         )
       )
@@ -1397,41 +1714,126 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
 
   # Pipeline graph (visNetwork)
   has_visnetwork <- requireNamespace("visNetwork", quietly = TRUE)
-  graph_section <- if (length(doc$pipeline) > 0 && has_visnetwork && !is.null(ns)) {
+  n_steps <- length(doc$pipeline)
+  graph_section <- if (
+    n_steps > 0 &&
+    has_visnetwork &&
+    !is.null(ns)) {
+
+    disclaimer <- if (n_steps > 20) {
+      htmltools::tags$div(
+        class = "graph-disclaimer",
+        bsicons::bs_icon("exclamation-triangle-fill", size = ".85rem"),
+        sprintf(
+          paste0(
+            "This recipe has %d steps. ",
+            "The graph may be hard to read at this scale. ",
+            "Use the timeline below for details."
+          ),
+          n_steps
+        )
+      )
+    }
+
+    graph_height <- if (n_steps > 100) "500px" else "350px"
+
     htmltools::tags$div(
       style = "padding: 1rem 0;",
       htmltools::tags$div(
         class = "section-title",
         bsicons::bs_icon("diagram-3-fill"),
-        paste("Pipeline Graph (", length(doc$pipeline), "steps )")
+        paste("Pipeline Graph (", n_steps, "steps )")
       ),
+      disclaimer,
       htmltools::tags$div(
-        class = "pipeline-graph-container",
-        visNetwork::visNetworkOutput(ns(graph_output_id), height = "350px")
-      )
+        class = "graph-loading-wrapper",
+        id = paste0("graph-wrap-", graph_output_id),
+        htmltools::tags$div(
+          class = "graph-spinner",
+          htmltools::tags$div(class = "spinner-ring"),
+          "Loading graph..."
+        ),
+        visNetwork::visNetworkOutput(ns(graph_output_id), height = graph_height)
+      ),
+      htmltools::tags$script(htmltools::HTML(sprintf(
+        "$(document).on('shiny:value', function(e) {
+          if (e.name && e.name.indexOf('%s') !== -1) {
+            var w = document.getElementById('graph-wrap-%s');
+            if (w) w.classList.add('loaded');
+          }
+        });",
+        graph_output_id, graph_output_id
+      )))
     )
   }
 
   # Pipeline timeline
   pipeline_section <- if (length(doc$pipeline) > 0) {
     steps_html <- lapply(doc$pipeline, function(step) {
-      step_type <- if (is.list(step$type)) step$type[[1]] else (step$type %||% "unknown")
+      step_type <- if (is.list(step$type)) {
+        step$type[[1]]
+      } else {
+        step$type %||% "unknown"
+      }
       base_type <- gsub("ast_", "", step_type)
-      dot_cls <- paste0("step-dot step-dot-", if (base_type %in% c("compute", "recode", "rename", "remove", "join")) base_type else "default")
+      valid_types <- c(
+        "compute", "recode", "rename",
+        "remove", "join"
+      )
+      dot_suffix <- if (
+        base_type %in% valid_types
+      ) base_type else "default"
+      dot_cls <- paste0(
+        "step-dot step-dot-", dot_suffix
+      )
       type_cls <- paste0("step-type step-type-", base_type)
 
       outputs <- unlist(step$outputs)
-      outputs_str <- if (length(outputs) > 0) paste(outputs, collapse = ", ") else "(no output)"
-      comment_txt <- if (is.list(step$comment)) step$comment[[1]] else step$comment
-      comment_html <- if (!is.null(comment_txt) && length(comment_txt) == 1 && nzchar(comment_txt)) {
-        htmltools::tags$div(style = "font-size:.75rem; color:#95a5a6; font-style:italic;", comment_txt)
+      outputs_str <- if (length(outputs) > 0) {
+        paste(outputs, collapse = ", ")
+      } else {
+        "(no output)"
+      }
+      comment_txt <- if (
+        is.list(step$comment)
+      ) step$comment[[1]] else step$comment
+      comment_html <- if (
+        !is.null(comment_txt) &&
+        length(comment_txt) == 1 &&
+        nzchar(comment_txt)) {
+        htmltools::tags$div(
+          style = paste0(
+            "font-size:.75rem;",
+            " color:#95a5a6;",
+            " font-style:italic;"
+          ),
+          comment_txt
+        )
       }
 
       # Expression / formula display
-      expr_txt <- if (is.list(step$expression)) step$expression[[1]] else step$expression
-      expr_html <- if (!is.null(expr_txt) && length(expr_txt) == 1 && nzchar(expr_txt)) {
+      expr_txt <- if (
+        is.list(step$expression)
+      ) step$expression[[1]] else step$expression
+      expr_html <- if (
+        !is.null(expr_txt) &&
+        length(expr_txt) == 1 &&
+        nzchar(expr_txt)) {
         htmltools::tags$div(
-          style = "font-family:'JetBrains Mono','Fira Code','Consolas',monospace;font-size:.72rem;color:var(--slate-700);background:var(--slate-50);border:1px solid var(--slate-200);border-radius:4px;padding:.3rem .5rem;margin-top:.3rem;white-space:pre-wrap;word-break:break-all;",
+          style = paste0(
+            "font-family:'JetBrains Mono',",
+            "'Fira Code','Consolas',",
+            "monospace;font-size:.72rem;",
+            "color:var(--slate-700);",
+            "background:var(--slate-50);",
+            "border:1px solid",
+            " var(--slate-200);",
+            "border-radius:4px;",
+            "padding:.3rem .5rem;",
+            "margin-top:.3rem;",
+            "white-space:pre-wrap;",
+            "word-break:break-all;"
+          ),
           expr_txt
         )
       }
@@ -1445,18 +1847,42 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           cond_expr <- cond$condition %||% cond[[3]] %||% ""
           htmltools::tags$div(
             style = "font-size:.7rem;color:var(--slate-600);padding:.1rem 0;",
-            htmltools::tags$span(style = "font-weight:600;color:var(--violet);", val),
-            if (nzchar(label)) htmltools::tags$span(style = "margin:0 .3rem;", paste0("(", label, ")")),
+            htmltools::tags$span(
+              style = paste0(
+                "font-weight:600;",
+                "color:var(--violet);"
+              ),
+              val
+            ),
+            if (nzchar(label)) {
+              htmltools::tags$span(
+                style = "margin:0 .3rem;",
+                paste0("(", label, ")")
+              )
+            },
             if (nzchar(cond_expr)) {
               htmltools::tags$span(
-                style = "font-family:monospace;color:var(--slate-500);font-size:.65rem;",
+                style = paste0(
+                  "font-family:monospace;",
+                  "color:var(--slate-500);",
+                  "font-size:.65rem;"
+                ),
                 paste0(" <- ", cond_expr)
               )
             }
           )
         })
         htmltools::tags$div(
-          style = "margin-top:.3rem;padding:.3rem .5rem;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:4px;max-height:120px;overflow-y:auto;",
+          style = paste0(
+            "margin-top:.3rem;",
+            "padding:.3rem .5rem;",
+            "background:var(--slate-50);",
+            "border:1px solid",
+            " var(--slate-200);",
+            "border-radius:4px;",
+            "max-height:120px;",
+            "overflow-y:auto;"
+          ),
           htmltools::tagList(cond_items)
         )
       }
@@ -1499,7 +1925,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     }
   }
 
-  # Helper: render a variable chip with ANDA metadata (label, type, description, value_labels)
+  # Helper: render a variable chip with ANDA
+  # metadata (label, type, description, value_labels)
   var_chip <- function(v, cls, suffix = NULL) {
     meta <- var_meta_map[[tolower(v)]]
     label <- meta$label %||% ""
@@ -1510,14 +1937,27 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     # Build tooltip text with full metadata
     tooltip_parts <- c()
     if (nzchar(label)) tooltip_parts <- c(tooltip_parts, label)
-    if (nzchar(vtype)) tooltip_parts <- c(tooltip_parts, paste0("Type: ", vtype))
+    if (nzchar(vtype)) {
+      tooltip_parts <- c(
+        tooltip_parts,
+        paste0("Type: ", vtype)
+      )
+    }
     if (nzchar(desc)) tooltip_parts <- c(tooltip_parts, desc)
     if (!is.null(vlabels) && length(vlabels) > 0) {
       n_vals <- min(length(vlabels), 8)
       val_strs <- vapply(seq_len(n_vals), function(i) {
         paste0(names(vlabels)[i], " = ", vlabels[[i]])
       }, character(1))
-      if (length(vlabels) > 8) val_strs <- c(val_strs, paste0("... (", length(vlabels), " total)"))
+      if (length(vlabels) > 8) {
+        val_strs <- c(
+          val_strs,
+          paste0(
+            "... (", length(vlabels),
+            " total)"
+          )
+        )
+      }
       tooltip_parts <- c(tooltip_parts, paste(val_strs, collapse = " | "))
     }
     tooltip <- paste(tooltip_parts, collapse = "\n")
@@ -1527,8 +1967,15 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       type_color <- if (vtype == "discrete") "var(--violet)" else "var(--sky)"
       htmltools::tags$span(
         style = paste0(
-          "font-size:.55rem;padding:.05rem .3rem;border-radius:3px;margin-left:.3rem;",
-          "background:", type_color, ";color:#fff;font-weight:600;font-family:system-ui,sans-serif;"
+          "font-size:.55rem;",
+          "padding:.05rem .3rem;",
+          "border-radius:3px;",
+          "margin-left:.3rem;",
+          "background:", type_color,
+          ";color:#fff;",
+          "font-weight:600;",
+          "font-family:system-ui,",
+          "sans-serif;"
         ),
         vtype
       )
@@ -1537,7 +1984,13 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     # Value labels count badge
     vlabel_badge <- if (!is.null(vlabels) && length(vlabels) > 0) {
       htmltools::tags$span(
-        style = "font-size:.55rem;opacity:.5;margin-left:.2rem;font-family:system-ui,sans-serif;",
+        style = paste0(
+          "font-size:.55rem;",
+          "opacity:.5;",
+          "margin-left:.2rem;",
+          "font-family:system-ui,",
+          "sans-serif;"
+        ),
         paste0("(", length(vlabels), " cat.)")
       )
     }
@@ -1550,7 +2003,14 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       if (!is.null(suffix)) suffix,
       if (nzchar(label)) {
         htmltools::tags$span(
-          style = "font-size:.6rem;opacity:.55;margin-left:.35rem;font-family:system-ui,sans-serif;font-weight:400;",
+          style = paste0(
+            "font-size:.6rem;",
+            "opacity:.55;",
+            "margin-left:.35rem;",
+            "font-family:system-ui,",
+            "sans-serif;",
+            "font-weight:400;"
+          ),
           label
         )
       },
@@ -1582,7 +2042,11 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     type_map <- list()
     for (step in doc$pipeline) {
       outputs <- unlist(step$outputs)
-      inf_type <- if (is.list(step$inferred_type)) step$inferred_type[[1]] else step$inferred_type
+      inf_type <- if (
+        is.list(step$inferred_type)
+      ) step$inferred_type[[1]] else {
+        step$inferred_type
+      }
       if (length(outputs) > 0 && !is.null(inf_type)) {
         for (o in outputs) type_map[[o]] <- inf_type
       }
@@ -1706,8 +2170,14 @@ recipe_pipeline_graph <- function(recipe) {
     s$inputs <- as.character(unlist(s$inputs))
     s$type <- if (is.list(s$type)) s$type[[1]] else s$type
     s$comment <- if (is.list(s$comment)) s$comment[[1]] else s$comment
-    s$inferred_type <- if (is.list(s$inferred_type)) s$inferred_type[[1]] else s$inferred_type
-    s$index <- if (is.list(s$index)) as.integer(s$index[[1]]) else as.integer(s$index)
+    s$inferred_type <- if (
+      is.list(s$inferred_type)
+    ) s$inferred_type[[1]] else s$inferred_type
+    s$index <- if (is.list(s$index)) {
+      as.integer(s$index[[1]])
+    } else {
+      as.integer(s$index)
+    }
     s
   })
 
@@ -1781,7 +2251,11 @@ recipe_pipeline_graph <- function(recipe) {
     nodes[[length(nodes) + 1L]] <<- df
   }
   add_edge <- function(from, to, edgetype = "default") {
-    edges[[length(edges) + 1L]] <<- data.frame(from = from, to = to, edgetype = edgetype, stringsAsFactors = FALSE)
+    edges[[length(edges) + 1L]] <<- data.frame(
+      from = from, to = to,
+      edgetype = edgetype,
+      stringsAsFactors = FALSE
+    )
   }
 
   # Survey root
@@ -1789,7 +2263,10 @@ recipe_pipeline_graph <- function(recipe) {
   survey_id <- node_id
   add_node(data.frame(
     id = survey_id,
-    label = paste0(toupper(recipe$survey_type), " ", format_edition(recipe$edition)),
+    label = paste0(
+      toupper(recipe$survey_type), " ",
+      format_edition(recipe$edition)
+    ),
     title = paste0(
       "<div style='font-family:system-ui,sans-serif;padding:10px 14px;'>",
       "<div style='font-weight:800;color:", pal$primary, ";font-size:13px;'>",
@@ -1828,22 +2305,44 @@ recipe_pipeline_graph <- function(recipe) {
     sidx <- as.character(s$index)
     step_ids[[sidx]] <- node_id
 
-    outputs_str <- if (length(s$outputs) > 0) paste(s$outputs, collapse = ", ") else ""
-    comment_str <- if (!is.null(s$comment) && nzchar(s$comment)) s$comment else ""
-    expr_str <- if (is.list(s$expression)) s$expression[[1]] else (s$expression %||% "")
+    outputs_str <- if (length(s$outputs) > 0) {
+      paste(s$outputs, collapse = ", ")
+    } else ""
+    comment_str <- if (
+      !is.null(s$comment) &&
+      nzchar(s$comment)
+    ) s$comment else ""
+    expr_str <- if (is.list(s$expression)) {
+      s$expression[[1]]
+    } else {
+      s$expression %||% ""
+    }
     if (is.null(expr_str)) expr_str <- ""
 
     add_node(data.frame(
       id = node_id,
       label = paste0(s$index, ". ", outputs_str),
       title = paste0(
-        "<div style='font-family:system-ui,sans-serif;padding:10px 14px;max-width:350px;'>",
-        "<div style='font-weight:700;font-size:13px;color:", step_color(stype), ";",
+        paste0(
+          "<div style='font-family:",
+          "system-ui,sans-serif;",
+          "padding:10px 14px;",
+          "max-width:350px;'>"
+        ),
+        paste0(
+          "<div style='font-weight:700;",
+          "font-size:13px;color:",
+          step_color(stype), ";"
+        ),
         "text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;'>",
         htmltools::htmlEscape(stype), "</div>",
         if (nzchar(outputs_str)) {
           paste0(
-            "<div style='font-size:12px;font-weight:600;color:", pal$primary, ";'>",
+            paste0(
+              "<div style='font-size:12px;",
+              "font-weight:600;color:",
+              pal$primary, ";'>"
+            ),
             htmltools::htmlEscape(outputs_str), "</div>"
           )
         } else {
@@ -1851,8 +2350,19 @@ recipe_pipeline_graph <- function(recipe) {
         },
         if (nzchar(expr_str)) {
           paste0(
-            "<div style='font-family:SFMono-Regular,monospace;font-size:10px;color:", pal$primary, ";",
-            "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;white-space:pre-wrap;'>",
+            paste0(
+              "<div style='font-family:",
+              "SFMono-Regular,monospace;",
+              "font-size:10px;color:",
+              pal$primary, ";"
+            ),
+            paste0(
+              "background:", pal$bg,
+              ";padding:6px 8px;",
+              "border-radius:4px;",
+              "margin:4px 0;",
+              "white-space:pre-wrap;'>"
+            ),
             htmltools::htmlEscape(expr_str), "</div>"
           )
         } else {
@@ -1860,15 +2370,22 @@ recipe_pipeline_graph <- function(recipe) {
         },
         if (nzchar(comment_str)) {
           paste0(
-            "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
-            htmltools::htmlEscape(comment_str), "</div>"
+            paste0(
+              "<div style='font-size:11px;",
+              "color:#95a5a6;",
+              "font-style:italic;",
+              "margin-top:4px;'>"
+            ),
+            htmltools::htmlEscape(comment_str),
+            "</div>"
           )
         } else {
           ""
         },
         "</div>"
       ),
-      group = stype, level = as.integer(s$index) + 1L,
+      group = stype,
+      level = as.integer(s$index) + 1L,
       stringsAsFactors = FALSE
     ))
 
@@ -1905,7 +2422,17 @@ recipe_pipeline_graph <- function(recipe) {
   }
 
   output_node_ids <- list()
-  max_step_level <- if (length(pipeline) > 0) max(sapply(pipeline, function(s) s$index)) + 1L else 1L
+  max_step_level <- if (
+    length(pipeline) > 0
+  ) {
+    max(vapply(
+      pipeline,
+      function(s) s$index,
+      integer(1)
+    )) + 1L
+  } else {
+    1L
+  }
   for (v in output_vars) {
     node_id <- node_id + 1L
     output_node_ids[[v]] <- node_id
@@ -1922,7 +2449,10 @@ recipe_pipeline_graph <- function(recipe) {
       title = paste0(
         "<div style='font-family:SFMono-Regular,monospace;padding:8px 12px;",
         "font-size:12px;color:", pal$output_var, ";'>Output: <b>",
-        htmltools::htmlEscape(v), "</b> [", htmltools::htmlEscape(vtype), "]</div>"
+        htmltools::htmlEscape(v),
+        "</b> [",
+        htmltools::htmlEscape(vtype),
+        "]</div>"
       ),
       group = paste0("output_", vtype), level = max_step_level + 1L,
       stringsAsFactors = FALSE
@@ -1940,24 +2470,57 @@ recipe_pipeline_graph <- function(recipe) {
       base_type <- gsub("^survey::", "", wf_type)
       wf_name <- wf$name %||% paste0(base_type, "(", wf$formula %||% "", ")")
       formula_str <- wf$formula %||% ""
-      by_str <- if (!is.null(wf$by) && nzchar(wf$by)) paste0(" by ", wf$by) else ""
+      by_str <- if (
+        !is.null(wf$by) && nzchar(wf$by)
+      ) paste0(" by ", wf$by) else ""
       desc_str <- wf$description %||% ""
 
       add_node(data.frame(
         id = node_id,
         label = wf_name,
         title = paste0(
-          "<div style='font-family:system-ui,sans-serif;padding:10px 14px;max-width:320px;'>",
-          "<div style='font-weight:700;font-size:13px;color:", wf_color(wf_type), ";",
+          paste0(
+            "<div style='font-family:",
+            "system-ui,sans-serif;",
+            "padding:10px 14px;",
+            "max-width:320px;'>"
+          ),
+          paste0(
+            "<div style='font-weight:700;",
+            "font-size:13px;color:",
+            wf_color(wf_type), ";"
+          ),
           "text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;'>",
           htmltools::htmlEscape(base_type), "</div>",
-          "<div style='font-family:SFMono-Regular,monospace;font-size:11px;color:", pal$primary, ";",
-          "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;'>",
-          htmltools::htmlEscape(paste0(base_type, "(", formula_str, by_str, ")")), "</div>",
+          paste0(
+            "<div style='font-family:",
+            "SFMono-Regular,monospace;",
+            "font-size:11px;color:",
+            pal$primary, ";"
+          ),
+          paste0(
+            "background:", pal$bg,
+            ";padding:6px 8px;",
+            "border-radius:4px;",
+            "margin:4px 0;'>"
+          ),
+          paste0(
+            htmltools::htmlEscape(paste0(
+              base_type, "(",
+              formula_str, by_str, ")"
+            )),
+            "</div>"
+          ),
           if (nzchar(desc_str)) {
             paste0(
-              "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
-              htmltools::htmlEscape(desc_str), "</div>"
+              paste0(
+                "<div style='font-size:11px;",
+                "color:#95a5a6;",
+                "font-style:italic;",
+                "margin-top:4px;'>"
+              ),
+              htmltools::htmlEscape(desc_str),
+              "</div>"
             )
           } else {
             ""
@@ -1993,7 +2556,12 @@ recipe_pipeline_graph <- function(recipe) {
   all_edges <- if (length(edges) > 0) {
     do.call(rbind, edges)
   } else {
-    data.frame(from = integer(), to = integer(), edgetype = character(), stringsAsFactors = FALSE)
+    data.frame(
+      from = integer(),
+      to = integer(),
+      edgetype = character(),
+      stringsAsFactors = FALSE
+    )
   }
 
   # ── Build visNetwork ──
@@ -2130,8 +2698,18 @@ recipe_pipeline_graph <- function(recipe) {
     ) |>
     visNetwork::addFontAwesome() |>
     visNetwork::visEdges(
-      arrows = list(to = list(enabled = TRUE, scaleFactor = 0.6, type = "arrow")),
-      color = list(color = pal$edge, highlight = pal$compute, hover = pal$compute),
+      arrows = list(
+        to = list(
+          enabled = TRUE,
+          scaleFactor = 0.6,
+          type = "arrow"
+        )
+      ),
+      color = list(
+        color = pal$edge,
+        highlight = pal$compute,
+        hover = pal$compute
+      ),
       width = 1.5,
       smooth = list(enabled = TRUE, type = "curvedCW", roundness = 0.08)
     ) |>
@@ -2244,7 +2822,11 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
       ),
       htmltools::tags$div(
         class = "meta-item",
-        bsicons::bs_icon("clipboard-data"), paste(wf$survey_type, "/", format_edition(wf$edition))
+        bsicons::bs_icon("clipboard-data"),
+        paste(
+          wf$survey_type, "/",
+          format_edition(wf$edition)
+        )
       ),
       if (length(wf$estimation_type) > 0) {
         htmltools::tags$div(
@@ -2268,7 +2850,13 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
   desc_section <- if (!is.null(wf$description) && nzchar(wf$description)) {
     htmltools::tags$div(
       style = "padding: 1rem 1.5rem;",
-      htmltools::tags$p(style = "color: #6c757d; line-height: 1.6;", wf$description)
+      htmltools::tags$p(
+        style = paste0(
+          "color: #6c757d;",
+          " line-height: 1.6;"
+        ),
+        wf$description
+      )
     )
   }
 
@@ -2391,5 +2979,9 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
     )
   )
 
-  htmltools::tagList(header, desc_section, recipe_refs, est_type_section, est_section, code_section)
+  htmltools::tagList(
+    header, desc_section, recipe_refs,
+    est_type_section, est_section,
+    code_section
+  )
 }
