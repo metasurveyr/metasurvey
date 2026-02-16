@@ -1355,16 +1355,18 @@ view_graph <- function(svy, init_step = "Load survey") {
   comments <- get_comments(steps)
 
   if (!requireNamespace("visNetwork", quietly = TRUE)) {
-    stop(paste0(
-      "Package 'visNetwork' is required ",
-      "for this function. Please install it."
-    ))
+    stop(
+      "Package 'visNetwork' is required. ",
+      "Install it with: install.packages('visNetwork')",
+      call. = FALSE
+    )
   }
   if (!requireNamespace("htmltools", quietly = TRUE)) {
-    stop(paste0(
-      "Package 'htmltools' is required ",
-      "for this function. Please install it."
-    ))
+    stop(
+      "Package 'htmltools' is required. ",
+      "Install it with: install.packages('htmltools')",
+      call. = FALSE
+    )
   }
 
   # ── Color palette (aligned with Shiny Recipe Explorer) ──
