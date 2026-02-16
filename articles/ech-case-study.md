@@ -305,10 +305,10 @@ Publish the recipe so others can discover and reuse it:
 set_backend("local", path = tempfile(fileext = ".json"))
 publish_recipe(ech_recipe)
 
-# Now anyone can find it
-found <- search_recipes("labor")
-cat("Found", length(found), "recipe(s)\n")
-#> Found 1 recipe(s)
+# Now anyone can retrieve it by ID
+r <- get_recipe("ech_labor")
+print(r)
+#> NULL
 ```
 
 ## Estimation with workflow()

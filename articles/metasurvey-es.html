@@ -27,12 +27,6 @@
 </style>
 </head>
 <body>
-<p>
-pkgdown/templates/in-header.html
-
-  
-
-  </p>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -624,14 +618,14 @@ que pueda ser:</p>
 <div class="section level3">
 <h3 id="aplicar-recetas-a-nuevos-datos">Aplicar Recetas a Nuevos Datos<a class="anchor" aria-label="anchor" href="#aplicar-recetas-a-nuevos-datos"></a>
 </h3>
-<p>Una vez publicada, cualquier persona puede buscar una receta y
-aplicarla:</p>
+<p>Una vez publicada, cualquier persona puede obtener una receta por ID
+y aplicarla:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Buscar recetas existentes</span></span>
-<span><span class="va">encontradas</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_recipes.html">search_recipes</a></span><span class="op">(</span><span class="st">"labor"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Obtener receta por ID desde la API</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_get_recipe.html">api_get_recipe</a></span><span class="op">(</span><span class="st">"ech_labor_001"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Aplicar a una nueva encuesta</span></span>
-<span><span class="va">nueva_encuesta</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_recipe.html">add_recipe</a></span><span class="op">(</span><span class="va">nueva_encuesta</span>, <span class="va">encontradas</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">nueva_encuesta</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_recipe.html">add_recipe</a></span><span class="op">(</span><span class="va">nueva_encuesta</span>, <span class="va">r</span><span class="op">)</span></span>
 <span><span class="va">procesada</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bake_recipes.html">bake_recipes</a></span><span class="op">(</span><span class="va">nueva_encuesta</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -758,6 +752,5 @@ Lumley, Thomas. 2004. <span>“Analysis of Complex Survey Samples.”</span>
 
 
 
-  
-</body>
+  </body>
 </html>

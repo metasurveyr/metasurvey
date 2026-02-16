@@ -399,26 +399,13 @@ ech_recipes <- api_list_recipes(survey_type = "ech")
 r <- api_get_recipe(id = "recipe_id_here")
 ```
 
-The tidy API provides convenient search and filtering:
-
-``` r
-# Search by text
-found <- search_recipes("labor")
-
-# Filter by survey type and certification
-official <- filter_recipes(survey_type = "ech", certification_level = "official")
-
-# Rank by popularity
-top <- rank_recipes(n = 10)
-```
-
 ### Interactive Explorer
 
 The Shiny app provides a visual interface for browsing recipes and
 workflows:
 
 ``` r
-run_metasurvey_app()
+explore_recipes()
 ```
 
 The explorer shows recipe cards with certification badges, download

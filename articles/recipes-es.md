@@ -406,31 +406,18 @@ ech_recipes <- api_list_recipes(survey_type = "ech")
 r <- api_get_recipe(id = "recipe_id_aqui")
 ```
 
-La API tidy ofrece búsqueda y filtrado:
-
-``` r
-# Buscar por texto
-found <- search_recipes("labor")
-
-# Filtrar por tipo de encuesta y certificación
-oficiales <- filter_recipes(survey_type = "ech", certification_level = "official")
-
-# Ordenar por popularidad
-top <- rank_recipes(n = 10)
-```
-
 ### Explorador Interactivo
 
 La app Shiny provee una interfaz visual para explorar recipes y
 workflows:
 
 ``` r
-run_metasurvey_app()
+explore_recipes()
 ```
 
-El explorador muestra tarjetas de recipes con badges de certificación,
+El explorador muestra tarjetas de recipes con badges de certificacion,
 conteo de descargas y preview del pipeline. Al hacer clic en una recipe
-se abre una vista de detalle con el pipeline completo, snippet de código
+se abre una vista de detalle con el pipeline completo, snippet de codigo
 R y links a workflows relacionados.
 
 ### Registry Privado para Instituciones

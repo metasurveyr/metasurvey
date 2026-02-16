@@ -27,12 +27,6 @@
 </style>
 </head>
 <body>
-<p>
-pkgdown/templates/in-header.html
-
-  
-
-  </p>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -488,28 +482,18 @@ compartidas.</p>
 <span></span>
 <span><span class="co"># Obtener una recipe por ID</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_get_recipe.html">api_get_recipe</a></span><span class="op">(</span>id <span class="op">=</span> <span class="st">"recipe_id_aqui"</span><span class="op">)</span></span></code></pre></div>
-<p>La API tidy ofrece búsqueda y filtrado:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Buscar por texto</span></span>
-<span><span class="va">found</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/search_recipes.html">search_recipes</a></span><span class="op">(</span><span class="st">"labor"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Filtrar por tipo de encuesta y certificación</span></span>
-<span><span class="va">oficiales</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_recipes.html">filter_recipes</a></span><span class="op">(</span>survey_type <span class="op">=</span> <span class="st">"ech"</span>, certification_level <span class="op">=</span> <span class="st">"official"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Ordenar por popularidad</span></span>
-<span><span class="va">top</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rank_recipes.html">rank_recipes</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="explorador-interactivo">Explorador Interactivo<a class="anchor" aria-label="anchor" href="#explorador-interactivo"></a>
 </h3>
 <p>La app Shiny provee una interfaz visual para explorar recipes y
 workflows:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">run_metasurvey_app</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/explore_recipes.html">explore_recipes</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>El explorador muestra tarjetas de recipes con badges de
-certificación, conteo de descargas y preview del pipeline. Al hacer clic
+certificacion, conteo de descargas y preview del pipeline. Al hacer clic
 en una recipe se abre una vista de detalle con el pipeline completo,
-snippet de código R y links a workflows relacionados.</p>
+snippet de codigo R y links a workflows relacionados.</p>
 </div>
 <div class="section level3">
 <h3 id="registry-privado-para-instituciones">Registry Privado para Instituciones<a class="anchor" aria-label="anchor" href="#registry-privado-para-instituciones"></a>
@@ -517,7 +501,7 @@ snippet de código R y links a workflows relacionados.</p>
 <p>Las instituciones que trabajan con <strong>encuestas confidenciales o
 de acceso restringido</strong> pueden necesitar un registry privado.
 metasurvey soporta esto mediante un backend propio con MongoDB:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Apuntar a la API privada de tu institución</span></span>
 <span><span class="fu"><a href="../reference/configure_api.html">configure_api</a></span><span class="op">(</span><span class="st">"https://tu-institucion.example.com/api"</span><span class="op">)</span></span>
 <span></span>
@@ -591,6 +575,5 @@ Revisar los conceptos básicos de steps y objetos Survey</li>
 
 
 
-  
-</body>
+  </body>
 </html>

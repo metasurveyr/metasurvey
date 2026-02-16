@@ -95,7 +95,8 @@
     for detailed variable information.
 
 - **Shiny explorer app** (`inst/shiny/`): Interactive recipe and
-  workflow browser launched via `run_metasurvey_app()`:
+  workflow browser launched via
+  [`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md):
 
   - Recipe gallery with search, filtering by survey type/certification,
     and detail modals showing pipeline visualization and R code

@@ -494,15 +494,15 @@ receta_minima <- recipe(
 
 ### Aplicar Recetas a Nuevos Datos
 
-Una vez publicada, cualquier persona puede buscar una receta y
+Una vez publicada, cualquier persona puede obtener una receta por ID y
 aplicarla:
 
 ``` r
-# Buscar recetas existentes
-encontradas <- search_recipes("labor")
+# Obtener receta por ID desde la API
+r <- api_get_recipe("ech_labor_001")
 
 # Aplicar a una nueva encuesta
-nueva_encuesta <- add_recipe(nueva_encuesta, encontradas[[1]])
+nueva_encuesta <- add_recipe(nueva_encuesta, r)
 procesada <- bake_recipes(nueva_encuesta)
 ```
 

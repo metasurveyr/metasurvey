@@ -310,10 +310,10 @@ reutilizarlo:
 set_backend("local", path = tempfile(fileext = ".json"))
 publish_recipe(ech_recipe)
 
-# Now anyone can find it
-found <- search_recipes("labor")
-cat("Found", length(found), "recipe(s)\n")
-#> Found 1 recipe(s)
+# Ahora cualquiera puede recuperarla por ID
+r <- get_recipe("ech_labor")
+print(r)
+#> NULL
 ```
 
 ## Estimación con workflow()

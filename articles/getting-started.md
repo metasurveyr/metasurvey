@@ -475,14 +475,15 @@ minimal_recipe <- recipe(
 
 ### Applying Recipes to new data
 
-Once published, anyone can retrieve a recipe and apply it to their data:
+Once published, anyone can retrieve a recipe by ID and apply it to their
+data:
 
 ``` r
-# Search for existing recipes
-found <- search_recipes("labor")
+# Get a recipe by ID from the API
+r <- api_get_recipe("ech_labor_001")
 
 # Apply to a new survey
-new_svy <- add_recipe(new_svy, found[[1]])
+new_svy <- add_recipe(new_svy, r)
 processed <- bake_recipes(new_svy)
 ```
 
