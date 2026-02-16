@@ -1,5 +1,75 @@
 # Changelog
 
+## metasurvey 0.0.7
+
+### New features
+
+- `Recipe$to_list()` and `RecipeWorkflow$to_list()` now include
+  `metasurvey_version` for reproducibility tracking.
+
+### Bug fixes
+
+- Fixed `bake_step()` crash when executing
+  [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md):
+  removed invalid `record=FALSE` argument passed to internal `recode()`.
+- Fixed `bake_steps_survey()` iterating over the original survey’s steps
+  instead of the cloned copy, causing inconsistent state.
+- Fixed
+  [`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md)
+  environment leakage: recipe step evaluation now uses an isolated
+  [`new.env()`](https://rdrr.io/r/base/environment.html) instead of the
+  calling [`environment()`](https://rdrr.io/r/base/environment.html).
+- Removed redundant
+  [`copy()`](https://rdrr.io/pkg/data.table/man/copy.html) in
+  `compute()` and `recode()` — the `shallow_clone()` already handles
+  data copying.
+- [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md)
+  now uses
+  [`merge.data.table()`](https://rdrr.io/pkg/data.table/man/merge.html)
+  directly and
+  [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md)
+  instead of assigning to `$data`.
+- Fixed Shiny admin panel memory leak: replaced dynamic
+  `observe→lapply→observeEvent` pattern with delegated event handlers.
+- Removed `invalidateLater(0)` from admin panel refresh.
+
+### Security
+
+- `store_token()` no longer calls
+  [`Sys.setenv()`](https://rdrr.io/r/base/Sys.setenv.html) — API tokens
+  are stored in R options only, not leaked to environment variables.
+- `token_expires_soon()` returns `TRUE` for `NULL`, malformed, or
+  missing `exp` claims, forcing token refresh instead of using
+  potentially invalid tokens.
+- API error messages are sanitized to 200 characters maximum.
+- Added `validate_api_id()` with alphanumeric whitelist for
+  recipe/workflow IDs.
+- Added password length validation (8–128 characters) in
+  [`api_register()`](https://metasurveyr.github.io/metasurvey/reference/api_register.md).
+- [`api_download_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_download_recipe.md)
+  and
+  [`api_download_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_download_workflow.md)
+  now warn on failure instead of silently swallowing errors.
+
+### Performance
+
+- Added `debounce(300)` on Shiny recipe search input to reduce excessive
+  reactivity.
+
+### Internal
+
+- Replaced [`sapply()`](https://rdrr.io/r/base/lapply.html) with
+  [`vapply()`](https://rdrr.io/r/base/lapply.html) or
+  [`lapply()`](https://rdrr.io/r/base/lapply.html) across the codebase
+  for type-safe return values.
+- [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md)
+  uses [`requireNamespace()`](https://rdrr.io/r/base/ns-load.html)
+  instead of `eval(install.packages(...))`.
+- [`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md)
+  now warns when step parsing falls back to raw strings.
+- Added ORCID identifiers for authors in DESCRIPTION.
+- Added ANDA fetch failure notification in Shiny explore module.
+
 ## metasurvey 0.0.6
 
 ### Documentation
@@ -27,7 +97,8 @@
 ### Bug fixes
 
 - Fixed Codecov GitHub Actions workflow: replaced deprecated
-  `covr::codecov()` with `covr::package_coverage()` +
+  [`covr::codecov()`](http://covr.r-lib.org/reference/codecov.md) with
+  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md) +
   `codecov/codecov-action@v5` for reliable coverage uploads with token
   authentication.
 - Added CI guard to `.Rprofile` to skip example-data setup in GitHub

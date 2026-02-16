@@ -15,7 +15,7 @@ detection and error prevention. All computations are validated before execution.
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,13 +139,13 @@ are compatible with the specified hierarchical level:</p><ul><li><p>"implantatio
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va">svy</span> <span class="op">|&gt;</span> <span class="fu">step_compute</span><span class="op">(</span>age_squared <span class="op">=</span> <span class="va">age</span><span class="op">^</span><span class="fl">2</span>, comment <span class="op">=</span> <span class="st">"Age squared"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       id   age     w age_squared record</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;num&gt; &lt;num&gt;       &lt;num&gt; &lt;lgcl&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1    25     1         625  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2    30     1         900  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     3    45     1        2025  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     4    50     1        2500  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     5    60     1        3600  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       id   age     w age_squared</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;num&gt; &lt;num&gt;       &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1    25     1         625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2    30     1         900</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     3    45     1        2025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     4    50     1        2500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     5    60     1        3600</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># ECH example: labor indicator</span></span></span>

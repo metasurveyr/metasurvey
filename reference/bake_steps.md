@@ -41,11 +41,11 @@ svy <- Survey$new(
 svy <- step_compute(svy, age2 = age * 2)
 svy <- bake_steps(svy)
 get_data(svy)
-#>       id   age     w  age2 record
-#>    <int> <num> <num> <num> <lgcl>
-#> 1:     1    15     1    30  FALSE
-#> 2:     2    30     1    60  FALSE
-#> 3:     3    45     1    90  FALSE
-#> 4:     4    50     1   100  FALSE
-#> 5:     5    70     1   140  FALSE
+#>       id   age     w  age2
+#>    <int> <num> <num> <num>
+#> 1:     1    15     1    30
+#> 2:     2    30     1    60
+#> 3:     3    45     1    90
+#> 4:     4    50     1   100
+#> 5:     5    70     1   140
 ```

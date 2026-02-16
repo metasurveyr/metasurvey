@@ -116,13 +116,13 @@ svy <- Survey$new(
 svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
 svy <- bake_steps(svy)
 get_data(svy)
-#>       id   age     w age_squared record
-#>    <int> <num> <num>       <num> <lgcl>
-#> 1:     1    25     1         625  FALSE
-#> 2:     2    30     1         900  FALSE
-#> 3:     3    45     1        2025  FALSE
-#> 4:     4    50     1        2500  FALSE
-#> 5:     5    60     1        3600  FALSE
+#>       id   age     w age_squared
+#>    <int> <num> <num>       <num>
+#> 1:     1    25     1         625
+#> 2:     2    30     1         900
+#> 3:     3    45     1        2025
+#> 4:     4    50     1        2500
+#> 5:     5    60     1        3600
 
 if (FALSE) { # \dontrun{
 # ECH example: labor indicator

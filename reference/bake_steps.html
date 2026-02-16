@@ -19,7 +19,7 @@ the underlying data.table. Each step is validated before execution
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,13 +94,13 @@ implantation and all follow-up surveys.</p>
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>, age2 <span class="op">=</span> <span class="va">age</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu">bake_steps</span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       id   age     w  age2 record</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;lgcl&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1    15     1    30  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2    30     1    60  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     3    45     1    90  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     4    50     1   100  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     5    70     1   140  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       id   age     w  age2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1    15     1    30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2    30     1    60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     3    45     1    90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     4    50     1   100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     5    70     1   140</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,51 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.7" id="metasurvey-007">metasurvey 0.0.7<a class="anchor" aria-label="anchor" href="#metasurvey-007"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-0-7">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-7"></a></h3>
+<ul><li>
+<code>Recipe$to_list()</code> and <code>RecipeWorkflow$to_list()</code> now include <code>metasurvey_version</code> for reproducibility tracking.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-7">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-7"></a></h3>
+<ul><li>Fixed <code>bake_step()</code> crash when executing <code><a href="../reference/step_recode.html">step_recode()</a></code>: removed invalid <code>record=FALSE</code> argument passed to internal <code>recode()</code>.</li>
+<li>Fixed <code>bake_steps_survey()</code> iterating over the original survey’s steps instead of the cloned copy, causing inconsistent state.</li>
+<li>Fixed <code><a href="../reference/bake_recipes.html">bake_recipes()</a></code> environment leakage: recipe step evaluation now uses an isolated <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env()</a></code> instead of the calling <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment()</a></code>.</li>
+<li>Removed redundant <code><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy()</a></code> in <code>compute()</code> and <code>recode()</code> — the <code>shallow_clone()</code> already handles data copying.</li>
+<li>
+<code><a href="../reference/step_join.html">step_join()</a></code> now uses <code><a href="https://rdrr.io/pkg/data.table/man/merge.html" class="external-link">merge.data.table()</a></code> directly and <code><a href="../reference/set_data.html">set_data()</a></code> instead of assigning to <code>$data</code>.</li>
+<li>Fixed Shiny admin panel memory leak: replaced dynamic <code>observe→lapply→observeEvent</code> pattern with delegated event handlers.</li>
+<li>Removed <code>invalidateLater(0)</code> from admin panel refresh.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="security-0-0-7">Security<a class="anchor" aria-label="anchor" href="#security-0-0-7"></a></h3>
+<ul><li>
+<code>store_token()</code> no longer calls <code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv()</a></code> — API tokens are stored in R options only, not leaked to environment variables.</li>
+<li>
+<code>token_expires_soon()</code> returns <code>TRUE</code> for <code>NULL</code>, malformed, or missing <code>exp</code> claims, forcing token refresh instead of using potentially invalid tokens.</li>
+<li>API error messages are sanitized to 200 characters maximum.</li>
+<li>Added <code>validate_api_id()</code> with alphanumeric whitelist for recipe/workflow IDs.</li>
+<li>Added password length validation (8–128 characters) in <code><a href="../reference/api_register.html">api_register()</a></code>.</li>
+<li>
+<code><a href="../reference/api_download_recipe.html">api_download_recipe()</a></code> and <code><a href="../reference/api_download_workflow.html">api_download_workflow()</a></code> now warn on failure instead of silently swallowing errors.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-0-0-7">Performance<a class="anchor" aria-label="anchor" href="#performance-0-0-7"></a></h3>
+<ul><li>Added <code>debounce(300)</code> on Shiny recipe search input to reduce excessive reactivity.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-0-7">Internal<a class="anchor" aria-label="anchor" href="#internal-0-0-7"></a></h3>
+<ul><li>Replaced <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply()</a></code> with <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply()</a></code> or <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> across the codebase for type-safe return values.</li>
+<li>
+<code><a href="../reference/set_engine.html">set_engine()</a></code> uses <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> instead of <code>eval(install.packages(...))</code>.</li>
+<li>
+<code><a href="../reference/read_recipe.html">read_recipe()</a></code> now warns when step parsing falls back to raw strings.</li>
+<li>Added ORCID identifiers for authors in DESCRIPTION.</li>
+<li>Added ANDA fetch failure notification in Shiny explore module.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.6" id="metasurvey-006">metasurvey 0.0.6<a class="anchor" aria-label="anchor" href="#metasurvey-006"></a></h2>
 <div class="section level3">
 <h3 id="documentation-0-0-6">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-6"></a></h3>
@@ -55,7 +100,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-0-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-6"></a></h3>
-<ul><li>Fixed Codecov GitHub Actions workflow: replaced deprecated <code>covr::codecov()</code> with <code>covr::package_coverage()</code> + <code>codecov/codecov-action@v5</code> for reliable coverage uploads with token authentication.</li>
+<ul><li>Fixed Codecov GitHub Actions workflow: replaced deprecated <code><a href="http://covr.r-lib.org/reference/codecov.html" class="external-link">covr::codecov()</a></code> with <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code> + <code>codecov/codecov-action@v5</code> for reliable coverage uploads with token authentication.</li>
 <li>Added CI guard to <code>.Rprofile</code> to skip example-data setup in GitHub Actions, preventing potential download failures during CI builds.</li>
 <li>Added missing <code>archive</code>, <code>haven</code>, and <code>openxlsx</code> to <code>Suggests</code> in DESCRIPTION, fixing R CMD check warnings about undeclared dependencies.</li>
 </ul></div>
