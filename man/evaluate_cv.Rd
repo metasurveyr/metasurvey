@@ -10,14 +10,14 @@ evaluate_cv(cv)
 \item{cv}{Numeric coefficient of variation value.}
 }
 \value{
-Character string with the quality category (e.g. "Excelente", "Bueno").
+Character string with the quality category (e.g. "Excellent", "Good").
 }
 \description{
 Evaluate estimation with Coefficient of Variation
 }
 \examples{
-evaluate_cv(3) # "Excelente"
-evaluate_cv(12) # "Bueno"
-evaluate_cv(30) # "Utilizar con precaucion"
+evaluate_cv(3) # "Excellent"
+evaluate_cv(12) # "Good"
+evaluate_cv(30) # "Use with caution"
 }
 \keyword{utils}

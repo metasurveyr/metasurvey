@@ -116,7 +116,7 @@ Lumley, T. (2020). "survey: analysis of complex survey samples". R package versi
 }
 }
 \author{
-Mauro Loprete \email{mauroloprete1@gmail.com},
+Mauro Loprete \email{mauro.loprete@icloud.com},
 Natalia da Silva \email{natalia.dasilva@fcea.edu.uy},
 Fabricio Machado \email{fabricio.mch.slv@gmail.com}
 }
