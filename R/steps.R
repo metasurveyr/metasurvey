@@ -11,7 +11,7 @@ compute <- function(svy, ..., .by = NULL, use_copy = use_copy_default(), lazy = 
       .data <- get_data(svy)
     } else {
       .clone <- svy$shallow_clone()
-      .data <- copy(get_data(.clone))
+      .data <- get_data(.clone)
     }
 
     if (!is(.dots, "call") & !is(.dots, "name") & !is(.dots, "numeric") & !is(.dots, "logical")) {
@@ -60,7 +60,7 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
       .data <- svy$get_data()
     } else {
       .clone <- svy$shallow_clone()
-      .data <- copy(get_data(.clone))
+      .data <- get_data(.clone)
     }
 
     .exprs <- substitute(list(...))
@@ -73,11 +73,12 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
     .labels <- c(
       .default,
       unique(
-        sapply(
+        vapply(
           X = seq_along(.exprs),
           FUN = function(x) {
             .exprs[[x]][[3]]
-          }
+          },
+          FUN.VALUE = character(1)
         )
       )
     )
@@ -650,7 +651,7 @@ step_recode_rotative <- function(svy, new_var, ..., .default = NA_character_, .n
 
 get_formulas <- function(steps) {
   if (length(steps) > 0) {
-    sapply(
+    vapply(
       X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
@@ -669,7 +670,8 @@ get_formulas <- function(steps) {
         } else {
           deparse1(exprs)
         }
-      }
+      },
+      FUN.VALUE = character(1)
     )
   } else {
     NULL
@@ -683,12 +685,13 @@ get_formulas <- function(steps) {
 
 get_comments <- function(steps) {
   if (length(steps) > 0) {
-    sapply(
+    vapply(
       X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
         step$comments
-      }
+      },
+      FUN.VALUE = character(1)
     )
   } else {
     NULL
@@ -823,19 +826,16 @@ step_join <- function(
   all.x <- (type %in% c("left", "full"))
   all.y <- (type %in% c("right", "full"))
 
-  # Perform merge using base merge then coerce to data.table
-  merged <- base::merge(
-    x = lhs_data,
-    y = rhs_data,
+  # Perform merge using data.table merge
+  merged <- merge(
+    data.table::as.data.table(lhs_data),
+    data.table::as.data.table(rhs_data),
     by.x = by.x,
     by.y = by.y,
     all.x = all.x,
     all.y = all.y,
     sort = FALSE
   )
-
-  # Ensure data.table for downstream ops
-  merged <- data.table::data.table(merged)
 
   # Fill NA weights introduced by full/right joins
   # Get weight column names from the survey
@@ -862,9 +862,9 @@ step_join <- function(
   # Assign data to copy or in-place
   if (use_copy) {
     out <- svy$shallow_clone()
-    out$data <- merged
+    out$set_data(merged)
   } else {
-    svy$data <- merged
+    svy$set_data(merged)
     out <- svy
   }
 
@@ -1087,12 +1087,13 @@ step_rename <- function(svy = survey_empty(), ..., mapping = NULL, use_copy = us
 
 get_type_step <- function(steps) {
   if (length(steps) > 0) {
-    sapply(
+    vapply(
       X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
         step$type
-      }
+      },
+      FUN.VALUE = character(1)
     )
   } else {
     NULL
