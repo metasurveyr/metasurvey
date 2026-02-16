@@ -245,7 +245,7 @@ jobs:
       - name: Install Railway CLI
         run: |
           npm install -g @railway/cli@3
-          railway version
+          railway --help | head -1
 
       - name: Deploy API to Railway
         if: needs.build-api.result == 'success'
