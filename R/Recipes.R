@@ -21,20 +21,32 @@
 #' @field doi DOI or external identifier (character|NULL).
 #' @field bake Logical flag indicating whether it has been applied.
 #' @field topic Recipe topic (character|NULL).
-#' @field step_objects List of Step R6 objects (list|NULL), used for documentation generation.
+#' @field step_objects List of Step R6 objects (list|NULL),
+#'   used for documentation generation.
 #' @field categories List of RecipeCategory objects for classification.
 #' @field downloads Integer download/usage count.
 #' @field certification RecipeCertification object (default community).
 #' @field user_info RecipeUser object or NULL.
 #' @field version Recipe version string.
-#' @field depends_on_recipes List of recipe IDs that must be applied before this one.
-#' @field data_source List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.
+#' @field depends_on_recipes List of recipe IDs that must
+#'   be applied before this one.
+#' @field data_source List with S3 bucket info
+#'   (s3_bucket, s3_prefix, file_pattern, provider)
+#'   or NULL.
+#' @field labels List with variable and value labels
+#'   (var_labels, val_labels) or NULL.
 #'
 #' @section Methods:
 #' \describe{
-#'   \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
-#'   \item{$doc()}{Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.}
-#'   \item{$validate(svy)}{Validate that a survey object has all required input variables.}
+#'   \item{$new(name, edition, survey_type,
+#'     default_engine, depends_on, user, description,
+#'     steps, id, doi, topic)}{Class constructor.}
+#'   \item{$doc()}{Auto-generate documentation from
+#'     recipe steps. Returns a list with metadata,
+#'     input_variables, output_variables, and pipeline
+#'     information.}
+#'   \item{$validate(svy)}{Validate that a survey
+#'     object has all required input variables.}
 #' }
 #'
 #' @return An object of class \code{Recipe}.
@@ -49,7 +61,8 @@
 #'
 #' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
 #'   \code{\link{read_recipe}}, \code{\link{bake_recipes}}
-#' @keywords Recipes
+#' @keywords recipe
+#' @family recipes
 #' @export
 Recipe <- R6Class("Recipe",
   public = list(
@@ -73,6 +86,7 @@ Recipe <- R6Class("Recipe",
     version = "1.0.0",
     depends_on_recipes = list(),
     data_source = NULL,
+    labels = NULL,
     #' @description
     #' Create a Recipe object
     #' @param name Descriptive name of the recipe (character)
@@ -86,16 +100,34 @@ Recipe <- R6Class("Recipe",
     #' @param id Unique identifier (character or numeric)
     #' @param doi DOI or external identifier (character or NULL)
     #' @param topic Recipe topic (character or NULL)
-    #' @param step_objects List of Step R6 objects (optional, used for doc generation)
-    #' @param cached_doc Pre-computed documentation (optional, used when loading from JSON)
+    #' @param step_objects List of Step R6 objects
+    #'   (optional, used for doc generation)
+    #' @param cached_doc Pre-computed documentation
+    #'   (optional, used when loading from JSON)
     #' @param categories List of RecipeCategory objects (optional)
     #' @param downloads Integer download count (default 0)
-    #' @param certification RecipeCertification object (optional, default community)
+    #' @param certification RecipeCertification object
+    #'   (optional, default community)
     #' @param user_info RecipeUser object (optional)
     #' @param version Recipe version string (default "1.0.0")
-    #' @param depends_on_recipes List of recipe IDs that must be applied before this one (optional)
+    #' @param depends_on_recipes List of recipe IDs
+    #'   that must be applied before this one (optional)
     #' @param data_source List with S3 bucket info (optional)
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi = NULL, topic = NULL, step_objects = NULL, cached_doc = NULL, categories = list(), downloads = 0L, certification = NULL, user_info = NULL, version = "1.0.0", depends_on_recipes = list(), data_source = NULL) {
+    #' @param labels List with var_labels and val_labels (optional)
+    initialize = function(name, edition, survey_type,
+                          default_engine, depends_on,
+                          user, description, steps, id,
+                          doi = NULL, topic = NULL,
+                          step_objects = NULL,
+                          cached_doc = NULL,
+                          categories = list(),
+                          downloads = 0L,
+                          certification = NULL,
+                          user_info = NULL,
+                          version = "1.0.0",
+                          depends_on_recipes = list(),
+                          data_source = NULL,
+                          labels = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -111,11 +143,13 @@ Recipe <- R6Class("Recipe",
       private$.cached_doc <- cached_doc
       self$categories <- categories
       self$downloads <- as.integer(downloads)
-      self$certification <- certification %||% RecipeCertification$new(level = "community")
+      self$certification <- certification %||%
+        RecipeCertification$new(level = "community")
       self$user_info <- user_info
       self$version <- version
       self$depends_on_recipes <- depends_on_recipes
       self$data_source <- data_source
+      self$labels <- labels
     },
 
     #' @description Increment the download counter
@@ -127,7 +161,9 @@ Recipe <- R6Class("Recipe",
     #' @param user RecipeUser who is certifying
     #' @param level Character certification level ("reviewed" or "official")
     certify = function(user, level) {
-      self$certification <- RecipeCertification$new(level = level, certified_by = user)
+      self$certification <- RecipeCertification$new(
+        level = level, certified_by = user
+      )
     },
 
     #' @description Add a category to the recipe
@@ -167,22 +203,28 @@ Recipe <- R6Class("Recipe",
         data_source = self$data_source,
         categories = lapply(self$categories, function(c) c$to_list()),
         certification = self$certification$to_list(),
-        user_info = if (!is.null(self$user_info)) self$user_info$to_list() else NULL,
+        user_info = if (!is.null(self$user_info))
+          self$user_info$to_list() else NULL,
         doc = list(
           input_variables = doc_info$input_variables,
           output_variables = doc_info$output_variables,
           pipeline = doc_info$pipeline
         ),
         steps = unname(lapply(self$steps, function(s) {
-          if (is.character(s)) paste(s, collapse = " ") else paste(deparse(s), collapse = " ")
+          if (is.character(s))
+            paste(s, collapse = " ")
+          else
+            paste(deparse(s), collapse = " ")
         })),
+        labels = self$labels,
         metasurvey_version = as.character(utils::packageVersion("metasurvey"))
       )
     },
 
     #' @description
     #' Auto-generate documentation from recipe steps
-    #' @return A list with metadata, input_variables, output_variables, and pipeline information
+    #' @return A list with metadata, input_variables,
+    #'   output_variables, and pipeline information
     doc = function() {
       cat_names <- vapply(self$categories, function(c) c$name, character(1))
       meta <- list(
@@ -194,7 +236,8 @@ Recipe <- R6Class("Recipe",
         topic = self$topic,
         doi = self$doi,
         id = self$id,
-        categories = if (length(cat_names) > 0) paste(cat_names, collapse = ", ") else NULL,
+        categories = if (length(cat_names) > 0)
+          paste(cat_names, collapse = ", ") else NULL,
         certification = self$certification$level,
         version = self$version,
         downloads = self$downloads
@@ -216,7 +259,8 @@ Recipe <- R6Class("Recipe",
               var_names <- character(0)
 
               # Check if exprs has names (works for both lists and calls)
-              if (!is.null(names(step$exprs)) && length(names(step$exprs)) > 0) {
+              if (!is.null(names(step$exprs)) &&
+                length(names(step$exprs)) > 0) {
                 # Filter out empty names (first element in calls)
                 var_names <- setdiff(names(step$exprs), "")
               }
@@ -272,8 +316,12 @@ Recipe <- R6Class("Recipe",
       if (!is.null(private$.cached_doc)) {
         return(list(
           meta = meta,
-          input_variables = private$.cached_doc$input_variables %||% character(0),
-          output_variables = private$.cached_doc$output_variables %||% character(0),
+          input_variables =
+            private$.cached_doc$input_variables %||%
+            character(0),
+          output_variables =
+            private$.cached_doc$output_variables %||%
+            character(0),
           pipeline = private$.cached_doc$pipeline %||% list()
         ))
       }
@@ -290,13 +338,16 @@ Recipe <- R6Class("Recipe",
     #' @description
     #' Validate that a survey has all required input variables
     #' @param svy A Survey object
-    #' @return TRUE if valid, otherwise stops with error listing missing variables
+    #' @return TRUE if valid, otherwise stops with
+    #'   error listing missing variables
     validate = function(svy) {
       doc_info <- self$doc()
       required_vars <- doc_info$input_variables
 
       survey_vars <- names(get_data(svy))
-      missing_vars <- required_vars[!tolower(required_vars) %in% tolower(survey_vars)]
+      missing_vars <- required_vars[
+        !tolower(required_vars) %in% tolower(survey_vars)
+      ]
 
       if (length(missing_vars) > 0) {
         stop(
@@ -327,46 +378,42 @@ metadata_recipe <- function() {
   )
 }
 
-#' Crear receta de transformación de datos de encuesta
+#' Create a survey data transformation recipe
 #'
-#' Esta función crea un objeto Recipe que encapsula una secuencia de
-#' transformaciones de datos que pueden ser aplicadas a encuestas de manera
-#' reproducible. Las recetas permiten documentar, compartir y reutilizar
-#' workflows de procesamiento de datos.
+#' Creates a Recipe object that encapsulates a sequence of data transformations
+#' that can be applied to surveys in a reproducible manner. Recipes allow
+#' documenting, sharing, and reusing data processing workflows.
 #'
-#' @param ... Lista con la metadata requerida y steps opcionales. Los
-#'   parámetros obligatorios son:
+#' @param ... Required metadata and optional steps. Required parameters:
 #'   \itemize{
-#'     \item \code{name}: Nombre descriptivo de la receta
-#'     \item \code{user}: Usuario/autor que crea la receta
-#'     \item \code{svy}: Objeto Survey base (usar \code{survey_empty()} para recetas genéricas)
-#'     \item \code{description}: Descripción detallada del propósito de la receta
+#'     \item \code{name}: Descriptive name for the recipe
+#'     \item \code{user}: User/author creating the recipe
+#'     \item \code{svy}: Base Survey object
+#'       (use \code{survey_empty()} for generic recipes)
+#'     \item \code{description}: Detailed description of the recipe's purpose
 #'   }
-#'   Parámetros opcionales incluyen steps de transformación de datos.
+#'   Optional parameters include data transformation steps.
 #'
-#' @return Objeto `Recipe` que contiene:
-#'   \itemize{
-#'     \item Metadata completa de la receta
-#'     \item Lista de steps de transformación
-#'     \item Información de dependencias
-#'     \item Configuración de motor por defecto
-#'   }
+#' @return A \code{Recipe} object containing metadata, transformation steps,
+#'   dependency information, and default engine configuration.
 #'
 #' @details
-#' Las recetas son fundamentales para:
+#' Recipes are essential for:
 #' \itemize{
-#'   \item Reproducibilidad: Garantizar que las transformaciones se apliquen consistentemente
-#'   \item Documentación: Mantener registro de qué transformaciones se realizan y por qué
-#'   \item Colaboración: Compartir workflows entre usuarios y equipos
-#'   \item Versionado: Mantener diferentes versiones de procesamiento para distintas ediciones
-#'   \item Automatización: Aplicar transformaciones complejas automáticamente
+#'   \item Reproducibility: Ensure transformations are applied consistently
+#'   \item Documentation: Keep a record of what
+#'     transformations are performed and why
+#'   \item Collaboration: Share workflows between users and teams
+#'   \item Versioning: Maintain different processing
+#'     versions for different editions
+#'   \item Automation: Apply complex transformations automatically
 #' }
 #'
-#' Los steps incluidos en la receta pueden ser cualquier combinación de
-#' \code{step_compute}, \code{step_recode}, u otros steps de transformación.
+#' Steps included in the recipe can be any combination of
+#' \code{step_compute}, \code{step_recode}, or other transformation steps.
 #'
-#' Las recetas se pueden guardar con \code{save_recipe()}, cargar con
-#' \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
+#' Recipes can be saved with \code{save_recipe()}, loaded with
+#' \code{read_recipe()}, and applied automatically with \code{bake_recipes()}.
 #'
 #' @examples
 #' # Basic recipe without steps
@@ -396,18 +443,15 @@ metadata_recipe <- function() {
 #' }
 #'
 #' @seealso
-#' \code{\link{Recipe}} para la definición de la clase
-#' \code{\link{save_recipe}} para guardar recetas
-#' \code{\link{read_recipe}} para cargar recetas
-#' \code{\link{get_recipe}} para obtener recetas del repositorio
-#' \code{\link{bake_recipes}} para aplicar recetas a datos
+#' \code{\link{Recipe}} for class definition
+#' \code{\link{save_recipe}} to save recipes
+#' \code{\link{read_recipe}} to load recipes
+#' \code{\link{get_recipe}} to retrieve recipes from repository
+#' \code{\link{bake_recipes}} to apply recipes to data
 #'
-#' @keywords Survey methods, Recipes
+#' @keywords recipe
+#' @family recipes
 #' @export
-#' @param ... A list with the following metadata: name, user, svy, description
-#' @keywords Survey methods
-#' @keywords Recipes
-#' @return A Recipe object
 
 recipe <- function(...) {
   dots <- list(...)
@@ -512,7 +556,8 @@ decode_step <- function(steps) {
 #' @param file A character string specifying the file path.
 #' @return NULL.
 #' @keywords utils
-#' @details This function encodes the Recipe object and writes it to a JSON file.
+#' @details This function encodes the Recipe object
+#'   and writes it to a JSON file.
 #' @examples
 #' r <- recipe(
 #'   name = "Example", user = "Test",
@@ -521,6 +566,7 @@ decode_step <- function(steps) {
 #' )
 #' f <- tempfile(fileext = ".json")
 #' save_recipe(r, f)
+#' @family recipes
 #' @export
 
 save_recipe <- function(recipe, file) {
@@ -540,18 +586,23 @@ save_recipe <- function(recipe, file) {
     downloads = recipe$downloads,
     categories = lapply(recipe$categories, function(c) c$to_list()),
     certification = recipe$certification$to_list(),
-    user_info = if (!is.null(recipe$user_info)) recipe$user_info$to_list() else NULL,
+    user_info = if (!is.null(recipe$user_info))
+      recipe$user_info$to_list() else NULL,
     doc = list(
       input_variables = doc_info$input_variables,
       output_variables = doc_info$output_variables,
       pipeline = doc_info$pipeline
     ),
-    steps = recipe$steps
+    steps = recipe$steps,
+    labels = recipe$labels
   )
 
   recipe_data |>
     encoding_recipe() |>
-    jsonlite::write_json(path = file, simplifyVector = TRUE, auto_unbox = TRUE, pretty = TRUE)
+    jsonlite::write_json(
+      path = file, simplifyVector = TRUE,
+      auto_unbox = TRUE, pretty = TRUE
+    )
 
   message(
     glue::glue("The recipe has been saved in {file}")
@@ -582,7 +633,8 @@ recipe_to_json <- function(recipe) {
 #' @description Reads a Recipe object from a JSON file.
 #' @param file A character string specifying the file path.
 #' @return A Recipe object.
-#' @details This function reads a JSON file and decodes it into a Recipe object.
+#' @details This function reads a JSON file and
+#'   decodes it into a Recipe object.
 #' @keywords utils
 #' @examples
 #' r <- recipe(
@@ -594,6 +646,7 @@ recipe_to_json <- function(recipe) {
 #' save_recipe(r, f)
 #' r2 <- read_recipe(f)
 #' r2
+#' @family recipes
 #' @export
 
 read_recipe <- function(file) {
@@ -647,7 +700,9 @@ read_recipe <- function(file) {
         for (i in seq_len(nrow(raw_cats))) {
           row <- as.list(raw_cats[i, ])
           # Handle empty data.frame parents from simplifyVector
-          if (is.data.frame(row$parent) && (nrow(row$parent) == 0 || ncol(row$parent) == 0)) {
+          if (is.data.frame(row$parent) &&
+            (nrow(row$parent) == 0 ||
+              ncol(row$parent) == 0)) {
             row$parent <- NULL
           }
           categories[[i]] <- RecipeCategory$from_list(row)
@@ -679,7 +734,8 @@ read_recipe <- function(file) {
       name = json_data$name %||% "Unnamed Recipe",
       user = json_data$user %||% "Unknown",
       edition = json_data$edition %||% json_data$svy_edition %||% "Unknown",
-      survey_type = json_data$survey_type %||% json_data$svy_type %||% "Unknown",
+      survey_type = json_data$survey_type %||%
+        json_data$svy_type %||% "Unknown",
       default_engine = default_engine(),
       depends_on = json_data$depends_on %||% list(),
       description = json_data$description %||% "",
@@ -692,7 +748,8 @@ read_recipe <- function(file) {
       downloads = as.integer(json_data$downloads %||% 0),
       certification = certification,
       user_info = user_info,
-      version = json_data$version %||% "1.0.0"
+      version = json_data$version %||% "1.0.0",
+      labels = json_data$labels
     )
   } else {
     # Old format - just return steps for backward compatibility
@@ -713,7 +770,8 @@ read_recipe <- function(file) {
 #'   Supported formats: "YYYY", "YYYYMM", "YYYY-YYYY"
 #' @param topic String specifying the recipe topic. Examples:
 #'   "labor_market", "poverty", "income", "demographics"
-#' @param allowMultiple Logical indicating whether multiple recipes are allowed.
+#' @param allowMultiple Logical indicating whether
+#'   multiple recipes are allowed.
 #'   If FALSE and multiple matches exist, returns the most recent one
 #'
 #' @return `Recipe` object or list of `Recipe` objects according to the
@@ -738,7 +796,8 @@ read_recipe <- function(file) {
 #' \strong{Working Offline:}
 #' \itemize{
 #'   \item Don't call \code{get_recipe()} - work directly with steps
-#'   \item Set \code{options(metasurvey.skip_recipes = TRUE)} to disable API calls
+#'   \item Set \code{options(metasurvey.skip_recipes = TRUE)}
+#'     to disable API calls
 #'   \item Load recipes from local files using \code{read_recipe()}
 #'   \item Create custom recipes with \code{recipe()}
 #' }
@@ -804,6 +863,7 @@ read_recipe <- function(file) {
 #' \code{\link{load_survey}} where recipes are used
 #'
 #' @keywords utils
+#' @family recipes
 #' @export
 
 get_recipe <- function(
@@ -813,7 +873,10 @@ get_recipe <- function(
     allowMultiple = TRUE) {
   # Check if recipes should be skipped (offline mode)
   if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
-    warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.",
+    warning(
+      paste0("Recipe API is disabled ",
+        "(metasurvey.skip_recipes = TRUE). ",
+        "Returning NULL."),
       call. = FALSE
     )
     return(NULL)
@@ -844,7 +907,8 @@ get_recipe <- function(
         "Failed to retrieve recipes from API: ", e$message, "\n",
         "  You can:\n",
         "    - Work without recipes by not calling get_recipe()\n",
-        "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
+        "    - Set options(metasurvey.skip_recipes",
+        " = TRUE) to disable recipe API calls\n",
         "    - Check your internet connection and try again",
         call. = FALSE
       )
@@ -861,10 +925,10 @@ get_recipe <- function(
 #' @param steps A list with the steps of the recipe
 #' @param doi A character string with the DOI of the recipe
 #' @param topic A character string with the topic of the recipe
-#' @keywords Steps
-#' @keywords Survey methods
+#' @keywords step
+#' @keywords survey
 #' @return A Recipe object
-#' @keywords Recipes
+#' @keywords recipe
 #' @examples
 #' \dontrun{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
@@ -875,6 +939,7 @@ get_recipe <- function(
 #'   steps = get_steps(svy)
 #' )
 #' }
+#' @family recipes
 #' @export
 
 steps_to_recipe <- function(
@@ -893,7 +958,7 @@ steps_to_recipe <- function(
       steps_call = eval(lapply(
         steps,
         function(step) {
-          deparse(step$call)
+          paste(deparse(step$call, width.cutoff = 500L), collapse = " ")
         }
       )),
       doi = doi,
@@ -907,7 +972,10 @@ steps_to_recipe <- function(
 # that may call get_distinct_recipes() directly
 get_distinct_recipes <- function(recipe) {
   tryCatch(
-    length(unique(vapply(seq_along(recipe), function(x) recipe[[x]]$id, character(1)))),
+    length(unique(vapply(
+      seq_along(recipe),
+      function(x) recipe[[x]]$id, character(1)
+    ))),
     error = function(e) 0
   )
 }
@@ -927,6 +995,7 @@ get_distinct_recipes <- function(recipe) {
 #' publish_recipe(r)
 #' length(list_recipes())
 #' @keywords utils
+#' @family recipes
 #' @export
 
 publish_recipe <- function(recipe) {
@@ -945,7 +1014,16 @@ publish_recipe <- function(recipe) {
 #' @param x A Recipe object
 #' @param ... Additional arguments (currently unused)
 #' @return Invisibly returns the Recipe object
-#' @keywords Recipes
+#' @examples
+#' rec <- Recipe$new(
+#'   id = "r1", name = "Example", user = "tester",
+#'   edition = "2023", survey_type = "test",
+#'   default_engine = "data.table", depends_on = list(),
+#'   description = "Demo recipe", steps = list()
+#' )
+#' print(rec)
+#' @keywords recipe
+#' @family recipes
 #' @export
 print.Recipe <- function(x, ...) {
   doc_info <- x$doc()
@@ -958,7 +1036,8 @@ print.Recipe <- function(x, ...) {
   # Metadata
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
   ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
-  cat(crayon::silver("Survey:  "), x$survey_type, " / ", ed_str, "\n", sep = "")
+  cat(crayon::silver("Survey:  "),
+    x$survey_type, " / ", ed_str, "\n", sep = "")
   cat(crayon::silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
     cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
@@ -984,13 +1063,16 @@ print.Recipe <- function(x, ...) {
   # Categories
   if (length(x$categories) > 0) {
     cat_names <- vapply(x$categories, function(c) c$name, character(1))
-    cat(crayon::silver("Categories: "), paste(cat_names, collapse = ", "), "\n", sep = "")
+    cat(crayon::silver("Categories: "),
+      paste(cat_names, collapse = ", "), "\n", sep = "")
   }
 
   # Input variables
   if (length(doc_info$input_variables) > 0) {
     cat(crayon::bold(crayon::blue(paste0(
-      "\n\u2500\u2500 Requires (", length(doc_info$input_variables), " variables) \u2500\u2500\n"
+      "\n\u2500\u2500 Requires (",
+      length(doc_info$input_variables),
+      " variables) \u2500\u2500\n"
     ))))
     cat("  ", paste(doc_info$input_variables, collapse = ", "), "\n", sep = "")
   }
@@ -998,7 +1080,9 @@ print.Recipe <- function(x, ...) {
   # Pipeline
   if (length(doc_info$pipeline) > 0) {
     cat(crayon::bold(crayon::blue(paste0(
-      "\n\u2500\u2500 Pipeline (", length(doc_info$pipeline), " steps) \u2500\u2500\n"
+      "\n\u2500\u2500 Pipeline (",
+      length(doc_info$pipeline),
+      " steps) \u2500\u2500\n"
     ))))
     for (step_info in doc_info$pipeline) {
       outputs_str <- if (length(step_info$outputs) > 0) {
@@ -1027,7 +1111,9 @@ print.Recipe <- function(x, ...) {
   # Output variables
   if (length(doc_info$output_variables) > 0) {
     cat(crayon::bold(crayon::blue(paste0(
-      "\n\u2500\u2500 Produces (", length(doc_info$output_variables), " variables) \u2500\u2500\n"
+      "\n\u2500\u2500 Produces (",
+      length(doc_info$output_variables),
+      " variables) \u2500\u2500\n"
     ))))
 
     output_details <- lapply(doc_info$pipeline, function(step) {
@@ -1052,7 +1138,14 @@ print.Recipe <- function(x, ...) {
       })
       cat("  ", paste(unlist(output_parts), collapse = ", "), "\n", sep = "")
     } else {
-      cat("  ", paste(doc_info$output_variables, collapse = ", "), "\n", sep = "")
+      cat(
+        "  ",
+        paste(
+          doc_info$output_variables,
+          collapse = ", "
+        ),
+        "\n", sep = ""
+      )
     }
   }
 
