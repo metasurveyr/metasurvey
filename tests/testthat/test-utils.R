@@ -534,3 +534,51 @@ test_that("validate_replicate errors when replicate_id not in survey", {
     "not found"
   )
 })
+
+
+# --- Merged from test-set_engine.R ---
+
+test_that(
+  "Engine por defecto",
+  {
+    testthat::expect_message(
+      set_engine(),
+      "Engine: data.table"
+    )
+  }
+)
+
+
+test_that(
+  "Engine no soportado",
+  {
+    testthat::expect_error(
+      set_engine("python")
+    )
+  }
+)
+
+
+test_that(
+  "Custom engine",
+  {
+    testthat::expect_message(
+      set_engine("tidyverse"),
+      "Engine: tidyverse"
+    )
+  }
+)
+
+# --- Tests recovered from coverage-boost ---
+
+test_that("extract_time_pattern handles annual format", {
+  result <- metasurvey:::extract_time_pattern("2023")
+  expect_equal(result$periodicity, "Annual")
+  expect_equal(result$year, 2023)
+})
+
+test_that("extract_time_pattern handles YYYYMM format", {
+  result <- metasurvey:::extract_time_pattern("202305")
+  expect_equal(result$periodicity, "Monthly")
+  expect_equal(result$month, 5)
+})

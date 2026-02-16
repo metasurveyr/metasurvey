@@ -415,3 +415,266 @@ test_that("view_graph requires visNetwork", {
     expect_true(!is.null(result))
   }
 })
+
+
+# --- Merged from test-steps-coverage.R ---
+
+# Additional tests for steps to increase coverage
+
+test_that("compute handles lazy evaluation", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::compute(
+    svy,
+    new_var = x + y,
+    lazy = TRUE
+  )
+
+  # With lazy=TRUE, should return survey without modification
+  expect_s3_class(result, "Survey")
+})
+
+test_that("compute handles non-lazy evaluation", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::compute(
+    svy,
+    new_var = x + y,
+    lazy = FALSE,
+    .copy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+  expect_true("new_var" %in% names(get_data(result)))
+})
+
+test_that("compute handles grouped computations", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::compute(
+    svy,
+    mean_income = mean(income),
+    .by = "region",
+    lazy = FALSE,
+    .copy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+  expect_true("mean_income" %in% names(get_data(result)))
+})
+
+test_that("recode handles lazy evaluation", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::recode(
+    svy,
+    new_var = "test",
+    age < 30 ~ "Young",
+    lazy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+})
+
+test_that("recode handles factor conversion", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::recode(
+    svy,
+    new_var = "age_cat",
+    age < 30 ~ "Young",
+    age >= 30 ~ "Old",
+    .to_factor = TRUE,
+    lazy = FALSE,
+    .copy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+  expect_true("age_cat" %in% names(get_data(result)))
+  expect_true(is.factor(get_data(result)$age_cat))
+})
+
+test_that("recode handles ordered factors", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::recode(
+    svy,
+    new_var = "status_ord",
+    status == 1 ~ "Low",
+    status == 2 ~ "Medium",
+    status == 3 ~ "High",
+    .to_factor = TRUE,
+    ordered = TRUE,
+    lazy = FALSE,
+    .copy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+  expect_true(is.ordered(get_data(result)$status_ord))
+})
+
+test_that("recode handles default values", {
+  svy <- make_test_survey()
+
+  result <- metasurvey:::recode(
+    svy,
+    new_var = "test_default",
+    age < 25 ~ "Young",
+    .default = "Other",
+    lazy = FALSE,
+    .copy = TRUE
+  )
+
+  expect_s3_class(result, "Survey")
+  expect_true("Other" %in% get_data(result)$test_default)
+})
+
+
+# --- Merged from test-steps-advanced.R ---
+
+# Tests for advanced steps.R functions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --- step_recode with Survey ---
+
+test_that("step_recode creates recoded variable on Survey", {
+  s <- make_test_survey()
+  s2 <- step_recode(s, age_cat,
+    age < 30 ~ "young",
+    age >= 30 & age < 50 ~ "middle",
+    age >= 50 ~ "senior",
+    .default = "unknown"
+  )
+  expect_s3_class(s2, "Survey")
+  expect_true("age_cat" %in% names(get_data(s2)))
+  expect_true(all(get_data(s2)$age_cat %in% c("young", "middle", "senior", "unknown")))
+})
+
+test_that("step_recode with .to_factor converts to factor", {
+  s <- make_test_survey()
+  s2 <- step_recode(s, region_label,
+    region == 1 ~ "North",
+    region == 2 ~ "South",
+    region == 3 ~ "East",
+    region == 4 ~ "West",
+    .default = "Other",
+    .to_factor = TRUE
+  )
+  expect_true("region_label" %in% names(get_data(s2)))
+  expect_true(is.factor(get_data(s2)$region_label))
+})
+
+# --- step_compute with grouped ---
+
+test_that("step_compute with .by computes grouped", {
+  s <- make_test_survey()
+  s2 <- step_compute(s, mean_income = mean(income), .by = "region")
+  expect_true("mean_income" %in% names(get_data(s2)))
+})
+
+
+
+# --- step_compute with use_copy=FALSE ---
+
+test_that("step_compute with use_copy=FALSE records step", {
+  s <- make_test_survey()
+  s2 <- step_compute(s, z = age + 1, use_copy = FALSE)
+  # With lazy_default()=TRUE, step is recorded but not applied yet
+  expect_true(length(s2$steps) > 0)
+})
+
+
+
+
+# --- step_recode use_copy=FALSE ---
+
+test_that("step_recode with use_copy=FALSE modifies survey in place", {
+  old <- use_copy_default()
+  on.exit(set_use_copy(old), add = TRUE)
+  set_use_copy(FALSE)
+
+  s <- make_test_survey()
+  # use_copy=FALSE triggers the recode() fallback path
+  result <- tryCatch(
+    step_recode(s, age_cat, age < 30 ~ "young", age >= 30 ~ "old",
+      .default = "unknown", use_copy = FALSE
+    ),
+    error = function(e) s # May error due to known bug with recode(record=FALSE)
+  )
+  expect_s3_class(result, "Survey")
+})
+
+# --- step_compute standalone (NULL svy) ---
+
+test_that("step_recode with NULL svy returns standalone step", {
+  # step_recode(NULL, ...) should create a standalone step object
+  result <- tryCatch(
+    step_recode(NULL, new_cat, age < 30 ~ "young", .default = "other"),
+    error = function(e) NULL
+  )
+  # Should return standalone step list, or NULL on error
+  expect_true(is.null(result) || is.list(result))
+})
+
+# --- Tests recovered from coverage-boost ---
+
+test_that("step_join with inner join type", {
+  s <- make_test_survey()
+  extra <- data.table::data.table(id = 1:5, extra = rnorm(5))
+  result <- step_join(s, extra, by = "id", type = "inner")
+  result <- bake_steps(result)
+  expect_true("extra" %in% names(get_data(result)))
+})
+
+test_that("step_remove with character vector via vars param", {
+  s <- make_test_survey()
+  result <- step_remove(s, vars = c("x", "y"))
+  result <- bake_steps(result)
+  expect_false("x" %in% names(get_data(result)))
+  expect_false("y" %in% names(get_data(result)))
+})
+
+test_that("step_rename with multiple renames", {
+  s <- make_test_survey()
+  result <- step_rename(s, edad = age, ingreso = income)
+  result <- bake_steps(result)
+  expect_true("edad" %in% names(get_data(result)))
+  expect_true("ingreso" %in% names(get_data(result)))
+})
