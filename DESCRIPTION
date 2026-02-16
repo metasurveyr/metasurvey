@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
-Version: 0.0.6
+Version: 0.0.7
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
@@ -12,7 +12,8 @@ Authors@R:
                 "aut",
                 "cre"
             ),
-            email = "mauro.loprete@icloud.com"
+            email = "mauro.loprete@icloud.com",
+            comment = c(ORCID = "0000-0003-1560-0183")
         ),
         person(
             given = "Natalia",
@@ -20,7 +21,8 @@ Authors@R:
             role = c(
                 "aut"
             ),
-            email = "natalia.dasilva@fcea.edu.uy"
+            email = "natalia.dasilva@fcea.edu.uy",
+            comment = c(ORCID = "0000-0002-6031-7451")
         ),
         person(
             given = "Fabricio",

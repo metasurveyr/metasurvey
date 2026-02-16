@@ -1,3 +1,52 @@
+# metasurvey 0.0.7
+
+## New features
+
+* `Recipe$to_list()` and `RecipeWorkflow$to_list()` now include
+  `metasurvey_version` for reproducibility tracking.
+
+## Bug fixes
+
+* Fixed `bake_step()` crash when executing `step_recode()`: removed invalid
+  `record=FALSE` argument passed to internal `recode()`.
+* Fixed `bake_steps_survey()` iterating over the original survey's steps
+  instead of the cloned copy, causing inconsistent state.
+* Fixed `bake_recipes()` environment leakage: recipe step evaluation now
+  uses an isolated `new.env()` instead of the calling `environment()`.
+* Removed redundant `copy()` in `compute()` and `recode()` — the
+  `shallow_clone()` already handles data copying.
+* `step_join()` now uses `merge.data.table()` directly and `set_data()`
+  instead of assigning to `$data`.
+* Fixed Shiny admin panel memory leak: replaced dynamic
+  `observe→lapply→observeEvent` pattern with delegated event handlers.
+* Removed `invalidateLater(0)` from admin panel refresh.
+
+## Security
+
+* `store_token()` no longer calls `Sys.setenv()` — API tokens are stored
+  in R options only, not leaked to environment variables.
+* `token_expires_soon()` returns `TRUE` for `NULL`, malformed, or missing
+  `exp` claims, forcing token refresh instead of using potentially invalid tokens.
+* API error messages are sanitized to 200 characters maximum.
+* Added `validate_api_id()` with alphanumeric whitelist for recipe/workflow IDs.
+* Added password length validation (8–128 characters) in `api_register()`.
+* `api_download_recipe()` and `api_download_workflow()` now warn on failure
+  instead of silently swallowing errors.
+
+## Performance
+
+* Added `debounce(300)` on Shiny recipe search input to reduce excessive
+  reactivity.
+
+## Internal
+
+* Replaced `sapply()` with `vapply()` or `lapply()` across the codebase
+  for type-safe return values.
+* `set_engine()` uses `requireNamespace()` instead of `eval(install.packages(...))`.
+* `read_recipe()` now warns when step parsing falls back to raw strings.
+* Added ORCID identifiers for authors in DESCRIPTION.
+* Added ANDA fetch failure notification in Shiny explore module.
+
 # metasurvey 0.0.6
 
 ## Documentation
