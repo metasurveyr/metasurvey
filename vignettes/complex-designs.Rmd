@@ -18,21 +18,22 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-Complex survey designs require special handling for proper variance
-estimation. metasurvey manages the survey design automatically through the
-`Survey` object so you can focus on the analysis, not the plumbing.
+Complex sampling designs require special treatment for correct variance
+estimation. metasurvey manages the sampling design automatically through
+the `Survey` object, so that users can focus on the analysis rather than
+technical details.
 
-This vignette covers:
+This vignette covers the following topics:
 
 1. Creating surveys with different design types
-2. Configuring weights and engines
-3. Validating your processing pipeline
+2. Configuring weights and data engines
+3. Validating the processing pipeline
 4. Cross-checking results with the `survey` package
 
-## Setup
+## Initial Setup
 
 We use the Academic Performance Index (API) dataset from the `survey`
-package. It includes stratified, clustered, and simple random sample
+package. It includes stratified, cluster, and simple random sampling
 versions.
 
 ```{r setup}
@@ -44,11 +45,11 @@ data(api, package = "survey")
 dt_strat <- data.table(apistrat)
 ```
 
-## Survey Design Types
+## Sampling Design Types
 
 ### Simple Weighted Design
 
-The simplest design uses probability weights without clustering or
+The simplest design uses probability weights without clusters or
 stratification:
 
 ```{r simple}
@@ -64,7 +65,7 @@ svy_simple <- Survey$new(
 cat_design(svy_simple)
 ```
 
-### Inspecting the Design
+### Design Inspection
 
 ```{r inspect-design}
 # Check design type
@@ -76,8 +77,9 @@ get_metadata(svy_simple)
 
 ### Multiple Weight Types
 
-Many surveys provide different weights for different analysis periods (e.g.,
-annual vs monthly). metasurvey maps periodicity labels to weight columns:
+Many surveys provide different weights depending on the analysis period
+(for example, annual vs. monthly). metasurvey associates periodicity
+labels with weight columns:
 
 ```{r multi-weight}
 set.seed(42)
@@ -112,8 +114,8 @@ cat("Monthly estimate:", round(monthly_est$value, 1), "\n")
 
 ### Bootstrap Replicate Weights
 
-For surveys that provide bootstrap replicates (like Uruguay's ECH), use
-`add_replicate()` inside `add_weight()`:
+For surveys that provide bootstrap replicates (such as Uruguay's ECH),
+use `add_replicate()` inside `add_weight()`:
 
 ```{r bootstrap, eval = FALSE}
 # This example requires external files
@@ -153,7 +155,7 @@ show_engines()
 ### Lazy Processing
 
 By default, steps are recorded but not executed until `bake_steps()` is
-called. This enables validation before execution:
+called. This allows validations to be performed before execution:
 
 ```{r lazy}
 # Check current setting
@@ -165,7 +167,8 @@ lazy_default()
 
 ### Copy Behavior
 
-Control whether step operations modify data in-place or work on copies:
+You can control whether step operations modify the data in-place or work
+on copies:
 
 ```{r copy}
 # Current setting
@@ -179,7 +182,7 @@ use_copy_default()
 
 ### Design-Based Variance
 
-Standard variance estimation using the survey design:
+Standard variance estimation using the sampling design:
 
 ```{r variance}
 results <- workflow(
@@ -194,7 +197,7 @@ results
 
 ### Domain Estimation
 
-Compute estimates for subpopulations using `survey::svyby()`:
+Estimates for subpopulations can be computed using `survey::svyby()`:
 
 ```{r domain}
 domain_results <- workflow(
@@ -218,11 +221,12 @@ ratio_result <- workflow(
 ratio_result
 ```
 
-## Validating Your Pipeline
+## Pipeline Validation
 
 ### Step-by-Step Verification
 
-When building complex pipelines, verify each step independently:
+When building complex pipelines, it is useful to verify each step
+independently:
 
 ```{r validate-steps}
 # Step 1: Compute new variable
@@ -238,7 +242,8 @@ cat("Pending steps:", length(steps), "\n")
 
 ### Cross-Validation with the survey Package
 
-Compare metasurvey workflow results with direct `survey` package calls:
+You can compare metasurvey `workflow()` results with direct calls to the
+`survey` package:
 
 ```{r cross-validate}
 # Method 1: Direct survey package
@@ -261,9 +266,10 @@ cat("Match:", all.equal(
 ), "\n")
 ```
 
-### Visualizing the Pipeline
+### Pipeline Visualization
 
-Use `view_graph()` to visualize the step dependency graph:
+You can use `view_graph()` to visualize the dependency graph between
+steps:
 
 ```{r view-graph, eval = FALSE}
 # Requires the visNetwork package
@@ -276,7 +282,8 @@ view_graph(svy_viz, init_step = "Load API data")
 
 ### Quality Assessment
 
-Evaluate estimation quality using the coefficient of variation:
+You can assess the quality of estimates using the coefficient of
+variation:
 
 ```{r cv-check}
 results_quality <- workflow(
@@ -298,7 +305,7 @@ for (i in seq_len(nrow(results_quality))) {
 
 ### Recipe Validation
 
-Verify that recipes and their steps are consistent:
+You can verify that recipes and their steps are consistent:
 
 ```{r roundtrip}
 # Create steps and recipe
@@ -323,18 +330,20 @@ my_recipe$validate(svy_rt)
 
 ## Validation Checklist
 
-Before deploying a survey processing pipeline, verify:
+Before putting a survey processing pipeline into production, the
+following should be verified:
 
-1. **Data integrity** -- row counts, column names, and data types after
+1. **Data integrity** -- row count, column names, and data types after
    each step
 2. **Weight validation** -- weight columns exist and are positive
-3. **Design verification** -- survey design matches the expected
+3. **Design verification** -- the sampling design matches the expected
    specification (PSU, strata, weights)
-4. **Recipe reproducibility** -- save and reload recipes, verify JSON
-   round-trip
-5. **Cross-validation** -- compare key estimates with published values or
-   direct `survey` package calls
-6. **CV thresholds** -- flag estimates with high coefficients of variation
+4. **Recipe reproducibility** -- save and reload recipes, verify the
+   JSON round-trip
+5. **Cross-validation** -- compare key estimates with published values
+   or direct calls to the `survey` package
+6. **CV thresholds** -- flag estimates with high coefficients of
+   variation
 
 ```{r checklist}
 validate_pipeline <- function(svy) {
@@ -362,19 +371,19 @@ validate_pipeline(svy_simple)
 
 ## Best Practices
 
-1. **Always use appropriate weights** -- never compute unweighted statistics
-   from survey data
+1. **Always use appropriate weights** -- never compute unweighted
+   statistics from survey data
 2. **Use replicate weights when available** -- they provide more robust
    variance estimates
-3. **Check domain sample sizes** -- combine small domains when CVs are too
-   high
-4. **Document your design** -- include design specification, weight
+3. **Check sample sizes by domain** -- combine small domains when CVs
+   are too high
+4. **Document the design** -- include the design specification, weight
    construction, and variance method
 5. **Cross-validate key estimates** -- compare with published values or
    alternative methods
 
 ## Next Steps
 
-- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow`, and publishable estimations
+- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow`, and publishable estimates
 - **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Longitudinal analysis with `RotativePanelSurvey` and `PoolSurvey`
-- **[Getting Started](getting-started.html)** -- Review the basics of steps and survey objects
+- **[Getting Started](getting-started.html)** -- Review the basics of steps and Survey objects
