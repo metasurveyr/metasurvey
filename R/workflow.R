@@ -190,7 +190,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
             seq_along(survey[[x]]),
             function(i) {
               survey_item <- survey[[x]][[i]]
-              
+
               # Ensure design is initialized before using it
               survey_item$ensure_design()
 
@@ -421,7 +421,9 @@ cat_estimation.svyratio <- function(estimation, call) {
   }
 
   # Only auto-capture if surveys have recipes
-  if (length(recipe_ids) == 0) return(NULL)
+  if (length(recipe_ids) == 0) {
+    return(NULL)
+  }
 
   # Extract weight specification from first survey with weights
   weight_spec <- NULL

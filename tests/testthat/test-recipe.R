@@ -118,7 +118,7 @@ test_that("Recipe clone creates independent copy", {
 
 test_that("recipe validates all required metadata present", {
   svy <- make_test_survey()
-  
+
   # Missing description - should error
   expect_error(
     recipe(name = "incomplete", user = "tester", svy = svy)
@@ -129,14 +129,14 @@ test_that("recipe extracts survey metadata correctly", {
   svy <- make_test_survey()
   svy$edition <- "2024"
   svy$type <- "ech"
-  
+
   r <- recipe(
     name = "metadata test",
     user = "tester",
     svy = svy,
     description = "Testing metadata extraction"
   )
-  
+
   expect_equal(r$edition, "2024")
   expect_equal(r$survey_type, "ech")
 })
@@ -176,7 +176,7 @@ test_that("Recipe fields store correct types", {
     doi = "10.1234/test",
     topic = "economics"
   )
-  
+
   expect_type(r$name, "character")
   expect_type(r$edition, "character")
   expect_type(r$depends_on, "list")
@@ -186,7 +186,7 @@ test_that("Recipe fields store correct types", {
 
 test_that("recipe with doi stores it correctly", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "doi test",
     user = "researcher",
@@ -194,7 +194,7 @@ test_that("recipe with doi stores it correctly", {
     description = "Testing DOI",
     doi = "10.5281/zenodo.12345"
   )
-  
+
   # Check if doi is captured (implementation dependent)
   expect_type(r$doi, "character")
 })
@@ -221,19 +221,19 @@ test_that("bake_recipes applies steps to survey data", {
 
 test_that("save_recipe and read_recipe roundtrip works", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "roundtrip test",
     user = "tester",
     svy = svy,
     description = "Testing save and load"
   )
-  
+
   tmp <- tempfile(fileext = ".json")
   on.exit(unlink(tmp), add = TRUE)
-  
+
   save_recipe(r, tmp)
-  
+
   # Read back
   content <- jsonlite::read_json(tmp, simplifyVector = TRUE)
   expect_equal(content$name, "roundtrip test")
@@ -243,51 +243,54 @@ test_that("save_recipe and read_recipe roundtrip works", {
 
 test_that("encoding_recipe converts steps to strings", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "encoding test",
     user = "tester",
     svy = svy,
     description = "Testing encoding"
   )
-  
+
   # Recipe encoding is internal function
   expect_true(is.list(r$steps))
 })
 
 test_that("get_recipe validates parameters", {
   # This would normally hit an API - we skip if API not available
-  
-  result <- suppressWarnings(tryCatch({
-    get_recipe(svy_type = "nonexistent_survey_type")
-  }, error = function(e) e))
-  
+
+  result <- suppressWarnings(tryCatch(
+    {
+      get_recipe(svy_type = "nonexistent_survey_type")
+    },
+    error = function(e) e
+  ))
+
   # Should either return NULL or an error
   expect_true(is.null(result) || inherits(result, "error"))
 })
 
 test_that("read_recipe reads from file", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "read test",
     user = "tester",
     svy = svy,
     description = "Testing read"
   )
-  
+
   tmp <- tempfile(fileext = ".json")
   on.exit(unlink(tmp), add = TRUE)
-  
+
   save_recipe(r, tmp)
-  
+
   # read_recipe should decode steps
   expect_true(file.exists(tmp))
 })
 
 test_that("Recipe handles doi parameter", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "doi test",
     user = "researcher",
@@ -295,13 +298,13 @@ test_that("Recipe handles doi parameter", {
     description = "Testing DOI field",
     doi = "10.1234/test.doi"
   )
-  
+
   expect_equal(r$doi, "10.1234/test.doi")
 })
 
 test_that("Recipe handles topic parameter", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "topic test",
     user = "researcher",
@@ -309,7 +312,7 @@ test_that("Recipe handles topic parameter", {
     description = "Testing topic field",
     topic = "labor_market"
   )
-  
+
   expect_equal(r$topic, "labor_market")
 })
 
@@ -341,7 +344,7 @@ test_that("encoding_recipe converts steps to strings", {
 
 test_that("decode_step converts string steps back to calls", {
   step_strings <- c(
-    'step_compute(svy, x = 1)',
+    "step_compute(svy, x = 1)",
     'step_recode(svy, y, z == 1 ~ "a")'
   )
   result <- metasurvey:::decode_step(step_strings)

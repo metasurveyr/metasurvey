@@ -34,8 +34,10 @@ anda_fetch_ddi <- function(catalog_id,
   )
 
   if (httr::status_code(resp) != 200) {
-    stop("Failed to download DDI from ANDA5 (catalog_id=", catalog_id,
-         "): HTTP ", httr::status_code(resp))
+    stop(
+      "Failed to download DDI from ANDA5 (catalog_id=", catalog_id,
+      "): HTTP ", httr::status_code(resp)
+    )
   }
 
   dest_file
@@ -78,10 +80,10 @@ anda_catalog_search <- function(keyword = "ECH",
   }
 
   data.frame(
-    id         = vapply(rows, function(r) as.character(r$id %||% ""), character(1)),
-    title      = vapply(rows, function(r) r$title %||% "", character(1)),
+    id = vapply(rows, function(r) as.character(r$id %||% ""), character(1)),
+    title = vapply(rows, function(r) r$title %||% "", character(1)),
     year_start = vapply(rows, function(r) r$year_start %||% "", character(1)),
-    year_end   = vapply(rows, function(r) r$year_end %||% "", character(1)),
+    year_end = vapply(rows, function(r) r$year_end %||% "", character(1)),
     stringsAsFactors = FALSE
   )
 }
@@ -189,7 +191,7 @@ anda_parse_variables <- function(ddi_xml_path) {
 anda_list_editions <- function() {
   ids <- .ech_catalog_ids
   data.frame(
-    edition    = names(ids),
+    edition = names(ids),
     catalog_id = unlist(ids, use.names = FALSE),
     stringsAsFactors = FALSE
   )
@@ -300,8 +302,10 @@ anda_download_microdata <- function(edition,
   m <- regmatches(html, gregexpr(pattern, html))[[1]]
 
   if (length(m) == 0) {
-    return(data.frame(id = character(), title = character(),
-                      stringsAsFactors = FALSE))
+    return(data.frame(
+      id = character(), title = character(),
+      stringsAsFactors = FALSE
+    ))
   }
 
   ids <- gsub('.*data-file-id="(\\d+)".*', "\\1", m)
@@ -331,8 +335,10 @@ anda_download_microdata <- function(edition,
           idx <- grep(ech_pattern, titles_lower)
         }
         if (length(idx) == 0) {
-          stop("No implantation file found for ECH ", edition,
-               ". Available: ", paste(resources$title, collapse = ", "))
+          stop(
+            "No implantation file found for ECH ", edition,
+            ". Available: ", paste(resources$title, collapse = ", ")
+          )
         }
         resources[idx[1], , drop = FALSE]
       } else {
@@ -343,11 +349,15 @@ anda_download_microdata <- function(edition,
         exclude <- grep("fies|microdatos_lp|estrato", titles_lower)
         if (length(idx_csv) > 0) {
           idx_csv <- setdiff(idx_csv, exclude)
-          if (length(idx_csv) > 0) return(resources[idx_csv[1], , drop = FALSE])
+          if (length(idx_csv) > 0) {
+            return(resources[idx_csv[1], , drop = FALSE])
+          }
         }
         if (length(idx_sav) > 0) {
           idx_sav <- setdiff(idx_sav, exclude)
-          if (length(idx_sav) > 0) return(resources[idx_sav[1], , drop = FALSE])
+          if (length(idx_sav) > 0) {
+            return(resources[idx_sav[1], , drop = FALSE])
+          }
         }
         # Fallback: first non-excluded resource
         main <- setdiff(seq_len(nrow(resources)), exclude)
@@ -358,8 +368,10 @@ anda_download_microdata <- function(edition,
     "monthly" = {
       idx <- grep("^ech_\\d{2}_", titles_lower)
       if (length(idx) == 0) {
-        stop("No monthly files found for ECH ", edition,
-             ". Monthly data is available from 2022 onwards.")
+        stop(
+          "No monthly files found for ECH ", edition,
+          ". Monthly data is available from 2022 onwards."
+        )
       }
       resources[idx, , drop = FALSE]
     },
@@ -388,9 +400,11 @@ anda_download_microdata <- function(edition,
       if (length(idx) == 0) stop("No poverty line data found for ECH ", edition)
       resources[idx[1], , drop = FALSE]
     },
-    stop("Unknown resource type '", resource,
-         "'. Use: implantation, monthly, bootstrap_annual, ",
-         "bootstrap_monthly, bootstrap_quarterly, bootstrap_semestral, poverty")
+    stop(
+      "Unknown resource type '", resource,
+      "'. Use: implantation, monthly, bootstrap_annual, ",
+      "bootstrap_monthly, bootstrap_quarterly, bootstrap_semestral, poverty"
+    )
   )
 
   selected
@@ -461,7 +475,9 @@ anda_download_microdata <- function(edition,
         .anda_extract_file(a, dirname(a), paste0(label, "_sub")),
         error = function(e) NULL
       )
-      if (!is.null(sub_result)) return(sub_result)
+      if (!is.null(sub_result)) {
+        return(sub_result)
+      }
     }
   }
 
@@ -470,10 +486,18 @@ anda_download_microdata <- function(edition,
   sav_files <- grep("\\.(sav|SAV)$", extracted, value = TRUE)
   xlsx_files <- grep("\\.(xlsx|XLSX)$", extracted, value = TRUE)
 
-  if (length(csv_files) > 0) return(csv_files[1])
-  if (length(sav_files) > 0) return(sav_files[1])
-  if (length(xlsx_files) > 0) return(xlsx_files[1])
-  if (length(extracted) > 0) return(extracted[1])
+  if (length(csv_files) > 0) {
+    return(csv_files[1])
+  }
+  if (length(sav_files) > 0) {
+    return(sav_files[1])
+  }
+  if (length(xlsx_files) > 0) {
+    return(xlsx_files[1])
+  }
+  if (length(extracted) > 0) {
+    return(extracted[1])
+  }
 
   stop("Extracted archive was empty for ECH ", label)
 }
@@ -499,9 +523,9 @@ anda_variables <- function(survey_type = "ech", var_names = NULL) {
   }
 
   data.frame(
-    name  = vapply(vars, function(v) v$name %||% "", character(1)),
+    name = vapply(vars, function(v) v$name %||% "", character(1)),
     label = vapply(vars, function(v) v$label %||% "", character(1)),
-    type  = vapply(vars, function(v) v$type %||% "unknown", character(1)),
+    type = vapply(vars, function(v) v$type %||% "unknown", character(1)),
     stringsAsFactors = FALSE
   )
 }
@@ -515,6 +539,8 @@ anda_variables <- function(survey_type = "ech", var_names = NULL) {
 #' @keywords internal
 anda_variable_detail <- function(survey_type = "ech", var_name) {
   vars <- api_get_anda_variables(survey_type, var_name)
-  if (length(vars) == 0) return(NULL)
+  if (length(vars) == 0) {
+    return(NULL)
+  }
   vars[[1]]
 }

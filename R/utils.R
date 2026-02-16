@@ -485,7 +485,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
       svy_periodicity = NA
     ))
   }
-  
+
   time_pattern <- extract_time_pattern(svy_edition)
 
   if (is.null(time_pattern$type) && is.null(svy_type)) {
@@ -773,7 +773,9 @@ add_replicate <- function(
 #' @keywords internal
 #' @noRd
 .path_to_source <- function(path, edition = NULL) {
-  if (is.null(path)) return(NULL)
+  if (is.null(path)) {
+    return(NULL)
+  }
 
   # Use first path if vector
   p <- if (length(path) > 1) path[1] else path
@@ -817,7 +819,9 @@ add_replicate <- function(
 #' @keywords internal
 #' @noRd
 .serialize_weight_spec <- function(weight_list, edition = NULL) {
-  if (is.null(weight_list) || length(weight_list) == 0) return(NULL)
+  if (is.null(weight_list) || length(weight_list) == 0) {
+    return(NULL)
+  }
 
   lapply(weight_list, function(w) {
     if (is.character(w)) {
@@ -855,7 +859,9 @@ add_replicate <- function(
 #' @return Named list compatible with add_weight() output
 #' @export
 resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
-  if (is.null(weight_spec)) return(NULL)
+  if (is.null(weight_spec)) {
+    return(NULL)
+  }
 
   resolved <- lapply(weight_spec, function(ws) {
     if (ws$type == "simple") {
@@ -918,8 +924,10 @@ reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
 
   if (is.null(data_path) && tolower(wf$survey_type) == "ech") {
     edition <- as.character(wf$edition)
-    data_path <- anda_download_microdata(edition, resource = "implantation",
-                                          dest_dir = dest_dir)
+    data_path <- anda_download_microdata(edition,
+      resource = "implantation",
+      dest_dir = dest_dir
+    )
   }
 
   if (is.null(data_path)) {
@@ -954,9 +962,9 @@ reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
 #' @return Character string with the quality category (e.g. "Excelente", "Bueno").
 #' @keywords utils
 #' @examples
-#' evaluate_cv(3)   # "Excelente"
-#' evaluate_cv(12)  # "Bueno"
-#' evaluate_cv(30)  # "Utilizar con precaucion"
+#' evaluate_cv(3) # "Excelente"
+#' evaluate_cv(12) # "Bueno"
+#' evaluate_cv(30) # "Utilizar con precaucion"
 #' @export
 
 evaluate_cv <- function(cv) {

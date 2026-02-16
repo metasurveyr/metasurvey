@@ -295,7 +295,7 @@ test_that("anda_parse_variables deduplicates by name", {
   writeLines(ddi_xml, tmp)
 
   result <- anda_parse_variables(tmp)
-  expect_length(result, 2)  # EDAD deduplicated
+  expect_length(result, 2) # EDAD deduplicated
 })
 
 # ── .anda_extract_file SAV detection ──────────────────────────────────────────

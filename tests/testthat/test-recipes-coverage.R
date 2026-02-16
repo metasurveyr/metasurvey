@@ -14,7 +14,7 @@ test_that("Recipe stores all fields correctly", {
     doi = "10.1234/test",
     topic = "labor"
   )
-  
+
   expect_equal(r$name, "comprehensive test")
   expect_equal(r$edition, "2023")
   expect_equal(r$survey_type, "ech")
@@ -27,21 +27,21 @@ test_that("Recipe stores all fields correctly", {
 
 test_that("recipe() creates recipe without steps", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "no steps",
     user = "tester",
     svy = svy,
     description = "Recipe without steps"
   )
-  
+
   expect_s3_class(r, "Recipe")
   expect_type(r$steps, "list")
 })
 
 test_that("recipe() with id parameter sets id", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "with id",
     user = "tester",
@@ -49,13 +49,13 @@ test_that("recipe() with id parameter sets id", {
     description = "Recipe with custom id",
     id = "custom-123"
   )
-  
+
   expect_equal(r$id, "custom-123")
 })
 
 test_that("recipe() with doi parameter sets doi", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "with doi",
     user = "tester",
@@ -63,13 +63,13 @@ test_that("recipe() with doi parameter sets doi", {
     description = "Recipe with DOI",
     doi = "10.5555/test"
   )
-  
+
   expect_equal(r$doi, "10.5555/test")
 })
 
 test_that("recipe() with topic parameter sets topic", {
   svy <- make_test_survey()
-  
+
   r <- recipe(
     name = "with topic",
     user = "tester",
@@ -77,13 +77,13 @@ test_that("recipe() with topic parameter sets topic", {
     description = "Recipe with topic",
     topic = "demographics"
   )
-  
+
   expect_equal(r$topic, "demographics")
 })
 
 test_that("encoding_recipe encodes steps as strings", {
   svy <- make_test_survey()
-  
+
   r <- Recipe$new(
     name = "test",
     edition = "2023",
@@ -97,7 +97,7 @@ test_that("encoding_recipe encodes steps as strings", {
     doi = NULL,
     topic = NULL
   )
-  
+
   encoded <- metasurvey:::encoding_recipe(r)
   expect_type(encoded$steps[[1]], "character")
 })
@@ -196,7 +196,7 @@ test_that("search_recipes filters by keyword", {
 
 test_that("recipe with multiple depends_on aggregates correctly", {
   svy <- make_test_survey()
-  
+
   r <- Recipe$new(
     name = "deps test",
     edition = "2023",
@@ -210,7 +210,7 @@ test_that("recipe with multiple depends_on aggregates correctly", {
     doi = NULL,
     topic = NULL
   )
-  
+
   expect_length(r$depends_on, 3)
 })
 
@@ -401,8 +401,10 @@ test_that("Recipe$validate is case-insensitive", {
 test_that("Recipe$to_list serializes all fields", {
   cat1 <- RecipeCategory$new(name = "labor", description = "Labor market")
   inst <- RecipeUser$new(name = "INE", user_type = "institution", email = "ine@test.com")
-  reviewer <- RecipeUser$new(name = "Reviewer", user_type = "institutional_member",
-                             email = "rev@test.com", institution = inst)
+  reviewer <- RecipeUser$new(
+    name = "Reviewer", user_type = "institutional_member",
+    email = "rev@test.com", institution = inst
+  )
   cert <- RecipeCertification$new(level = "reviewed", certified_by = reviewer)
   user_info <- RecipeUser$new(name = "Test User", user_type = "individual", email = "test@test.com")
 
@@ -466,8 +468,10 @@ test_that("Recipe$certify updates certification", {
   expect_equal(r$certification$level, "community")
 
   inst <- RecipeUser$new(name = "INE", user_type = "institution", email = "ine@test.com")
-  certifier <- RecipeUser$new(name = "Reviewer", user_type = "institutional_member",
-                              email = "rev@test.com", institution = inst)
+  certifier <- RecipeUser$new(
+    name = "Reviewer", user_type = "institutional_member",
+    email = "rev@test.com", institution = inst
+  )
   r$certify(certifier, "reviewed")
   expect_equal(r$certification$level, "reviewed")
 })

@@ -129,7 +129,9 @@ RecipeUser <- R6::R6Class(
 
 # Class-level from_list
 RecipeUser$from_list <- function(lst) {
-  if (is.null(lst)) return(NULL)
+  if (is.null(lst)) {
+    return(NULL)
+  }
   inst <- NULL
   if (!is.null(lst$institution)) {
     inst <- RecipeUser$from_list(lst$institution)

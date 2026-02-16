@@ -31,19 +31,22 @@ shiny_api_request <- function(method, endpoint, body = NULL, params = NULL, toke
     headers <- c(headers, "Authorization" = paste("Bearer", token))
   }
 
-  resp <- tryCatch({
-    if (method == "GET") {
-      httr::GET(url, httr::add_headers(.headers = headers), httr::timeout(10))
-    } else {
-      httr::POST(
-        url,
-        body = jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
-        httr::add_headers(.headers = headers),
-        encode = "raw",
-        httr::timeout(10)
-      )
-    }
-  }, error = function(e) NULL)
+  resp <- tryCatch(
+    {
+      if (method == "GET") {
+        httr::GET(url, httr::add_headers(.headers = headers), httr::timeout(10))
+      } else {
+        httr::POST(
+          url,
+          body = jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
+          httr::add_headers(.headers = headers),
+          encode = "raw",
+          httr::timeout(10)
+        )
+      }
+    },
+    error = function(e) NULL
+  )
 
   if (is.null(resp)) {
     return(list(ok = FALSE, error = "Connection failed"))
@@ -85,7 +88,9 @@ shiny_register <- function(name, email, password, user_type = "individual", inst
   if (isTRUE(result$ok) && !is.null(result$token)) {
     inst_obj <- if (!is.null(institution) && nzchar(institution) && user_type == "institutional_member") {
       metasurvey::RecipeUser$new(name = institution, user_type = "institution")
-    } else NULL
+    } else {
+      NULL
+    }
     user <- metasurvey::RecipeUser$new(
       name = name, user_type = user_type, email = email, institution = inst_obj
     )
@@ -104,7 +109,9 @@ shiny_register <- function(name, email, password, user_type = "individual", inst
     )
     inst_obj <- if (!is.null(institution) && nzchar(institution) && user_type == "institutional_member") {
       metasurvey::RecipeUser$new(name = institution, user_type = "institution")
-    } else NULL
+    } else {
+      NULL
+    }
     user <- metasurvey::RecipeUser$new(
       name = name, user_type = user_type, email = email, institution = inst_obj
     )
@@ -116,7 +123,8 @@ shiny_register <- function(name, email, password, user_type = "individual", inst
 
 shiny_login <- function(email, password) {
   result <- shiny_api_request("POST", "auth/login",
-                              body = list(email = email, password = password))
+    body = list(email = email, password = password)
+  )
 
   if (isTRUE(result$ok) && !is.null(result$user)) {
     doc <- result$user
@@ -300,15 +308,20 @@ shiny_increment_workflow_downloads <- function(workflow_id) {
 # ── ANDA variable metadata ───────────────────────────────────────────────────
 
 shiny_fetch_anda_variables <- function(survey_type, var_names) {
-  if (length(var_names) == 0) return(list())
+  if (length(var_names) == 0) {
+    return(list())
+  }
   params <- list(
     survey_type = survey_type,
     names = paste(tolower(var_names), collapse = ",")
   )
-  tryCatch({
-    result <- shiny_api_request("GET", "anda/variables", params = params)
-    if (isTRUE(result$ok)) result$variables %||% list() else list()
-  }, error = function(e) list())
+  tryCatch(
+    {
+      result <- shiny_api_request("GET", "anda/variables", params = params)
+      if (isTRUE(result$ok)) result$variables %||% list() else list()
+    },
+    error = function(e) list()
+  )
 }
 
 # ── Example recipes for local/demo mode ──────────────────────────────────────

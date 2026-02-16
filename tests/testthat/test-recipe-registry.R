@@ -176,10 +176,14 @@ test_that("rank_by_certification sorts by cert then downloads", {
   member <- RecipeUser$new(name = "M", user_type = "institutional_member", institution = inst)
 
   r1 <- make_eco_recipe("Community_High", "u", downloads = 200)
-  r2 <- make_eco_recipe("Official_Low", "u", downloads = 10,
-                        certification = RecipeCertification$new("official", certified_by = inst))
-  r3 <- make_eco_recipe("Reviewed_Mid", "u", downloads = 50,
-                        certification = RecipeCertification$new("reviewed", certified_by = member))
+  r2 <- make_eco_recipe("Official_Low", "u",
+    downloads = 10,
+    certification = RecipeCertification$new("official", certified_by = inst)
+  )
+  r3 <- make_eco_recipe("Reviewed_Mid", "u",
+    downloads = 50,
+    certification = RecipeCertification$new("reviewed", certified_by = member)
+  )
   reg$register(r1)
   reg$register(r2)
   reg$register(r3)
@@ -218,8 +222,10 @@ test_that("save and load round-trip", {
   reg <- RecipeRegistry$new()
   labor <- RecipeCategory$new("labor_market", "Labor")
   inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  r1 <- make_eco_recipe("Saved", "u", downloads = 42, categories = list(labor),
-                        certification = RecipeCertification$new("official", certified_by = inst))
+  r1 <- make_eco_recipe("Saved", "u",
+    downloads = 42, categories = list(labor),
+    certification = RecipeCertification$new("official", certified_by = inst)
+  )
   reg$register(r1)
 
   tmp <- tempfile(fileext = ".json")
@@ -272,8 +278,10 @@ test_that("stats returns summary", {
   inst <- RecipeUser$new(name = "I", user_type = "institution")
 
   r1 <- make_eco_recipe("A", "u", categories = list(labor))
-  r2 <- make_eco_recipe("B", "u", categories = list(income),
-                        certification = RecipeCertification$new("official", certified_by = inst))
+  r2 <- make_eco_recipe("B", "u",
+    categories = list(income),
+    certification = RecipeCertification$new("official", certified_by = inst)
+  )
   r3 <- make_eco_recipe("C", "u", categories = list(labor, income))
   reg$register(r1)
   reg$register(r2)

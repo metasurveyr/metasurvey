@@ -12,9 +12,11 @@ test_that("Survey$new() creates object with correct fields", {
   expect_equal(nrow(s$data), 5)
   expect_equal(s$type, "ech")
   expect_equal(s$default_engine, "data.table")
-  
+
   # Trigger design initialization
-  s <- s %>% step_compute(y = x * 2) %>% bake_steps()
+  s <- s %>%
+    step_compute(y = x * 2) %>%
+    bake_steps()
   expect_true(length(s$design) > 0)
 })
 
@@ -77,7 +79,9 @@ test_that("add_step registers steps correctly", {
 test_that("Survey design is created from weight", {
   s <- make_test_survey()
   # Trigger design initialization
-  s <- s %>% step_compute(z = age * 2) %>% bake_steps()
+  s <- s %>%
+    step_compute(z = age * 2) %>%
+    bake_steps()
   expect_true(length(s$design) >= 1)
   expect_true(inherits(s$design[[1]], "survey.design"))
 })
@@ -132,7 +136,7 @@ test_that("Survey handles multiple weights", {
     w_annual = runif(10),
     w_monthly = runif(10)
   )
-  
+
   s <- Survey$new(
     data = df,
     edition = "2023",
@@ -141,11 +145,13 @@ test_that("Survey handles multiple weights", {
     engine = "data.table",
     weight = add_weight(annual = "w_annual", monthly = "w_monthly")
   )
-  
+
   expect_equal(length(s$weight), 2)
-  
+
   # Trigger design initialization
-  s <- s %>% step_compute(y = id * 2) %>% bake_steps()
+  s <- s %>%
+    step_compute(y = id * 2) %>%
+    bake_steps()
   expect_equal(length(s$design), 2)
 })
 
@@ -153,7 +159,7 @@ test_that("Survey clone creates independent copy", {
   s <- make_test_survey()
   s2 <- s$clone()
   s2$edition <- "2024"
-  
+
   expect_equal(as.character(s$edition), "2023")
   expect_equal(as.character(s2$edition), "2024")
 })
@@ -161,7 +167,7 @@ test_that("Survey clone creates independent copy", {
 test_that("Survey set_data validates input", {
   s <- make_test_survey()
   new_data <- data.table::data.table(id = 1:5, val = rnorm(5), w = 1)
-  
+
   s$set_data(new_data)
   expect_equal(nrow(s$data), 5)
 })
@@ -175,12 +181,17 @@ test_that("Survey get_recipe returns recipes list", {
 test_that("cat_design_type returns correct design description", {
   s <- make_test_survey()
   # Trigger design creation
-  s <- s %>% step_compute(y = id * 2) %>% bake_steps()
-  
-  result <- tryCatch({
-    metasurvey:::cat_design_type(s, "annual")
-  }, error = function(e) NULL)
-  
+  s <- s %>%
+    step_compute(y = id * 2) %>%
+    bake_steps()
+
+  result <- tryCatch(
+    {
+      metasurvey:::cat_design_type(s, "annual")
+    },
+    error = function(e) NULL
+  )
+
   # Function should return a character string or NULL
   expect_true(is.null(result) || is.character(result))
 })
@@ -191,7 +202,7 @@ test_that("Survey stores PSU correctly", {
     psu_var = rep(1:2, each = 5),
     w = 1
   )
-  
+
   s <- Survey$new(
     data = df,
     edition = "2023",
@@ -200,7 +211,7 @@ test_that("Survey stores PSU correctly", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   # PSU might not be assigned in current implementation
   # Just check survey is created
   expect_s3_class(s, "Survey")
@@ -227,7 +238,7 @@ test_that("cat_design generates design description", {
 
 test_that("cat_recipes handles multiple recipes", {
   s <- make_test_survey()
-  
+
   r1 <- Recipe$new(
     name = "recipe1",
     edition = "2023",
@@ -241,7 +252,7 @@ test_that("cat_recipes handles multiple recipes", {
     doi = NULL,
     topic = NULL
   )
-  
+
   r2 <- Recipe$new(
     name = "recipe2",
     edition = "2023",
@@ -255,7 +266,7 @@ test_that("cat_recipes handles multiple recipes", {
     doi = NULL,
     topic = NULL
   )
-  
+
   s$recipes <- list(r1, r2)
   result <- cat_recipes(s)
   expect_type(result, "character")
@@ -269,11 +280,11 @@ test_that("Survey handles empty recipes list", {
 
 test_that("Survey set methods work correctly", {
   s <- make_test_survey()
-  
+
   # Test set_edition
   s$set_edition("2024")
   expect_equal(as.character(s$get_edition()), "2024")
-  
+
   # Test set_type
   s$set_type("eph")
   expect_equal(s$get_type(), "eph")
@@ -281,13 +292,15 @@ test_that("Survey set methods work correctly", {
 
 test_that("Survey design is correctly structured", {
   s <- make_test_survey()
-  
+
   # Trigger design initialization
-  s <- s %>% step_compute(z = age * 2) %>% bake_steps()
-  
+  s <- s %>%
+    step_compute(z = age * 2) %>%
+    bake_steps()
+
   expect_true(is.list(s$design))
   expect_true(length(s$design) >= 1)
-  
+
   # Check design names match weight names
   expect_true(all(names(s$design) %in% names(s$weight)))
 })
@@ -392,7 +405,9 @@ test_that("design_active recomputes design", {
 test_that("cat_design_type returns design type for valid design", {
   s <- make_test_survey()
   # Trigger design initialization
-  s <- s %>% step_compute(z = age * 2) %>% bake_steps()
+  s <- s %>%
+    step_compute(z = age * 2) %>%
+    bake_steps()
   result <- cat_design_type(s, "annual")
   expect_true(is.character(result) || inherits(result, "glue"))
   expect_true(grepl("survey|Package|Variance", result, ignore.case = TRUE))
@@ -566,7 +581,7 @@ test_that("bake_recipes handles single Recipe object", {
     steps = list(quote(step_compute(., z = age + 1))),
     id = "r1", doi = NULL, topic = NULL
   )
-  s$recipes <- r  # Assign as object, not list
+  s$recipes <- r # Assign as object, not list
   s2 <- bake_recipes(s)
   expect_true("z" %in% names(get_data(s2)))
 })
@@ -665,9 +680,11 @@ test_that("Survey$new with PSU creates proper design", {
     weight = add_weight(annual = "w")
   )
   expect_s3_class(s, "Survey")
-  
+
   # Trigger design initialization
-  s <- s %>% step_compute(y = id * 2) %>% bake_steps()
+  s <- s %>%
+    step_compute(y = id * 2) %>%
+    bake_steps()
   expect_true(inherits(s$design[[1]], "survey.design"))
 })
 

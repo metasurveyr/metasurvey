@@ -22,12 +22,12 @@ library(jsonlite)
 library(mongolite)
 
 # ── Config ───────────────────────────────────────────────────────────────────
-MONGO_URI  <- Sys.getenv("METASURVEY_MONGO_URI", "")
-DATABASE   <- Sys.getenv("METASURVEY_DB", "metasurvey")
+MONGO_URI <- Sys.getenv("METASURVEY_MONGO_URI", "")
+DATABASE <- Sys.getenv("METASURVEY_DB", "metasurvey")
 CATALOG_ID <- as.integer(Sys.getenv("ANDA_CATALOG_ID", "767"))
 SURVEY_TYPE <- "ech"
-EDITION    <- "2024"
-BASE_URL   <- "https://www4.ine.gub.uy/Anda5"
+EDITION <- "2024"
+BASE_URL <- "https://www4.ine.gub.uy/Anda5"
 
 if (!nzchar(MONGO_URI)) {
   stop("METASURVEY_MONGO_URI is required.")
@@ -145,12 +145,15 @@ cat(sprintf("[cleanup] Cleared survey_type='%s'\n", SURVEY_TYPE))
 cat(sprintf("\n[insert] Inserting %d variables...\n", length(parsed)))
 errors <- 0L
 for (p in parsed) {
-  tryCatch({
-    db_anda$insert(toJSON(p, auto_unbox = TRUE, null = "null"))
-  }, error = function(e) {
-    message("  ERROR inserting ", p$name, ": ", e$message)
-    errors <<- errors + 1L
-  })
+  tryCatch(
+    {
+      db_anda$insert(toJSON(p, auto_unbox = TRUE, null = "null"))
+    },
+    error = function(e) {
+      message("  ERROR inserting ", p$name, ": ", e$message)
+      errors <<- errors + 1L
+    }
+  )
 }
 
 final_count <- db_anda$count()

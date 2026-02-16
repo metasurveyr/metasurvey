@@ -2,15 +2,15 @@ test_that("RotativePanelSurvey can be created", {
   # Create test surveys
   implantation <- make_test_survey(20)
   implantation$periodicity <- "annual"
-  
+
   follow_up1 <- make_test_survey(20)
   follow_up1$periodicity <- "quarterly"
   follow_up1$edition <- "2023-Q1"
-  
+
   follow_up2 <- make_test_survey(20)
   follow_up2$periodicity <- "quarterly"
   follow_up2$edition <- "2023-Q2"
-  
+
   # Create panel survey
   panel <- RotativePanelSurvey$new(
     implantation = implantation,
@@ -22,7 +22,7 @@ test_that("RotativePanelSurvey can be created", {
     workflows = list(),
     design = NULL
   )
-  
+
   expect_s3_class(panel, "RotativePanelSurvey")
   expect_equal(panel$type, "rotative")
   expect_equal(panel$default_engine, "data.table")
@@ -31,13 +31,13 @@ test_that("RotativePanelSurvey can be created", {
 test_that("RotativePanelSurvey validates follow-up periodicity", {
   implantation <- make_test_survey(20)
   implantation$periodicity <- "annual"
-  
+
   follow_up1 <- make_test_survey(20)
   follow_up1$periodicity <- "quarterly"
-  
+
   follow_up2 <- make_test_survey(20)
   follow_up2$periodicity <- "monthly"
-  
+
   expect_error(
     RotativePanelSurvey$new(
       implantation = implantation,
@@ -56,10 +56,10 @@ test_that("RotativePanelSurvey validates follow-up periodicity", {
 test_that("RotativePanelSurvey get methods work", {
   implantation <- make_test_survey(20)
   implantation$periodicity <- "annual"
-  
+
   follow_up1 <- make_test_survey(20)
   follow_up1$periodicity <- "quarterly"
-  
+
   panel <- RotativePanelSurvey$new(
     implantation = implantation,
     follow_up = list(follow_up1),
@@ -70,19 +70,19 @@ test_that("RotativePanelSurvey get methods work", {
     workflows = list(),
     design = NULL
   )
-  
+
   # Test get_implantation
   expect_identical(panel$get_implantation(), implantation)
-  
+
   # Test get_follow_up
   expect_length(panel$get_follow_up(), 1)
-  
+
   # Test get_type
   expect_equal(panel$get_type(), "rotative")
-  
+
   # Test get_default_engine
   expect_equal(panel$get_default_engine(), "data.table")
-  
+
   # Test get_steps
   steps <- panel$get_steps()
   expect_type(steps, "list")
@@ -93,15 +93,15 @@ test_that("extract_surveys works with basic input", {
   implantation <- make_test_survey(20)
   implantation$periodicity <- "annual"
   implantation$edition <- as.Date("2023-01-01")
-  
+
   follow_up1 <- make_test_survey(20)
   follow_up1$periodicity <- "quarterly"
   follow_up1$edition <- as.Date("2023-03-01")
-  
+
   follow_up2 <- make_test_survey(20)
   follow_up2$periodicity <- "quarterly"
   follow_up2$edition <- as.Date("2023-06-01")
-  
+
   panel <- RotativePanelSurvey$new(
     implantation = implantation,
     follow_up = list(follow_up1, follow_up2),
@@ -112,11 +112,11 @@ test_that("extract_surveys works with basic input", {
     workflows = list(),
     design = NULL
   )
-  
+
   # Test extraction by index
   result <- extract_surveys(panel, index = 1)
   expect_s3_class(result, "Survey")
-  
+
   # Test extraction by multiple indices
   result <- extract_surveys(panel, index = c(1, 2))
   expect_type(result, "list")

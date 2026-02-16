@@ -42,7 +42,7 @@ make_test_panel <- function() {
   implantation_data <- get_data(implantation)
   implantation_data[, `:=`(mes = 1, anio = 2023, numero = id)]
   implantation$periodicity <- "monthly"
-  
+
   RotativePanelSurvey$new(
     implantation = implantation,
     follow_up = list(),

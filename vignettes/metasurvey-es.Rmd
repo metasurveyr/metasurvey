@@ -77,14 +77,16 @@ n <- 200
 
 # Simular microdatos tipo ECH
 dt <- data.table(
-  numero     = 1:n,                                  # ID de hogar
-  e27        = sample(18:80, n, replace = TRUE),    # Edad
-  e26        = sample(c(1, 2), n, replace = TRUE),  # Sexo
-  ht11       = round(runif(n, 5000, 80000)),        # Ingreso hogar (pesos)
-  POBPCOAC   = sample(c(2, 3, 4, 5, 6), n, replace = TRUE, 
-                      prob = c(0.55, 0.03, 0.02, 0.03, 0.37)),  # Condición actividad
-  dpto       = sample(1:19, n, replace = TRUE),     # Departamento
-  pesoano    = round(runif(n, 0.5, 3.0), 4)         # Ponderador anual
+  numero = 1:n, # ID de hogar
+  e27 = sample(18:80, n, replace = TRUE), # Edad
+  e26 = sample(c(1, 2), n, replace = TRUE), # Sexo
+  ht11 = round(runif(n, 5000, 80000)), # Ingreso hogar (pesos)
+  POBPCOAC = sample(c(2, 3, 4, 5, 6), n,
+    replace = TRUE,
+    prob = c(0.55, 0.03, 0.02, 0.03, 0.37)
+  ), # Condición actividad
+  dpto = sample(1:19, n, replace = TRUE), # Departamento
+  pesoano = round(runif(n, 0.5, 3.0), 4) # Ponderador anual
 )
 
 # Crear objeto Survey
@@ -92,8 +94,8 @@ encuesta <- Survey$new(
   data    = dt,
   edition = "2023",
   type    = "ech",
-  psu     = NULL,              # Sin PSU para muestra aleatoria simple
-  engine  = "data.table",      # Manipulación rápida de datos
+  psu     = NULL, # Sin PSU para muestra aleatoria simple
+  engine  = "data.table", # Manipulación rápida de datos
   weight  = add_weight(annual = "pesoano")
 )
 ```
@@ -130,13 +132,12 @@ Use `step_compute()` para crear variables derivadas. El paquete automáticamente
 encuesta <- step_compute(encuesta,
   # Convertir ingreso a miles para mejor lectura
   ht11_miles = ht11 / 1000,
-  
+
   # Crear indicador de empleo siguiendo definiciones OIT
   ocupado = ifelse(POBPCOAC == 2, 1, 0),
-  
+
   # Población en edad de trabajar (14+ años, estándar ECH)
   edad_trabajar = ifelse(e27 >= 14, 1, 0),
-  
   comment = "Indicadores básicos de fuerza laboral"
 )
 ```
@@ -161,21 +162,21 @@ que coincide determina el valor.
 ```{r paso-recode}
 # Recodificar condición de actividad (POBPCOAC) en categorías significativas
 encuesta <- step_recode(encuesta, condicion_actividad,
-  POBPCOAC == 2      ~ "Ocupado",
-  POBPCOAC %in% 3:5  ~ "Desocupado",
-  POBPCOAC %in% 6:8  ~ "Inactivo",
+  POBPCOAC == 2 ~ "Ocupado",
+  POBPCOAC %in% 3:5 ~ "Desocupado",
+  POBPCOAC %in% 6:8 ~ "Inactivo",
   .default = "Sin clasificar",
   comment = "Condición de actividad - estándar OIT"
 )
 
 # Crear grupos etarios estándar para estadísticas laborales
 encuesta <- step_recode(encuesta, grupo_edad,
-  e27 < 25  ~ "Jóvenes (14-24)",
-  e27 < 45  ~ "Adultos (25-44)",
-  e27 < 65  ~ "Maduros (45-64)",
+  e27 < 25 ~ "Jóvenes (14-24)",
+  e27 < 45 ~ "Adultos (25-44)",
+  e27 < 65 ~ "Maduros (45-64)",
   .default = "Mayores (65+)",
-  .to_factor = TRUE,          # Convertir a factor
-  ordered = TRUE,              # Factor ordenado
+  .to_factor = TRUE, # Convertir a factor
+  ordered = TRUE, # Factor ordenado
   comment = "Grupos etarios para análisis laboral"
 )
 
@@ -193,9 +194,9 @@ encuesta <- step_recode(encuesta, genero,
 Renombrar variables para mayor claridad o consistencia:
 
 ```{r paso-rename}
-encuesta <- step_rename(encuesta, 
-  edad = e27,           # Renombrar e27 a edad
-  codigo_sexo = e26     # Mantener original como codigo_sexo
+encuesta <- step_rename(encuesta,
+  edad = e27, # Renombrar e27 a edad
+  codigo_sexo = e26 # Mantener original como codigo_sexo
 )
 ```
 
@@ -218,16 +219,18 @@ Use `step_join()` para combinar datos de referencia externos. Esto es útil para
 # Nombres de departamentos y regiones
 datos_departamentos <- data.table(
   dpto = 1:19,
-  nombre_dpto = c("Montevideo", "Artigas", "Canelones", "Cerro Largo", 
-                  "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-                  "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
-                  "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"),
+  nombre_dpto = c(
+    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
+    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
+    "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
+    "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
+  ),
   region = c("Montevideo", rep("Interior", 18))
 )
 
-encuesta <- step_join(encuesta, 
-  datos_departamentos, 
-  by = "dpto", 
+encuesta <- step_join(encuesta,
+  datos_departamentos,
+  by = "dpto",
   type = "left",
   comment = "Agregar nombres de departamentos y regiones"
 )
@@ -248,7 +251,7 @@ El historial de pasos se preserva para documentación y reproducibilidad:
 
 ```{r obtener-pasos, eval=FALSE}
 pasos <- get_steps(encuesta)
-length(pasos)  # Número de pasos de transformación
+length(pasos) # Número de pasos de transformación
 
 # Ver detalles de un paso
 cat("Paso 1:", pasos[[1]]$name, "\n")
@@ -306,9 +309,9 @@ Calcule varias estadísticas en una sola llamada:
 ```{r workflow-multi}
 resultados <- workflow(
   list(encuesta),
-  survey::svymean(~ht11, na.rm = TRUE),              # Ingreso promedio
-  survey::svytotal(~ocupado, na.rm = TRUE),          # Total ocupados
-  survey::svymean(~condicion_actividad, na.rm = TRUE),  # Distribución empleo
+  survey::svymean(~ht11, na.rm = TRUE), # Ingreso promedio
+  survey::svytotal(~ocupado, na.rm = TRUE), # Total ocupados
+  survey::svymean(~condicion_actividad, na.rm = TRUE), # Distribución empleo
   estimation_type = "annual"
 )
 
@@ -382,15 +385,15 @@ Cree una receta a partir de sus pasos desarrollados:
 ```{r crear-receta}
 # Convertir pasos actuales a una receta
 receta_laboral <- steps_to_recipe(
-  name        = "Indicadores Laborales ECH",
-  user        = "Instituto Nacional de Estadística",
-  svy         = encuesta,
+  name = "Indicadores Laborales ECH",
+  user = "Instituto Nacional de Estadística",
+  svy = encuesta,
   description = paste(
     "Indicadores laborales estándar siguiendo definiciones OIT.",
     "Crea condición de actividad, grupos etarios y género."
   ),
-  steps       = get_steps(encuesta),
-  topic       = "estadisticas_laborales"
+  steps = get_steps(encuesta),
+  topic = "estadisticas_laborales"
 )
 
 class(receta_laboral)
@@ -401,12 +404,12 @@ O defina una receta desde cero:
 
 ```{r receta-definir, eval=FALSE}
 receta_minima <- recipe(
-  name        = "Demografía Básica",
-  user        = "analista",
-  svy         = survey_empty(type = "ech", edition = "2023"),
+  name = "Demografía Básica",
+  user = "analista",
+  svy = survey_empty(type = "ech", edition = "2023"),
   description = "Recodificación demográfica básica",
-  topic       = "demografia",
-  
+  topic = "demografia",
+
   # Definir pasos en línea
   step_recode(
     genero,
@@ -414,7 +417,6 @@ receta_minima <- recipe(
     e26 == 2 ~ "Mujer",
     .default = "Otro"
   ),
-  
   step_recode(
     grupo_edad,
     e27 < 18 ~ "Menor",
@@ -458,13 +460,13 @@ metasurvey proporciona configuraciones globales que puede ajustar:
 
 ```{r config}
 # Verificar configuración actual de procesamiento lazy
-lazy_default()  # TRUE = pasos registrados pero no ejecutados inmediatamente
+lazy_default() # TRUE = pasos registrados pero no ejecutados inmediatamente
 
-# Verificar comportamiento de copia de datos  
-use_copy_default()  # TRUE = operar en copias (más seguro pero más lento)
+# Verificar comportamiento de copia de datos
+use_copy_default() # TRUE = operar en copias (más seguro pero más lento)
 
 # Ver motores de computación disponibles
-show_engines()  # "data.table", "dplyr", etc.
+show_engines() # "data.table", "dplyr", etc.
 ```
 
 Cambiar configuraciones para su sesión:

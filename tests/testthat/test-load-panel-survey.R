@@ -21,14 +21,14 @@ test_that("load_panel_survey validates weight time pattern", {
     unlink(temp_impl, recursive = TRUE)
     unlink(temp_follow, recursive = TRUE)
   })
-  
+
   # Create test CSV files
   df_impl <- data.table::data.table(id = 1:10, w = 1)
   df_follow <- data.table::data.table(id = 1:10, w = 1)
-  
+
   data.table::fwrite(df_impl, file.path(temp_impl, "implantation.csv"))
   data.table::fwrite(df_follow, file.path(temp_follow, "follow1.csv"))
-  
+
   # Test with multiple weight patterns (should error)
   expect_error(
     load_panel_survey(
