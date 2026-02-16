@@ -43,14 +43,12 @@
 #' @return An object of class \code{RecipeWorkflow}.
 #'
 #' @examples
-#' \dontrun{
 #' wf <- RecipeWorkflow$new(
 #'   name = "Labor workflow", description = "Unemployment rate",
 #'   user = "test", survey_type = "ech", edition = "2023",
 #'   estimation_type = "annual", recipe_ids = "r_001",
 #'   calls = list("svymean(~desocupado, na.rm = TRUE)")
 #' )
-#' }
 #'
 #' @seealso \code{\link{save_workflow}}, \code{\link{read_workflow}},
 #'   \code{\link{workflow}}
@@ -318,9 +316,14 @@ workflow_from_list <- function(lst) {
 #' @family workflows
 #' @export
 #' @examples
-#' \dontrun{
-#' save_workflow(wf, "my_workflow.json")
-#' }
+#' wf <- RecipeWorkflow$new(
+#'   name = "Example", description = "Test",
+#'   survey_type = "ech", edition = "2023",
+#'   recipe_id = "r_001", estimation_type = "svymean",
+#'   variables = "income"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_workflow(wf, f)
 save_workflow <- function(wf, file) {
   if (!inherits(wf, "RecipeWorkflow")) {
     stop("Can only save RecipeWorkflow objects")
@@ -341,9 +344,15 @@ save_workflow <- function(wf, file) {
 #' @family workflows
 #' @export
 #' @examples
-#' \dontrun{
-#' wf <- read_workflow("my_workflow.json")
-#' }
+#' wf <- RecipeWorkflow$new(
+#'   name = "Example", description = "Test",
+#'   survey_type = "ech", edition = "2023",
+#'   recipe_id = "r_001", estimation_type = "svymean",
+#'   variables = "income"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_workflow(wf, f)
+#' wf2 <- read_workflow(f)
 read_workflow <- function(file) {
   json_data <- jsonlite::read_json(
     file, simplifyVector = TRUE

@@ -54,7 +54,7 @@ r <- recipe(
 )
 r
 
-\dontrun{
+\donttest{
 # Recipe with steps
 r2 <- recipe(
   name = "Labor Market ECH",

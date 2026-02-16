@@ -20,9 +20,12 @@ The Survey object (invisibly), modified in place
 Tidy wrapper for \code{svy$add_recipe(recipe)}.
 }
 \examples{
-\dontrun{
-svy <- add_recipe(svy, my_recipe)
-}
+svy <- survey_empty(type = "ech", edition = "2023")
+r <- recipe(
+  name = "Example", user = "test",
+  svy = svy, description = "Example"
+)
+svy <- add_recipe(svy, r)
 }
 \seealso{
 Other recipes: 

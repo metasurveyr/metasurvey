@@ -18,13 +18,21 @@
 #' @keywords panel-survey
 #'
 #' @examples
-#' \dontrun{
+#' impl <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023", type = "ech", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' fu1 <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023_01", type = "ech", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' panel <- RotativePanelSurvey$new(
-#'   implantation = impl_survey, follow_up = list(fu1, fu2),
+#'   implantation = impl, follow_up = list(fu1),
 #'   type = "ech", default_engine = "data.table",
 #'   steps = list(), recipes = list(), workflows = list(), design = NULL
 #' )
-#' }
 #'
 #' @family panel-surveys
 #' @export
@@ -200,7 +208,7 @@ RotativePanelSurvey <- R6Class(
 #' with a warning.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
@@ -319,10 +327,11 @@ extract_surveys <- function(RotativePanelSurvey,
 
   apply_func <- if (use.parallel) {
     if (!requireNamespace("parallel", quietly = TRUE)) {
-      stop(paste0(
-        "Package 'parallel' is required ",
-        "for parallel processing"
-      ), call. = FALSE)
+      stop(
+        "Package 'parallel' is required. ",
+        "Install it with: install.packages('parallel')",
+        call. = FALSE
+      )
     }
     parallel::mclapply
   } else {
@@ -410,9 +419,17 @@ extract_surveys <- function(RotativePanelSurvey,
 #' @keywords panel-survey
 #'
 #' @examples
-#' \dontrun{
+#' s1 <- Survey$new(
+#'   data = data.table::data.table(id = 1:3, w = 1),
+#'   edition = "2023", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' s2 <- Survey$new(
+#'   data = data.table::data.table(id = 4:6, w = 1),
+#'   edition = "2023", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
-#' }
 #'
 #' @family panel-surveys
 #' @export
@@ -481,7 +498,7 @@ PoolSurvey <- R6Class(
 #' - Evaluation of sampling design quality
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load ECH rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
@@ -569,7 +586,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' - Each follow-up maintains methodological consistency with implantation
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",

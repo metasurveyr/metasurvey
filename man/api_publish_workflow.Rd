@@ -17,7 +17,7 @@ Publish a RecipeWorkflow object to the API.
 Requires authentication.
 }
 \examples{
-\dontrun{
+\donttest{
 api_publish_workflow(my_workflow)
 }
 }

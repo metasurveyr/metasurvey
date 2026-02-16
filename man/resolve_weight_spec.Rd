@@ -21,7 +21,7 @@ For replicate weights with ANDA sources, automatically downloads the
 replicate file.
 }
 \examples{
-\dontrun{
+\donttest{
 wf <- api_get_workflow("w_123")
 weight <- resolve_weight_spec(wf$weight_spec)
 }

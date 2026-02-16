@@ -76,7 +76,7 @@ If no \code{path} is provided, an empty Survey object is created that can
 be used to build step pipelines without initial data.
 }
 \examples{
-\dontrun{
+\donttest{
 # Load ECH 2023 with recipes
 ech_2023 <- load_survey(
   path = "data/ech_2023.csv",

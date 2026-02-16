@@ -16,9 +16,9 @@ List of RecipeWorkflow objects that reference this recipe.
 Cross-reference query: find all workflows that reference a given recipe ID.
 }
 \examples{
-\dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 wfs <- find_workflows_for_recipe("recipe_001")
-}
+length(wfs)
 
 }
 \seealso{

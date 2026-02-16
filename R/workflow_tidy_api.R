@@ -8,9 +8,9 @@
 #' @return List of matching RecipeWorkflow objects.
 #'
 #' @examples
-#' \dontrun{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' results <- search_workflows("labor market")
-#' }
+#' length(results)
 #'
 #' @seealso \code{\link{filter_workflows}}, \code{\link{rank_workflows}}
 #' @family tidy-api
@@ -27,9 +27,9 @@ search_workflows <- function(query) {
 #' @return List of RecipeWorkflow objects sorted by downloads.
 #'
 #' @examples
-#' \dontrun{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' top5 <- rank_workflows(n = 5)
-#' }
+#' length(top5)
 #'
 #' @seealso \code{\link{search_workflows}}, \code{\link{filter_workflows}}
 #' @family tidy-api
@@ -51,10 +51,9 @@ rank_workflows <- function(n = NULL) {
 #' @return List of matching RecipeWorkflow objects.
 #'
 #' @examples
-#' \dontrun{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' ech_wf <- filter_workflows(survey_type = "ech")
-#' for_recipe <- filter_workflows(recipe_id = "recipe_001")
-#' }
+#' length(ech_wf)
 #'
 #' @seealso \code{\link{search_workflows}},
 #'   \code{\link{find_workflows_for_recipe}}
@@ -75,9 +74,9 @@ filter_workflows <- function(survey_type = NULL, edition = NULL,
 #' @return List of all RecipeWorkflow objects.
 #'
 #' @examples
-#' \dontrun{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' all <- list_workflows()
-#' }
+#' length(all)
 #'
 #' @seealso \code{\link{search_workflows}}, \code{\link{filter_workflows}}
 #' @family tidy-api
@@ -94,9 +93,9 @@ list_workflows <- function() {
 #' @return List of RecipeWorkflow objects that reference this recipe.
 #'
 #' @examples
-#' \dontrun{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' wfs <- find_workflows_for_recipe("recipe_001")
-#' }
+#' length(wfs)
 #'
 #' @seealso \code{\link{filter_workflows}}
 #' @family tidy-api
@@ -113,10 +112,14 @@ find_workflows_for_recipe <- function(recipe_id) {
 #' @return NULL (called for side effect).
 #'
 #' @examples
-#' \dontrun{
-#' set_workflow_backend("local", path = "workflows.json")
-#' publish_workflow(my_workflow)
-#' }
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
+#' wf <- RecipeWorkflow$new(
+#'   name = "Example", description = "Test",
+#'   survey_type = "ech", edition = "2023",
+#'   recipe_id = "r_001", estimation_type = "svymean",
+#'   variables = "income"
+#' )
+#' publish_workflow(wf)
 #'
 #' @seealso \code{\link{set_workflow_backend}}, \code{\link{RecipeWorkflow}}
 #' @family workflows

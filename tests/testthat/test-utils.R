@@ -342,13 +342,18 @@ test_that("configure_api strips trailing slash", {
   expect_equal(getOption("metasurvey.api_url"), "https://test.example.com")
 })
 
-test_that("api_url returns default when no config is set", {
+test_that("api_url returns NULL when no config is set", {
   old <- getOption("metasurvey.api_url")
-  on.exit(options(metasurvey.api_url = old), add = TRUE)
+  old_env <- Sys.getenv("METASURVEY_API_URL", unset = NA)
+  on.exit({
+    options(metasurvey.api_url = old)
+    if (is.na(old_env)) Sys.unsetenv("METASURVEY_API_URL")
+    else Sys.setenv(METASURVEY_API_URL = old_env)
+  }, add = TRUE)
   options(metasurvey.api_url = NULL)
+  Sys.setenv(METASURVEY_API_URL = "")
   url <- metasurvey:::api_url()
-  expect_true(is.character(url))
-  expect_true(nzchar(url))
+  expect_null(url)
 })
 
 # --- add_replicate tests ---

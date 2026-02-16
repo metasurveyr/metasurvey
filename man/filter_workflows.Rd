@@ -29,10 +29,9 @@ Filter workflows in the active backend by survey type, edition, recipe ID,
 or certification level.
 }
 \examples{
-\dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 ech_wf <- filter_workflows(survey_type = "ech")
-for_recipe <- filter_workflows(recipe_id = "recipe_001")
-}
+length(ech_wf)
 
 }
 \seealso{

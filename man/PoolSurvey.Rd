@@ -13,7 +13,7 @@ surveys grouped by specific periods
 It provides methods to access and manipulate the grouped surveys.
 }
 \examples{
-\dontrun{
+\donttest{
 pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
 }
 

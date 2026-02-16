@@ -52,7 +52,7 @@ ech_weights <- add_weight(
   annual = "pesoano"
 )
 
-\dontrun{
+\donttest{
 # With bootstrap replicates for variance estimation
 weights_with_replicates <- add_weight(
   monthly = add_replicate(
