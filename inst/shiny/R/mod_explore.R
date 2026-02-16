@@ -116,6 +116,11 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       load_recipes()
     })
 
+    # Debounce search input to avoid excessive reactivity
+    search_debounced <- shiny::reactive({
+      input$search
+    }) |> shiny::debounce(300)
+
     # Filtered recipes
     filtered <- shiny::reactive({
       recipes <- all_recipes()
@@ -123,7 +128,7 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
         return(list())
       }
 
-      query <- tolower(trimws(input$search %||% ""))
+      query <- tolower(trimws(search_debounced() %||% ""))
       svy <- input$filter_svy %||% ""
       category <- input$filter_category %||% ""
       cert <- input$filter_cert %||% ""
@@ -245,7 +250,13 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       ))
       anda_labels <- tryCatch(
         shiny_fetch_anda_variables(recipe$survey_type, all_vars),
-        error = function(e) list()
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not fetch ANDA variables:", e$message),
+            type = "warning", duration = 5
+          )
+          list()
+        }
       )
 
       shiny::showModal(
