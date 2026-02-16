@@ -123,8 +123,9 @@ anda_catalog_search <- function(keyword = "ECH",
 anda_parse_variables <- function(ddi_xml_path) {
   if (!requireNamespace("xml2", quietly = TRUE)) {
     stop(
-      "Package 'xml2' is required for DDI parsing. ",
-      "Install with: install.packages('xml2')"
+      "Package 'xml2' is required. ",
+      "Install it with: install.packages('xml2')",
+      call. = FALSE
     )
   }
 
@@ -161,7 +162,7 @@ anda_parse_variables <- function(ddi_xml_path) {
     # Label
     labl_node <- xml2::xml_find_first(v, "d1:labl", ns)
     label <- if (!is.null(labl_node) &&
-                 !inherits(labl_node, "xml_missing")) {
+      !inherits(labl_node, "xml_missing")) {
       trimws(xml2::xml_text(labl_node))
     } else {
       ""
@@ -170,7 +171,7 @@ anda_parse_variables <- function(ddi_xml_path) {
     # Description text
     txt_node <- xml2::xml_find_first(v, "d1:txt", ns)
     description <- if (!is.null(txt_node) &&
-                      !inherits(txt_node, "xml_missing")) {
+      !inherits(txt_node, "xml_missing")) {
       trimws(xml2::xml_text(txt_node))
     } else {
       ""
@@ -185,7 +186,7 @@ anda_parse_variables <- function(ddi_xml_path) {
         cat_val <- xml2::xml_find_first(cat, "d1:catValu", ns)
         cat_lab <- xml2::xml_find_first(cat, "d1:labl", ns)
         if (!inherits(cat_val, "xml_missing") &&
-            !inherits(cat_lab, "xml_missing")) {
+          !inherits(cat_lab, "xml_missing")) {
           val <- trimws(xml2::xml_text(cat_val))
           lab <- trimws(xml2::xml_text(cat_lab))
           value_labels[[val]] <- lab
@@ -263,7 +264,7 @@ anda_list_editions <- function() {
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' path <- anda_download_microdata("2023", resource = "implantation")
 #' svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
 #' }
@@ -533,7 +534,8 @@ anda_download_microdata <- function(edition,
   if (is_zip) {
     extract_dir <- file.path(dest_dir, paste0("ech_", label))
     dir.create(
-      extract_dir, showWarnings = FALSE,
+      extract_dir,
+      showWarnings = FALSE,
       recursive = TRUE
     )
     utils::unzip(raw_path, exdir = extract_dir)
@@ -542,14 +544,15 @@ anda_download_microdata <- function(edition,
   } else if (is_rar) {
     if (!requireNamespace("archive", quietly = TRUE)) {
       stop(
-        "The downloaded file is a RAR archive. Install the 'archive' package ",
-        "to extract it:\n  install.packages('archive')",
+        "Package 'archive' is required. ",
+        "Install it with: install.packages('archive')",
         call. = FALSE
       )
     }
     extract_dir <- file.path(dest_dir, paste0("ech_", label))
     dir.create(
-      extract_dir, showWarnings = FALSE,
+      extract_dir,
+      showWarnings = FALSE,
       recursive = TRUE
     )
     archive::archive_extract(raw_path, dir = extract_dir)
@@ -574,7 +577,8 @@ anda_download_microdata <- function(edition,
 #' @keywords internal
 .anda_find_data_file <- function(dir, label) {
   extracted <- list.files(
-    dir, recursive = TRUE, full.names = TRUE
+    dir,
+    recursive = TRUE, full.names = TRUE
   )
 
   # If extraction produced another archive, extract recursively
@@ -583,7 +587,7 @@ anda_download_microdata <- function(edition,
     value = TRUE, ignore.case = TRUE
   )
   if (length(archives) > 0 &&
-      length(extracted) == length(archives)) {
+    length(extracted) == length(archives)) {
     for (a in archives) {
       sub_result <- tryCatch(
         .anda_extract_file(
@@ -630,7 +634,7 @@ anda_download_microdata <- function(edition,
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 anda_variables <- function(survey_type = "ech", var_names = NULL) {

@@ -36,7 +36,7 @@ List of Recipe objects
 Fetch recipes with optional search and filters.
 }
 \examples{
-\dontrun{
+\donttest{
 configure_api("https://metasurvey-api.example.com")
 recipes <- api_list_recipes(survey_type = "ech")
 }

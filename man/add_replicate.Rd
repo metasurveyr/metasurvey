@@ -55,7 +55,7 @@ This function is typically used within \code{add_weight()} for more
 complex weight configurations.
 }
 \examples{
-\dontrun{
+\donttest{
 # Basic configuration with external file
 annual_replicates <- add_replicate(
   weight = "pesoano",

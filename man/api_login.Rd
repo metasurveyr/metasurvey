@@ -19,7 +19,7 @@ Authenticate with the metasurvey API. On success the JWT
 token is stored automatically.
 }
 \examples{
-\dontrun{
+\donttest{
 api_login("ana@example.com", "s3cret")
 }
 }

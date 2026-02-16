@@ -23,7 +23,7 @@ the data, resolves the weight configuration, fetches referenced recipes,
 and returns a Survey object ready for \code{workflow()} estimation.
 }
 \examples{
-\dontrun{
+\donttest{
 wf <- api_get_workflow("w_123")
 svy <- reproduce_workflow(wf)
 }

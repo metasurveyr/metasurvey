@@ -194,8 +194,12 @@ auth_server <- function(id, auth_state) {
 
       inst_arg <- if (
         user_type == "institutional_member" &&
-        nzchar(institution)
-      ) institution else NULL
+          nzchar(institution)
+      ) {
+        institution
+      } else {
+        NULL
+      }
 
       result <- tryCatch(
         shiny_register(name, email, password, user_type, inst_arg),
