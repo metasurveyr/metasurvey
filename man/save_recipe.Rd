@@ -18,7 +18,8 @@ NULL.
 Saves a Recipe object to a file in JSON format.
 }
 \details{
-This function encodes the Recipe object and writes it to a JSON file.
+This function encodes the Recipe object
+and writes it to a JSON file.
 }
 \examples{
 r <- recipe(
@@ -29,4 +30,18 @@ r <- recipe(
 f <- tempfile(fileext = ".json")
 save_recipe(r, f)
 }
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}
 \keyword{utils}

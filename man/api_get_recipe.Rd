@@ -21,3 +21,9 @@ Get recipe(s) by ID
 api_get_recipe("r_1739654400_742")
 }
 }
+\seealso{
+Other api-recipes: 
+\code{\link{api_list_recipes}()},
+\code{\link{api_publish_recipe}()}
+}
+\concept{api-recipes}

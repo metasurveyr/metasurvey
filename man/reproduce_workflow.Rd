@@ -28,3 +28,15 @@ wf <- api_get_workflow("w_123")
 svy <- reproduce_workflow(wf)
 }
 }
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
+}
+\concept{workflows}

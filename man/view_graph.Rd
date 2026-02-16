@@ -18,16 +18,30 @@ A visNetwork interactive graph of the survey processing steps.
 View graph
 }
 \examples{
-\dontrun{
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+\donttest{
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
 )
 svy <- step_compute(svy, age2 = age * 2)
 view_graph(svy)
 }
 }
-\keyword{Steps}
-\keyword{Survey}
-\keyword{methods}
+\seealso{
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()}
+}
+\concept{steps}
+\keyword{step}
+\keyword{survey}

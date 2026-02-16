@@ -9,8 +9,10 @@ explore_recipes(port = NULL, host = "127.0.0.1", launch.browser = TRUE)
 \arguments{
 \item{port}{Integer port number, or NULL for automatic.}
 
-\item{host}{Character. The host to listen on. Defaults to \code{"127.0.0.1"}
-for local use. Set to \code{"0.0.0.0"} for server deployments (Railway, etc.).}
+\item{host}{Character. The host to listen on. Defaults
+to \code{"127.0.0.1"} for local use. Set to
+\code{"0.0.0.0"} for server deployments (Railway,
+etc.).}
 
 \item{launch.browser}{Logical. Open the app in a browser?}
 }
@@ -32,3 +34,17 @@ explore_recipes(host = "0.0.0.0", port = 3838, launch.browser = FALSE)
 }
 
 }
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}

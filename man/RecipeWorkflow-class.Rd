@@ -47,7 +47,18 @@ wf <- RecipeWorkflow$new(
 \seealso{
 \code{\link{save_workflow}}, \code{\link{read_workflow}},
 \code{\link{workflow}}
+
+Other workflows: 
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
 }
+\concept{workflows}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -71,7 +82,8 @@ wf <- RecipeWorkflow$new(
 
 \item{\code{calls}}{List of deparsed call strings.}
 
-\item{\code{call_metadata}}{List of lists with type, formula, by, description fields.}
+\item{\code{call_metadata}}{List of lists with type,
+formula, by, description fields.}
 
 \item{\code{categories}}{List of RecipeCategory objects.}
 
@@ -85,7 +97,8 @@ wf <- RecipeWorkflow$new(
 
 \item{\code{created_at}}{Creation timestamp (character).}
 
-\item{\code{weight_spec}}{Named list with weight configuration per periodicity (list|NULL).}
+\item{\code{weight_spec}}{Named list with weight
+configuration per periodicity (list|NULL).}
 }
 \if{html}{\out{</div>}}
 }

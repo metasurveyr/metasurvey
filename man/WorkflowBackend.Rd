@@ -4,8 +4,10 @@
 \alias{WorkflowBackend}
 \title{WorkflowBackend}
 \description{
-Backend-agnostic factory for workflow storage and retrieval.
-Supports "local" (JSON-backed WorkflowRegistry) and "api" (remote plumber API) backends.
+Backend-agnostic factory for workflow
+storage and retrieval. Supports "local" (JSON-backed
+WorkflowRegistry) and "api" (remote plumber API)
+backends.
 }
 \examples{
 \dontrun{

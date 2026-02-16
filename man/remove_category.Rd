@@ -30,4 +30,27 @@ r <- r |>
 }
 \seealso{
 \code{\link{add_category}}
+
+Other tidy-api: 
+\code{\link{RecipeCategory}},
+\code{\link{RecipeCertification}},
+\code{\link{RecipeUser}},
+\code{\link{add_category}()},
+\code{\link{certify_recipe}()},
+\code{\link{default_categories}()},
+\code{\link{filter_recipes}()},
+\code{\link{filter_workflows}()},
+\code{\link{find_workflows_for_recipe}()},
+\code{\link{list_recipes}()},
+\code{\link{list_workflows}()},
+\code{\link{rank_recipes}()},
+\code{\link{rank_workflows}()},
+\code{\link{recipe_category}()},
+\code{\link{recipe_certification}()},
+\code{\link{recipe_user}()},
+\code{\link{search_recipes}()},
+\code{\link{search_workflows}()},
+\code{\link{set_user_info}()},
+\code{\link{set_version}()}
 }
+\concept{tidy-api}

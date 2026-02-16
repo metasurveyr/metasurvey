@@ -17,3 +17,12 @@ Clear the stored API token from memory and the environment.
 api_logout()
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_login}()},
+\code{\link{api_me}()},
+\code{\link{api_refresh_token}()},
+\code{\link{api_register}()},
+\code{\link{configure_api}()}
+}
+\concept{api-auth}

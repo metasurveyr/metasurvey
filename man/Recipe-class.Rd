@@ -24,9 +24,15 @@ transformation steps to be applied to a Survey object.
 \section{Methods}{
 
 \describe{
-\item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
-\item{$doc()}{Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.}
-\item{$validate(svy)}{Validate that a survey object has all required input variables.}
+\item{$new(name, edition, survey_type,
+default_engine, depends_on, user, description,
+steps, id, doi, topic)}{Class constructor.}
+\item{$doc()}{Auto-generate documentation from
+recipe steps. Returns a list with metadata,
+input_variables, output_variables, and pipeline
+information.}
+\item{$validate(svy)}{Validate that a survey
+object has all required input variables.}
 }
 }
 
@@ -42,8 +48,21 @@ r <- recipe(
 \seealso{
 \code{\link{recipe}}, \code{\link{save_recipe}},
 \code{\link{read_recipe}}, \code{\link{bake_recipes}}
+
+Other recipes: 
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
 }
-\keyword{Recipes}
+\concept{recipes}
+\keyword{recipe}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -71,7 +90,8 @@ r <- recipe(
 
 \item{\code{topic}}{Recipe topic (character|NULL).}
 
-\item{\code{step_objects}}{List of Step R6 objects (list|NULL), used for documentation generation.}
+\item{\code{step_objects}}{List of Step R6 objects (list|NULL),
+used for documentation generation.}
 
 \item{\code{categories}}{List of RecipeCategory objects for classification.}
 
@@ -83,9 +103,15 @@ r <- recipe(
 
 \item{\code{version}}{Recipe version string.}
 
-\item{\code{depends_on_recipes}}{List of recipe IDs that must be applied before this one.}
+\item{\code{depends_on_recipes}}{List of recipe IDs that must
+be applied before this one.}
 
-\item{\code{data_source}}{List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.}
+\item{\code{data_source}}{List with S3 bucket info
+(s3_bucket, s3_prefix, file_pattern, provider)
+or NULL.}
+
+\item{\code{labels}}{List with variable and value labels
+(var_labels, val_labels) or NULL.}
 }
 \if{html}{\out{</div>}}
 }
@@ -129,7 +155,8 @@ Create a Recipe object
   user_info = NULL,
   version = "1.0.0",
   depends_on_recipes = list(),
-  data_source = NULL
+  data_source = NULL,
+  labels = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -158,23 +185,29 @@ Create a Recipe object
 
 \item{\code{topic}}{Recipe topic (character or NULL)}
 
-\item{\code{step_objects}}{List of Step R6 objects (optional, used for doc generation)}
+\item{\code{step_objects}}{List of Step R6 objects
+(optional, used for doc generation)}
 
-\item{\code{cached_doc}}{Pre-computed documentation (optional, used when loading from JSON)}
+\item{\code{cached_doc}}{Pre-computed documentation
+(optional, used when loading from JSON)}
 
 \item{\code{categories}}{List of RecipeCategory objects (optional)}
 
 \item{\code{downloads}}{Integer download count (default 0)}
 
-\item{\code{certification}}{RecipeCertification object (optional, default community)}
+\item{\code{certification}}{RecipeCertification object
+(optional, default community)}
 
 \item{\code{user_info}}{RecipeUser object (optional)}
 
 \item{\code{version}}{Recipe version string (default "1.0.0")}
 
-\item{\code{depends_on_recipes}}{List of recipe IDs that must be applied before this one (optional)}
+\item{\code{depends_on_recipes}}{List of recipe IDs
+that must be applied before this one (optional)}
 
 \item{\code{data_source}}{List with S3 bucket info (optional)}
+
+\item{\code{labels}}{List with var_labels and val_labels (optional)}
 }
 \if{html}{\out{</div>}}
 }
@@ -266,7 +299,8 @@ Auto-generate documentation from recipe steps
 }
 
 \subsection{Returns}{
-A list with metadata, input_variables, output_variables, and pipeline information
+A list with metadata, input_variables,
+output_variables, and pipeline information
 }
 }
 \if{html}{\out{<hr>}}
@@ -286,7 +320,8 @@ Validate that a survey has all required input variables
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-TRUE if valid, otherwise stops with error listing missing variables
+TRUE if valid, otherwise stops with
+error listing missing variables
 }
 }
 \if{html}{\out{<hr>}}

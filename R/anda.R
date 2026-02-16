@@ -28,7 +28,11 @@ anda_fetch_ddi <- function(catalog_id,
 
   resp <- httr::GET(
     url,
-    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
+    httr::config(
+      ssl_verifypeer = getOption(
+        "metasurvey.ssl_verify", TRUE
+      )
+    ),
     httr::write_disk(dest_file, overwrite = TRUE),
     httr::timeout(60)
   )
@@ -59,8 +63,14 @@ anda_catalog_search <- function(keyword = "ECH",
 
   resp <- httr::GET(
     url,
-    query = list(sk = keyword, ps = limit, format = "json"),
-    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
+    query = list(
+      sk = keyword, ps = limit, format = "json"
+    ),
+    httr::config(
+      ssl_verifypeer = getOption(
+        "metasurvey.ssl_verify", TRUE
+      )
+    ),
     httr::timeout(30)
   )
 
@@ -80,10 +90,23 @@ anda_catalog_search <- function(keyword = "ECH",
   }
 
   data.frame(
-    id = vapply(rows, function(r) as.character(r$id %||% ""), character(1)),
-    title = vapply(rows, function(r) r$title %||% "", character(1)),
-    year_start = vapply(rows, function(r) r$year_start %||% "", character(1)),
-    year_end = vapply(rows, function(r) r$year_end %||% "", character(1)),
+    id = vapply(
+      rows,
+      function(r) as.character(r$id %||% ""),
+      character(1)
+    ),
+    title = vapply(
+      rows, function(r) r$title %||% "",
+      character(1)
+    ),
+    year_start = vapply(
+      rows, function(r) r$year_start %||% "",
+      character(1)
+    ),
+    year_end = vapply(
+      rows, function(r) r$year_end %||% "",
+      character(1)
+    ),
     stringsAsFactors = FALSE
   )
 }
@@ -99,7 +122,10 @@ anda_catalog_search <- function(keyword = "ECH",
 #' @keywords internal
 anda_parse_variables <- function(ddi_xml_path) {
   if (!requireNamespace("xml2", quietly = TRUE)) {
-    stop("Package 'xml2' is required for DDI parsing. Install with: install.packages('xml2')")
+    stop(
+      "Package 'xml2' is required for DDI parsing. ",
+      "Install with: install.packages('xml2')"
+    )
   }
 
   doc <- xml2::read_xml(ddi_xml_path)
@@ -126,11 +152,16 @@ anda_parse_variables <- function(ddi_xml_path) {
     seen <- c(seen, name_lower)
 
     intrvl <- xml2::xml_attr(v, "intrvl")
-    var_type <- if (!is.na(intrvl) && intrvl == "contin") "continuous" else "discrete"
+    var_type <- if (!is.na(intrvl) && intrvl == "contin") {
+      "continuous"
+    } else {
+      "discrete"
+    }
 
     # Label
     labl_node <- xml2::xml_find_first(v, "d1:labl", ns)
-    label <- if (!is.null(labl_node) && !inherits(labl_node, "xml_missing")) {
+    label <- if (!is.null(labl_node) &&
+                 !inherits(labl_node, "xml_missing")) {
       trimws(xml2::xml_text(labl_node))
     } else {
       ""
@@ -138,7 +169,8 @@ anda_parse_variables <- function(ddi_xml_path) {
 
     # Description text
     txt_node <- xml2::xml_find_first(v, "d1:txt", ns)
-    description <- if (!is.null(txt_node) && !inherits(txt_node, "xml_missing")) {
+    description <- if (!is.null(txt_node) &&
+                      !inherits(txt_node, "xml_missing")) {
       trimws(xml2::xml_text(txt_node))
     } else {
       ""
@@ -152,7 +184,8 @@ anda_parse_variables <- function(ddi_xml_path) {
       for (cat in catgry_nodes) {
         cat_val <- xml2::xml_find_first(cat, "d1:catValu", ns)
         cat_lab <- xml2::xml_find_first(cat, "d1:labl", ns)
-        if (!inherits(cat_val, "xml_missing") && !inherits(cat_lab, "xml_missing")) {
+        if (!inherits(cat_val, "xml_missing") &&
+            !inherits(cat_lab, "xml_missing")) {
           val <- trimws(xml2::xml_text(cat_val))
           lab <- trimws(xml2::xml_text(cat_lab))
           value_labels[[val]] <- lab
@@ -223,8 +256,11 @@ anda_list_editions <- function() {
 #' @param dest_dir Character directory where to save files. Defaults to
 #'   a temporary directory.
 #' @param base_url Character base URL of the ANDA5 instance
-#' @return Character path (or vector of paths for monthly) to the downloaded
-#'   file(s), ready to pass to \code{load_survey()} or \code{data.table::fread()}.
+#' @return Character path (or vector of paths for
+#'   monthly) to the downloaded file(s), ready to pass
+#'   to \code{load_survey()} or
+#'   \code{data.table::fread()}.
+#' @family anda
 #' @export
 #' @examples
 #' \dontrun{
@@ -234,27 +270,41 @@ anda_list_editions <- function() {
 anda_download_microdata <- function(edition,
                                     resource = "implantation",
                                     dest_dir = tempdir(),
-                                    base_url = "https://www4.ine.gub.uy/Anda5") {
+                                    base_url =
+                                      "https://www4.ine.gub.uy/Anda5") {
   catalog_id <- .ech_catalog_ids[[as.character(edition)]]
   if (is.null(catalog_id)) {
     avail <- paste(names(.ech_catalog_ids), collapse = ", ")
     stop("Unknown ECH edition '", edition, "'. Available: ", avail)
   }
 
-  message("Downloading ECH ", edition, " from ANDA5 (catalog ", catalog_id, ")...")
+  message(
+    "Downloading ECH ", edition,
+    " from ANDA5 (catalog ", catalog_id, ")..."
+  )
 
   # Accept terms and get download page
-  accept_url <- paste0(base_url, "/index.php/catalog/", catalog_id, "/get-microdata")
+  accept_url <- paste0(
+    base_url, "/index.php/catalog/",
+    catalog_id, "/get-microdata"
+  )
   resp <- httr::POST(
     accept_url,
     body = list(accept = "1"),
     encode = "form",
-    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
+    httr::config(
+      ssl_verifypeer = getOption(
+        "metasurvey.ssl_verify", TRUE
+      )
+    ),
     httr::timeout(30)
   )
 
   if (httr::status_code(resp) != 200) {
-    stop("Failed to access microdata page: HTTP ", httr::status_code(resp))
+    stop(
+      "Failed to access microdata page: HTTP ",
+      httr::status_code(resp)
+    )
   }
 
   # Parse all resources with their titles and IDs
@@ -272,25 +322,42 @@ anda_download_microdata <- function(edition,
   paths <- vapply(seq_len(nrow(selected)), function(i) {
     rid <- selected$id[i]
     title <- selected$title[i]
-    dl_url <- paste0(base_url, "/index.php/catalog/", catalog_id, "/download/", rid)
-    dest_raw <- file.path(dest_dir, paste0("ech_", edition, "_", rid, "_raw"))
+    dl_url <- paste0(
+      base_url, "/index.php/catalog/",
+      catalog_id, "/download/", rid
+    )
+    dest_raw <- file.path(
+      dest_dir,
+      paste0("ech_", edition, "_", rid, "_raw")
+    )
 
     message("  Downloading: ", title)
     dl_resp <- httr::GET(
       dl_url,
-      httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
+      httr::config(
+        ssl_verifypeer = getOption(
+          "metasurvey.ssl_verify", TRUE
+        )
+      ),
       httr::write_disk(dest_raw, overwrite = TRUE),
       httr::timeout(300)
     )
 
     if (httr::status_code(dl_resp) != 200) {
-      stop("Failed to download '", title, "': HTTP ", httr::status_code(dl_resp))
+      stop(
+        "Failed to download '", title,
+        "': HTTP ", httr::status_code(dl_resp)
+      )
     }
 
     file_size <- file.info(dest_raw)$size
-    message(sprintf("  Done: %.1f MB", file_size / 1024 / 1024))
+    message(sprintf(
+      "  Done: %.1f MB", file_size / 1024 / 1024
+    ))
 
-    .anda_extract_file(dest_raw, dest_dir, paste0(edition, "_", rid))
+    .anda_extract_file(
+      dest_raw, dest_dir, paste0(edition, "_", rid)
+    )
   }, character(1))
 
   if (length(paths) == 1) paths <- paths[1]
@@ -381,28 +448,52 @@ anda_download_microdata <- function(edition,
       resources[idx, , drop = FALSE]
     },
     "bootstrap_annual" = {
-      idx <- grep("bootstrap.*anual|anual.*bootstrap", titles_lower)
-      if (length(idx) == 0) stop("No annual bootstrap weights found for ECH ", edition)
+      idx <- grep(
+        "bootstrap.*anual|anual.*bootstrap",
+        titles_lower
+      )
+      if (length(idx) == 0) {
+        stop("No annual bootstrap weights found for ECH ", edition)
+      }
       resources[idx[1], , drop = FALSE]
     },
     "bootstrap_monthly" = {
-      idx <- grep("bootstrap.*mensual|mensual.*bootstrap", titles_lower)
-      if (length(idx) == 0) stop("No monthly bootstrap weights found for ECH ", edition)
+      idx <- grep(
+        "bootstrap.*mensual|mensual.*bootstrap",
+        titles_lower
+      )
+      if (length(idx) == 0) {
+        stop("No monthly bootstrap weights found for ECH ", edition)
+      }
       resources[idx, , drop = FALSE]
     },
     "bootstrap_quarterly" = {
-      idx <- grep("bootstrap.*trimestral|trimestral.*bootstrap", titles_lower)
-      if (length(idx) == 0) stop("No quarterly bootstrap weights found for ECH ", edition)
+      idx <- grep(
+        "bootstrap.*trimestral|trimestral.*bootstrap",
+        titles_lower
+      )
+      if (length(idx) == 0) {
+        stop("No quarterly bootstrap weights found for ECH ", edition)
+      }
       resources[idx[1], , drop = FALSE]
     },
     "bootstrap_semestral" = {
-      idx <- grep("bootstrap.*semestral|semestral.*bootstrap", titles_lower)
-      if (length(idx) == 0) stop("No semestral bootstrap weights found for ECH ", edition)
+      idx <- grep(
+        "bootstrap.*semestral|semestral.*bootstrap",
+        titles_lower
+      )
+      if (length(idx) == 0) {
+        stop("No semestral bootstrap weights found for ECH ", edition)
+      }
       resources[idx[1], , drop = FALSE]
     },
     "poverty" = {
-      idx <- grep("microdatos_lp|linea.*pobreza", titles_lower)
-      if (length(idx) == 0) stop("No poverty line data found for ECH ", edition)
+      idx <- grep(
+        "microdatos_lp|linea.*pobreza", titles_lower
+      )
+      if (length(idx) == 0) {
+        stop("No poverty line data found for ECH ", edition)
+      }
       resources[idx[1], , drop = FALSE]
     },
     stop(
@@ -427,15 +518,24 @@ anda_download_microdata <- function(edition,
   magic <- readBin(con, "raw", n = 7)
   close(con)
 
-  is_zip <- length(magic) >= 2 && identical(magic[1:2], as.raw(c(0x50, 0x4B)))
-  # RAR magic: 52 61 72 21 1A 07 00 (RAR5: 52 61 72 21 1A 07 01 00)
-  rar_magic <- as.raw(c(0x52, 0x61, 0x72, 0x21, 0x1a, 0x07))
-  is_rar <- length(magic) >= 6 && identical(magic[1:6], rar_magic)
-  is_sav <- length(magic) >= 4 && identical(magic[1:4], charToRaw("$FL2"))
+  is_zip <- length(magic) >= 2 &&
+    identical(magic[1:2], as.raw(c(0x50, 0x4B)))
+  # RAR magic: 52 61 72 21 1A 07 00
+  # RAR5: 52 61 72 21 1A 07 01 00
+  rar_magic <- as.raw(
+    c(0x52, 0x61, 0x72, 0x21, 0x1a, 0x07)
+  )
+  is_rar <- length(magic) >= 6 &&
+    identical(magic[1:6], rar_magic)
+  is_sav <- length(magic) >= 4 &&
+    identical(magic[1:4], charToRaw("$FL2"))
 
   if (is_zip) {
     extract_dir <- file.path(dest_dir, paste0("ech_", label))
-    dir.create(extract_dir, showWarnings = FALSE, recursive = TRUE)
+    dir.create(
+      extract_dir, showWarnings = FALSE,
+      recursive = TRUE
+    )
     utils::unzip(raw_path, exdir = extract_dir)
     unlink(raw_path)
     return(.anda_find_data_file(extract_dir, label))
@@ -448,7 +548,10 @@ anda_download_microdata <- function(edition,
       )
     }
     extract_dir <- file.path(dest_dir, paste0("ech_", label))
-    dir.create(extract_dir, showWarnings = FALSE, recursive = TRUE)
+    dir.create(
+      extract_dir, showWarnings = FALSE,
+      recursive = TRUE
+    )
     archive::archive_extract(raw_path, dir = extract_dir)
     unlink(raw_path)
     return(.anda_find_data_file(extract_dir, label))
@@ -470,14 +573,22 @@ anda_download_microdata <- function(edition,
 #' @return Character path to the data file
 #' @keywords internal
 .anda_find_data_file <- function(dir, label) {
-  extracted <- list.files(dir, recursive = TRUE, full.names = TRUE)
+  extracted <- list.files(
+    dir, recursive = TRUE, full.names = TRUE
+  )
 
   # If extraction produced another archive, extract recursively
-  archives <- grep("\\.(zip|rar)$", extracted, value = TRUE, ignore.case = TRUE)
-  if (length(archives) > 0 && length(extracted) == length(archives)) {
+  archives <- grep(
+    "\\.(zip|rar)$", extracted,
+    value = TRUE, ignore.case = TRUE
+  )
+  if (length(archives) > 0 &&
+      length(extracted) == length(archives)) {
     for (a in archives) {
       sub_result <- tryCatch(
-        .anda_extract_file(a, dirname(a), paste0(label, "_sub")),
+        .anda_extract_file(
+          a, dirname(a), paste0(label, "_sub")
+        ),
         error = function(e) NULL
       )
       if (!is.null(sub_result)) {
@@ -516,6 +627,7 @@ anda_download_microdata <- function(edition,
 #' @param var_names Character vector of variable names to look up. If NULL,
 #'   returns all variables for the survey type.
 #' @return A data.frame with columns: name, label, type
+#' @family anda
 #' @export
 #' @examples
 #' \dontrun{

@@ -14,19 +14,23 @@ FALSE to modify data in place (more efficient)}
 Invisibly, the previous value (for restoring).
 }
 \description{
-Configures whether survey operations should create copies of the data or
-modify existing data in place. This setting affects memory usage and
-performance across the metasurvey package.
+Configures whether survey operations should create copies
+of the data or modify existing data in place. This setting
+affects memory usage and performance across the metasurvey
+package.
 }
 \details{
 Setting use_copy affects all subsequent survey operations:
 \itemize{
-\item TRUE (default): Operations create data copies, preserving original data
-\item FALSE: Operations modify data in place, reducing memory usage
+\item TRUE (default): Operations create data copies,
+preserving original data
+\item FALSE: Operations modify data in place, reducing
+memory usage
 }
 
-Use FALSE for large datasets where memory is a concern, but ensure you
-don't need the original data after operations.
+Use FALSE for large datasets where memory is a concern,
+but ensure you don't need the original data after
+operations.
 }
 \examples{
 # Set to use copies (default behavior)
@@ -43,5 +47,14 @@ set_use_copy(TRUE)
 }
 \seealso{
 \code{\link{use_copy_default}} to check current setting
+
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{lazy_default}()},
+\code{\link{set_engine}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{show_engines}()},
+\code{\link{use_copy_default}()}
 }
+\concept{options}
 \keyword{utils}

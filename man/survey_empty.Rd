@@ -30,9 +30,20 @@ Survey object
 Create an empty survey
 }
 \examples{
-\dontrun{
-empty <- survey_empty()
+empty <- survey_empty(edition = "2023", type = "test")
 empty_typed <- survey_empty(edition = "2023", type = "ech")
 }
+\seealso{
+Other survey-objects: 
+\code{\link{Survey}},
+\code{\link{cat_design}()},
+\code{\link{cat_design_type}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{set_data}()},
+\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
 }
-\keyword{Surveymethods}
+\concept{survey-objects}
+\keyword{survey}

@@ -19,14 +19,16 @@
 #' @field estimation_type Character vector of estimation types used.
 #' @field recipe_ids Character vector of recipe IDs referenced.
 #' @field calls List of deparsed call strings.
-#' @field call_metadata List of lists with type, formula, by, description fields.
+#' @field call_metadata List of lists with type,
+#'   formula, by, description fields.
 #' @field categories List of RecipeCategory objects.
 #' @field downloads Integer download count.
 #' @field certification RecipeCertification object.
 #' @field version Version string.
 #' @field doi DOI or external identifier (character|NULL).
 #' @field created_at Creation timestamp (character).
-#' @field weight_spec Named list with weight configuration per periodicity (list|NULL).
+#' @field weight_spec Named list with weight
+#'   configuration per periodicity (list|NULL).
 #'
 #' @section Methods:
 #' \describe{
@@ -52,6 +54,7 @@
 #'
 #' @seealso \code{\link{save_workflow}}, \code{\link{read_workflow}},
 #'   \code{\link{workflow}}
+#' @family workflows
 #' @export
 RecipeWorkflow <- R6Class("RecipeWorkflow",
   public = list(
@@ -114,17 +117,21 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
       self$call_metadata <- call_metadata
       self$categories <- categories
       self$downloads <- as.integer(downloads)
-      self$certification <- certification %||% RecipeCertification$new(level = "community")
+      self$certification <- certification %||%
+        RecipeCertification$new(level = "community")
       self$version <- version
       self$doi <- doi
-      self$created_at <- created_at %||% format(Sys.time(), "%Y-%m-%dT%H:%M:%S")
+      self$created_at <- created_at %||%
+        format(Sys.time(), "%Y-%m-%dT%H:%M:%S")
       self$weight_spec <- weight_spec
     },
 
     #' @description Generate documentation for this workflow
     #' @return List with meta, recipe_ids, estimations, and estimation_types
     doc = function() {
-      cat_names <- vapply(self$categories, function(c) c$name, character(1))
+      cat_names <- vapply(
+        self$categories, function(c) c$name, character(1)
+      )
       list(
         meta = list(
           name = self$name,
@@ -134,7 +141,11 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
           description = self$description,
           doi = self$doi,
           id = self$id,
-          categories = if (length(cat_names) > 0) paste(cat_names, collapse = ", ") else NULL,
+          categories = if (length(cat_names) > 0) {
+            paste(cat_names, collapse = ", ")
+          } else {
+            NULL
+          },
           certification = self$certification$level,
           version = self$version,
           downloads = self$downloads,
@@ -154,21 +165,29 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
         name = self$name,
         description = self$description,
         user = self$user,
-        user_info = if (!is.null(self$user_info)) self$user_info$to_list() else NULL,
+        user_info = if (!is.null(self$user_info)) {
+          self$user_info$to_list()
+        } else {
+          NULL
+        },
         survey_type = self$survey_type,
         edition = self$edition,
         estimation_type = as.list(self$estimation_type),
         recipe_ids = as.list(self$recipe_ids),
         calls = as.list(self$calls),
         call_metadata = self$call_metadata,
-        categories = lapply(self$categories, function(c) c$to_list()),
+        categories = lapply(
+          self$categories, function(c) c$to_list()
+        ),
         downloads = self$downloads,
         certification = self$certification$to_list(),
         version = self$version,
         doi = self$doi,
         created_at = self$created_at,
         weight_spec = self$weight_spec,
-        metasurvey_version = as.character(utils::packageVersion("metasurvey"))
+        metasurvey_version = as.character(
+          utils::packageVersion("metasurvey")
+        )
       )
     },
 
@@ -181,13 +200,17 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
     #' @param user RecipeUser who is certifying
     #' @param level Character certification level
     certify = function(user, level) {
-      self$certification <- RecipeCertification$new(level = level, certified_by = user)
+      self$certification <- RecipeCertification$new(
+        level = level, certified_by = user
+      )
     },
 
     #' @description Add a category to the workflow
     #' @param category RecipeCategory to add
     add_category = function(category) {
-      existing <- vapply(self$categories, function(c) c$name, character(1))
+      existing <- vapply(
+        self$categories, function(c) c$name, character(1)
+      )
       if (!category$name %in% existing) {
         self$categories <- c(self$categories, list(category))
       }
@@ -212,6 +235,7 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
 #'   edition = "2023", estimation_type = "svymean"
 #' )
 #' wf <- workflow_from_list(lst)
+#' @family workflows
 workflow_from_list <- function(lst) {
   # Reconstruct categories
   categories <- list()
@@ -220,7 +244,9 @@ workflow_from_list <- function(lst) {
     if (is.data.frame(raw_cats)) {
       for (i in seq_len(nrow(raw_cats))) {
         row <- as.list(raw_cats[i, ])
-        if (is.data.frame(row$parent) && (nrow(row$parent) == 0 || ncol(row$parent) == 0)) {
+        if (is.data.frame(row$parent) &&
+            (nrow(row$parent) == 0 ||
+             ncol(row$parent) == 0)) {
           row$parent <- NULL
         }
         categories[[i]] <- RecipeCategory$from_list(row)
@@ -251,7 +277,10 @@ workflow_from_list <- function(lst) {
   # Reconstruct call_metadata
   call_metadata <- lst$call_metadata %||% list()
   if (is.data.frame(call_metadata)) {
-    call_metadata <- lapply(seq_len(nrow(call_metadata)), function(i) as.list(call_metadata[i, ]))
+    call_metadata <- lapply(
+      seq_len(nrow(call_metadata)),
+      function(i) as.list(call_metadata[i, ])
+    )
   }
 
   RecipeWorkflow$new(
@@ -262,8 +291,12 @@ workflow_from_list <- function(lst) {
     user_info = user_info,
     survey_type = lst$survey_type %||% "Unknown",
     edition = lst$edition %||% "Unknown",
-    estimation_type = as.character(unlist(lst$estimation_type %||% character(0))),
-    recipe_ids = as.character(unlist(lst$recipe_ids %||% character(0))),
+    estimation_type = as.character(
+      unlist(lst$estimation_type %||% character(0))
+    ),
+    recipe_ids = as.character(
+      unlist(lst$recipe_ids %||% character(0))
+    ),
     calls = as.list(lst$calls %||% list()),
     call_metadata = call_metadata,
     categories = categories,
@@ -281,7 +314,8 @@ workflow_from_list <- function(lst) {
 #' @param wf A RecipeWorkflow object
 #' @param file Character file path
 #' @return NULL (called for side-effect)
-#' @keywords Workflows
+#' @keywords workflow
+#' @family workflows
 #' @export
 #' @examples
 #' \dontrun{
@@ -292,7 +326,10 @@ save_workflow <- function(wf, file) {
     stop("Can only save RecipeWorkflow objects")
   }
   wf_data <- wf$to_list()
-  jsonlite::write_json(wf_data, path = file, auto_unbox = TRUE, pretty = TRUE)
+  jsonlite::write_json(
+    wf_data, path = file,
+    auto_unbox = TRUE, pretty = TRUE
+  )
   message(glue::glue("Workflow saved to {file}"))
 }
 
@@ -300,14 +337,17 @@ save_workflow <- function(wf, file) {
 #'
 #' @param file Character file path
 #' @return A RecipeWorkflow object
-#' @keywords Workflows
+#' @keywords workflow
+#' @family workflows
 #' @export
 #' @examples
 #' \dontrun{
 #' wf <- read_workflow("my_workflow.json")
 #' }
 read_workflow <- function(file) {
-  json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
+  json_data <- jsonlite::read_json(
+    file, simplifyVector = TRUE
+  )
   workflow_from_list(json_data)
 }
 
@@ -316,7 +356,16 @@ read_workflow <- function(file) {
 #' @param x A RecipeWorkflow object
 #' @param ... Additional arguments (unused)
 #' @return Invisibly returns the object
-#' @keywords Workflows
+#' @examples
+#' wf <- RecipeWorkflow$new(
+#'   id = "w1", name = "Example Workflow", user = "tester",
+#'   edition = "2023", survey_type = "test",
+#'   recipe_ids = "r1",
+#'   calls = list(), description = "Demo"
+#' )
+#' print(wf)
+#' @keywords workflow
+#' @family workflows
 #' @export
 print.RecipeWorkflow <- function(x, ...) {
   doc_info <- x$doc()
@@ -326,13 +375,19 @@ print.RecipeWorkflow <- function(x, ...) {
   ))))
 
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
-  cat(crayon::silver("Survey:  "), x$survey_type, " / ", x$edition, "\n", sep = "")
+  cat(
+    crayon::silver("Survey:  "),
+    x$survey_type, " / ", x$edition, "\n", sep = ""
+  )
   cat(crayon::silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$doi)) {
     cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
   }
   if (nzchar(x$description)) {
-    cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+    cat(
+      crayon::silver("Description: "),
+      x$description, "\n", sep = ""
+    )
   }
 
   # Certification badge
@@ -350,7 +405,11 @@ print.RecipeWorkflow <- function(x, ...) {
 
   # Estimation types
   if (length(x$estimation_type) > 0) {
-    cat(crayon::silver("Estimation types: "), paste(x$estimation_type, collapse = ", "), "\n", sep = "")
+    cat(
+      crayon::silver("Estimation types: "),
+      paste(x$estimation_type, collapse = ", "),
+      "\n", sep = ""
+    )
   }
 
   # Weight configuration
@@ -367,7 +426,11 @@ print.RecipeWorkflow <- function(x, ...) {
         } else {
           "local"
         }
-        cat(sprintf("  %s: %s (%s, %s)\n", pname, ws$variable, ws$replicate_type, src_str))
+        cat(sprintf(
+          "  %s: %s (%s, %s)\n",
+          pname, ws$variable,
+          ws$replicate_type, src_str
+        ))
       }
     }
   }
@@ -382,9 +445,11 @@ print.RecipeWorkflow <- function(x, ...) {
 
   # Estimations
   if (length(x$call_metadata) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
-      "\n\u2500\u2500 Estimations (", length(x$call_metadata), ") \u2500\u2500\n"
-    ))))
+    est_hdr <- paste0(
+      "\n\u2500\u2500 Estimations (",
+      length(x$call_metadata), ") \u2500\u2500\n"
+    )
+    cat(crayon::bold(crayon::blue(est_hdr)))
     for (i in seq_along(x$call_metadata)) {
       cm <- x$call_metadata[[i]]
       type_str <- cm$type %||% "unknown"

@@ -1,6 +1,7 @@
 # metasurvey
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml)
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
 [![Codecov test coverage](https://codecov.io/gh/metasurveyr/metasurvey/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
 <!-- badges: end -->

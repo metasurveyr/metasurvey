@@ -52,7 +52,7 @@ test_that(
         type = "ECH",
         year_start = 2023,
         year_end = 2025,
-        periodicity = "Trianual"
+        periodicity = "Triennial"
       )
     )
   }
@@ -67,7 +67,7 @@ test_that(
         type = "ECH",
         year_start = 2023,
         year_end = 2026,
-        periodicity = "Multianual"
+        periodicity = "Multi-year"
       )
     )
   }

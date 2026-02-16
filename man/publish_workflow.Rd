@@ -24,4 +24,15 @@ publish_workflow(my_workflow)
 }
 \seealso{
 \code{\link{set_workflow_backend}}, \code{\link{RecipeWorkflow}}
+
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
 }
+\concept{workflows}

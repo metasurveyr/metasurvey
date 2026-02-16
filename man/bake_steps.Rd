@@ -36,3 +36,14 @@ svy <- step_compute(svy, age2 = age * 2)
 svy <- bake_steps(svy)
 get_data(svy)
 }
+\seealso{
+Other steps: 
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
+}
+\concept{steps}

@@ -252,14 +252,14 @@ svy <- step_join(svy,
 
 Se llama a `bake_steps()` para ejecutar todas las transformaciones pendientes:
 
-```{r bake, eval=FALSE}
+```{r bake}
 svy <- bake_steps(svy)
 head(get_data(svy), 3)
 ```
 
 El historial de steps se preserva para documentacion y reproducibilidad:
 
-```{r get-steps, eval=FALSE}
+```{r get-steps}
 steps <- get_steps(svy)
 length(steps) # Number of transformation steps
 
@@ -483,13 +483,13 @@ Se pueden modificar las configuraciones para la sesion actual:
 
 ```{r config-set, eval = FALSE}
 # Disable lazy evaluation (execute steps immediately)
-set_lazy(FALSE)
+set_lazy_processing(FALSE)
 
 # Modify inplace (faster, but modifies original data)
 set_use_copy(FALSE)
 
 # Reset to defaults
-set_lazy(TRUE)
+set_lazy_processing(TRUE)
 set_use_copy(TRUE)
 ```
 

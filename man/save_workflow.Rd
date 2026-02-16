@@ -22,4 +22,16 @@ Save a RecipeWorkflow to a JSON file
 save_workflow(wf, "my_workflow.json")
 }
 }
-\keyword{Workflows}
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
+}
+\concept{workflows}
+\keyword{workflow}

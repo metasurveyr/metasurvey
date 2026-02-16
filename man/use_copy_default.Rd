@@ -11,8 +11,9 @@ Logical value indicating whether to use data copies (TRUE) or
 modify data in place (FALSE). Default is TRUE.
 }
 \description{
-Retrieves the current setting for the use_copy option, which controls
-whether survey operations create copies of the data or modify in place.
+Retrieves the current setting for the use_copy option,
+which controls whether survey operations create copies of
+the data or modify in place.
 }
 \details{
 The use_copy option affects memory usage and performance:
@@ -29,4 +30,13 @@ print(current_setting)
 }
 \seealso{
 \code{\link{set_use_copy}} to change the setting
+
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{lazy_default}()},
+\code{\link{set_engine}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{set_use_copy}()},
+\code{\link{show_engines}()}
 }
+\concept{options}

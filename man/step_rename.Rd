@@ -19,7 +19,8 @@ step_rename(
 
 \item{...}{Pairs in the form new_name = old_name (unquoted or character)}
 
-\item{mapping}{A named character vector of the form \code{c(new_name = "old_name")}.}
+\item{mapping}{A named character vector of the form
+\code{c(new_name = "old_name")}.}
 
 \item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
 
@@ -30,13 +31,17 @@ step_rename(
 \item{record}{Logical, whether to record the step.}
 }
 \value{
-Survey object with the specified variables renamed (or queued for renaming).
+Survey object with the specified variables
+renamed (or queued for renaming).
 }
 \description{
 Creates a step that renames variables in the survey data when baked.
 }
 \examples{
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -45,3 +50,14 @@ svy2 <- step_rename(svy, edad = age)
 svy2 <- bake_steps(svy2)
 "edad" \%in\% names(get_data(svy2)) # TRUE
 }
+\seealso{
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{view_graph}()}
+}
+\concept{steps}

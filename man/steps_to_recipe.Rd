@@ -46,7 +46,20 @@ my_recipe <- steps_to_recipe(
 )
 }
 }
-\keyword{Recipes}
-\keyword{Steps}
-\keyword{Survey}
-\keyword{methods}
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()}
+}
+\concept{recipes}
+\keyword{recipe}
+\keyword{step}
+\keyword{survey}

@@ -24,3 +24,9 @@ metasurvey API's ANDA endpoint.
 anda_variables("ech", c("pobpcoac", "e27"))
 }
 }
+\seealso{
+Other anda: 
+\code{\link{anda_download_microdata}()},
+\code{\link{api_get_anda_variables}()}
+}
+\concept{anda}

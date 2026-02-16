@@ -4,7 +4,8 @@
 \alias{RecipeRegistry}
 \title{RecipeRegistry}
 \description{
-Local JSON-backed catalog for recipe discovery, ranking, and filtering.
+Local JSON-backed catalog for recipe
+discovery, ranking, and filtering.
 }
 \examples{
 # Use the tidy API instead:

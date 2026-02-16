@@ -1,19 +1,33 @@
 #' Step Class
 #' Represents a step in a survey workflow.
-#' @description The `Step` class is used to define and manage individual steps in a survey workflow. Each step can include operations such as recoding variables, computing new variables, or validating dependencies.
+#' @description The `Step` class is used to define and manage
+#' individual steps in a survey workflow. Each step can
+#' include operations such as recoding variables, computing
+#' new variables, or validating dependencies.
 #' @field name The name of the step.
 #' @field edition The edition of the survey associated with the step.
 #' @field survey_type The type of survey associated with the step.
-#' @field type The type of operation performed by the step (e.g., "compute", "recode").
-#' @field new_var The name of the new variable created by the step, if applicable.
-#' @field exprs A list of expressions defining the step's operations.
+#' @field type The type of operation performed by the step
+#'   (e.g., "compute", "recode").
+#' @field new_var The name of the new variable created by
+#'   the step, if applicable.
+#' @field exprs A list of expressions defining the step's
+#'   operations.
 #' @field call The function call associated with the step.
-#' @field svy_before The survey object before the step is applied.
-#' @field default_engine The default engine used for processing the step.
-#' @field depends_on A list of variables that the step depends on.
+#' @field svy_before The survey object before the step is
+#'   applied.
+#' @field default_engine The default engine used for
+#'   processing the step.
+#' @field depends_on A list of variables that the step
+#'   depends on.
 #' @field comments Comments or notes about the step.
-#' @field bake A logical value indicating whether the step has been executed.
-#' @details The `Step` class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
+#' @field bake A logical value indicating whether the step
+#'   has been executed.
+#' @details The `Step` class is part of the survey workflow
+#' system and is designed to encapsulate all the information
+#' and operations required for a single step in the
+#' workflow. Steps can be chained together to form a
+#' complete workflow.
 #' @examples
 #' # Step objects are created internally by step_compute(), step_recode(), etc.
 #' # Use the tidy API:
@@ -24,22 +38,30 @@
 #' )
 #' svy <- step_compute(svy, age2 = age * 2)
 #' get_steps(svy)
-#' @keywords Surveymethods
-#' @keywords Steps
+#' @keywords survey
+#' @keywords step
 #' @keywords internal
 #' @param name The name of the step.
 #' @param edition The edition of the survey associated with the step.
 #' @param survey_type The type of survey associated with the step.
-#' @param type The type of operation performed by the step (e.g., "compute", "recode").
-#' @param new_var The name of the new variable created by the step, if applicable.
-#' @param exprs A list of expressions defining the step's operations.
+#' @param type The type of operation performed by the step
+#'   (e.g., "compute", "recode").
+#' @param new_var The name of the new variable created by
+#'   the step, if applicable.
+#' @param exprs A list of expressions defining the step's
+#'   operations.
 #' @param call The function call associated with the step.
-#' @param svy_before The survey object before the step is applied.
-#' @param default_engine The default engine used for processing the step.
-#' @param depends_on A list of variables that the step depends on.
+#' @param svy_before The survey object before the step is
+#'   applied.
+#' @param default_engine The default engine used for
+#'   processing the step.
+#' @param depends_on A list of variables that the step
+#'   depends on.
 #' @param comments Comments or notes about the step.
-#' @param comment Optional alias of `comments` for backwards compatibility.
-#' @param bake A logical value indicating whether the step has been executed.
+#' @param comment Optional alias of `comments` for
+#'   backwards compatibility.
+#' @param bake A logical value indicating whether the step
+#'   has been executed.
 Step <- R6Class("Step",
   public = list(
     name = NULL,
@@ -58,18 +80,32 @@ Step <- R6Class("Step",
     #' @param name The name of the step.
     #' @param edition The edition of the survey associated with the step.
     #' @param survey_type The type of survey associated with the step.
-    #' @param type The type of operation performed by the step (e.g., "compute" or "recode").
-    #' @param new_var The name of the new variable created by the step, if applicable.
-    #' @param exprs A list of expressions defining the step's operations.
-    #' @param call The function call associated with the step.
-    #' @param svy_before The survey object before the step is applied.
-    #' @param default_engine The default engine used for processing the step.
-    #' @param depends_on A list of variables that the step depends on.
+    #' @param type The type of operation performed by the
+    #'   step (e.g., "compute" or "recode").
+    #' @param new_var The name of the new variable created
+    #'   by the step, if applicable.
+    #' @param exprs A list of expressions defining the
+    #'   step's operations.
+    #' @param call The function call associated with the
+    #'   step.
+    #' @param svy_before The survey object before the step
+    #'   is applied.
+    #' @param default_engine The default engine used for
+    #'   processing the step.
+    #' @param depends_on A list of variables that the step
+    #'   depends on.
     #' @param comments Comments or notes about the step.
-    #' @param comment Optional alias of `comments` for backwards compatibility.
-    #' @param bake A logical value indicating whether the step has been executed.
+    #' @param comment Optional alias of `comments` for
+    #'   backwards compatibility.
+    #' @param bake A logical value indicating whether the
+    #'   step has been executed.
 
-    initialize = function(name, edition, survey_type, type, new_var, exprs, call, svy_before, default_engine, depends_on, comments = NULL, bake = !lazy_default(), comment = NULL) {
+    initialize = function(name, edition, survey_type,
+                          type, new_var, exprs, call,
+                          svy_before, default_engine,
+                          depends_on, comments = NULL,
+                          bake = !lazy_default(),
+                          comment = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -90,8 +126,8 @@ Step <- R6Class("Step",
 #' Validate step
 #' @param svy A Survey object
 #' @param step A Step object
-#' @keywords Surveymethods
-#' @keywords Steps
+#' @keywords survey
+#' @keywords step
 #' @keywords Validate
 #' @noRd
 #' @keywords internal
@@ -103,7 +139,7 @@ validate_step <- function(svy, step) {
 
   missing_vars <- depends_on[!depends_on %in% names_svy]
 
-  # Si hay variables faltantes, lanza un error con los nombres
+  # If there are missing variables, throw an error with their names
   if (length(missing_vars) > 0) {
     stop(
       paste0(
@@ -121,8 +157,8 @@ validate_step <- function(svy, step) {
 #' @param svy A Survey object
 #' @param step A Step object
 #' @return A Survey object
-#' @keywords Surveymethods
-#' @keywords Steps
+#' @keywords survey
+#' @keywords step
 #' @keywords Bake
 #' @keywords Survey
 #' @noRd
@@ -146,7 +182,8 @@ bake_step <- function(svy, step) {
   # Add step-specific arguments from exprs
   # step$exprs may be a call (e.g., list(var = expr)) from substitute(list(...))
   # or a regular list — handle both cases
-  if (is.call(step$exprs) && identical(step$exprs[[1]], as.name("list"))) {
+  if (is.call(step$exprs) &&
+      identical(step$exprs[[1]], as.name("list"))) {
     args <- c(args, as.list(step$exprs)[-1])
   } else if (is.list(step$exprs)) {
     args <- c(args, step$exprs)
@@ -159,7 +196,10 @@ bake_step <- function(svy, step) {
 
   # Validate step type before dispatch
 
-  valid_types <- c("compute", "recode", "step_join", "step_remove", "step_rename")
+  valid_types <- c(
+    "compute", "recode", "step_join",
+    "step_remove", "step_rename"
+  )
   if (!step$type %in% valid_types) {
     stop("Invalid step type: '", step$type, "'. Must be one of: ",
       paste(valid_types, collapse = ", "),
@@ -201,6 +241,7 @@ bake_step <- function(svy, step) {
 #' svy <- step_compute(svy, age2 = age * 2)
 #' svy <- bake_steps(svy)
 #' get_data(svy)
+#' @family steps
 #' @export
 bake_steps <- function(svy) {
   if (is(svy, "Survey")) {
@@ -217,8 +258,8 @@ bake_steps <- function(svy) {
 #' Bake steps survey rotative
 #' @param svy A Survey object
 #' @return A Survey object
-#' @keywords Surveymethods
-#' @keywords Steps
+#' @keywords survey
+#' @keywords step
 #' @keywords Bake
 #' @keywords Survey
 #' @noRd
@@ -245,8 +286,8 @@ bake_steps_rotative <- function(svy) {
 #' Bake steps survey
 #' @param svy A Survey object
 #' @return A Survey object
-#' @keywords Surveymethods
-#' @keywords Steps
+#' @keywords survey
+#' @keywords step
 #' @keywords Bake
 #' @keywords Survey
 #' @noRd

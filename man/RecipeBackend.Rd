@@ -4,8 +4,9 @@
 \alias{RecipeBackend}
 \title{RecipeBackend}
 \description{
-Backend-agnostic factory for recipe storage and retrieval.
-Supports "local" (JSON-backed RecipeRegistry) and "api" (remote plumber API) backends.
+Backend-agnostic factory for recipe storage
+and retrieval. Supports "local" (JSON-backed
+RecipeRegistry) and "api" (remote plumber API) backends.
 }
 \examples{
 \dontrun{

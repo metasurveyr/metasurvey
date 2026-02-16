@@ -7,18 +7,29 @@
 configure_api(url)
 }
 \arguments{
-\item{url}{API base URL (e.g., \code{"https://metasurvey-api.example.com"})}
+\item{url}{API base URL
+(e.g., \code{"https://metasurvey-api.example.com"})}
 }
 \value{
 Invisibly, the previous URL (for restoring).
 }
 \description{
 Set API base URL and optionally load stored credentials.
-The URL can also be set via the \code{METASURVEY_API_URL} environment
-variable, and the token via \code{METASURVEY_TOKEN}.
+The URL can also be set via the
+\code{METASURVEY_API_URL} environment variable, and
+the token via \code{METASURVEY_TOKEN}.
 }
 \examples{
 \dontrun{
 configure_api(url = "https://metasurvey-api.example.com")
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_login}()},
+\code{\link{api_logout}()},
+\code{\link{api_me}()},
+\code{\link{api_refresh_token}()},
+\code{\link{api_register}()}
+}
+\concept{api-auth}
