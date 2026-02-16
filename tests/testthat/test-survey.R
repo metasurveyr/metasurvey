@@ -922,3 +922,84 @@ test_that("Survey$set_edition and set_type update fields", {
   s$set_type("custom_type")
   expect_equal(s$type, "custom_type")
 })
+
+# --- run_app.R coverage ---
+
+test_that("explore_recipes errors when shiny not available", {
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) pkg != "shiny",
+    .package = "base"
+  )
+  expect_error(explore_recipes(), "shiny")
+})
+
+test_that("explore_recipes errors when bslib not available", {
+  local_mocked_bindings(
+    requireNamespace = function(pkg, ...) pkg != "bslib",
+    .package = "base"
+  )
+  expect_error(explore_recipes(), "bslib")
+})
+
+test_that("explore_recipes calls runApp with correct args", {
+  called_with <- list()
+  local_mocked_bindings(
+    runApp = function(appDir, port = NULL, host = "127.0.0.1",
+                      launch.browser = TRUE, ...) {
+      called_with$appDir <<- appDir
+      called_with$port <<- port
+      called_with$host <<- host
+      called_with$launch.browser <<- launch.browser
+      invisible(NULL)
+    },
+    .package = "shiny"
+  )
+  explore_recipes(port = 4321, host = "0.0.0.0", launch.browser = FALSE)
+  expect_true(nzchar(called_with$appDir))
+  expect_equal(called_with$port, 4321)
+  expect_equal(called_with$host, "0.0.0.0")
+  expect_false(called_with$launch.browser)
+})
+
+# --- survey.R print edition formatting ---
+
+test_that("Survey print handles NULL edition", {
+  s <- make_test_survey()
+  s$edition <- NULL
+  expect_message(s$print(), "Unknown|UNKNOWN|unknown|ECH")
+})
+
+test_that("Survey print handles Date edition", {
+  s <- make_test_survey()
+  s$edition <- as.Date("2023-06-15")
+  expect_message(s$print(), "2023")
+})
+
+test_that("set_weight with .copy=FALSE and list comparison errors", {
+  s <- make_test_survey()
+  # Known limitation: list == list comparison not implemented
+  expect_error(
+    metasurvey:::set_weight(s, s$weight, .copy = FALSE),
+    "not implemented"
+  )
+})
+
+test_that("has_steps returns FALSE for new survey", {
+  s <- make_test_survey()
+  expect_false(has_steps(s))
+})
+
+test_that("has_recipes returns FALSE for new survey", {
+  s <- make_test_survey()
+  expect_false(has_recipes(s))
+})
+
+test_that("is_baked returns TRUE when no steps", {
+  s <- make_test_survey()
+  expect_true(is_baked(s))
+})
+
+test_that("has_design returns FALSE for basic survey", {
+  s <- make_test_survey()
+  expect_false(has_design(s))
+})
