@@ -9,7 +9,8 @@ is_blank <- function(x) {
 #' Creates a human-readable unique identifier with an optional prefix,
 #' a Unix timestamp, and a random suffix.
 #'
-#' @param prefix Character prefix (e.g., "r" for recipes, "w" for workflows).
+#' @param prefix Character prefix (e.g., "r" for recipes,
+#'   "w" for workflows).
 #' @return Character string ID like "r_1739654400_742".
 #' @keywords internal
 #' @noRd
@@ -113,7 +114,7 @@ validate_replicate <- function(svy, replicate) {
 #' @noRd
 
 validate_weight_time_pattern <- function(svy, weight_list) {
-  if (is.null(svy)) {
+  if (is.null(svy) || is.null(weight_list)) {
     return(NULL)
   }
 
@@ -138,20 +139,25 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 
 #' Load survey example data
 #'
-#' Downloads and loads example survey data from the metasurvey data repository.
-#' This function provides access to sample datasets for testing and demonstration
-#' purposes, including ECH (Continuous Household Survey) and other survey types.
+#' Downloads and loads example survey data from the
+#' metasurvey data repository. This function provides access
+#' to sample datasets for testing and demonstration purposes,
+#' including ECH (Continuous Household Survey) and other
+#' survey types.
 #'
-#' @param svy_type Character string specifying the survey type (e.g., "ech")
-#' @param svy_edition Character string specifying the survey edition/year (e.g., "2023")
+#' @param svy_type Character string specifying the survey
+#'   type (e.g., "ech")
+#' @param svy_edition Character string specifying the survey
+#'   edition/year (e.g., "2023")
 #'
-#' @return Character string with the path to the downloaded CSV file containing
-#'   the example survey data
+#' @return Character string with the path to the downloaded
+#'   CSV file containing the example survey data
 #'
 #' @details
-#' This function downloads example data from the official metasurvey data
-#' repository on GitHub. The data is cached locally in a temporary file to
-#' avoid repeated downloads in the same session.
+#' This function downloads example data from the official
+#' metasurvey data repository on GitHub. The data is cached
+#' locally in a temporary file to avoid repeated downloads
+#' in the same session.
 #'
 #' Available survey types and editions can be found at:
 #' https://github.com/metasurveyr/metasurvey_data
@@ -171,33 +177,43 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #'
 #' @seealso \code{\link{load_survey}} for loading the downloaded data
 #' @keywords utils
+#' @family survey-loading
 #' @export
 
 load_survey_example <- function(svy_type, svy_edition) {
-  baseUrl <- "https://raw.githubusercontent.com/metasurveyr/metasurvey_data/main/"
-
+  baseUrl <- paste0(
+    "https://raw.githubusercontent.com/",
+    "metasurveyr/metasurvey_data/main/"
+  )
   f <- tempfile(fileext = ".csv")
-  if (file.exists(f)) {
-    return(f)
-  } else {
+  tryCatch(
     utils::download.file(
       paste0(
         baseUrl,
-        glue::glue(
-          "{svy_type}/{svy_edition}.csv"
-        )
+        glue::glue("{svy_type}/{svy_edition}.csv")
       ),
       f,
-      method = "auto"
-    )
-    return(f)
-  }
+      method = "auto",
+      quiet = TRUE
+    ),
+    error = function(e) {
+      stop(
+        sprintf(
+          "Failed to download example data for '%s/%s': %s",
+          svy_type, svy_edition, conditionMessage(e)
+        ),
+        call. = FALSE
+      )
+    }
+  )
+  f
 }
 
 #' Get data copy option
 #'
-#' Retrieves the current setting for the use_copy option, which controls
-#' whether survey operations create copies of the data or modify in place.
+#' Retrieves the current setting for the use_copy option,
+#' which controls whether survey operations create copies of
+#' the data or modify in place.
 #'
 #' @return Logical value indicating whether to use data copies (TRUE) or
 #'   modify data in place (FALSE). Default is TRUE.
@@ -215,17 +231,19 @@ load_survey_example <- function(svy_type, svy_edition) {
 #' print(current_setting)
 #'
 #' @seealso \code{\link{set_use_copy}} to change the setting
+#' @family options
 #' @export
 
 use_copy_default <- function() {
-  getOption("use_copy", default = TRUE)
+  getOption("metasurvey.use_copy", default = TRUE)
 }
 
 #' Set data copy option
 #'
-#' Configures whether survey operations should create copies of the data or
-#' modify existing data in place. This setting affects memory usage and
-#' performance across the metasurvey package.
+#' Configures whether survey operations should create copies
+#' of the data or modify existing data in place. This setting
+#' affects memory usage and performance across the metasurvey
+#' package.
 #'
 #' @param use_copy Logical value: TRUE to create data copies (safer),
 #'   FALSE to modify data in place (more efficient)
@@ -233,12 +251,15 @@ use_copy_default <- function() {
 #' @details
 #' Setting use_copy affects all subsequent survey operations:
 #' \itemize{
-#'   \item TRUE (default): Operations create data copies, preserving original data
-#'   \item FALSE: Operations modify data in place, reducing memory usage
+#'   \item TRUE (default): Operations create data copies,
+#'     preserving original data
+#'   \item FALSE: Operations modify data in place, reducing
+#'     memory usage
 #' }
 #'
-#' Use FALSE for large datasets where memory is a concern, but ensure you
-#' don't need the original data after operations.
+#' Use FALSE for large datasets where memory is a concern,
+#' but ensure you don't need the original data after
+#' operations.
 #'
 #' @examples
 #' # Set to use copies (default behavior)
@@ -254,6 +275,7 @@ use_copy_default <- function() {
 #'
 #' @return Invisibly, the previous value (for restoring).
 #' @seealso \code{\link{use_copy_default}} to check current setting
+#' @family options
 #' @export
 #' @keywords utils
 set_use_copy <- function(use_copy) {
@@ -261,8 +283,8 @@ set_use_copy <- function(use_copy) {
     stop("use_copy must be a logical")
   }
 
-  old <- getOption("use_copy")
-  options(use_copy = use_copy)
+  old <- getOption("metasurvey.use_copy")
+  options(metasurvey.use_copy = use_copy)
   invisible(old)
 }
 
@@ -282,7 +304,9 @@ get_user <- function() {
     user_key <- "apiKey"
   }
 
-  getOption("metasurvey.user", default = NULL) %||% user_key %||% "public"
+  getOption(
+    "metasurvey.user", default = NULL
+  ) %||% user_key %||% "public"
 }
 
 
@@ -297,14 +321,16 @@ get_user <- function() {
 #' @examples
 #' # Check current lazy processing default
 #' lazy_default()
+#' @family options
 #' @export
 
 lazy_default <- function() {
-  getOption("lazy_processing", default = TRUE)
+  getOption("metasurvey.lazy_processing", default = TRUE)
 }
 
 #' Set lazy processing
-#' @param lazy Logical. If TRUE, steps are deferred until bake_steps() is called.
+#' @param lazy Logical. If TRUE, steps are deferred until
+#'   bake_steps() is called.
 #' @return Invisibly, the previous value.
 #' @keywords utils
 #' @examples
@@ -312,6 +338,7 @@ lazy_default <- function() {
 #' set_lazy_processing(FALSE)
 #' lazy_default() # now FALSE
 #' set_lazy_processing(old) # restore
+#' @family options
 #' @export
 
 set_lazy_processing <- function(lazy) {
@@ -319,15 +346,47 @@ set_lazy_processing <- function(lazy) {
     stop("lazy must be a logical")
   }
 
-  old <- getOption("lazy_processing")
-  options(lazy_processing = lazy)
+  old <- getOption("metasurvey.lazy_processing")
+  options(metasurvey.lazy_processing = lazy)
   invisible(old)
 }
 
 
+# Validate month and return monthly result or invalid format
+# @noRd
+validate_monthly <- function(year, month) {
+  if (month >= 1 && month <= 12) {
+    list(year = year, month = month, periodicity = "Monthly")
+  } else {
+    list(year = year, month = NA, periodicity = "Invalid format")
+  }
+}
+
+# Parse two-digit short date (YY_MM or MM_YY)
+# @noRd
+parse_short_date <- function(svy_edition) {
+  patterns <- c("^(\\d{2})[_-](\\d{2})$", "^(\\d{2})(\\d{2})$")
+  for (pat in patterns) {
+    if (!grepl(pat, svy_edition)) next
+    p1 <- as.numeric(sub(pat, "\\1", svy_edition))
+    p2 <- as.numeric(sub(pat, "\\2", svy_edition))
+    if (p1 >= 1 && p1 <= 12) {
+      return(list(year = 2000 + p2, month = p1,
+                  periodicity = "Monthly"))
+    }
+    if (p2 >= 1 && p2 <= 12) {
+      return(list(year = 2000 + p1, month = p2,
+                  periodicity = "Monthly"))
+    }
+  }
+  NULL
+}
+
 #' Extract time pattern
-#' @param svy_edition Survey edition string (e.g. "2023", "2023-06", "2023_Q1").
-#' @return List with components: periodicity, year, month (when applicable).
+#' @param svy_edition Survey edition string
+#'   (e.g. "2023", "2023-06", "2023_Q1").
+#' @return List with components: periodicity, year,
+#'   month (when applicable).
 #' @keywords utils
 #' @examples
 #' # Annual edition
@@ -335,15 +394,13 @@ set_lazy_processing <- function(lazy) {
 #'
 #' # Monthly edition
 #' extract_time_pattern("2023-06")
+#' @family survey-loading
 #' @export
-
 extract_time_pattern <- function(svy_edition) {
-  # Limpiar la entrada: reemplazar espacios y guiones por guiones bajos y quitar guiones bajos extra
   svy_edition <- gsub("[\\s\\-\\/]+", "_", svy_edition, perl = TRUE)
   svy_edition <- gsub("[_*]+", "_", svy_edition, perl = TRUE)
   svy_edition <- trimws(svy_edition, which = "both")
 
-  # Inicializar variables
   type <- NA
   year <- NA
   year_start <- NA
@@ -351,109 +408,84 @@ extract_time_pattern <- function(svy_edition) {
   month <- NA
   periodicity <- NA
 
-  # Extraer el tipo si hay texto al inicio
+  # Extract type prefix if text precedes digits
   if (grepl("^[^0-9]", svy_edition)) {
     type <- sub("[0-9_]*$", "", svy_edition, perl = TRUE)
     svy_edition <- gsub("[^0-9_]*", "", svy_edition, perl = TRUE)
     svy_edition <- gsub("^_+|_+$", "", svy_edition)
   }
 
-  # Caso: Mensual en formato YYYYMM (e.g., "202312")
-  if (grepl("^(\\d{4})(\\d{2})$", svy_edition) && as.numeric(sub("^(\\d{4})(\\d{2})$", "\\2", svy_edition)) <= 12) {
-    year <- as.numeric(sub("^(\\d{4})(\\d{2})$", "\\1", svy_edition))
-    month <- as.numeric(sub("^(\\d{4})(\\d{2})$", "\\2", svy_edition))
+  # YYYYMM (e.g., "202312")
+  if (grepl("^(\\d{4})(\\d{2})$", svy_edition) &&
+      as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition)) <= 12) {
+    yr <- as.numeric(sub("^(\\d{4})\\d{2}$", "\\1", svy_edition))
+    mo <- as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition))
+    res <- validate_monthly(yr, mo)
+    year <- res$year; month <- res$month; periodicity <- res$periodicity
 
-    if (month >= 1 && month <= 12) {
-      periodicity <- "Monthly"
-    } else {
-      month <- NA
-      periodicity <- "Invalid format"
-    }
+  # MMYYYY (e.g., "122023")
+  } else if (grepl("^(\\d{2})(\\d{4})$", svy_edition) &&
+             as.numeric(sub("^(\\d{2})\\d{4}$", "\\1", svy_edition)) <= 12) {
+    mo <- as.numeric(sub("^(\\d{2})\\d{4}$", "\\1", svy_edition))
+    yr <- as.numeric(sub("^\\d{2}(\\d{4})$", "\\1", svy_edition))
+    res <- validate_monthly(yr, mo)
+    year <- res$year; month <- res$month; periodicity <- res$periodicity
 
-    # Caso: Mensual en formato MMYYYY (e.g., "122023")
-  } else if (grepl("^(\\d{2})(\\d{4})$", svy_edition) && as.numeric(sub("^(\\d{2})(\\d{4})$", "\\1", svy_edition)) <= 12) {
-    month <- as.numeric(sub("^(\\d{2})(\\d{4})$", "\\1", svy_edition))
-    year <- as.numeric(sub("^(\\d{2})(\\d{4})$", "\\2", svy_edition))
+  # MM_YYYY (e.g., "01_2023")
+  } else if (
+    grepl("^(\\d{2})[_-](\\d{4})$", svy_edition) &&
+    as.numeric(
+      sub("^(\\d{2})[_-]\\d{4}$", "\\1", svy_edition)
+    ) <= 12) {
+    mo <- as.numeric(sub("^(\\d{2})[_-]\\d{4}$", "\\1", svy_edition))
+    yr <- as.numeric(sub("^\\d{2}[_-](\\d{4})$", "\\1", svy_edition))
+    res <- validate_monthly(yr, mo)
+    year <- res$year; month <- res$month; periodicity <- res$periodicity
 
-    if (month >= 1 && month <= 12) {
-      periodicity <- "Monthly"
-    } else {
-      month <- NA
-      periodicity <- "Invalid format"
-    }
+  # YYYY_MM (e.g., "2023_12")
+  } else if (
+    grepl("^(\\d{4})[_-](\\d{2})$", svy_edition) &&
+    as.numeric(
+      sub("^\\d{4}[_-](\\d{2})$", "\\1", svy_edition)
+    ) <= 12) {
+    yr <- as.numeric(sub("^(\\d{4})[_-]\\d{2}$", "\\1", svy_edition))
+    mo <- as.numeric(sub("^\\d{4}[_-](\\d{2})$", "\\1", svy_edition))
+    res <- validate_monthly(yr, mo)
+    year <- res$year; month <- res$month; periodicity <- res$periodicity
 
-    # Caso: Mensual con formato MM_YYYY o MM-YYYY (e.g., "01_2023", "12_2023")
-  } else if (grepl("^(\\d{2})[_-](\\d{4})$", svy_edition) && as.numeric(sub("^(\\d{2})[_-](\\d{4})$", "\\1", svy_edition)) <= 12) {
-    month <- as.numeric(sub("^(\\d{2})[_-](\\d{4})$", "\\1", svy_edition))
-    year <- as.numeric(sub("^(\\d{2})[_-](\\d{4})$", "\\2", svy_edition))
-
-    if (month >= 1 && month <= 12) {
-      periodicity <- "Monthly"
-    } else {
-      month <- NA
-      periodicity <- "Invalid format"
-    }
-
-    # Caso: Mensual con formato YYYY_MM o YYYY-MM (e.g., "2023_12")
-  } else if (grepl("^(\\d{4})[_-](\\d{2})$", svy_edition) && as.numeric(sub("^(\\d{4})[_-](\\d{2})$", "\\2", svy_edition)) <= 12) {
-    year <- as.numeric(sub("^(\\d{4})[_-](\\d{2})$", "\\1", svy_edition))
-    month <- as.numeric(sub("^(\\d{4})[_-](\\d{2})$", "\\2", svy_edition))
-
-    if (month >= 1 && month <= 12) {
-      periodicity <- "Monthly"
-    } else {
-      month <- NA
-      periodicity <- "Invalid format"
-    }
-
-    # Caso: Encuesta con rango de años (e.g., "2019_2021")
+  # Year range (e.g., "2019_2021")
   } else if (grepl("^(\\d{4})[_]?(\\d{4})$", svy_edition)) {
-    years <- as.numeric(unlist(regmatches(svy_edition, gregexpr("\\d{4}", svy_edition))))
+    years <- as.numeric(unlist(regmatches(
+      svy_edition, gregexpr("\\d{4}", svy_edition)
+    )))
     year_start <- min(years)
     year_end <- max(years)
-    periodicity <- if (year_end - year_start + 1 == 3) "Trianual" else "Multianual"
+    span <- year_end - year_start + 1
+    periodicity <- if (span == 3) "Triennial" else "Multi-year"
 
-    # Caso: Anual (e.g., "2023")
-  } else if (grepl("^\\d{4}$", svy_edition) && as.numeric(svy_edition) >= 1900) {
+  # Annual (e.g., "2023")
+  } else if (grepl("^\\d{4}$", svy_edition) &&
+             as.numeric(svy_edition) >= 1900) {
     year <- as.numeric(svy_edition)
     periodicity <- "Annual"
 
-    # Caso: Mensual con formato YY_MM o MM_YY (e.g., "23_05" que se interpreta como "2023-05")
-  } else if ((grepl("^(\\d{2})[_-](\\d{2})$", svy_edition) || grepl("^(\\d{2})(\\d{2})$", svy_edition))) {
-    part1 <- as.numeric(sub("^(\\d{2})[_-](\\d{2})$", "\\1", svy_edition))
-    part2 <- as.numeric(sub("^(\\d{2})[_-](\\d{2})$", "\\2", svy_edition))
-
-    # Si part1 puede ser mes (1-12), entonces part1 es mes y part2 es año
-    if (part1 >= 1 && part1 <= 12) {
-      month <- part1
-      year <- 2000 + part2 # Interpretar como 20XX
-    } else if (part2 >= 1 && part2 <= 12) {
-      year <- 2000 + part1 # Interpretar como 20XX
-      month <- part2
-    } else {
-      part1 <- as.numeric(sub("^(\\d{2})(\\d{2})$", "\\1", svy_edition))
-      part2 <- as.numeric(sub("^(\\d{2})(\\d{2})$", "\\2", svy_edition))
-      if (part1 >= 1 && part1 <= 12) {
-        month <- part1
-        year <- 2000 + part2 # Interpretar como 20XX
-      } else if (part2 >= 1 && part2 <= 12) {
-        year <- 2000 + part1 # Interpretar como 20XX
-        month <- part2
-      }
-    }
-
-    if (!is.na(month) && month >= 1 && month <= 12) {
-      periodicity <- "Monthly"
+  # Short date YY_MM or MM_YY (e.g., "23_05")
+  } else if (grepl("^\\d{2}[_-]?\\d{2}$", svy_edition)) {
+    res <- parse_short_date(svy_edition)
+    if (!is.null(res)) {
+      year <- res$year; month <- res$month
+      periodicity <- res$periodicity
     }
   } else {
     periodicity <- "Unknown format"
   }
 
-  # Devolver los resultados
-  result <- list(type = type, year = year, month = month, year_start = year_start, year_end = year_end, periodicity = periodicity)
-  clean_result <- result[!vapply(result, is.na, logical(1))]
-
-  return(clean_result)
+  result <- list(
+    type = type, year = year, month = month,
+    year_start = year_start, year_end = year_end,
+    periodicity = periodicity
+  )
+  result[!vapply(result, is.na, logical(1))]
 }
 
 
@@ -467,21 +499,31 @@ extract_time_pattern <- function(svy_edition) {
 
 #' Validate time pattern
 #' @param svy_type Survey type (e.g. "ech").
-#' @param svy_edition Survey edition string (e.g. "2023", "2023-06").
-#' @return List with components: svy_type, svy_edition (parsed), svy_periodicity.
+#' @param svy_edition Survey edition string
+#'   (e.g. "2023", "2023-06").
+#' @return List with components: svy_type, svy_edition
+#'   (parsed), svy_periodicity.
 #' @keywords utils
 #' @examples
 #' validate_time_pattern(svy_type = "ech", svy_edition = "2023")
-#' validate_time_pattern(svy_type = "ech", svy_edition = "2023-06")
+#' validate_time_pattern(
+#'   svy_type = "ech", svy_edition = "2023-06"
+#' )
+#' @family survey-loading
 #' @export
 
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
-  # Validar que svy_edition no sea NULL o vacío
-  if (is.null(svy_edition) || length(svy_edition) == 0 || svy_edition == "") {
+  # Validate that svy_edition is not NULL or empty
+  if (is.null(svy_edition) ||
+      length(svy_edition) == 0 ||
+      svy_edition == "") {
     if (is.null(svy_type)) {
-      stop("Both svy_edition and svy_type are NULL. Please provide at least one.")
+      stop(
+        "Both svy_edition and svy_type are NULL. ",
+        "Please provide at least one."
+      )
     }
-    # Si no hay edition pero sí type, retornar solo el type
+    # If no edition but type exists, return type only
     return(list(
       svy_type = svy_type,
       svy_edition = NA,
@@ -492,13 +534,20 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   time_pattern <- extract_time_pattern(svy_edition)
 
   if (is.null(time_pattern$type) && is.null(svy_type)) {
-    stop("Type not found. Please provide a valid type in the survey edition or as an argument")
+    stop(
+      "Type not found. Please provide a valid type ",
+      "in the survey edition or as an argument"
+    )
   }
 
   time_pattern$type <- time_pattern$type %@% svy_type
 
-  if (!is.null(time_pattern$type) && toupper(time_pattern$type) != toupper(svy_type)) {
-    message("Type does not match. Please provide a valid type in the survey edition or as an argument")
+  if (!is.null(time_pattern$type) &&
+      toupper(time_pattern$type) != toupper(svy_type)) {
+    message(
+      "Type does not match. Please provide a valid ",
+      "type in the survey edition or as an argument"
+    )
   }
 
 
@@ -509,8 +558,14 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
   svy_editions <- ""
 
-  if (!is.null(time_pattern$month) && !is.na(time_pattern$month) && !is.null(time_pattern$year) && !is.na(time_pattern$year)) {
-    date_string <- sprintf("%04d-%02d-01", time_pattern$year, time_pattern$month)
+  if (!is.null(time_pattern$month) &&
+      !is.na(time_pattern$month) &&
+      !is.null(time_pattern$year) &&
+      !is.na(time_pattern$year)) {
+    date_string <- sprintf(
+      "%04d-%02d-01",
+      time_pattern$year, time_pattern$month
+    )
     svy_edition <- as.Date(date_string)
   } else {
     svy_edition <- Reduce(
@@ -536,12 +591,17 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 #' Group dates
 #' @param dates Vector of Date objects.
 #' @param type Grouping type: "monthly", "quarterly", or "biannual".
-#' @return Integer vector of group indices (e.g. 1-12 for monthly, 1-4 for quarterly).
+#' @return Integer vector of group indices (e.g. 1-12 for
+#'   monthly, 1-4 for quarterly).
 #' @keywords utils
 #' @examples
-#' dates <- as.Date(c("2023-01-15", "2023-04-20", "2023-07-10", "2023-11-05"))
+#' dates <- as.Date(c(
+#'   "2023-01-15", "2023-04-20",
+#'   "2023-07-10", "2023-11-05"
+#' ))
 #' group_dates(dates, "quarterly")
 #' group_dates(dates, "biannual")
+#' @family survey-loading
 #' @export
 
 group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
@@ -599,7 +659,6 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' specified \code{estimation_type} parameter.
 #'
 #' @examples
-#' \dontrun{
 #' # Basic configuration with simple weight variables
 #' ech_weights <- add_weight(
 #'   monthly = "pesomes",
@@ -607,6 +666,7 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #'   annual = "pesoano"
 #' )
 #'
+#' \dontrun{
 #' # With bootstrap replicates for variance estimation
 #' weights_with_replicates <- add_weight(
 #'   monthly = add_replicate(
@@ -637,6 +697,7 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #' \code{\link{workflow}} that automatically selects weights
 #'
 #' @keywords utils
+#' @family weights
 #' @export
 #'
 add_weight <- function(
@@ -746,6 +807,7 @@ add_weight <- function(
 #' \code{\link{load_survey}} where this configuration is used
 #'
 #' @keywords utils
+#' @family weights
 #' @export
 
 add_replicate <- function(
@@ -762,7 +824,9 @@ add_replicate <- function(
     replicate_type = replicate_type
   )
 
-  replicate_list_clean <- replicate_list[!vapply(replicate_list, is.null, logical(1))]
+  replicate_list_clean <- replicate_list[
+    !vapply(replicate_list, is.null, logical(1))
+  ]
 
   return(replicate_list_clean)
 }
@@ -785,13 +849,25 @@ add_replicate <- function(
   basename_lower <- tolower(basename(p))
 
   resource <- NULL
-  if (grepl("bootstrap.*anual|anual.*bootstrap|bootstrap.*annual", basename_lower)) {
+  if (grepl(
+    "bootstrap.*anual|anual.*bootstrap|bootstrap.*annual",
+    basename_lower
+  )) {
     resource <- "bootstrap_annual"
-  } else if (grepl("bootstrap.*mensual|mensual.*bootstrap|bootstrap.*monthly", basename_lower)) {
+  } else if (grepl(
+    "bootstrap.*mensual|mensual.*bootstrap|bootstrap.*monthly",
+    basename_lower
+  )) {
     resource <- "bootstrap_monthly"
-  } else if (grepl("bootstrap.*trimest|trimest.*bootstrap|bootstrap.*quarterly", basename_lower)) {
+  } else if (grepl(
+    "bootstrap.*trimest|trimest.*bootstrap|bootstrap.*quarterly",
+    basename_lower
+  )) {
     resource <- "bootstrap_quarterly"
-  } else if (grepl("bootstrap.*semest|semest.*bootstrap|bootstrap.*semestral", basename_lower)) {
+  } else if (grepl(
+    "bootstrap.*semest|semest.*bootstrap|bootstrap.*semestral",
+    basename_lower
+  )) {
     resource <- "bootstrap_semestral"
   }
 
@@ -866,6 +942,7 @@ add_replicate <- function(
 #' wf <- api_get_workflow("w_123")
 #' weight <- resolve_weight_spec(wf$weight_spec)
 #' }
+#' @family weights
 resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
   if (is.null(weight_spec)) {
     return(NULL)
@@ -894,7 +971,10 @@ resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
 
       rep_id <- NULL
       if (!is.null(ws$replicate_id)) {
-        rep_id <- stats::setNames(ws$replicate_id$replicate_key, ws$replicate_id$survey_key)
+        rep_id <- stats::setNames(
+          ws$replicate_id$replicate_key,
+          ws$replicate_id$survey_key
+        )
       }
 
       add_replicate(
@@ -928,6 +1008,7 @@ resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
 #' wf <- api_get_workflow("w_123")
 #' svy <- reproduce_workflow(wf)
 #' }
+#' @family workflows
 reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
   if (!inherits(wf, "RecipeWorkflow")) {
     stop("wf must be a RecipeWorkflow object", call. = FALSE)
@@ -972,12 +1053,14 @@ reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
 
 #' Evaluate estimation with Coefficient of Variation
 #' @param cv Numeric coefficient of variation value.
-#' @return Character string with the quality category (e.g. "Excellent", "Good").
+#' @return Character string with the quality category
+#'   (e.g. "Excellent", "Good").
 #' @keywords utils
 #' @examples
 #' evaluate_cv(3) # "Excellent"
 #' evaluate_cv(12) # "Good"
 #' evaluate_cv(30) # "Use with caution"
+#' @family workflows
 #' @export
 
 evaluate_cv <- function(cv) {
