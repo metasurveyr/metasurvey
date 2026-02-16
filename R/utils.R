@@ -415,6 +415,23 @@ extract_time_pattern <- function(svy_edition) {
     svy_edition <- gsub("^_+|_+$", "", svy_edition)
   }
 
+  # Quarter/Trimester: YYYY_T\d, YYYY_Q\d (e.g., "2023_T3", "2023_Q1")
+  qmatch <- regmatches(svy_edition, regexec(
+    "^(\\d{4})[_]?([TtQq])(\\d)$", svy_edition
+  ))[[1]]
+  if (length(qmatch) == 4) {
+    year <- as.numeric(qmatch[2])
+    quarter <- as.integer(qmatch[4])
+    month <- (quarter - 1L) * 3L + 1L
+    periodicity <- "Quarterly"
+    result <- list(
+      type = type, year = year, month = month,
+      year_start = NA, year_end = NA,
+      periodicity = periodicity
+    )
+    return(result[!vapply(result, is.na, logical(1))])
+  }
+
   # YYYYMM (e.g., "202312")
   if (grepl("^(\\d{4})(\\d{2})$", svy_edition) &&
       as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition)) <= 12) {
@@ -516,7 +533,8 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   # Validate that svy_edition is not NULL or empty
   if (is.null(svy_edition) ||
       length(svy_edition) == 0 ||
-      svy_edition == "") {
+      isTRUE(is.na(svy_edition)) ||
+      identical(svy_edition, "")) {
     if (is.null(svy_type)) {
       stop(
         "Both svy_edition and svy_type are NULL. ",
