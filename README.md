@@ -175,6 +175,43 @@ variance.
 
 ---
 
+## STATA transpiler
+
+Many research groups maintain decades of STATA `.do` files that process
+household survey microdata. The metasurvey transpiler converts these scripts
+into reproducible Recipe objects.
+
+```r
+library(metasurvey)
+
+# Transpile a .do file to metasurvey steps
+result <- transpile_stata("demographics.do")
+result$steps[1:3]
+#> [1] "step_rename(svy, hh_id = \"id\", person_id = \"nper\")"
+#> [2] "step_compute(svy, weight_yr = pesoano)"
+#> [3] "step_compute(svy, sex = e26)"
+
+# Transpile an entire year directory into separate recipes
+recipes <- transpile_stata_module(
+  year_dir = "do_files/2022",
+  year = 2022,
+  user = "research_team",
+  output_dir = "recipes/"
+)
+
+# Check coverage before migrating
+transpile_coverage("do_files/")
+```
+
+Supported STATA patterns: `gen`/`replace` chains, `recode`, `egen` with
+by-groups, `foreach`/`forvalues` loops, `mvencode`, `destring`, `rename`,
+`drop`/`keep`, variable and value labels, `inrange`/`inlist` expressions,
+and variable ranges.
+
+See `vignette("stata-transpiler")` for the full reference.
+
+---
+
 ## Documentation
 
 - [Getting started](https://metasurveyr.github.io/metasurvey/articles/getting-started.html)
@@ -183,5 +220,7 @@ variance.
 - [Complex designs](https://metasurveyr.github.io/metasurvey/articles/complex-designs.html)
 - [Rotating panels](https://metasurveyr.github.io/metasurvey/articles/panel-analysis.html)
 - [Case study: ECH](https://metasurveyr.github.io/metasurvey/articles/ech-case-study.html)
+- [STATA transpiler](https://metasurveyr.github.io/metasurvey/articles/stata-transpiler.html)
+- [ECH demographics recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.html)
 - [Interactive explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html)
 - [API and database](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
