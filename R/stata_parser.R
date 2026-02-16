@@ -83,7 +83,8 @@ strip_stata_comments <- function(lines) {
     while (grepl("/\\*", line, useBytes = TRUE)) {
       open_pos <- regexpr("/\\*", line, useBytes = TRUE)
       close_pos <- regexpr("\\*/", substring(line, open_pos + 2),
-                           useBytes = TRUE)
+        useBytes = TRUE
+      )
       if (close_pos > 0) {
         before <- substring(line, 1, open_pos - 1)
         after <- substring(line, open_pos + 2 + close_pos + 1)
@@ -155,7 +156,9 @@ join_continuation_lines <- function(lines) {
 #' @return Character vector with broken expressions re-joined
 #' @keywords internal
 join_broken_expressions <- function(lines) {
-  if (length(lines) <= 1) return(lines)
+  if (length(lines) <= 1) {
+    return(lines)
+  }
 
   result <- character(0)
   buffer <- ""
@@ -204,7 +207,7 @@ join_broken_expressions <- function(lines) {
     # Check if this line ends with an operator or open paren
     # (suggesting the expression continues on next line)
     if (nchar(trimmed) > 0 &&
-        grepl("[&|+\\-*/( ,]\\s*$", trimmed, perl = TRUE)) {
+      grepl("[&|+\\-*/( ,]\\s*$", trimmed, perl = TRUE)) {
       buffer <- trimmed
     } else {
       result <- c(result, line)
@@ -235,7 +238,8 @@ expand_stata_loops <- function(lines) {
         "^\\s*(?:cap(?:ture)?\\s+)?foreach\\s+(\\w+)\\s+",
         "(?:in|of\\s+local|of\\s+varlist|of\\s+var)\\s+(.+?)\\s*\\{\\s*$"
       ),
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
 
     # Match foreach ... of numlist ... {
@@ -244,7 +248,8 @@ expand_stata_loops <- function(lines) {
         "^\\s*(?:cap(?:ture)?\\s+)?foreach\\s+(\\w+)\\s+",
         "of\\s+num(?:list)?\\s+(.+?)\\s*\\{\\s*$"
       ),
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
 
     # Match forvalues ... = .../... {
@@ -253,7 +258,8 @@ expand_stata_loops <- function(lines) {
         "^\\s*(?:cap(?:ture)?\\s+)?forval(?:ues)?\\s+",
         "(\\w+)\\s*=\\s*(.+?)\\s*\\{\\s*$"
       ),
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
 
     if (length(foreach_in) >= 3) {
@@ -285,7 +291,8 @@ expand_stata_loops <- function(lines) {
 
   # Recursively expand nested loops (inner foreach/forvalues inside expanded body)
   if (!identical(result, lines) && any(grepl(
-    "^\\s*(?:cap(?:ture)?\\s+)?(?:foreach|forval)", result, perl = TRUE
+    "^\\s*(?:cap(?:ture)?\\s+)?(?:foreach|forval)", result,
+    perl = TRUE
   ))) {
     result <- expand_stata_loops(result)
   }
@@ -370,13 +377,19 @@ expand_loop_body <- function(loopvar, values, body) {
 #' @keywords internal
 parse_stata_command <- function(line, line_num = NA_integer_) {
   line <- trimws(line)
-  if (nchar(line) == 0) return(NULL)
+  if (nchar(line) == 0) {
+    return(NULL)
+  }
 
   # Skip orphan expression fragments (broken multi-line continuations)
   # These start with &, |, ), +, or ( (expression fragments from block comments)
-  if (grepl("^[&|)+]", line, perl = TRUE)) return(NULL)
+  if (grepl("^[&|)+]", line, perl = TRUE)) {
+    return(NULL)
+  }
   # Lines starting with ( that aren't commands — bare expressions from commented blocks
-  if (grepl("^\\(", line, perl = TRUE)) return(NULL)
+  if (grepl("^\\(", line, perl = TRUE)) {
+    return(NULL)
+  }
 
   # Strip capture prefix
   capture <- FALSE
@@ -388,7 +401,8 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
   # Strip bysort/bys/by prefix
   by_group <- NULL
   by_match <- regmatches(line, regexec(
-    "^(?:bysort|bys|by)\\s+([\\w\\s]+?)\\s*:\\s*(.+)$", line, perl = TRUE
+    "^(?:bysort|bys|by)\\s+([\\w\\s]+?)\\s*:\\s*(.+)$", line,
+    perl = TRUE
   ))[[1]]
   if (length(by_match) >= 3) {
     by_group <- trimws(by_match[[2]])
@@ -403,7 +417,8 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
       "^(.+),\\s*((?:gen|replace|force|override|mv|by)\\s*\\(.+?\\).*",
       "|replace.*|force.*|override.*|gen\\s*\\(\\w+\\).*)$"
     ),
-    line, perl = TRUE
+    line,
+    perl = TRUE
   ))[[1]]
   if (length(opt_match) >= 3) {
     line <- trimws(opt_match[[2]])
@@ -413,7 +428,8 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
   # Extract if clause
   if_clause <- NULL
   if_match <- regmatches(line, regexec(
-    "^(.+?)\\s+if\\s+(.+)$", line, perl = TRUE
+    "^(.+?)\\s+if\\s+(.+)$", line,
+    perl = TRUE
   ))[[1]]
   if (length(if_match) >= 3) {
     # Make sure this isn't part of an expression like "ifelse" or inside parens
@@ -428,7 +444,9 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
 
   # Identify command
   parts <- strsplit(line, "\\s+", perl = TRUE)[[1]]
-  if (length(parts) == 0) return(NULL)
+  if (length(parts) == 0) {
+    return(NULL)
+  }
 
   cmd <- tolower(parts[[1]])
   args <- if (length(parts) > 1) {
@@ -487,7 +505,7 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
 #' lines <- c(
 #'   'label variable edad "Age in years"',
 #'   'label define sexo_lbl 1 "Male" 2 "Female"',
-#'   'label values sexo sexo_lbl'
+#'   "label values sexo sexo_lbl"
 #' )
 #' labels <- parse_stata_labels(lines)
 #' labels$var_labels
@@ -496,7 +514,7 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
 #' @export
 parse_stata_labels <- function(lines) {
   var_labels <- list()
-  val_defs <- list()   # label name -> list of value-label pairs
+  val_defs <- list() # label name -> list of value-label pairs
   val_assigns <- list() # variable name -> label name
 
   for (line in lines) {
@@ -509,7 +527,8 @@ parse_stata_labels <- function(lines) {
     # lab var varname "label"
     m <- regmatches(line, regexec(
       '^\\s*lab(?:el)?\\s+var(?:iable)?\\s+(\\w+)\\s+"([^"]*)"',
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
     if (length(m) >= 3) {
       var_labels[[m[[2]]]] <- m[[3]]
@@ -519,7 +538,8 @@ parse_stata_labels <- function(lines) {
     # lab def labelname val1 "label1" val2 "label2" ...
     m <- regmatches(line, regexec(
       "^\\s*lab(?:el)?\\s+def(?:ine)?\\s+(\\w+)\\s+(.+)$",
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
     if (length(m) >= 3) {
       label_name <- m[[2]]
@@ -552,7 +572,8 @@ parse_stata_labels <- function(lines) {
     # lab val varname labelname
     m <- regmatches(line, regexec(
       "^\\s*lab(?:el)?\\s+val(?:ues)?\\s+(\\w+)\\s+(\\w+)",
-      line, perl = TRUE
+      line,
+      perl = TRUE
     ))[[1]]
     if (length(m) >= 3) {
       val_assigns[[m[[2]]]] <- m[[3]]

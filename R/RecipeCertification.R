@@ -36,8 +36,8 @@ RecipeCertification <- R6::R6Class(
                           certified_at = NULL) {
       valid_levels <- c("community", "reviewed", "official")
       if (is.null(level) ||
-          !is.character(level) ||
-          !(level %in% valid_levels)) {
+        !is.character(level) ||
+        !(level %in% valid_levels)) {
         stop(
           "level must be one of: ",
           paste(valid_levels, collapse = ", ")
@@ -57,7 +57,7 @@ RecipeCertification <- R6::R6Class(
       if (level == "reviewed") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
           !certified_by$user_type %in%
-          c("institutional_member", "institution")) {
+            c("institutional_member", "institution")) {
           stop(
             "reviewed certification requires a ",
             "RecipeUser of type 'institutional_member' ",

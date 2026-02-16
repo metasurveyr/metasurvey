@@ -18,8 +18,9 @@ knitr::opts_chunk$set(
 install_if_missing <- function(pkg, github = NULL) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     if (!is.null(github)) {
-      if (!requireNamespace("pak", quietly = TRUE))
+      if (!requireNamespace("pak", quietly = TRUE)) {
         install.packages("pak", repos = "https://cloud.r-project.org")
+      }
       get("pak", envir = asNamespace("pak"))(github, ask = FALSE)
     } else {
       install.packages(pkg, repos = "https://cloud.r-project.org", quiet = TRUE)
@@ -99,8 +100,8 @@ svy_ech <- Survey$new(
 
 svy_ech <- svy_ech |>
   step_recode(labor_status,
-    POBPCOAC == 2           ~ "Employed",
-    POBPCOAC %in% 3:5       ~ "Unemployed",
+    POBPCOAC == 2 ~ "Employed",
+    POBPCOAC %in% 3:5 ~ "Unemployed",
     POBPCOAC %in% c(6:10, 1) ~ "Inactive or under 14",
     comment = "Estado de actividad segun OIT"
   ) |>
@@ -340,14 +341,14 @@ presenta un ejemplo sintetico que replica la estructura real.
 ```{r enigh}
 set.seed(42)
 dt_enigh <- data.table(
-  id       = 1:200,
-  upm      = rep(1:40, each = 5),
-  est_dis  = rep(1:10, each = 20),
-  factor   = runif(200, 100, 500),
+  id = 1:200,
+  upm = rep(1:40, each = 5),
+  est_dis = rep(1:10, each = 20),
+  factor = runif(200, 100, 500),
   sexo_jefe = sample(1:2, 200, replace = TRUE),
   edad_jefe = sample(18:80, 200, replace = TRUE),
-  ing_cor   = rlnorm(200, 10, 1),
-  tam_hog   = sample(1:8, 200, replace = TRUE)
+  ing_cor = rlnorm(200, 10, 1),
+  tam_hog = sample(1:8, 200, replace = TRUE)
 )
 
 svy_enigh <- Survey$new(
@@ -395,12 +396,15 @@ library(haven)
 tf <- tempfile(fileext = ".zip")
 download.file(
   "https://dhsprogram.com/data/model_data/dhs/zzir62dt.zip",
-  tf, mode = "wb", quiet = TRUE
+  tf,
+  mode = "wb", quiet = TRUE
 )
 td <- tempdir()
 unzip(tf, exdir = td)
-dta_file <- list.files(td, pattern = "\\.DTA$", full.names = TRUE,
-                       ignore.case = TRUE)
+dta_file <- list.files(td,
+  pattern = "\\.DTA$", full.names = TRUE,
+  ignore.case = TRUE
+)
 dt_dhs <- data.table(read_dta(dta_file[1]))
 
 # Los ponderadores DHS deben dividirse por 1.000.000

@@ -243,8 +243,8 @@ workflow_from_list <- function(lst) {
       for (i in seq_len(nrow(raw_cats))) {
         row <- as.list(raw_cats[i, ])
         if (is.data.frame(row$parent) &&
-            (nrow(row$parent) == 0 ||
-             ncol(row$parent) == 0)) {
+          (nrow(row$parent) == 0 ||
+            ncol(row$parent) == 0)) {
           row$parent <- NULL
         }
         categories[[i]] <- RecipeCategory$from_list(row)
@@ -329,7 +329,8 @@ save_workflow <- function(wf, file) {
   }
   wf_data <- wf$to_list()
   jsonlite::write_json(
-    wf_data, path = file,
+    wf_data,
+    path = file,
     auto_unbox = TRUE, pretty = TRUE
   )
   message(glue::glue("Workflow saved to {file}"))
@@ -353,7 +354,8 @@ save_workflow <- function(wf, file) {
 #' wf2 <- read_workflow(f)
 read_workflow <- function(file) {
   json_data <- jsonlite::read_json(
-    file, simplifyVector = TRUE
+    file,
+    simplifyVector = TRUE
   )
   workflow_from_list(json_data)
 }
@@ -384,7 +386,8 @@ print.RecipeWorkflow <- function(x, ...) {
   cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
   cat(
     crayon::silver("Survey:  "),
-    x$survey_type, " / ", x$edition, "\n", sep = ""
+    x$survey_type, " / ", x$edition, "\n",
+    sep = ""
   )
   cat(crayon::silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$doi)) {
@@ -393,7 +396,8 @@ print.RecipeWorkflow <- function(x, ...) {
   if (nzchar(x$description)) {
     cat(
       crayon::silver("Description: "),
-      x$description, "\n", sep = ""
+      x$description, "\n",
+      sep = ""
     )
   }
 
@@ -415,7 +419,8 @@ print.RecipeWorkflow <- function(x, ...) {
     cat(
       crayon::silver("Estimation types: "),
       paste(x$estimation_type, collapse = ", "),
-      "\n", sep = ""
+      "\n",
+      sep = ""
     )
   }
 

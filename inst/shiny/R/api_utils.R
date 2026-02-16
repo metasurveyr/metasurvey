@@ -83,11 +83,13 @@ shiny_api_request <- function(method,
   }
   if (resp$status_code >= 400) {
     txt <- httr::content(
-      resp, "text", encoding = "UTF-8"
+      resp, "text",
+      encoding = "UTF-8"
     )
     parsed <- tryCatch(
       jsonlite::fromJSON(
-        txt, simplifyVector = FALSE
+        txt,
+        simplifyVector = FALSE
       ),
       error = function(e) list()
     )
@@ -109,7 +111,8 @@ shiny_api_request <- function(method,
 
 hash_password <- function(password) {
   digest::digest(
-    password, algo = "sha256", serialize = FALSE
+    password,
+    algo = "sha256", serialize = FALSE
   )
 }
 
@@ -132,7 +135,8 @@ shiny_register <- function(name,
   }
 
   result <- shiny_api_request(
-    "POST", "auth/register", body = body
+    "POST", "auth/register",
+    body = body
   )
 
   # Institutional account pending review
@@ -147,8 +151,8 @@ shiny_register <- function(name,
   if (isTRUE(result$ok) && !is.null(result$token)) {
     inst_obj <- if (
       !is.null(institution) &&
-      nzchar(institution) &&
-      user_type == "institutional_member"
+        nzchar(institution) &&
+        user_type == "institutional_member"
     ) {
       metasurvey::RecipeUser$new(
         name = institution,
@@ -171,8 +175,8 @@ shiny_register <- function(name,
   }
 
   if (!isTRUE(result$ok) &&
-      !is.null(result$error) &&
-      grepl("Connection failed", result$error)) {
+    !is.null(result$error) &&
+    grepl("Connection failed", result$error)) {
     # Offline fallback
     if (email %in% names(.local_users$data)) {
       return(list(
@@ -188,8 +192,8 @@ shiny_register <- function(name,
     )
     inst_obj <- if (
       !is.null(institution) &&
-      nzchar(institution) &&
-      user_type == "institutional_member"
+        nzchar(institution) &&
+        user_type == "institutional_member"
     ) {
       metasurvey::RecipeUser$new(
         name = institution,
@@ -224,11 +228,11 @@ shiny_login <- function(email, password) {
   )
 
   if (isTRUE(result$ok) &&
-      !is.null(result$user)) {
+    !is.null(result$user)) {
     doc <- result$user
     inst <- NULL
     if (doc$user_type == "institutional_member" &&
-        !is.null(doc$institution)) {
+      !is.null(doc$institution)) {
       inst <- metasurvey::RecipeUser$new(
         name = doc$institution,
         user_type = "institution"
@@ -248,8 +252,8 @@ shiny_login <- function(email, password) {
   }
 
   if (!isTRUE(result$ok) &&
-      !is.null(result$error) &&
-      grepl("Connection failed", result$error)) {
+    !is.null(result$error) &&
+    grepl("Connection failed", result$error)) {
     # Offline fallback
     pw_hash <- hash_password(password)
     if (email %in% names(.local_users$data)) {
@@ -257,8 +261,8 @@ shiny_login <- function(email, password) {
       if (identical(local_u$password_hash, pw_hash)) {
         inst <- NULL
         if (local_u$user_type ==
-            "institutional_member" &&
-            !is.null(local_u$institution)) {
+          "institutional_member" &&
+          !is.null(local_u$institution)) {
           inst <- metasurvey::RecipeUser$new(
             name = local_u$institution,
             user_type = "institution"
@@ -296,7 +300,8 @@ shiny_login <- function(email, password) {
 
 shiny_fetch_pending_users <- function(token) {
   shiny_api_request(
-    "GET", "admin/pending-users", token = token
+    "GET", "admin/pending-users",
+    token = token
   )
 }
 
@@ -320,7 +325,8 @@ shiny_reject_user <- function(email, token) {
 
 shiny_generate_token <- function(token) {
   shiny_api_request(
-    "POST", "auth/generate-token", token = token
+    "POST", "auth/generate-token",
+    token = token
   )
 }
 
@@ -343,7 +349,8 @@ shiny_fetch_recipes <- function(filter = list()) {
   params$limit <- 200
 
   result <- shiny_api_request(
-    "GET", "recipes", params = params
+    "GET", "recipes",
+    params = params
   )
 
   if (isTRUE(result$ok)) {
@@ -463,7 +470,8 @@ shiny_fetch_workflows <- function(filter = list()) {
   params$limit <- 200
 
   result <- shiny_api_request(
-    "GET", "workflows", params = params
+    "GET", "workflows",
+    params = params
   )
 
   if (isTRUE(result$ok)) {
@@ -512,13 +520,15 @@ shiny_fetch_anda_variables <- function(survey_type,
   params <- list(
     survey_type = survey_type,
     names = paste(
-      tolower(var_names), collapse = ","
+      tolower(var_names),
+      collapse = ","
     )
   )
   tryCatch(
     {
       result <- shiny_api_request(
-        "GET", "anda/variables", params = params
+        "GET", "anda/variables",
+        params = params
       )
       if (isTRUE(result$ok)) {
         result$variables %||% list()
@@ -600,7 +610,8 @@ example_recipes <- function() {
       downloads = 1847L,
       certification =
         metasurvey::RecipeCertification$new(
-          "official", certified_by = iecon
+          "official",
+          certified_by = iecon
         ),
       user_info = member_maria,
       version = "2.1.0",
@@ -669,7 +680,8 @@ example_recipes <- function() {
       downloads = 2103L,
       certification =
         metasurvey::RecipeCertification$new(
-          "official", certified_by = iecon
+          "official",
+          certified_by = iecon
         ),
       user_info = member_maria,
       version = "3.0.1",
@@ -857,7 +869,8 @@ example_recipes <- function() {
       downloads = 3210L,
       certification =
         metasurvey::RecipeCertification$new(
-          "official", certified_by = iecon
+          "official",
+          certified_by = iecon
         ),
       user_info = member_maria,
       version = "4.0.0",
@@ -1232,7 +1245,8 @@ example_workflows <- function() {
       downloads = 892L,
       certification =
         metasurvey::RecipeCertification$new(
-          "official", certified_by = iecon
+          "official",
+          certified_by = iecon
         ),
       version = "2.0.0"
     ),
@@ -1310,7 +1324,8 @@ example_workflows <- function() {
       downloads = 1205L,
       certification =
         metasurvey::RecipeCertification$new(
-          "official", certified_by = iecon
+          "official",
+          certified_by = iecon
         ),
       version = "3.0.0"
     ),

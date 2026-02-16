@@ -89,8 +89,10 @@ cat_design(svy_strat_clus)
 Validacion cruzada con el paquete `survey`:
 
 ```{r stratified-validate}
-design_strat <- svydesign(id = ~1, strata = ~stype, weights = ~pw,
-                          data = dt_strat)
+design_strat <- svydesign(
+  id = ~1, strata = ~stype, weights = ~pw,
+  data = dt_strat
+)
 direct_strat <- svymean(~api00, design_strat)
 
 wf_strat <- workflow(

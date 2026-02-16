@@ -133,7 +133,7 @@ test_that("parse_stata_labels extracts var labels", {
 test_that("parse_stata_labels extracts val labels", {
   lines <- c(
     'lab def pe2l 1 "Hombre" 2 "Mujer"',
-    'lab val bc_pe2 pe2l'
+    "lab val bc_pe2 pe2l"
   )
   result <- parse_stata_labels(lines)
   expect_equal(result$val_labels$bc_pe2[["1"]], "Hombre")
@@ -143,7 +143,7 @@ test_that("parse_stata_labels extracts val labels", {
 test_that("parse_stata_labels handles define + values together", {
   lines <- c(
     'lab def pe4l 1 "Jefe" 2 "Conyuge" 3 "Hijo"',
-    'lab val bc_pe4 pe4l'
+    "lab val bc_pe4 pe4l"
   )
   result <- parse_stata_labels(lines)
   expect_length(result$val_labels$bc_pe4, 3)
@@ -361,7 +361,7 @@ test_that("parse_stata_labels handles define with add option", {
     'lab def status 1 "Active" 2 "Inactive", add'
   )
   result <- parse_stata_labels(lines)
-  expect_equal(result$val_labels, list())  # no "lab val" so no resolved labels
+  expect_equal(result$val_labels, list()) # no "lab val" so no resolved labels
   # but val_defs should contain the definition (internal)
 })
 
