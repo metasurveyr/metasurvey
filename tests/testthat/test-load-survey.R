@@ -56,8 +56,14 @@ test_that("load_survey preserves all columns", {
   expect_true(all(c("id", "a", "b", "w") %in% names(get_data(s))))
 })
 
-test_that("load_survey handles different file formats", {
-  skip("Skipping RDS test due to file handling issues")
+test_that("read_file handles RDS format", {
+  df <- data.table::data.table(id = 1:10, val = rnorm(10), w = 1)
+  tmp <- tempfile(fileext = ".rds")
+  on.exit(unlink(tmp), add = TRUE)
+  saveRDS(df, tmp)
+  result <- metasurvey:::read_file(tmp, .args = list(file = tmp))
+  expect_true(is.data.frame(result) || data.table::is.data.table(result))
+  expect_true("id" %in% names(result))
 })
 
 test_that("load_survey handles PSU specification", {

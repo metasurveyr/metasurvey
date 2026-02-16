@@ -209,3 +209,92 @@ test_that("workflow_from_list handles minimal input", {
   expect_equal(wf$user, "Unknown")
   expect_equal(wf$recipe_ids, character(0))
 })
+
+# --- print.RecipeWorkflow covers all branches ---
+
+test_that("print.RecipeWorkflow shows DOI when present", {
+  wf <- RecipeWorkflow$new(
+    name = "DOI WF",
+    user = "Author",
+    survey_type = "ech",
+    edition = "2023",
+    doi = "10.1234/test.doi",
+    description = "A workflow with DOI"
+  )
+
+  output <- capture.output(print(wf))
+  output_text <- paste(output, collapse = "\n")
+  expect_true(grepl("10.1234", output_text))
+  expect_true(grepl("A workflow with DOI", output_text))
+})
+
+test_that("print.RecipeWorkflow shows downloads when > 0", {
+  wf <- RecipeWorkflow$new(
+    name = "Downloads WF",
+    user = "Author",
+    survey_type = "ech",
+    edition = "2023",
+    downloads = 42L
+  )
+
+  output <- capture.output(print(wf))
+  output_text <- paste(output, collapse = "\n")
+  expect_true(grepl("42", output_text))
+})
+
+test_that("print.RecipeWorkflow shows raw calls when no call_metadata", {
+  wf <- RecipeWorkflow$new(
+    name = "Raw Calls WF",
+    user = "Author",
+    survey_type = "ech",
+    edition = "2023",
+    calls = list("svymean(~x, design)", "svytotal(~y, design)")
+  )
+
+  output <- capture.output(print(wf))
+  output_text <- paste(output, collapse = "\n")
+  expect_true(grepl("Calls", output_text))
+  expect_true(grepl("svymean", output_text))
+})
+
+test_that("print.RecipeWorkflow shows replicate weight_spec", {
+  ws <- list(
+    annual = list(
+      type = "replicate",
+      variable = "W_ANO",
+      replicate_type = "bootstrap",
+      replicate_source = list(provider = "anda", resource = "bootstrap_annual")
+    )
+  )
+  wf <- RecipeWorkflow$new(
+    name = "Rep WF",
+    user = "Author",
+    survey_type = "ech",
+    edition = "2023",
+    weight_spec = ws
+  )
+
+  output <- capture.output(print(wf))
+  output_text <- paste(output, collapse = "\n")
+  expect_true(grepl("anda", output_text))
+  expect_true(grepl("bootstrap", output_text))
+})
+
+# --- workflow_from_list with categories ---
+
+test_that("workflow_from_list reconstructs categories from list", {
+  lst <- list(
+    name = "Cat WF",
+    user = "Author",
+    survey_type = "ech",
+    edition = "2023",
+    categories = list(
+      list(name = "labor", description = "Labor market")
+    )
+  )
+
+  wf <- workflow_from_list(lst)
+  expect_s3_class(wf, "RecipeWorkflow")
+  expect_length(wf$categories, 1)
+  expect_equal(wf$categories[[1]]$name, "labor")
+})

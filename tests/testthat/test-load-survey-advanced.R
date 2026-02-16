@@ -59,19 +59,48 @@ test_that("load_survey handles different survey types", {
 })
 
 test_that("load_survey handles RDS files", {
-  skip("RDS handling requires additional setup")
+  df <- data.table::data.table(id = 1:10, val = rnorm(10), w = 1)
+  tmp <- tempfile(fileext = ".rds")
+  on.exit(unlink(tmp), add = TRUE)
+  saveRDS(df, tmp)
+  result <- metasurvey:::read_file(tmp)
+  expect_true(data.table::is.data.table(result) || is.data.frame(result))
+  expect_true("id" %in% names(result))
 })
 
 test_that("load_survey handles XLSX files", {
-  skip("XLSX handling requires additional setup")
+  skip_if_not_installed("openxlsx")
+  df <- data.frame(id = 1:10, val = rnorm(10), w = 1)
+  tmp <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(tmp), add = TRUE)
+  openxlsx::write.xlsx(df, tmp)
+  result <- metasurvey:::read_file(tmp)
+  expect_true(is.data.frame(result))
+  expect_true("id" %in% names(result))
 })
 
 test_that("load_survey handles DTA files", {
-  skip("DTA handling requires additional setup")
+  skip_if_not_installed("foreign")
+  df <- data.frame(x1 = 1:10, x2 = rnorm(10))
+  tmp <- tempfile(fileext = ".dta")
+  on.exit(unlink(tmp), add = TRUE)
+  foreign::write.dta(df, tmp)
+  result <- metasurvey:::read_file(tmp, .args = list(file = tmp))
+  expect_true(is.data.frame(result))
+  expect_true("x1" %in% names(result))
 })
 
 test_that("load_survey handles SAV files", {
-  skip("SAV handling requires additional setup")
+  skip_if_not_installed("foreign")
+  skip_if_not_installed("haven")
+  df <- data.frame(x1 = 1:10, x2 = rnorm(10))
+  tmp <- tempfile(fileext = ".sav")
+  on.exit(unlink(tmp), add = TRUE)
+  haven::write_sav(df, tmp)
+  # foreign::read.spss needs to.data.frame=TRUE for proper data.frame output
+  result <- metasurvey:::read_file(tmp, .args = list(file = tmp, to.data.frame = TRUE))
+  expect_true(is.data.frame(result))
+  expect_true(nrow(result) == 10)
 })
 
 test_that("read_file handles unsupported extension", {
