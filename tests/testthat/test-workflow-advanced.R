@@ -15,7 +15,7 @@ test_that("workflow dispatches to workflow_pool for PoolSurvey", {
   pool <- PoolSurvey$new(surveys_struct)
 
   result <- workflow(
-    survey = pool,
+    pool,
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual"
   )
@@ -38,7 +38,7 @@ test_that("workflow_pool with colon-separated estimation types aggregates", {
   pool <- PoolSurvey$new(surveys_struct)
 
   result <- workflow(
-    survey = pool,
+    pool,
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual:annual"
   )
@@ -86,7 +86,7 @@ test_that("workflow_pool with rho and R parameters", {
   pool <- PoolSurvey$new(surveys_struct)
 
   result <- workflow(
-    survey = pool,
+    pool,
     survey::svymean(~age, na.rm = TRUE),
     rho = 0.5,
     R = 2,
@@ -100,7 +100,7 @@ test_that("workflow handles empty survey list", {
   result <- tryCatch(
     {
       workflow(
-        survey = list(),
+        list(),
         survey::svymean(~age, na.rm = TRUE),
         estimation_type = "annual"
       )
@@ -117,7 +117,7 @@ test_that("workflow validates estimation type exists in design", {
 
   # This should work with annual
   result <- workflow(
-    survey = list(survey),
+    list(survey),
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual"
   )
@@ -129,7 +129,7 @@ test_that("workflow_default processes multiple calls correctly", {
   survey <- make_test_survey(50)
 
   result <- workflow(
-    survey = list(survey),
+    list(survey),
     survey::svymean(~age, na.rm = TRUE),
     survey::svytotal(~income, na.rm = TRUE),
     survey::svyratio(~income, ~age, na.rm = TRUE),
@@ -176,7 +176,7 @@ test_that("workflow handles survey with multiple editions", {
   survey3$edition <- "2025"
 
   result <- workflow(
-    survey = list(survey1, survey2, survey3),
+    list(survey1, survey2, survey3),
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual"
   )

@@ -4,7 +4,7 @@
 #' objects, applying functions from the R survey package with appropriate
 #' metadata. Automatically handles different survey types and periodicities.
 #'
-#' @param survey Survey object, list of Survey objects, or PoolSurvey. Must
+#' @param svy Survey object, list of Survey objects, or PoolSurvey. Must
 #'   contain properly configured sample design
 #' @param ... Calls to survey package functions (such as \code{svymean},
 #'   \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially
@@ -52,7 +52,7 @@
 #'   weight = add_weight(annual = "w")
 #' )
 #' result <- workflow(
-#'   survey = list(svy),
+#'   svy = list(svy),
 #'   survey::svymean(~x, na.rm = TRUE),
 #'   estimation_type = "annual"
 #' )
@@ -76,14 +76,14 @@
 #' @family workflows
 #' @export
 
-workflow <- function(survey, ..., estimation_type = "monthly") {
-  if (is(survey, "PoolSurvey")) {
+workflow <- function(svy, ..., estimation_type = "monthly") {
+  if (is(svy, "PoolSurvey")) {
     return(workflow_pool(
-      survey, ..., estimation_type = estimation_type
+      svy, ..., estimation_type = estimation_type
     ))
   } else {
     return(workflow_default(
-      survey, ..., estimation_type = estimation_type
+      svy, ..., estimation_type = estimation_type
     ))
   }
 }

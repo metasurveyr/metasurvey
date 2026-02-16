@@ -4,10 +4,10 @@
 \alias{workflow}
 \title{Execute estimation workflow for surveys}
 \usage{
-workflow(survey, ..., estimation_type = "monthly")
+workflow(svy, ..., estimation_type = "monthly")
 }
 \arguments{
-\item{survey}{Survey object, list of Survey objects, or PoolSurvey. Must
+\item{svy}{Survey object, list of Survey objects, or PoolSurvey. Must
 contain properly configured sample design}
 
 \item{...}{Calls to survey package functions (such as \code{svymean},
@@ -63,7 +63,7 @@ svy <- Survey$new(
   weight = add_weight(annual = "w")
 )
 result <- workflow(
-  survey = list(svy),
+  svy = list(svy),
   survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
