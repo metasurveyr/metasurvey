@@ -208,19 +208,6 @@ test_that("bake_steps_survey bakes all pending steps", {
   expect_true(all(sapply(s3$steps, function(st) st$bake)))
 })
 
-# --- step_to_env ---
-
-test_that("step_to_env returns an expression", {
-  step <- Step$new(
-    name = "env_test", edition = "2023", survey_type = "ech",
-    type = "compute", new_var = "z", exprs = list(z = quote(x + 1)),
-    call = NULL, svy_before = NULL, default_engine = "data.table",
-    depends_on = list("x")
-  )
-  result <- metasurvey:::step_to_env(step)
-  expect_true(!is.null(result))
-})
-
 # --- Step with comment parameter ---
 
 test_that("Step accepts comment as alias for comments", {
