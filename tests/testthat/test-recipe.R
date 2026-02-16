@@ -142,7 +142,24 @@ test_that("recipe extracts survey metadata correctly", {
 })
 
 test_that("recipe handles multiple steps in constructor", {
-  skip("Skipping test that requires set_use_copy(TRUE)")
+  r <- Recipe$new(
+    name = "multi step",
+    edition = "2023",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list("x", "y"),
+    user = "tester",
+    description = "Multiple steps",
+    steps = list(
+      quote(step_compute(., z = x + y)),
+      quote(step_rename(., renamed_x = x))
+    ),
+    id = "multi_001",
+    doi = NULL,
+    topic = NULL
+  )
+  expect_equal(length(r$steps), 2)
+  expect_true(is.call(r$steps[[1]]))
 })
 
 test_that("Recipe fields store correct types", {
@@ -183,7 +200,23 @@ test_that("recipe with doi stores it correctly", {
 })
 
 test_that("bake_recipes applies steps to survey data", {
-  skip("Skipping test that requires set_use_copy(TRUE)")
+  svy <- make_test_survey()
+  r <- Recipe$new(
+    name = "bake apply",
+    edition = "2023",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list(),
+    user = "tester",
+    description = "Test bake",
+    steps = list(quote(step_compute(., z = x + y))),
+    id = "bake_apply_001",
+    doi = NULL,
+    topic = NULL
+  )
+  svy <- add_recipe(svy, r)
+  svy <- bake_recipes(svy)
+  expect_true("z" %in% names(get_data(svy)))
 })
 
 test_that("save_recipe and read_recipe roundtrip works", {

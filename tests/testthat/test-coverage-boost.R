@@ -94,12 +94,11 @@ test_that("publish_recipe validates recipe structure", {
     description = "Test recipe for publishing"
   )
   
-  result <- tryCatch({
-    publish_recipe(r)
-  }, error = function(e) NULL)
-  
-  # API may not be available
-  expect_true(is.null(result) || is.list(result))
+  set_backend("local", path = tempfile(fileext = ".json"))
+  result <- publish_recipe(r)
+
+  # publish_recipe returns the recipe invisibly
+  expect_true(inherits(result, "Recipe"))
 })
 
 # Test get_metadata variations

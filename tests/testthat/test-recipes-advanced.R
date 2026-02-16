@@ -44,21 +44,28 @@ test_that("get_distinct_recipes handles errors gracefully", {
 })
 
 test_that("publish_recipe validates recipe object", {
-  skip("Requires API access")
-  
+  tmp <- tempfile(fileext = ".json")
+  on.exit(unlink(tmp), add = TRUE)
+  set_backend("local", path = tmp)
+
   r <- Recipe$new(
     name = "publish test", edition = "2023", survey_type = "ech",
     default_engine = "data.table", depends_on = list(),
     user = "test", description = "Test", steps = list(),
-    id = "test", doi = NULL, topic = NULL
+    id = "test_publish_001", doi = NULL, topic = NULL
   )
-  
-  # Would normally publish to API
-  expect_true(is(r, "Recipe"))
+
+  get_backend()$publish(r)
+  found <- list_recipes()
+  expect_true(length(found) >= 1)
 })
 
-test_that("publish_recipe validates non-empty recipe", {
-  skip("Requires API access and would test error handling")
+test_that("publish_recipe rejects non-Recipe object", {
+  tmp <- tempfile(fileext = ".json")
+  on.exit(unlink(tmp), add = TRUE)
+  set_backend("local", path = tmp)
+
+  expect_error(get_backend()$publish(list(name = "fake")))
 })
 
 test_that("decode_step handles step strings", {
