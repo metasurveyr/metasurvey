@@ -1,3 +1,27 @@
+# metasurvey 0.0.15
+
+## New features
+* Added `strata` parameter to `Survey$new()`, `survey_empty()`,
+  `load_survey()`, and `load_panel_survey()` for stratified sampling
+  designs. Passed to `survey::svydesign(strata = ...)`.
+* New vignette: "International Survey Compatibility" (EN + ES) with
+  reproducible examples for ECH, EPH, CASEN, PNADc, CPS, ENIGH, and DHS.
+
+## Documentation
+* Eliminated `eval=FALSE` from all vignettes — chunks now use conditional
+  eval or markdown code blocks for non-runnable examples.
+* Improved man page examples: replaced `\dontrun{}` with `\donttest{}` and
+  runnable local-data examples for `cat_design`, `bake_recipes`, `recipe`,
+  `steps_to_recipe`, `transpile_stata`, `parse_do_file`, and others.
+* Added stratified cluster design section to complex-designs vignette.
+* Rewrote README with live service links (Shiny explorer, REST API),
+  CRAN status badge, and GitHub star call-to-action.
+
+## Internal
+* Expanded test suite to 2810 tests covering strata support, edge cases
+  in STATA transpiler, API client, panel surveys, and recipe system.
+* Added `pak` and survey-related packages to Suggests for vignette builds.
+
 # metasurvey 0.0.14
 
 ## Breaking changes
