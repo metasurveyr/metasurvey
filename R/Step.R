@@ -162,7 +162,9 @@ bake_step <- function(svy, step) {
   valid_types <- c("compute", "recode", "step_join", "step_remove", "step_rename")
   if (!step$type %in% valid_types) {
     stop("Invalid step type: '", step$type, "'. Must be one of: ",
-      paste(valid_types, collapse = ", "), call. = FALSE)
+      paste(valid_types, collapse = ", "),
+      call. = FALSE
+    )
   }
 
   # Execute the step function

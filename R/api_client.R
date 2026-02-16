@@ -80,7 +80,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #'   The URL can also be set via the \code{METASURVEY_API_URL} environment
 #'   variable, and the token via \code{METASURVEY_TOKEN}.
 #' @param url API base URL (e.g., \code{"https://metasurvey-api.example.com"})
-#' @return Invisibly, the configured URL.
+#' @return Invisibly, the previous URL (for restoring).
 #' @export
 #' @examples
 #' \dontrun{
@@ -89,9 +89,10 @@ token_expires_soon <- function(token, margin_secs = 300) {
 configure_api <- function(url) {
   # Remove trailing slash
   url <- sub("/$", "", url)
+  old <- getOption("metasurvey.api_url")
   options(metasurvey.api_url = url)
   message("API configured: ", url)
-  invisible(NULL)
+  invisible(old)
 }
 
 # ── Internal HTTP helper ─────────────────────────────────────────────────────
@@ -278,7 +279,6 @@ api_refresh_token <- function() {
 #' }
 api_logout <- function() {
   options(metasurvey.api_token = NULL)
-  Sys.unsetenv("METASURVEY_TOKEN")
   message("Logged out.")
   invisible(NULL)
 }
@@ -289,7 +289,8 @@ api_logout <- function() {
 validate_api_id <- function(id) {
   if (!is.character(id) || length(id) != 1L || !grepl("^[a-zA-Z0-9_.-]+$", id)) {
     stop("Invalid API ID: must be a single alphanumeric string (a-z, 0-9, _, ., -)",
-      call. = FALSE)
+      call. = FALSE
+    )
   }
   invisible(id)
 }
@@ -348,11 +349,15 @@ api_get_recipe <- function(id) {
     result <- tryCatch(
       api_request(paste0("recipes/", single_id), method = "GET"),
       error = function(e) {
-        if (grepl("404", e$message)) return(NULL)
+        if (grepl("404", e$message)) {
+          return(NULL)
+        }
         stop(e)
       }
     )
-    if (is.null(result) || is.null(result$recipe)) return(NULL)
+    if (is.null(result) || is.null(result$recipe)) {
+      return(NULL)
+    }
     tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
       warning("Failed to parse recipe '", single_id, "': ", e$message, call. = FALSE)
       NULL

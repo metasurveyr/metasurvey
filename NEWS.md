@@ -1,3 +1,43 @@
+# metasurvey 0.0.8
+
+## Bug fixes
+
+* Fixed 5 occurrences of `stop(message(...))` which silently called `stop(NULL)`
+  instead of raising a proper error (`set_engine()`, `load_survey()`, `recipe()`).
+* Fixed `.Rbuildignore` double-escape bug: patterns had `\\\\.` instead of `\\.`,
+  causing hidden files and non-standard files to leak into the tarball.
+* Replaced unsafe `1:n` sequences with `seq_len()`/`seq.int()` to avoid
+  `c(1, 0)` when n=0 (7 occurrences across survey.R, workflow.R, steps.R).
+* Removed duplicate internal `set_data()` definition in survey.R.
+* Replaced raw ANSI escape codes with `crayon::red()`/`crayon::green()` in
+  `cat_design()` for cross-platform compatibility.
+* Removed unreachable dead code in `load_survey_example()`.
+* `requireNamespace("parallel")` now uses `quietly = TRUE` and checks the
+  return value before using the package.
+* `requireNamespace("rio")` return value is now checked before calling
+  `rio::convert()`.
+
+## Security
+
+* SSL certificate verification in ANDA client is now enabled by default.
+  Previously hardcoded `ssl_verifypeer = FALSE`; now user-controllable
+  via `options(metasurvey.ssl_verify = FALSE)`.
+* `api_logout()` no longer calls `Sys.unsetenv("METASURVEY_TOKEN")` — only
+  clears the R option, per CRAN policy on environment variables.
+
+## CRAN compliance
+
+* `set_engine()`, `set_use_copy()`, `set_lazy_processing()`, and
+  `configure_api()` now return the previous value invisibly, allowing users
+  to restore global options.
+* All user-facing messages translated from Spanish to English.
+* `evaluate_cv()` returns English labels ("Excellent", "Good", etc.).
+* `extract_time_pattern()` returns "Invalid format"/"Unknown format".
+* DESCRIPTION title and description rewritten to be substantive.
+* `inst/CITATION` updated: removed deprecated `citHeader()`, dynamic year.
+* Fixed inconsistent maintainer email across DESCRIPTION and package docs.
+* R CMD check now passes with 0 errors, 0 warnings, 0 NOTEs.
+
 # metasurvey 0.0.7
 
 ## New features

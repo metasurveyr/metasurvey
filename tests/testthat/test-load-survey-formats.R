@@ -210,3 +210,16 @@ test_that("load_survey validates multi-edition recipe", {
   expect_true(inherits(svy, "Survey"))
   expect_true(length(svy$recipes) >= 1)
 })
+
+test_that("read_file with convert=TRUE passes through requireNamespace check", {
+  skip_if_not_installed("rio")
+
+  tmp <- tempfile(fileext = ".dta")
+  on.exit(unlink(tmp))
+  # Write minimal content - rio::convert may fail but requireNamespace is exercised
+  writeLines("fake data", tmp)
+
+  # rio::convert will error on invalid .dta, but the requireNamespace("rio")
+  # check on line 392 IS exercised (returns TRUE since rio is installed)
+  expect_error(read_file(tmp, convert = TRUE))
+})

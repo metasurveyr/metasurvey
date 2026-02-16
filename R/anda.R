@@ -28,7 +28,7 @@ anda_fetch_ddi <- function(catalog_id,
 
   resp <- httr::GET(
     url,
-    httr::config(ssl_verifypeer = FALSE),
+    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
     httr::write_disk(dest_file, overwrite = TRUE),
     httr::timeout(60)
   )
@@ -60,7 +60,7 @@ anda_catalog_search <- function(keyword = "ECH",
   resp <- httr::GET(
     url,
     query = list(sk = keyword, ps = limit, format = "json"),
-    httr::config(ssl_verifypeer = FALSE),
+    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
     httr::timeout(30)
   )
 
@@ -249,7 +249,7 @@ anda_download_microdata <- function(edition,
     accept_url,
     body = list(accept = "1"),
     encode = "form",
-    httr::config(ssl_verifypeer = FALSE),
+    httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
     httr::timeout(30)
   )
 
@@ -278,7 +278,7 @@ anda_download_microdata <- function(edition,
     message("  Downloading: ", title)
     dl_resp <- httr::GET(
       dl_url,
-      httr::config(ssl_verifypeer = FALSE),
+      httr::config(ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)),
       httr::write_disk(dest_raw, overwrite = TRUE),
       httr::timeout(300)
     )

@@ -177,36 +177,36 @@ test_that("set_lazy_processing rejects non-logical", {
 
 # --- evaluate_cv tests ---
 
-test_that("evaluate_cv returns Excelente for cv < 5", {
-  expect_equal(evaluate_cv(3), "Excelente")
-  expect_equal(evaluate_cv(0), "Excelente")
-  expect_equal(evaluate_cv(4.9), "Excelente")
+test_that("evaluate_cv returns Excellent for cv < 5", {
+  expect_equal(evaluate_cv(3), "Excellent")
+  expect_equal(evaluate_cv(0), "Excellent")
+  expect_equal(evaluate_cv(4.9), "Excellent")
 })
 
-test_that("evaluate_cv returns Muy bueno for 5 <= cv < 10", {
-  expect_equal(evaluate_cv(5), "Muy bueno")
-  expect_equal(evaluate_cv(7.5), "Muy bueno")
-  expect_equal(evaluate_cv(9.9), "Muy bueno")
+test_that("evaluate_cv returns Very good for 5 <= cv < 10", {
+  expect_equal(evaluate_cv(5), "Very good")
+  expect_equal(evaluate_cv(7.5), "Very good")
+  expect_equal(evaluate_cv(9.9), "Very good")
 })
 
-test_that("evaluate_cv returns Bueno for 10 <= cv < 15", {
-  expect_equal(evaluate_cv(10), "Bueno")
-  expect_equal(evaluate_cv(12), "Bueno")
+test_that("evaluate_cv returns Good for 10 <= cv < 15", {
+  expect_equal(evaluate_cv(10), "Good")
+  expect_equal(evaluate_cv(12), "Good")
 })
 
-test_that("evaluate_cv returns Aceptable for 15 <= cv < 25", {
-  expect_equal(evaluate_cv(15), "Aceptable")
-  expect_equal(evaluate_cv(20), "Aceptable")
+test_that("evaluate_cv returns Acceptable for 15 <= cv < 25", {
+  expect_equal(evaluate_cv(15), "Acceptable")
+  expect_equal(evaluate_cv(20), "Acceptable")
 })
 
-test_that("evaluate_cv returns Utilizar con precaucion for 25 <= cv < 35", {
-  expect_equal(evaluate_cv(25), "Utilizar con precaucion")
-  expect_equal(evaluate_cv(30), "Utilizar con precaucion")
+test_that("evaluate_cv returns Use with caution for 25 <= cv < 35", {
+  expect_equal(evaluate_cv(25), "Use with caution")
+  expect_equal(evaluate_cv(30), "Use with caution")
 })
 
-test_that("evaluate_cv returns No publicar for cv >= 35", {
-  expect_equal(evaluate_cv(35), "No publicar")
-  expect_equal(evaluate_cv(100), "No publicar")
+test_that("evaluate_cv returns Do not publish for cv >= 35", {
+  expect_equal(evaluate_cv(35), "Do not publish")
+  expect_equal(evaluate_cv(100), "Do not publish")
 })
 
 # --- validate_weight tests ---
@@ -460,9 +460,29 @@ test_that("extract_time_pattern MM-YYYY dash format", {
   expect_equal(result$year, 2023)
 })
 
-test_that("extract_time_pattern unknown format returns Formato desconocido", {
+test_that("extract_time_pattern unknown format returns Unknown format", {
   result <- metasurvey:::extract_time_pattern("abc")
-  expect_equal(result$periodicity, "Formato desconocido")
+  expect_equal(result$periodicity, "Unknown format")
+})
+
+test_that("extract_time_pattern YYYYMM month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("202300")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern MMYYYY month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("002023")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern MM_YYYY month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("00_2023")
+  expect_equal(result$periodicity, "Invalid format")
+})
+
+test_that("extract_time_pattern YYYY_MM month=0 returns Invalid format", {
+  result <- metasurvey:::extract_time_pattern("2023_00")
+  expect_equal(result$periodicity, "Invalid format")
 })
 
 test_that("extract_time_pattern multi-year format 20192021", {

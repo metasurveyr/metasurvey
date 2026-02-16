@@ -263,7 +263,9 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
   }
 
   apply_func <- if (use.parallel) {
-    requireNamespace("parallel")
+    if (!requireNamespace("parallel", quietly = TRUE)) {
+      stop("Package 'parallel' is required for parallel processing", call. = FALSE)
+    }
     parallel::mclapply
   } else {
     base::lapply
