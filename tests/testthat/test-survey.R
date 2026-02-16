@@ -905,3 +905,20 @@ test_that("set_weight standalone .copy=FALSE with different weight works", {
   s2 <- metasurvey:::set_weight(s, add_weight(annual = "w2"), .copy = TRUE)
   expect_equal(s2$weight$annual, "w2")
 })
+
+# --- Tests recovered from coverage-boost ---
+
+test_that("get_info_weight formats simple weight info", {
+  s <- make_test_survey()
+  info <- metasurvey:::get_info_weight(s)
+  expect_true(is.character(info) || inherits(info, "glue"))
+  expect_true(grepl("annual", info))
+})
+
+test_that("Survey$set_edition and set_type update fields", {
+  s <- make_test_survey()
+  s$set_edition("2024")
+  expect_equal(s$edition, "2024")
+  s$set_type("custom_type")
+  expect_equal(s$type, "custom_type")
+})
