@@ -1,0 +1,552 @@
+---
+title: "Getting Started with metasurvey"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with metasurvey}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+link-citations: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Introduction
+
+Working with household survey microdata involves a great deal of repetitive
+processing: recoding categorical variables, building indicators, joining
+external data, and computing weighted estimates. Each researcher writes their
+own version of these transformations, and the code is rarely shared or
+documented in a way that others can reuse.
+
+**metasurvey** addresses this problem by providing a metaprogramming layer
+on top of the `survey` package [@lumley2004]. Instead of writing ad hoc
+scripts, you build a **pipeline** of transformations that is:
+
+- **Documented** -- every step carries a comment, its input/output
+  variables, and its dependencies
+- **Reproducible** -- the pipeline can be saved as a recipe and applied
+  to new data
+- **Shareable** -- recipes can be published to a public API where other
+  researchers can discover and reuse them
+
+The pipeline has three levels:
+
+1. **Steps** -- individual transformations (compute, recode, rename,
+   remove, join)
+2. **Recipes** -- reusable collections of steps bundled with metadata
+3. **Workflows** -- statistical estimates (`svymean`, `svytotal`,
+   `svyby`) that produce the final tables
+
+The package handles the survey design ---stratification, clusters,
+replicate weights--- automatically through the `Survey` object. The user
+focuses on the substantive analysis; metasurvey takes care of the
+infrastructure.
+
+## Installation
+
+```{r install, eval = FALSE}
+# Install from GitHub
+# devtools::install_github("metaSurveyR/metasurvey")
+
+library(metasurvey)
+library(data.table)
+```
+
+## Creating a Survey object
+
+A `Survey` object groups the microdata together with metadata about weights,
+edition, and survey type. We will start with a simple example using simulated
+data that mimics the structure of Uruguay's Encuesta Continua de Hogares
+(ECH, Continuous Household Survey).
+
+The ECH is a rotating-panel household survey conducted by Uruguay's Instituto
+Nacional de Estadistica (INE). Key variables include:
+
+- **e27**: Age in years
+- **e26**: Sex (1 = Male, 2 = Female)
+- **e51**: Education level (coded scale 1-14)
+- **POBPCOAC**: Activity status
+  - 2 = Employed
+  - 3-5 = Unemployed
+  - 6-8 = Inactive
+- **ht11**: Household income
+- **pesoano**: Annual expansion factor (weight)
+
+```{r create-survey}
+library(metasurvey)
+library(data.table)
+
+set.seed(42)
+n <- 200
+
+# Simulate ECH-like microdata
+dt <- data.table(
+  numero = 1:n, # Household ID
+  e27 = sample(18:80, n, replace = TRUE), # Age
+  e26 = sample(c(1, 2), n, replace = TRUE), # Sex
+  ht11 = round(runif(n, 5000, 80000)), # Household income (Uruguayan pesos)
+  POBPCOAC = sample(c(2, 3, 4, 5, 6), n,
+    replace = TRUE,
+    prob = c(0.55, 0.03, 0.02, 0.03, 0.37)
+  ), # Labor status
+  dpto = sample(1:19, n, replace = TRUE), # Department
+  pesoano = round(runif(n, 0.5, 3.0), 4) # Annual weight
+)
+
+# Create Survey object
+svy <- Survey$new(
+  data    = dt,
+  edition = "2023",
+  type    = "ech",
+  psu     = NULL, # No PSU for simple random sample
+  engine  = "data.table", # Fast data manipulation
+  weight  = add_weight(annual = "pesoano")
+)
+```
+
+The `add_weight()` function maps periodicity labels (e.g., "annual",
+"monthly") to the weight column names in the data. This lets the same
+recipe work across different survey editions.
+
+You can inspect the data at any time:
+
+```{r inspect}
+head(get_data(svy), 3)
+```
+
+## Working with Steps
+
+Steps are **lazy by default**: they are recorded but not executed until
+`bake_steps()` is called. This allows you to:
+
+1. Build a complete transformation pipeline
+2. Inspect and validate the steps before execution
+3. Reuse step sequences as recipes
+4. Ensure all dependencies exist before processing
+
+### Computing new variables
+
+Use `step_compute()` to create derived variables. The package automatically:
+
+- Validates that input variables exist
+- Detects dependencies between steps
+- Optimizes expressions for performance
+
+```{r step-compute}
+svy <- step_compute(svy,
+  # Convert income to thousands for readability
+  ht11_thousands = ht11 / 1000,
+
+  # Create employment indicator following ILO definitions
+  employed = ifelse(POBPCOAC == 2, 1, 0),
+
+  # Working age population (14+ years, ECH standard)
+  working_age = ifelse(e27 >= 14, 1, 0),
+  comment = "Basic labor force indicators"
+)
+```
+
+You can group computations using the `.by` parameter (similar to `data.table`):
+
+```{r step-compute-grouped}
+# Calculate mean household income per department
+svy <- step_compute(svy,
+  mean_income_dept = mean(ht11, na.rm = TRUE),
+  .by = "dpto",
+  comment = "Department-level income averages"
+)
+```
+
+### Recoding into categories
+
+Use `step_recode()` to create categorical variables from conditions.
+Conditions are evaluated **top to bottom**, and the first match applies.
+
+```{r step-recode}
+# Recode labor force status (POBPCOAC) into meaningful categories
+svy <- step_recode(svy, labor_status,
+  POBPCOAC == 2 ~ "Employed", # Ocupado
+  POBPCOAC %in% 3:5 ~ "Unemployed", # Desocupado
+  POBPCOAC %in% 6:8 ~ "Inactive", # Inactivo
+  .default = "Not classified",
+  comment = "Labor force status - ILO standard"
+)
+
+# Create standard age groups for labor statistics
+svy <- step_recode(svy, age_group,
+  e27 < 25 ~ "Youth (14-24)",
+  e27 < 45 ~ "Adult (25-44)",
+  e27 < 65 ~ "Mature (45-64)",
+  .default = "Elderly (65+)",
+  .to_factor = TRUE, # Convert to factor
+  ordered = TRUE, # Ordered factor
+  comment = "Age groups for labor analysis"
+)
+
+# Recode sex into descriptive labels
+svy <- step_recode(svy, gender,
+  e26 == 1 ~ "Male",
+  e26 == 2 ~ "Female",
+  .default = "Other",
+  comment = "Gender classification"
+)
+```
+
+### Renaming and removing variables
+
+Rename variables for clarity or consistency:
+
+```{r step-rename}
+svy <- step_rename(svy,
+  age = e27, # Rename e27 to age
+  sex_code = e26 # Keep original as sex_code
+)
+```
+
+Remove variables that are no longer needed:
+
+```{r step-remove}
+# Remove intermediate calculations
+svy <- step_remove(svy, working_age, mean_income_dept)
+```
+
+### Joining external data
+
+Use `step_join()` to merge in external reference data. This is useful for adding:
+
+- Geographic names and classifications
+- Exchange rates or deflators
+- External benchmarks or targets
+
+```{r step-join}
+# Department names and regions
+department_info <- data.table(
+  dpto = 1:19,
+  dpto_name = c(
+    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
+    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
+    "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
+    "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
+  ),
+  region = c("Montevideo", rep("Interior", 18))
+)
+
+svy <- step_join(svy,
+  department_info,
+  by = "dpto",
+  type = "left",
+  comment = "Add department names and regions"
+)
+```
+
+## Executing transformations
+
+### Applying steps (bake)
+
+Call `bake_steps()` to execute all pending transformations:
+
+```{r bake, eval=FALSE}
+svy <- bake_steps(svy)
+head(get_data(svy), 3)
+```
+
+The step history is preserved for documentation and reproducibility:
+
+```{r get-steps, eval=FALSE}
+steps <- get_steps(svy)
+length(steps) # Number of transformation steps
+
+# View step details
+cat("Step 1:", steps[[1]]$name, "\n")
+cat("Comment:", steps[[1]]$comments, "\n")
+```
+
+### Visualizing the pipeline
+
+You can visualize the transformation pipeline as a directed graph:
+
+```{r view-graph, eval = FALSE}
+view_graph(svy, init_step = "Load ECH 2023")
+```
+
+This produces an interactive graph showing:
+
+- Data sources and joins
+- Transformation steps
+- Variable dependencies
+- Comments and metadata
+
+## Statistical estimates
+
+Once the data is prepared, use `workflow()` to compute survey estimates.
+The function wraps estimators from the `survey` package [@lumley2004]
+and returns tidy results with standard errors and coefficients of variation.
+
+**Important:** The survey object must be passed inside a `list()`.
+
+### Basic estimates
+
+```{r workflow-mean}
+# Estimate mean household income
+result <- workflow(
+  list(svy),
+  survey::svymean(~ht11, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result
+```
+
+The output includes:
+
+- `estimate`: Point estimate
+- `se`: Standard error
+- `cv`: Coefficient of variation
+- `var_name`: Variable name
+- `level`: Factor level (for categorical variables)
+
+### Multiple estimates
+
+You can compute several statistics in a single call:
+
+```{r workflow-multi}
+results <- workflow(
+  list(svy),
+  survey::svymean(~ht11, na.rm = TRUE), # Mean income
+  survey::svytotal(~employed, na.rm = TRUE), # Total employed
+  survey::svymean(~labor_status, na.rm = TRUE), # Employment distribution
+  estimation_type = "annual"
+)
+
+results
+```
+
+### Domain estimation
+
+Compute estimates for subpopulations using `survey::svyby()`:
+
+```{r workflow-domain}
+# Mean income by gender
+income_by_gender <- workflow(
+  list(svy),
+  survey::svyby(~ht11, ~gender, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+income_by_gender
+```
+
+## Quality assessment
+
+The **coefficient of variation (CV)** measures the reliability of estimates.
+A lower CV indicates more precise estimates. Following the INE Uruguay
+guidelines [@ine2023]:
+
+| CV range    | Quality category | Recommendation |
+|-------------|------------------|----------------|
+| < 5%        | Excellent        | Use without restrictions |
+| 5%--10%     | Very good        | Use with confidence |
+| 10%--15%    | Good             | Use for most purposes |
+| 15%--25%    | Acceptable       | Use with caution, noting limitations |
+| 25%--35%    | Poor             | Use only for general trends |
+| >= 35%      | Unreliable       | Do not publish |
+
+Use `evaluate_cv()` to classify estimate quality:
+
+```{r cv}
+# Check quality of mean income estimate
+cv_percentage <- results$cv[1] * 100
+quality <- evaluate_cv(cv_percentage)
+
+cat("CV:", round(cv_percentage, 2), "%\n")
+cat("Quality:", quality, "\n")
+```
+
+For official statistics, always report:
+
+1. Point estimate
+2. Standard error or confidence interval
+3. Coefficient of variation
+4. Quality classification
+5. Sample size
+
+## Working with Recipes
+
+Recipes bundle transformation steps for **reproducibility** and
+**sharing**. Once you have developed a working pipeline, you can convert
+it into a recipe that can be:
+
+- Applied to different survey editions
+- Shared with collaborators
+- Published for transparency
+- Versioned and documented
+
+### Creating a Recipe
+
+Create a recipe from the steps you have developed:
+
+```{r recipe-create}
+# Convert current steps to a recipe
+labor_recipe <- steps_to_recipe(
+  name = "ECH Labor Force Indicators",
+  user = "National Statistics Office",
+  svy = svy,
+  description = paste(
+    "Standard labor force indicators following ILO definitions.",
+    "Creates employment status, age groups, and gender classifications."
+  ),
+  steps = get_steps(svy),
+  topic = "labor_statistics"
+)
+
+class(labor_recipe)
+labor_recipe$name
+```
+
+Or you can define a recipe from scratch:
+
+```{r recipe-define, eval=FALSE}
+minimal_recipe <- recipe(
+  name = "Basic Demographics",
+  user = "analyst",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Basic demographic recoding",
+  topic = "demographics",
+
+  # Define steps inline
+  step_recode(
+    gender,
+    e26 == 1 ~ "Male",
+    e26 == 2 ~ "Female",
+    .default = "Other"
+  ),
+  step_recode(
+    age_group,
+    e27 < 18 ~ "Minor",
+    e27 < 65 ~ "Adult",
+    .default = "Senior"
+  )
+)
+```
+
+### Applying Recipes to new data
+
+Once published, anyone can retrieve a recipe by ID and apply it to their data:
+
+```{r recipe-apply, eval = FALSE}
+# Get a recipe by ID from the API
+r <- api_get_recipe("ech_labor_001")
+
+# Apply to a new survey
+new_svy <- add_recipe(new_svy, r)
+processed <- bake_recipes(new_svy)
+```
+
+### Recipe documentation
+
+Recipes automatically document their transformations:
+
+```{r recipe-doc}
+doc <- labor_recipe$doc()
+names(doc)
+
+# Input variables required
+doc$input_variables
+
+# Output variables created
+doc$output_variables
+```
+
+## Package configuration
+
+metasurvey provides global settings that can be adjusted to suit your workflow:
+
+```{r config}
+# Check current lazy-processing setting
+lazy_default() # TRUE = steps recorded but not executed immediately
+
+# Check data-copy behavior
+use_copy_default() # TRUE = operate on copies (safer but slower)
+
+# View available computation engines
+show_engines() # "data.table", "dplyr", etc.
+```
+
+You can modify settings for the current session:
+
+```{r config-set, eval = FALSE}
+# Disable lazy evaluation (execute steps immediately)
+set_lazy(FALSE)
+
+# Modify inplace (faster, but modifies original data)
+set_use_copy(FALSE)
+
+# Reset to defaults
+set_lazy(TRUE)
+set_use_copy(TRUE)
+```
+
+## Sharing your work: the recipe ecosystem
+
+One of the goals of metasurvey is to reduce duplicated effort among the
+community of researchers working with surveys. If you have built a useful
+processing pipeline, you can publish it so that others can find and reuse
+it. The package connects to a public API where recipes and workflows are
+stored:
+
+```{r ecosystem, eval = FALSE}
+# Browse existing recipes (no login required)
+ech_recipes <- api_list_recipes(survey_type = "ech")
+length(ech_recipes)
+
+# Search for something specific
+labor <- api_list_recipes(search = "labor")
+
+# To publish your own, create an account first
+api_register("Your Name", "you@example.com", "password")
+
+# Then publish
+api_publish_recipe(labor_recipe)
+```
+
+The ecosystem supports three certification levels (community, reviewed,
+official) and three account types (individual, institutional member,
+institution). Institutional accounts require administrator approval,
+ensuring that certifications carry real backing.
+
+For more details, see [Creating and Sharing Recipes](recipes.html).
+
+## Related packages
+
+metasurvey is part of a growing ecosystem of R packages for household
+survey analysis in Latin America:
+
+- **[ech](https://calcita.github.io/ech/)** -- Functions for computing
+  socioeconomic indicators with Uruguay's ECH. Provides ready-to-use
+  functions for poverty, income, education, and employment indicators.
+- **[eph](https://docs.ropensci.org/eph/)** -- Tools for working with
+  Argentina's Encuesta Permanente de Hogares. Published on rOpenSci.
+  Covers data download, panel construction, and poverty calculation.
+- **[survey](https://cran.r-project.org/package=survey)** -- The
+  foundational package for design-based inference with complex surveys
+  [@lumley2004]. metasurvey builds on top of it.
+
+## Next steps
+
+Now that you understand the basics, you can explore these guides:
+
+- **[Creating and Sharing Recipes](recipes.html)** -- Recipe registry, certification, and discovery
+- **[Estimation Workflows](workflows-and-estimation.html)** -- `workflow()`, `RecipeWorkflow`, and publishable estimates
+- **[Survey Designs and Validation](complex-designs.html)** -- Stratification, clusters, replicate weights, pipeline validation
+- **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Longitudinal analysis with `RotativePanelSurvey` and `PoolSurvey`
+- **[ECH Case Study](ech-case-study.html)** -- Full labor market analysis with STATA comparison
+
+## References

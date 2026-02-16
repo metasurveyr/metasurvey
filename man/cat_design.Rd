@@ -33,9 +33,10 @@ Output is color-coded for better readability in supporting terminals.
 \examples{
 \dontrun{
 # Display design for survey with multiple estimation types
-ech_survey <- load_survey("ech_2023.dta", 
-                         svy_type = "ech", 
-                         svy_edition = "2023")
+ech_survey <- load_survey("ech_2023.dta",
+  svy_type = "ech",
+  svy_edition = "2023"
+)
 cat_design(ech_survey)
 }
 
@@ -43,4 +44,3 @@ cat_design(ech_survey)
 \seealso{
 \code{\link{cat_design_type}} for design type classification
 }
-\keyword{Surveymethods}

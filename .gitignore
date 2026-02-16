@@ -39,6 +39,11 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# Environment files with secrets
+.env
+.env.*
+!.env.example
+
 # pkgdown site
 docs/
 
@@ -69,3 +74,26 @@ inst/doc
 
 *.json
 reference
+
+# Temp analysis/benchmark files
+benchmark_*.R
+benchmark_*.txt
+coverage-report*.html
+OPTIMIZATIONS_SUMMARY.md
+OPTIMIZATION_PROPOSAL.md
+PERFORMANCE_EVALUATION.md
+PLAN_MIGRACION_MONGO.md
+STATA_COMPATIBILITY_ANALYSIS.md
+EJEMPLOS_RECETAS.md
+test_fix.R
+test_load_simple.R
+test_workflow.R
+minnor_version.R
+example_*.R
+temp/
+temp
+lib/
+revdep/
+do_files_iecon/
+example-data/
+metaSurvey.Rproj

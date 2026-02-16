@@ -2,10 +2,7 @@
 % Please edit documentation in R/steps.R
 \name{step_recode}
 \alias{step_recode}
-\title{Create AST recoding steps for categorical variables
-\strong{CORE AST SYSTEM}: This function now uses Abstract Syntax Tree (AST)
-evaluation as its fundamental engine for all recoding conditions. All conditional
-expressions are parsed as AST, optimized, and evaluated with dependency validation.}
+\title{Create recoding steps for categorical variables}
 \usage{
 step_recode(
   svy = survey_empty(),
@@ -15,12 +12,9 @@ step_recode(
   .name_step = NULL,
   ordered = FALSE,
   use_copy = use_copy_default(),
-  comment = "AST Recode step",
+  comment = "Recode step",
   .to_factor = FALSE,
-  .level = "auto",
-  optimize_ast = TRUE,
-  validate_deps = TRUE,
-  cache_ast = TRUE
+  .level = "auto"
 )
 }
 \arguments{
@@ -29,15 +23,15 @@ that can be applied later using the pipe operator (\%>\%)}
 
 \item{new_var}{Name of the new variable to create (unquoted)}
 
-\item{...}{Sequence of two-sided formulas defining recoding rules with \strong{AST parsing}.
-Left-hand side (LHS) parsed as AST conditional expression, right-hand side (RHS)
-defines the replacement value. Format: \code{ast_condition ~ value}}
+\item{...}{Sequence of two-sided formulas defining recoding rules.
+Left-hand side (LHS) is a conditional expression, right-hand side (RHS)
+defines the replacement value. Format: \code{condition ~ value}}
 
-\item{.default}{Default value assigned when no AST condition is met.
+\item{.default}{Default value assigned when no condition is met.
 Defaults to \code{NA_character_}}
 
 \item{.name_step}{Custom name for the step to identify it in the history.
-If not provided, generated automatically with "AST Recode" prefix}
+If not provided, generated automatically with "Recode" prefix}
 
 \item{ordered}{Logical indicating whether the new variable should be an
 ordered factor. Defaults to FALSE}
@@ -46,36 +40,28 @@ ordered factor. Defaults to FALSE}
 applying transformations. Defaults to \code{use_copy_default()}}
 
 \item{comment}{Descriptive text for the step for documentation and traceability.
-Compatible with Markdown syntax. Defaults to "AST Recode step"}
+Compatible with Markdown syntax. Defaults to "Recode step"}
 
 \item{.to_factor}{Logical indicating whether the new variable should be
 converted to a factor. Defaults to FALSE}
 
 \item{.level}{For RotativePanelSurvey objects, specifies the level where
 recoding is applied: "implantation", "follow_up", "quarter", "month", or "auto"}
-
-\item{optimize_ast}{Whether to apply AST optimizations to conditions. Default: TRUE}
-
-\item{validate_deps}{Whether to validate condition dependencies exist. Default: TRUE}
-
-\item{cache_ast}{Whether to cache compiled AST conditions for reuse. Default: TRUE}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
 with the new recoded variable and the step added to the history
 }
 \description{
-Create AST recoding steps for categorical variables
-\strong{CORE AST SYSTEM}: This function now uses Abstract Syntax Tree (AST)
-evaluation as its fundamental engine for all recoding conditions. All conditional
-expressions are parsed as AST, optimized, and evaluated with dependency validation.
+This function uses optimized expression evaluation for all recoding conditions.
+All conditional expressions are validated and optimized for efficient execution.
 }
 \details{
-\strong{AST CORE ENGINE FOR RECODING}:
+\strong{CORE ENGINE FOR RECODING}:
 
-\strong{1. AST Condition Parsing:}
+\strong{1. Automatic Condition Processing:}
 \itemize{
-\item All LHS conditions converted to Abstract Syntax Trees
+\item All LHS conditions are automatically analyzed
 \item Static analysis of logical expressions
 \item Dependency detection for all referenced variables
 \item Optimization of conditional logic
@@ -83,25 +69,25 @@ expressions are parsed as AST, optimized, and evaluated with dependency validati
 
 \strong{2. Enhanced Condition Evaluation:}
 \itemize{
-\item Conditions evaluated in order using AST engine
-\item First matching AST condition determines assignment
+\item Conditions evaluated in order
+\item First matching condition determines assignment
 \item Optimized short-circuit evaluation
 \item Better error reporting with expression context
 }
 
-\strong{3. AST Optimization Features:}
+\strong{3. Performance Features:}
 \itemize{
-\item Constant folding in conditions (e.g., \code{5 + 3 > 7} → \code{8 > 7} → \code{TRUE})
-\item Dead code elimination for unreachable conditions
-\item Expression simplification for faster evaluation
-\item Dependency pre-validation prevents runtime errors
+\item Direct evaluation using R's native conditional logic
+\item Efficient execution for all condition types
+\item Dependency validation prevents runtime errors
 }
 
-AST condition examples:
+Condition examples:
 \itemize{
-\item Simple: \code{variable == 1} (parsed as AST, dependencies: \code{variable})
-\item Complex: \code{age >= 18 & income > 1000 * 12} (optimized: \code{income > 12000})
-\item Vectorized: \code{variable \%in\% c(1,2,3)} (AST validates \code{variable} exists)
+\item Simple: \code{variable == 1}
+\item Complex: \code{age >= 18 & income > 12000}
+\item Vectorized: \code{variable \%in\% c(1,2,3)}
+\item Vectorized: \code{variable \%in\% c(1,2,3)} (validates \code{variable} exists)
 \item Logical: \code{!is.na(education) & education > mean(education, na.rm = TRUE)}
 }
 }
@@ -112,7 +98,7 @@ ech <- ech |>
   step_recode(
     labor_status,
     POBPCOAC == 2 ~ "Employed",
-    POBPCOAC \%in\% 3:5 ~ "Unemployed", 
+    POBPCOAC \%in\% 3:5 ~ "Unemployed",
     POBPCOAC \%in\% 6:8 ~ "Inactive",
     .default = "Missing",
     comment = "Labor force status from ECH"

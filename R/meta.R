@@ -16,7 +16,6 @@ metadata_args <- function() {
   opts_default <- list(
     use_copy = use_copy_default(),
     metasurvey.engine = get_engine(),
-    metasurvey.api.key = get_api_key(),
     metasurvey.user = get_user(),
     metasurvey.lazy_processing = lazy_default()
   )
@@ -43,4 +42,16 @@ metadata_args <- function() {
   default_engine()
 
   set_use_copy(use_copy_default())
+
+  # Auto-configure API from environment variables
+  env_url <- Sys.getenv("METASURVEY_API_URL", "")
+  if (nzchar(env_url)) {
+    options(metasurvey.api_url = sub("/$", "", env_url))
+  } else {
+    options(metasurvey.api_url = "https://metasurvey-api-production.up.railway.app")
+  }
+  env_token <- Sys.getenv("METASURVEY_TOKEN", "")
+  if (nzchar(env_token)) {
+    options(metasurvey.api_token = env_token)
+  }
 }

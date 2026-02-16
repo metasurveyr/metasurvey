@@ -1,0 +1,314 @@
+---
+title: "Paneles Rotativos y PoolSurvey (ES)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Paneles Rotativos y PoolSurvey (ES)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Introducción
+
+Muchas encuestas de hogares nacionales utilizan **diseños de panel rotativo**, donde
+una muestra de encuestados es entrevistada en una ola inicial (*implantación*) y
+luego se les da seguimiento durante períodos sucesivos. La ECH de Uruguay, por ejemplo,
+entrevista a cada hogar una vez y luego realiza un seguimiento mensual durante el resto
+del año.
+
+metasurvey proporciona dos clases para este tipo de diseño:
+
+- `RotativePanelSurvey` -- un panel con una encuesta de implantación y una lista
+  de encuestas de seguimiento
+- `PoolSurvey` -- una colección de encuestas agrupadas para realizar estimaciones
+  combinadas entre períodos
+
+## Creación de un RotativePanelSurvey
+
+Un `RotativePanelSurvey` requiere un `Survey` de implantación y uno o más
+objetos `Survey` de seguimiento.
+
+```{r create-panel}
+library(metasurvey)
+library(data.table)
+set_use_copy(TRUE)
+
+set.seed(42)
+n <- 100
+
+make_survey <- function(edition) {
+  dt <- data.table(
+    id       = 1:n,
+    age      = sample(18:80, n, replace = TRUE),
+    income   = round(runif(n, 5000, 80000)),
+    employed = sample(0:1, n, replace = TRUE),
+    w        = round(runif(n, 0.5, 3.0), 4)
+  )
+  Survey$new(
+    data = dt, edition = edition, type = "ech",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+}
+
+# Implantation: 2023 wave 1
+impl <- make_survey("2023")
+
+# Follow-ups: waves 2 through 4
+fu_2 <- make_survey("2023")
+fu_3 <- make_survey("2023")
+fu_4 <- make_survey("2023")
+
+panel <- RotativePanelSurvey$new(
+  implantation   = impl,
+  follow_up      = list(fu_2, fu_3, fu_4),
+  type           = "ech",
+  default_engine = "data.table",
+  steps          = list(),
+  recipes        = list(),
+  workflows      = list(),
+  design         = NULL
+)
+```
+
+## Acceso a los componentes del panel
+
+Utilice `get_implantation()` y `get_follow_up()` para obtener las encuestas
+individuales:
+
+```{r access-panel}
+# Implantation survey
+imp <- get_implantation(panel)
+class(imp)
+head(get_data(imp), 3)
+```
+
+```{r access-followup}
+# Follow-up surveys
+follow_ups <- get_follow_up(panel)
+cat("Number of follow-ups:", length(follow_ups), "\n")
+```
+
+## Aplicación de pasos a los componentes del panel
+
+Aplique transformaciones a componentes individuales del panel. Las mismas funciones
+de pasos funcionan tanto en la encuesta de implantación como en las de seguimiento:
+
+```{r panel-steps}
+# Transform the implantation survey
+panel$implantation <- step_compute(panel$implantation,
+  income_k = income / 1000,
+  comment = "Income in thousands"
+)
+
+# Apply the same step to each follow-up
+panel$follow_up <- lapply(panel$follow_up, function(svy) {
+  step_compute(svy, income_k = income / 1000, comment = "Income in thousands")
+})
+```
+
+## Estimación sobre componentes del panel
+
+Utilice `workflow()` sobre los componentes individuales del panel para realizar
+análisis de corte transversal o de series de tiempo.
+
+### Análisis de corte transversal (Implantación)
+
+```{r workflow-impl}
+result_impl <- workflow(
+  list(panel$implantation),
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result_impl
+```
+
+### Comparación entre seguimientos
+
+```{r workflow-followup}
+results <- rbindlist(lapply(seq_along(panel$follow_up), function(i) {
+  r <- workflow(
+    list(panel$follow_up[[i]]),
+    survey::svymean(~income, na.rm = TRUE),
+    estimation_type = "annual"
+  )
+  r$period <- panel$follow_up[[i]]$edition
+  r
+}))
+
+results[, .(period, stat, value, se, cv)]
+```
+
+## PoolSurvey: Estimación combinada
+
+Un `PoolSurvey` agrupa múltiples encuestas para realizar estimaciones combinadas.
+Esto resulta útil cuando se desea agregar datos mensuales en estimaciones trimestrales
+o anuales, o cuando combinar encuestas reduce la variabilidad muestral.
+
+El constructor recibe una lista anidada:
+`list(estimation_type = list(group = list(surveys)))`.
+
+```{r pool-create}
+s1 <- make_survey("2023")
+s2 <- make_survey("2023")
+s3 <- make_survey("2023")
+
+pool <- PoolSurvey$new(
+  list(annual = list("q1" = list(s1, s2, s3)))
+)
+
+class(pool)
+```
+
+### Estimación agrupada
+
+```{r pool-workflow}
+pool_result <- workflow(
+  pool,
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+pool_result
+```
+
+### Múltiples grupos
+
+Es posible organizar las encuestas en múltiples grupos:
+
+```{r pool-groups}
+s4 <- make_survey("2023")
+s5 <- make_survey("2023")
+s6 <- make_survey("2023")
+
+pool_semester <- PoolSurvey$new(
+  list(annual = list(
+    "q1" = list(s1, s2, s3),
+    "q2" = list(s4, s5, s6)
+  ))
+)
+
+result_semester <- workflow(
+  pool_semester,
+  survey::svymean(~income, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+result_semester
+```
+
+## Extracción de encuestas desde paneles
+
+Utilice `extract_surveys()` para seleccionar períodos específicos de un
+`RotativePanelSurvey`:
+
+```{r extract}
+# Extract specific follow-ups by index
+first_two <- extract_surveys(panel, index = 1:2)
+class(first_two)
+```
+
+```{r extract-monthly, eval = FALSE}
+# Extract by month (requires Date-format editions)
+march_data <- extract_surveys(panel, monthly = 3)
+```
+
+## Patrones temporales
+
+metasurvey proporciona utilidades para trabajar con las fechas de edición de las encuestas:
+
+```{r time-patterns}
+# Extract periodicity from edition strings
+extract_time_pattern("2023")
+extract_time_pattern("2023-06")
+```
+
+```{r validate-time}
+# Validate edition format
+validate_time_pattern(svy_type = "ech", svy_edition = "2023")
+```
+
+```{r group-dates}
+# Group dates by period
+dates <- as.Date(c(
+  "2023-01-15", "2023-03-20", "2023-06-10",
+  "2023-09-05", "2023-11-30"
+))
+group_dates(dates, type = "quarterly")
+group_dates(dates, type = "biannual")
+```
+
+## Carga de datos de panel desde archivos
+
+En la práctica, los datos de panel se cargan desde archivos utilizando `load_panel_survey()`:
+
+```{r load-panel, eval = FALSE}
+panel <- load_panel_survey(
+  path_implantation = "data/ECH_implantacion_2023.csv",
+  path_follow_up = "data/seguimiento/",
+  svy_type = "ech",
+  svy_weight_implantation = add_weight(annual = "pesoano"),
+  svy_weight_follow_up = add_weight(monthly = "pesomes")
+)
+
+# Access components
+imp <- get_implantation(panel)
+fups <- get_follow_up(panel)
+```
+
+## Pesos replicados bootstrap
+
+Para encuestas que proveen pesos replicados bootstrap (como la ECH), utilice
+`add_replicate()` dentro de `add_weight()` para configurar la estimación robusta
+de la varianza:
+
+```{r replicate, eval = FALSE}
+panel <- load_panel_survey(
+  path_implantation = "data/ECH_implantacion_2023.csv",
+  path_follow_up = "data/seguimiento/",
+  svy_type = "ech",
+  svy_weight_implantation = add_weight(
+    annual = add_replicate(
+      weight = "pesoano",
+      replicate_pattern = "wr\\d+",
+      replicate_path = "data/pesos_replicados_anual.csv",
+      replicate_id = c("numero" = "numero"),
+      replicate_type = "bootstrap"
+    )
+  ),
+  svy_weight_follow_up = add_weight(monthly = "pesomes")
+)
+```
+
+Cuando se configuran pesos replicados, `workflow()` utiliza automáticamente
+`survey::svrepdesign()` para la estimación de la varianza en lugar del enfoque
+estándar de linealización de Taylor.
+
+## Buenas prácticas
+
+1. **Establezca la periodicidad** en cada encuesta componente antes de construir
+   el panel
+2. **Aplique las transformaciones de manera uniforme** -- asegúrese de que los
+   mismos pasos se apliquen a las encuestas de implantación y de seguimiento
+   para garantizar la comparabilidad
+3. **Utilice PoolSurvey** cuando combine encuestas para reducir la varianza o
+   para agregaciones trimestrales/anuales
+4. **Valide los resultados** -- compare las estimaciones agrupadas con las
+   estimaciones directas para verificar la consistencia
+5. **Utilice pesos replicados bootstrap** cuando estén disponibles para una
+   estimación más robusta de la varianza
+
+## Próximos pasos
+
+- **[Diseños de encuesta y validación](complex-designs.html)** -- Estratificación, conglomerados y validación de pipelines
+- **[Estudio de caso ECH](ech-case-study.html)** -- Análisis completo del mercado laboral con el panel rotativo de la ECH
+- **[Flujos de estimación](workflows-and-estimation.html)** -- `workflow()` y `RecipeWorkflow`

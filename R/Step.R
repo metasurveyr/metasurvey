@@ -13,30 +13,20 @@
 #' @field depends_on A list of variables that the step depends on.
 #' @field comments Comments or notes about the step.
 #' @field bake A logical value indicating whether the step has been executed.
-#' @field expressions Optional list of AST expressions used by this step (for AST-backed steps).
-#' @field names Optional character vector with the variable names associated to `expressions`.
-#' @field ast_info Optional list with AST metadata (original expressions, optimized versions, dependencies, flags).
 #' @details The `Step` class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
 #' @examples
-#' step <- Step$new(
-#'   name = "example_step",
-#'   edition = "2023",
-#'   survey_type = "example_survey",
-#'   type = "compute",
-#'   new_var = "example_var",
-#'   exprs = list(a = 1, b = 2),
-#'   call = NULL,
-#'   svy_before = NULL,
-#'   default_engine = NULL,
-#'   depends_on = list("var1", "var2"),
-#'   comments = "Example step",
-#'   bake = FALSE
+#' # Step objects are created internally by step_compute(), step_recode(), etc.
+#' # Use the tidy API:
+#' dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#' print(step)
+#' svy <- step_compute(svy, age2 = age * 2)
+#' get_steps(svy)
 #' @keywords Surveymethods
 #' @keywords Steps
-#' @keywords Workflow
-#' @export
+#' @keywords internal
 #' @param name The name of the step.
 #' @param edition The edition of the survey associated with the step.
 #' @param survey_type The type of survey associated with the step.
@@ -50,9 +40,6 @@
 #' @param comments Comments or notes about the step.
 #' @param comment Optional alias of `comments` for backwards compatibility.
 #' @param bake A logical value indicating whether the step has been executed.
-#' @param expressions Optional list of AST expressions for AST compute steps.
-#' @param names Optional character vector of variable names for AST compute steps.
-#' @param ast_info Optional list with AST-related metadata for this step.
 Step <- R6Class("Step",
   public = list(
     name = NULL,
@@ -67,10 +54,6 @@ Step <- R6Class("Step",
     depends_on = list(),
     comments = NULL,
     bake = NULL,
-    # AST-related optional fields
-    expressions = NULL,
-    names = NULL,
-    ast_info = NULL,
     #' @description Create a new Step object
     #' @param name The name of the step.
     #' @param edition The edition of the survey associated with the step.
@@ -85,11 +68,8 @@ Step <- R6Class("Step",
     #' @param comments Comments or notes about the step.
     #' @param comment Optional alias of `comments` for backwards compatibility.
     #' @param bake A logical value indicating whether the step has been executed.
-    #' @param expressions Optional list of AST expressions for AST compute steps.
-    #' @param names Optional character vector of variable names for AST compute steps.
-    #' @param ast_info Optional list with AST-related metadata for this step.
 
-    initialize = function(name, edition, survey_type, type, new_var, exprs, call, svy_before, default_engine, depends_on, comments = NULL, bake = !lazy_default(), comment = NULL, expressions = NULL, names = NULL, ast_info = NULL) {
+    initialize = function(name, edition, survey_type, type, new_var, exprs, call, svy_before, default_engine, depends_on, comments = NULL, bake = !lazy_default(), comment = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -103,10 +83,6 @@ Step <- R6Class("Step",
       # accept both 'comments' and legacy 'comment'
       self$comments <- comments %||% comment
       self$bake <- bake
-      # optional AST metadata
-      self$expressions <- expressions
-      self$names <- names
-      self$ast_info <- ast_info
     }
   )
 )
@@ -179,11 +155,6 @@ bake_step <- function(svy, step) {
     return(svy)
   }
 
-  # Handle AST-based steps
-  if (!is.null(step$type) && step$type == "ast_compute") {
-    return(bake_ast_step(svy, step))
-  }
-
   # Prepare the list of arguments for do.call
   args <- list()
 
@@ -209,105 +180,34 @@ bake_step <- function(svy, step) {
   return(updated_svy)
 }
 
-#' Execute all pending AST steps (materialization)
+#' Execute all pending steps
 #'
-#' **CORE AST EXECUTION**: This function now uses Abstract Syntax Tree (AST)
-#' evaluation as its fundamental execution engine. All pending steps are processed
-#' through the AST system for optimized, validated, and traceable execution.
+#' Iterates over all pending (lazy) steps attached to a Survey or
+#' RotativePanelSurvey and executes them sequentially, mutating
+#' the underlying data.table. Each step is validated before execution
+#' (checks that required variables exist).
 #'
-#' @param svy A `Survey` or `RotativePanelSurvey` object with pending steps to execute
+#' @param svy A `Survey` or `RotativePanelSurvey` object with pending steps
 #'
-#' @return The same type of object as input with all transformations materialized
-#'   in the data and the step history updated to reflect completed operations
+#' @return The same object with all steps materialized in the data
+#'   and each step marked as `bake = TRUE`.
 #'
 #' @details
-#' **AST CORE EXECUTION ENGINE**:
+#' Steps are executed in the order they were added. Each step's expressions
+#' can reference variables created by previous steps.
 #'
-#' \strong{1. AST Step Processing:}
-#' - All pending steps converted to AST representation
-#' - Dependency graphs built from AST analysis
-#' - Execution order optimized based on dependencies
-#' - Each step validated before materialization
-#'
-#' \strong{2. Enhanced Execution Features:}
-#' - AST optimization applied to all expressions
-#' - Parallel dependency resolution where possible
-#' - Advanced error detection with precise context
-#' - Comprehensive execution logging and traceability
-#'
-#' \strong{3. Performance Benefits:}
-#' - Pre-compiled AST expressions for faster execution
-#' - Optimized evaluation paths reduce computation time
-#' - Cached intermediate results for repeated operations
-#' - Minimal memory overhead with maximum performance gains
-#'
-#' \strong{4. AST Capabilities:}
-#' - Automatic dependency validation prevents runtime errors
-#' - Expression optimization (constant folding, dead code elimination)
-#' - Better error messages with step and expression context
-#' - Comprehensive audit trail of all transformations
-#'
-#' The function provides several key advantages through AST:
-#' \itemize{
-#'   \item **AST Optimization**: All expressions optimized before execution
-#'   \item **Dependency Validation**: Variables verified to exist using AST analysis
-#'   \item **Error Prevention**: Static analysis catches errors before runtime
-#'   \item **Performance**: Optimized execution paths and cached compilations
-#'   \item **Traceability**: Complete AST-based audit trail of transformations
-#'   \item **Complex Handling**: RotativePanelSurvey processed with AST at all levels
-#' }
-#'
-#' For RotativePanelSurvey objects, the AST engine processes both the implantation
-#' level and follow-up levels, applying appropriate AST optimizations according to
-#' the level specified in each step.
-#'
-#' Steps are executed in dependency-optimized order determined by AST analysis,
-#' and each step's AST expressions can reference variables created by previous steps.
+#' For RotativePanelSurvey objects, steps are applied to both the
+#' implantation and all follow-up surveys.
 #'
 #' @examples
-#' \dontrun{
-#' # Basic AST execution with Survey
-#' ech <- load_survey("ech_2023.dta", svy_type = "ech", svy_edition = "2023") |>
-#'   step_compute(
-#'     employed = ifelse(POBPCOAC == 2, 1, 0),
-#'     optimize_ast = TRUE, # AST optimization enabled
-#'     comment = "Employment indicator - AST optimized"
-#'   ) |>
-#'   step_recode(
-#'     age_group,
-#'     e27 < 18 ~ "Minor", # AST validates e27 exists
-#'     e27 >= 18 & e27 < 65 ~ "Adult", # AST optimizes conditions
-#'     e27 >= 65 ~ "Senior",
-#'     validate_deps = TRUE, # AST dependency validation
-#'     comment = "Age groups - AST powered"
-#'   )
-#'
-#' # Execute all steps with AST engine
-#' processed_ech <- bake_steps(ech) # AST processes all steps optimally
-#'
-#' # Verify AST-created variables exist
-#' print(names(processed_ech$data))
-#'
-#' # AST RotativePanelSurvey execution
-#' panel <- load_panel_survey("panel_2023.dta") |>
-#'   step_compute(
-#'     # AST optimizes: 100 * 1.0 → 100
-#'     activity_rate = active / population_14_plus * 100 * 1.0,
-#'     .level = "quarter",
-#'     optimize_ast = TRUE,
-#'     comment = "Quarterly activity rate - AST optimized"
-#'   )
-#'
-#' processed_panel <- bake_steps(panel) # AST handles multi-level execution
-#'
-#' # AST-optimized pipeline with recipes
-#' result <- load_survey("data.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   recipes = my_ast_recipe
-#' ) |>
-#'   bake_steps() # Apply recipe with AST
-#' }
+#' dt <- data.table::data.table(id = 1:5, age = c(15, 30, 45, 50, 70), w = 1)
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' svy <- step_compute(svy, age2 = age * 2)
+#' svy <- bake_steps(svy)
+#' get_data(svy)
 #' @export
 bake_steps <- function(svy) {
   if (is(svy, "Survey")) {
@@ -319,44 +219,6 @@ bake_steps <- function(svy) {
   }
 
   stop("The object is not a Survey or RotativePanelSurvey object")
-}
-
-#' Bake AST-based step
-#' @param svy Survey object
-#' @param step AST step to bake
-#' @return Modified survey object
-#' @keywords internal
-bake_ast_step <- function(svy, step) {
-  if (is(svy, "Survey")) {
-    # Get the data
-    data <- svy$data
-
-    # Evaluate each AST expression
-    for (i in seq_along(step$expressions)) {
-      var_name <- step$names[i]
-      ast_expr <- step$expressions[[i]]
-
-      # Evaluate AST against data
-      result <- evaluate_ast(ast_expr, data)
-
-      # Add result to data
-      if (data.table::is.data.table(data)) {
-        data[, (var_name) := result]
-      } else {
-        data[[var_name]] <- result
-      }
-    }
-
-    # Update survey data
-    svy$data <- data
-
-    # Mark step as baked
-    step$bake <- TRUE
-
-    return(svy)
-  }
-
-  stop("AST steps currently only supported for Survey objects")
 }
 
 #' Bake steps survey rotative

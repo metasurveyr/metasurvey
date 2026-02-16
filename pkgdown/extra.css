@@ -1,0 +1,14 @@
+/* metasurvey pkgdown — minimal overrides on Bootstrap 5 defaults */
+
+/* Section headings in reference */
+.section h2 {
+  border-bottom: 2px solid var(--bs-primary);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+/* TOC active state */
+.toc .nav-link.active {
+  font-weight: 600;
+  border-left: 3px solid var(--bs-primary);
+}

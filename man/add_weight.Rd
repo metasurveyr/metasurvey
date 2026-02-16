@@ -49,7 +49,7 @@ specified \code{estimation_type} parameter.
 # Basic configuration with simple weight variables
 ech_weights <- add_weight(
   monthly = "pesomes",
-  quarterly = "pesotri", 
+  quarterly = "pesotri",
   annual = "pesoano"
 )
 
@@ -69,7 +69,7 @@ weights_with_replicates <- add_weight(
 ech <- load_survey(
   path = "ech_2023.dta",
   svy_type = "ech",
-  svy_edition = "2023", 
+  svy_edition = "2023",
   svy_weight = add_weight(
     monthly = "pesomes",
     annual = "pesoano"

@@ -82,7 +82,7 @@ panel_ech <- load_panel_survey(
 # Extraer encuestas mensuales específicas
 ech_trimestre1 <- extract_surveys(
   panel_ech,
-  monthly = c(1, 2, 3)  # Enero, febrero, marzo
+  monthly = c(1, 2, 3) # Enero, febrero, marzo
 )
 
 # Extraer por índice

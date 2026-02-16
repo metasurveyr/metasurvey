@@ -11,25 +11,17 @@ The \code{Step} class is used to define and manage individual steps in a survey 
 The \code{Step} class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
 }
 \examples{
-step <- Step$new(
-  name = "example_step",
-  edition = "2023",
-  survey_type = "example_survey",
-  type = "compute",
-  new_var = "example_var",
-  exprs = list(a = 1, b = 2),
-  call = NULL,
-  svy_before = NULL,
-  default_engine = NULL,
-  depends_on = list("var1", "var2"),
-  comments = "Example step",
-  bake = FALSE
-)
-print(step)
+# Step objects are created internally by step_compute(), step_recode(), etc.
+# Use the tidy API:
+dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
+svy <- Survey$new(data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- step_compute(svy, age2 = age * 2)
+get_steps(svy)
 }
 \keyword{Steps}
 \keyword{Surveymethods}
-\keyword{Workflow}
+\keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -56,12 +48,6 @@ print(step)
 \item{\code{comments}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
-
-\item{\code{expressions}}{Optional list of AST expressions used by this step (for AST-backed steps).}
-
-\item{\code{names}}{Optional character vector with the variable names associated to \code{expressions}.}
-
-\item{\code{ast_info}}{Optional list with AST metadata (original expressions, optimized versions, dependencies, flags).}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,10 +77,7 @@ Create a new Step object
   depends_on,
   comments = NULL,
   bake = !lazy_default(),
-  comment = NULL,
-  expressions = NULL,
-  names = NULL,
-  ast_info = NULL
+  comment = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -126,12 +109,6 @@ Create a new Step object
 \item{\code{bake}}{A logical value indicating whether the step has been executed.}
 
 \item{\code{comment}}{Optional alias of \code{comments} for backwards compatibility.}
-
-\item{\code{expressions}}{Optional list of AST expressions for AST compute steps.}
-
-\item{\code{names}}{Optional character vector of variable names for AST compute steps.}
-
-\item{\code{ast_info}}{Optional list with AST-related metadata for this step.}
 }
 \if{html}{\out{</div>}}
 }

@@ -1,7 +1,22 @@
 is_blank <- function(x) {
   return(
-    is.na(x) || x == ""
+    is.null(x) || length(x) == 0 || is.na(x) || x == ""
   )
+}
+
+#' Generate a unique ID
+#'
+#' Creates a human-readable unique identifier with an optional prefix,
+#' a Unix timestamp, and a random suffix.
+#'
+#' @param prefix Character prefix (e.g., "r" for recipes, "w" for workflows).
+#' @return Character string ID like "r_1739654400_742".
+#' @keywords internal
+#' @noRd
+generate_id <- function(prefix = "r") {
+  ts <- as.integer(Sys.time())
+  rand <- sample.int(999, 1)
+  paste0(prefix, "_", ts, "_", rand)
 }
 
 
@@ -203,7 +218,6 @@ load_survey_example <- function(svy_type, svy_edition) {
 #' print(current_setting)
 #'
 #' @seealso \code{\link{set_use_copy}} to change the setting
-#' @keywords utils
 #' @export
 
 use_copy_default <- function() {
@@ -272,85 +286,17 @@ get_user <- function() {
 }
 
 
-#' URL API Host
-#' @return URL API Host
-#' @keywords utils
-#' @keywords internal
-#' @noRd
-
-url_api_host <- function() {
-  default_host <- "https://data.mongodb-api.com/app/data-vonssxi/endpoint/data/v1/action/"
-
-  getOption("metasurvey.base_url") %||% default_host
-}
-
-#' Get API Key
-#' @return API Key
-#' @keywords utils
-#' @export
-
-get_api_key <- function() {
-  api_key <- getOption("metasurvey.api_key", default = NULL)
-
-  user <- getOption("metasurvey.user", default = NULL)
-  password <- getOption("metasurvey.password", default = NULL)
-
-  payload <- list(
-    methodAuth = "apiKey",
-    token = api_key
-  )
-
-  if (is.null(api_key)) {
-    if (is.null(user) || is.null(password)) {
-      api_key <- public_key()
-      payload <- list(
-        methodAuth = "anonUser",
-        token = api_key
-      )
-    } else {
-      payload <- list(
-        methodAuth = "userPassword",
-        email = user,
-        password = password
-      )
-    }
-  }
-
-  return(payload)
-}
-
-#' Public Key
-#' @return Public Key
-#' @keywords utils
-#' @keywords internal
-#' @noRd
-
-public_key <- function() {
-  url <- "https://services.cloud.mongodb.com/api/client/v2.0/app/data-vonssxi/auth/providers/anon-user/login"
-  response <- POST(url)
-  content <- content(response)
-
-  if (response$status_code != 200) {
-    stop(message("Error getting public key", content))
-  }
-
-  return(content$access_token)
-}
-
-
-#' Set API Key
-#' @param api_key API Key
-#' @keywords utils
-#' @export
-
-set_api_key <- function(api_key) {
-  options(metasurvey.api_key = api_key)
-}
+# Legacy Atlas direct-access functions were removed.
+# All API access now goes through api_client.R → plumber API.
+# See configure_api(), api_login(), api_list_recipes(), etc.
 
 
 #' Lazy processing
-#' @return Value
+#' @return Logical indicating the current lazy processing setting.
 #' @keywords utils
+#' @examples
+#' # Check current lazy processing default
+#' lazy_default()
 #' @export
 
 lazy_default <- function() {
@@ -358,8 +304,13 @@ lazy_default <- function() {
 }
 
 #' Set lazy processing
-#' @param lazy Lazy processing
+#' @param lazy Logical. If TRUE, steps are deferred until bake_steps() is called.
 #' @keywords utils
+#' @examples
+#' old <- lazy_default()
+#' set_lazy_processing(FALSE)
+#' lazy_default() # now FALSE
+#' set_lazy_processing(old) # restore
 #' @export
 
 set_lazy_processing <- function(lazy) {
@@ -372,9 +323,15 @@ set_lazy_processing <- function(lazy) {
 
 
 #' Extract time pattern
-#' @param svy_edition Survey edition
-#' @return List
+#' @param svy_edition Survey edition string (e.g. "2023", "2023-06", "2023_Q1").
+#' @return List with components: periodicity, year, month (when applicable).
 #' @keywords utils
+#' @examples
+#' # Annual edition
+#' extract_time_pattern("2023")
+#'
+#' # Monthly edition
+#' extract_time_pattern("2023-06")
 #' @export
 
 extract_time_pattern <- function(svy_edition) {
@@ -392,9 +349,10 @@ extract_time_pattern <- function(svy_edition) {
   periodicity <- NA
 
   # Extraer el tipo si hay texto al inicio
-  if (grepl("$[^0-9]*", svy_edition)) {
+  if (grepl("^[^0-9]", svy_edition)) {
     type <- sub("[0-9_]*$", "", svy_edition, perl = TRUE)
-    svy_edition <- gsub("[^0-9]*", "", svy_edition, perl = TRUE)
+    svy_edition <- gsub("[^0-9_]*", "", svy_edition, perl = TRUE)
+    svy_edition <- gsub("^_+|_+$", "", svy_edition)
   }
 
   # Caso: Mensual en formato YYYYMM (e.g., "202312")
@@ -446,7 +404,7 @@ extract_time_pattern <- function(svy_edition) {
     }
 
     # Caso: Encuesta con rango de años (e.g., "2019_2021")
-  } else if (grepl("^(\\d{4})(\\d{4})$", svy_edition)) {
+  } else if (grepl("^(\\d{4})[_]?(\\d{4})$", svy_edition)) {
     years <- as.numeric(unlist(regmatches(svy_edition, gregexpr("\\d{4}", svy_edition))))
     year_start <- min(years)
     year_end <- max(years)
@@ -505,14 +463,29 @@ extract_time_pattern <- function(svy_edition) {
 
 
 #' Validate time pattern
-#' @param svy_edition Survey edition
-#' @param svy_type Survey type
-#' @return Logical
+#' @param svy_type Survey type (e.g. "ech").
+#' @param svy_edition Survey edition string (e.g. "2023", "2023-06").
+#' @return List with components: svy_type, svy_edition (parsed), svy_periodicity.
 #' @keywords utils
-#' @return List
+#' @examples
+#' validate_time_pattern(svy_type = "ech", svy_edition = "2023")
+#' validate_time_pattern(svy_type = "ech", svy_edition = "2023-06")
 #' @export
 
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
+  # Validar que svy_edition no sea NULL o vacío
+  if (is.null(svy_edition) || length(svy_edition) == 0 || svy_edition == "") {
+    if (is.null(svy_type)) {
+      stop("Both svy_edition and svy_type are NULL. Please provide at least one.")
+    }
+    # Si no hay edition pero sí type, retornar solo el type
+    return(list(
+      svy_type = svy_type,
+      svy_edition = NA,
+      svy_periodicity = NA
+    ))
+  }
+
   time_pattern <- extract_time_pattern(svy_edition)
 
   if (is.null(time_pattern$type) && is.null(svy_type)) {
@@ -558,10 +531,14 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
 
 #' Group dates
-#' @param dates Dates
-#' @param type Type
-#' @return Group
+#' @param dates Vector of Date objects.
+#' @param type Grouping type: "monthly", "quarterly", or "biannual".
+#' @return Integer vector of group indices (e.g. 1-12 for monthly, 1-4 for quarterly).
 #' @keywords utils
+#' @examples
+#' dates <- as.Date(c("2023-01-15", "2023-04-20", "2023-07-10", "2023-11-05"))
+#' group_dates(dates, "quarterly")
+#' group_dates(dates, "biannual")
 #' @export
 
 group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
@@ -787,10 +764,207 @@ add_replicate <- function(
   return(replicate_list_clean)
 }
 
-#' Evaluate estimation with Coeficient of Variation
-#' @param cv Coeficient of Variation
-#' @return character
+# --- Weight spec serialization/resolution ---
+
+#' Convert a local replicate path to a portable source reference
+#' @param path Local file path (or NULL)
+#' @param edition Survey edition
+#' @return List with provider/resource/edition, or NULL
+#' @keywords internal
+#' @noRd
+.path_to_source <- function(path, edition = NULL) {
+  if (is.null(path)) {
+    return(NULL)
+  }
+
+  # Use first path if vector
+  p <- if (length(path) > 1) path[1] else path
+  basename_lower <- tolower(basename(p))
+
+  resource <- NULL
+  if (grepl("bootstrap.*anual|anual.*bootstrap|bootstrap.*annual", basename_lower)) {
+    resource <- "bootstrap_annual"
+  } else if (grepl("bootstrap.*mensual|mensual.*bootstrap|bootstrap.*monthly", basename_lower)) {
+    resource <- "bootstrap_monthly"
+  } else if (grepl("bootstrap.*trimest|trimest.*bootstrap|bootstrap.*quarterly", basename_lower)) {
+    resource <- "bootstrap_quarterly"
+  } else if (grepl("bootstrap.*semest|semest.*bootstrap|bootstrap.*semestral", basename_lower)) {
+    resource <- "bootstrap_semestral"
+  }
+
+  if (!is.null(resource)) {
+    return(list(
+      provider = "anda",
+      resource = resource,
+      edition = as.character(edition)
+    ))
+  }
+
+  list(
+    provider = "local",
+    path_hint = basename(p),
+    edition = as.character(edition)
+  )
+}
+
+#' Serialize a Survey weight list into portable weight_spec format
+#'
+#' Converts the in-memory weight list (output of add_weight()) into a
+#' portable JSON-friendly format. Local replicate paths are replaced with
+#' provider references.
+#'
+#' @param weight_list Named list from Survey$weight
+#' @param edition Survey edition (used for replicate_source)
+#' @return Named list suitable for JSON serialization
+#' @keywords internal
+#' @noRd
+.serialize_weight_spec <- function(weight_list, edition = NULL) {
+  if (is.null(weight_list) || length(weight_list) == 0) {
+    return(NULL)
+  }
+
+  lapply(weight_list, function(w) {
+    if (is.character(w)) {
+      list(type = "simple", variable = w)
+    } else if (is.list(w)) {
+      spec <- list(
+        type = "replicate",
+        variable = w$weight,
+        replicate_pattern = w$replicate_pattern,
+        replicate_type = w$replicate_type
+      )
+      if (!is.null(w$replicate_id)) {
+        spec$replicate_id <- list(
+          survey_key = names(w$replicate_id)[1],
+          replicate_key = unname(w$replicate_id)[1]
+        )
+      }
+      spec$replicate_source <- .path_to_source(w$replicate_path, edition)
+      spec
+    } else {
+      list(type = "simple", variable = as.character(w))
+    }
+  })
+}
+
+#' Resolve a portable weight specification to a usable weight configuration
+#'
+#' Converts the portable weight_spec from a RecipeWorkflow back into the
+#' format expected by \code{load_survey()} and \code{add_weight()}.
+#' For replicate weights with ANDA sources, automatically downloads the
+#' replicate file.
+#'
+#' @param weight_spec Named list from RecipeWorkflow$weight_spec
+#' @param dest_dir Character directory for downloaded files (default: tempdir())
+#' @return Named list compatible with add_weight() output
+#' @export
+resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
+  if (is.null(weight_spec)) {
+    return(NULL)
+  }
+
+  resolved <- lapply(weight_spec, function(ws) {
+    if (ws$type == "simple") {
+      ws$variable
+    } else if (ws$type == "replicate") {
+      replicate_path <- NULL
+      src <- ws$replicate_source
+
+      if (!is.null(src) && src$provider == "anda") {
+        replicate_path <- anda_download_microdata(
+          edition = src$edition,
+          resource = src$resource,
+          dest_dir = dest_dir
+        )
+      } else if (!is.null(src) && src$provider == "local") {
+        warning(
+          "Replicate source is local-only ('", src$path_hint,
+          "'). Please provide the file manually.",
+          call. = FALSE
+        )
+      }
+
+      rep_id <- NULL
+      if (!is.null(ws$replicate_id)) {
+        rep_id <- stats::setNames(ws$replicate_id$replicate_key, ws$replicate_id$survey_key)
+      }
+
+      add_replicate(
+        weight = ws$variable,
+        replicate_pattern = ws$replicate_pattern,
+        replicate_path = replicate_path,
+        replicate_id = rep_id,
+        replicate_type = ws$replicate_type
+      )
+    }
+  })
+
+  names(resolved) <- names(weight_spec)
+  resolved
+}
+
+#' Reproduce a workflow from its published specification
+#'
+#' Given a RecipeWorkflow (typically fetched from the registry), downloads
+#' the data, resolves the weight configuration, fetches referenced recipes,
+#' and returns a Survey object ready for \code{workflow()} estimation.
+#'
+#' @param wf RecipeWorkflow object
+#' @param data_path Character path to survey microdata. If NULL, attempts to
+#'   download from ANDA for ECH surveys.
+#' @param dest_dir Character directory for downloaded files
+#' @return Survey object with recipes applied and weight configuration set
+#' @export
+reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
+  if (!inherits(wf, "RecipeWorkflow")) {
+    stop("wf must be a RecipeWorkflow object", call. = FALSE)
+  }
+
+  svy_weight <- resolve_weight_spec(wf$weight_spec, dest_dir = dest_dir)
+
+  if (is.null(data_path) && tolower(wf$survey_type) == "ech") {
+    edition <- as.character(wf$edition)
+    data_path <- anda_download_microdata(edition,
+      resource = "implantation",
+      dest_dir = dest_dir
+    )
+  }
+
+  if (is.null(data_path)) {
+    stop("Cannot resolve data source. Please provide data_path.", call. = FALSE)
+  }
+
+  recipes <- NULL
+  if (length(wf$recipe_ids) > 0) {
+    backend <- tryCatch(get_backend(), error = function(e) NULL)
+    if (!is.null(backend)) {
+      recipe_list <- list()
+      for (rid in wf$recipe_ids) {
+        r <- tryCatch(backend$get(rid), error = function(e) NULL)
+        if (!is.null(r)) recipe_list <- c(recipe_list, list(r))
+      }
+      if (length(recipe_list) > 0) recipes <- recipe_list
+    }
+  }
+
+  load_survey(
+    path = data_path,
+    svy_type = wf$survey_type,
+    svy_edition = as.character(wf$edition),
+    svy_weight = svy_weight,
+    recipes = recipes,
+    bake = !is.null(recipes)
+  )
+}
+
+#' Evaluate estimation with Coefficient of Variation
+#' @param cv Numeric coefficient of variation value.
+#' @return Character string with the quality category (e.g. "Excelente", "Bueno").
 #' @keywords utils
+#' @examples
+#' evaluate_cv(3) # "Excelente"
+#' evaluate_cv(12) # "Bueno"
+#' evaluate_cv(30) # "Utilizar con precaucion"
 #' @export
 
 evaluate_cv <- function(cv) {

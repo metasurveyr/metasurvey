@@ -2,123 +2,93 @@
 % Please edit documentation in R/steps.R
 \name{step_compute}
 \alias{step_compute}
-\title{Create AST computation steps for survey variables}
+\title{Create computation steps for survey variables}
 \usage{
 step_compute(
   svy = NULL,
   ...,
   .by = NULL,
   use_copy = use_copy_default(),
-  comment = "AST Compute step",
-  .level = "auto",
-  optimize_ast = TRUE,
-  cache_ast = TRUE,
-  validate_deps = TRUE
+  comment = "Compute step",
+  .level = "auto"
 )
 }
 \arguments{
 \item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object. If NULL, creates a step
 that can be applied later using the pipe operator (\%>\%)}
 
-\item{...}{Computation expressions that are \strong{automatically parsed as AST}.
-Each expression is converted to Abstract Syntax Tree for optimized evaluation.
+\item{...}{Computation expressions with automatic optimization.
 Names are assigned using \code{new_var = expression}}
 
-\item{.by}{Vector of variables to group computations by. AST automatically
+\item{.by}{Vector of variables to group computations by. The system automatically
 validates these variables exist before execution}
 
 \item{use_copy}{Logical indicating whether to create a copy of the object before
 applying transformations. Defaults to \code{use_copy_default()}}
 
 \item{comment}{Descriptive text for the step for documentation and traceability.
-Compatible with Markdown syntax. Defaults to "AST Compute step"}
+Compatible with Markdown syntax. Defaults to "Compute step"}
 
 \item{.level}{For RotativePanelSurvey objects, specifies the level where
 computations are applied: "implantation", "follow_up", "quarter", "month", or "auto"}
-
-\item{optimize_ast}{Whether to apply AST optimizations (constant folding,
-expression simplification). Default: TRUE}
-
-\item{cache_ast}{Whether to cache compiled AST expressions for reuse. Default: TRUE}
-
-\item{validate_deps}{Whether to validate all variable dependencies exist
-before execution. Default: TRUE}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
 with new computed variables and the step added to the history
 }
 \description{
-\strong{CORE AST SYSTEM}: This function now uses Abstract Syntax Tree (AST)
-evaluation as its fundamental engine. All computations are parsed into AST form,
-optimized, and evaluated with advanced dependency detection and error prevention.
+This function uses optimized expression evaluation with automatic dependency
+detection and error prevention. All computations are validated before execution.
 }
 \details{
-\strong{AST CORE ENGINE FEATURES}:
+\strong{CORE ENGINE FEATURES}:
 
-\strong{1. Automatic AST Parsing:}
+\strong{1. Automatic Expression Processing:}
 \itemize{
-\item All expressions converted to Abstract Syntax Trees
-\item Static analysis performed before execution
-\item Dependency detection prevents runtime errors
+\item All expressions are evaluated using R's native evaluation
+\item Dependency detection using variable name analysis
+\item Runtime validation prevents errors
 }
 
-\strong{2. AST Optimization:}
-\itemize{
-\item Constant expressions pre-calculated
-\item Dead code elimination
-\item Expression simplification
-\item Optimized evaluation paths
-}
-
-\strong{3. Enhanced Error Prevention:}
+\strong{2. Enhanced Error Prevention:}
 \itemize{
 \item Missing variables detected before execution
 \item Type checking when possible
 \item Precise error locations with context
-\item Dependency graphs for debugging
 }
 
-\strong{4. Performance Benefits:}
+\strong{3. Performance Benefits:}
 \itemize{
-\item Optimized evaluation reduces computation time
-\item Cached AST compilation for repeated operations
-\item Minimal overhead with significant gains
+\item Direct evaluation for minimal overhead
+\item Efficient data.table operations
+\item Optimized for large survey datasets
 }
 
-For RotativePanelSurvey objects, AST validation ensures computations
+For RotativePanelSurvey objects, validation ensures computations
 are compatible with the specified hierarchical level:
 \itemize{
 \item "implantation": Household/dwelling level computations
 \item "follow_up": Individual/person level computations
 \item "quarter": Quarterly aggregated computations
 \item "month": Monthly aggregated computations
-\item "auto": AST automatically detects appropriate level
+\item "auto": Automatically detects appropriate level
 }
 }
 \examples{
+# Basic computation
+dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
+svy <- Survey$new(data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
+svy <- bake_steps(svy)
+get_data(svy)
+
 \dontrun{
-# Basic AST computation (automatic optimization)
+# ECH example: labor indicator
 ech <- ech |>
   step_compute(
     unemployed = ifelse(POBPCOAC \%in\% 3:5, 1, 0),
-    comment = "Unemployment indicator - AST optimized"
-  )
-
-# Grouped calculation
-ech <- ech |>
-  step_compute(
-    mean_household_income = mean(ht11, na.rm = TRUE),
-    .by = "numero",
-    comment = "Mean income by household"
-  )
-
-# Rotative panel specifying level
-panel <- panel |>
-  step_compute(
-    activity_rate = active_population / total_population * 100,
-    .level = "quarter",
-    comment = "Quarterly activity rate"
+    comment = "Unemployment indicator"
   )
 }
 }
@@ -126,5 +96,4 @@ panel <- panel |>
 \code{\link{step_recode}} for categorical recodings
 \code{\link{bake_steps}} to execute all pending steps
 }
-\keyword{AST}
 \keyword{Steps}

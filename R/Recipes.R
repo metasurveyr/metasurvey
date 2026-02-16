@@ -4,7 +4,8 @@
 #' surveys. It encapsulates metadata, declared dependencies, and a list of
 #' transformation steps to be applied to a Survey object.
 #'
-#' @name Recipe
+#' @name Recipe-class
+#' @aliases Recipe
 #' @docType class
 #' @format An R6 class generator (R6ClassGenerator)
 #'
@@ -20,10 +21,20 @@
 #' @field doi DOI or external identifier (character|NULL).
 #' @field bake Logical flag indicating whether it has been applied.
 #' @field topic Recipe topic (character|NULL).
+#' @field step_objects List of Step R6 objects (list|NULL), used for documentation generation.
+#' @field categories List of RecipeCategory objects for classification.
+#' @field downloads Integer download/usage count.
+#' @field certification RecipeCertification object (default community).
+#' @field user_info RecipeUser object or NULL.
+#' @field version Recipe version string.
+#' @field depends_on_recipes List of recipe IDs that must be applied before this one.
+#' @field data_source List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.
 #'
 #' @section Methods:
 #' \describe{
 #'   \item{$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)}{Class constructor.}
+#'   \item{$doc()}{Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.}
+#'   \item{$validate(svy)}{Validate that a survey object has all required input variables.}
 #' }
 #'
 #' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
@@ -44,6 +55,14 @@ Recipe <- R6Class("Recipe",
     doi = NULL,
     bake = FALSE,
     topic = NULL,
+    step_objects = NULL,
+    categories = list(),
+    downloads = 0L,
+    certification = NULL,
+    user_info = NULL,
+    version = "1.0.0",
+    depends_on_recipes = list(),
+    data_source = NULL,
     #' @description
     #' Create a Recipe object
     #' @param name Descriptive name of the recipe (character)
@@ -57,7 +76,16 @@ Recipe <- R6Class("Recipe",
     #' @param id Unique identifier (character or numeric)
     #' @param doi DOI or external identifier (character or NULL)
     #' @param topic Recipe topic (character or NULL)
-    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic) {
+    #' @param step_objects List of Step R6 objects (optional, used for doc generation)
+    #' @param cached_doc Pre-computed documentation (optional, used when loading from JSON)
+    #' @param categories List of RecipeCategory objects (optional)
+    #' @param downloads Integer download count (default 0)
+    #' @param certification RecipeCertification object (optional, default community)
+    #' @param user_info RecipeUser object (optional)
+    #' @param version Recipe version string (default "1.0.0")
+    #' @param depends_on_recipes List of recipe IDs that must be applied before this one (optional)
+    #' @param data_source List with S3 bucket info (optional)
+    initialize = function(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi = NULL, topic = NULL, step_objects = NULL, cached_doc = NULL, categories = list(), downloads = 0L, certification = NULL, user_info = NULL, version = "1.0.0", depends_on_recipes = list(), data_source = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -69,7 +97,211 @@ Recipe <- R6Class("Recipe",
       self$id <- id
       self$doi <- doi
       self$topic <- topic
+      self$step_objects <- step_objects
+      private$.cached_doc <- cached_doc
+      self$categories <- categories
+      self$downloads <- as.integer(downloads)
+      self$certification <- certification %||% RecipeCertification$new(level = "community")
+      self$user_info <- user_info
+      self$version <- version
+      self$depends_on_recipes <- depends_on_recipes
+      self$data_source <- data_source
+    },
+
+    #' @description Increment the download counter
+    increment_downloads = function() {
+      self$downloads <- self$downloads + 1L
+    },
+
+    #' @description Certify the recipe at a given level
+    #' @param user RecipeUser who is certifying
+    #' @param level Character certification level ("reviewed" or "official")
+    certify = function(user, level) {
+      self$certification <- RecipeCertification$new(level = level, certified_by = user)
+    },
+
+    #' @description Add a category to the recipe
+    #' @param category RecipeCategory to add
+    add_category = function(category) {
+      existing <- vapply(self$categories, function(c) c$name, character(1))
+      if (!category$name %in% existing) {
+        self$categories <- c(self$categories, list(category))
+      }
+    },
+
+    #' @description Remove a category by name
+    #' @param name Character category name to remove
+    remove_category = function(name) {
+      self$categories <- Filter(function(c) c$name != name, self$categories)
+    },
+
+    #' @description
+    #' Serialize Recipe to a plain list suitable for JSON/API publishing.
+    #' Steps are encoded as character strings via deparse().
+    #' @return A named list with all recipe fields.
+    to_list = function() {
+      doc_info <- self$doc()
+      list(
+        name = self$name,
+        user = self$user,
+        survey_type = self$survey_type,
+        edition = as.character(self$edition),
+        description = self$description,
+        topic = self$topic,
+        doi = self$doi,
+        id = self$id,
+        version = self$version,
+        downloads = self$downloads,
+        depends_on = unique(unlist(self$depends_on)),
+        depends_on_recipes = self$depends_on_recipes,
+        data_source = self$data_source,
+        categories = lapply(self$categories, function(c) c$to_list()),
+        certification = self$certification$to_list(),
+        user_info = if (!is.null(self$user_info)) self$user_info$to_list() else NULL,
+        doc = list(
+          input_variables = doc_info$input_variables,
+          output_variables = doc_info$output_variables,
+          pipeline = doc_info$pipeline
+        ),
+        steps = unname(lapply(self$steps, function(s) {
+          if (is.character(s)) paste(s, collapse = " ") else paste(deparse(s), collapse = " ")
+        }))
+      )
+    },
+
+    #' @description
+    #' Auto-generate documentation from recipe steps
+    #' @return A list with metadata, input_variables, output_variables, and pipeline information
+    doc = function() {
+      cat_names <- vapply(self$categories, function(c) c$name, character(1))
+      meta <- list(
+        name = self$name,
+        user = self$user,
+        edition = self$edition,
+        survey_type = self$survey_type,
+        description = self$description,
+        topic = self$topic,
+        doi = self$doi,
+        id = self$id,
+        categories = if (length(cat_names) > 0) paste(cat_names, collapse = ", ") else NULL,
+        certification = self$certification$level,
+        version = self$version,
+        downloads = self$downloads
+      )
+
+      # If we have Step objects, generate doc from them
+      if (!is.null(self$step_objects) && length(self$step_objects) > 0) {
+        all_outputs <- character(0)
+        all_inputs <- character(0)
+        pipeline <- list()
+
+        for (i in seq_along(self$step_objects)) {
+          step <- self$step_objects[[i]]
+
+          step_outputs <- switch(step$type,
+            "compute" = ,
+            "ast_compute" = {
+              # Try to extract variable names from step
+              var_names <- character(0)
+
+              # Check if exprs has names (works for both lists and calls)
+              if (!is.null(names(step$exprs)) && length(names(step$exprs)) > 0) {
+                # Filter out empty names (first element in calls)
+                var_names <- setdiff(names(step$exprs), "")
+              }
+
+              # Fallback to parsing new_var if available
+              if (length(var_names) == 0 && !is.null(step$new_var)) {
+                # new_var might be comma-separated
+                var_names <- strsplit(step$new_var, ",\\s*")[[1]]
+              }
+
+              var_names
+            },
+            "recode" = step$new_var,
+            "step_rename" = names(step$exprs),
+            "step_remove" = character(0),
+            "step_join" = character(0),
+            character(0)
+          )
+
+          step_inputs <- unlist(step$depends_on)
+
+          inferred_type <- switch(step$type,
+            "recode" = "categorical",
+            "compute" = ,
+            "ast_compute" = "numeric",
+            "step_rename" = "inherited",
+            NA_character_
+          )
+
+          external_inputs <- setdiff(step_inputs, all_outputs)
+          all_inputs <- union(all_inputs, external_inputs)
+          all_outputs <- union(all_outputs, step_outputs)
+
+          pipeline[[i]] <- list(
+            index = i,
+            type = step$type,
+            outputs = step_outputs,
+            inputs = step_inputs,
+            inferred_type = inferred_type,
+            comment = step$comments
+          )
+        }
+
+        return(list(
+          meta = meta,
+          input_variables = all_inputs,
+          output_variables = all_outputs,
+          pipeline = pipeline
+        ))
+      }
+
+      # If we have cached doc (loaded from JSON), return it with current meta
+      if (!is.null(private$.cached_doc)) {
+        return(list(
+          meta = meta,
+          input_variables = private$.cached_doc$input_variables %||% character(0),
+          output_variables = private$.cached_doc$output_variables %||% character(0),
+          pipeline = private$.cached_doc$pipeline %||% list()
+        ))
+      }
+
+      # Fallback: no step objects and no cached doc
+      list(
+        meta = meta,
+        input_variables = character(0),
+        output_variables = character(0),
+        pipeline = list()
+      )
+    },
+
+    #' @description
+    #' Validate that a survey has all required input variables
+    #' @param svy A Survey object
+    #' @return TRUE if valid, otherwise stops with error listing missing variables
+    validate = function(svy) {
+      doc_info <- self$doc()
+      required_vars <- doc_info$input_variables
+
+      survey_vars <- names(get_data(svy))
+      missing_vars <- required_vars[!tolower(required_vars) %in% tolower(survey_vars)]
+
+      if (length(missing_vars) > 0) {
+        stop(
+          sprintf(
+            "Recipe '%s' requires variables not present in survey: %s",
+            self$name,
+            paste(missing_vars, collapse = ", ")
+          )
+        )
+      }
+
+      return(TRUE)
     }
+  ),
+  private = list(
+    .cached_doc = NULL
   )
 )
 
@@ -126,44 +358,29 @@ metadata_recipe <- function() {
 #' \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
 #'
 #' @examples
+#' # Basic recipe without steps
+#' r <- recipe(
+#'   name = "Basic ECH Indicators",
+#'   user = "Analyst",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Basic labor indicators for ECH 2023"
+#' )
+#' r
+#'
 #' \dontrun{
-#' # Receta básica sin steps
-#' receta_base <- recipe(
-#'   name = "Indicadores ECH Básicos",
-#'   user = "Analista INE",
+#' # Recipe with steps
+#' r2 <- recipe(
+#'   name = "Labor Market ECH",
+#'   user = "Labor Team",
 #'   svy = survey_empty(type = "ech", edition = "2023"),
-#'   description = "Crea indicadores laborales básicos para ECH 2023"
-#' )
-#'
-#' # Receta con steps incluidos
-#' receta_completa <- recipe(
-#'   name = "Mercado Laboral ECH",
-#'   user = "Equipo Laboral",
-#'   svy = survey_empty(type = "ech", edition = "2023"),
-#'   description = "Análisis completo del mercado laboral uruguayo",
-#'
-#'   # Steps de transformación
+#'   description = "Full labor market analysis",
 #'   step_recode(
-#'     condicion_actividad,
-#'     POBPCOAC == 2 ~ "Ocupado",
-#'     POBPCOAC %in% 3:5 ~ "Desocupado",
-#'     POBPCOAC %in% 6:8 ~ "Inactivo",
-#'     .default = "Sin dato"
+#'     labor_status,
+#'     POBPCOAC == 2 ~ "Employed",
+#'     POBPCOAC %in% 3:5 ~ "Unemployed",
+#'     .default = "Other"
 #'   ),
-#'   step_compute(
-#'     tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
-#'     tasa_empleo = ocupados / poblacion_14_mas * 100,
-#'     tasa_desempleo = desocupados / (ocupados + desocupados) * 100
-#'   )
-#' )
-#'
-#' # Aplicar receta a datos
-#' ech_procesada <- load_survey(
-#'   path = "ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   recipes = receta_completa,
-#'   bake = TRUE
+#'   step_compute(activity_rate = active / total * 100)
 #' )
 #' }
 #'
@@ -205,7 +422,7 @@ recipe <- function(...) {
   if ("steps" %in% names(dots)) {
     return(
       Recipe$new(
-        id = dots$id %||% stats::runif(1, 0, 1),
+        id = dots$id %||% generate_id("r"),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -220,13 +437,14 @@ recipe <- function(...) {
         description = dots$description,
         steps = dots$steps_call,
         doi = dots$doi %||% NULL,
-        topic = dots$topic
+        topic = dots$topic,
+        step_objects = dots$steps
       )
     )
   } else {
     return(
       Recipe$new(
-        id = dots$id %||% stats::runif(1, 0, 1),
+        id = dots$id %||% generate_id("r"),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -284,25 +502,44 @@ decode_step <- function(steps) {
 #' @keywords utils
 #' @details This function encodes the Recipe object and writes it to a JSON file.
 #' @examples
-#' \dontrun{
-#' # Example of saving a Recipe object
-#' save_recipe(recipe_obj, "recipe.json")
-#' }
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_recipe(r, f)
 #' @export
 
 save_recipe <- function(recipe, file) {
-  recipe <- list(
+  # Auto-generate documentation
+  doc_info <- recipe$doc()
+
+  recipe_data <- list(
     name = recipe$name,
     user = recipe$user,
-    svy_type = recipe$survey_type,
+    survey_type = recipe$survey_type,
     edition = recipe$edition,
     description = recipe$description,
+    topic = recipe$topic,
+    doi = recipe$doi,
+    id = recipe$id,
+    version = recipe$version,
+    downloads = recipe$downloads,
+    categories = lapply(recipe$categories, function(c) c$to_list()),
+    certification = recipe$certification$to_list(),
+    user_info = if (!is.null(recipe$user_info)) recipe$user_info$to_list() else NULL,
+    doc = list(
+      input_variables = doc_info$input_variables,
+      output_variables = doc_info$output_variables,
+      pipeline = doc_info$pipeline
+    ),
     steps = recipe$steps
   )
 
-  recipe |>
+  recipe_data |>
     encoding_recipe() |>
-    jsonlite::write_json(path = file, simplifyVector = TRUE)
+    jsonlite::write_json(path = file, simplifyVector = TRUE, auto_unbox = TRUE, pretty = TRUE)
 
   message(
     glue::glue("The recipe has been saved in {file}")
@@ -312,14 +549,13 @@ save_recipe <- function(recipe, file) {
 #' recipe to json
 #' @param recipe A Recipe object
 #' @return A JSON object
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @keywords internal
 
 recipe_to_json <- function(recipe) {
   recipe <- list(
     name = recipe$name,
     user = recipe$user,
-    svy_type = recipe$svy_type,
+    survey_type = recipe$survey_type,
     edition = recipe$edition,
     description = recipe$description,
     steps = recipe$steps
@@ -337,15 +573,116 @@ recipe_to_json <- function(recipe) {
 #' @details This function reads a JSON file and decodes it into a Recipe object.
 #' @keywords utils
 #' @examples
-#' \dontrun{
-#' # Example of reading a Recipe object
-#' recipe_obj <- read_recipe("recipe.json")
-#' print(recipe_obj)
-#' }
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_recipe(r, f)
+#' r2 <- read_recipe(f)
+#' r2
 #' @export
 
 read_recipe <- function(file) {
-  decode_step(jsonlite::read_json(file, simplifyVector = TRUE)$steps)
+  json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
+
+  # Decode steps from JSON (handle errors gracefully)
+  steps <- tryCatch(
+    decode_step(json_data$steps),
+    error = function(e) {
+      # Fallback: store raw step strings as a list
+      as.list(json_data$steps)
+    }
+  )
+
+  # Check if this is a new format (with metadata) or old format (just steps)
+  if ("name" %in% names(json_data)) {
+    # Reconstruct pipeline from doc if available
+    cached_doc <- NULL
+    if (!is.null(json_data$doc)) {
+      pipeline <- list()
+      raw_pipeline <- json_data$doc$pipeline
+      if (!is.null(raw_pipeline)) {
+        # Handle both list-of-lists and data.frame forms from JSON
+        if (is.data.frame(raw_pipeline)) {
+          for (i in seq_len(nrow(raw_pipeline))) {
+            row <- as.list(raw_pipeline[i, ])
+            # Ensure outputs/inputs are character vectors
+            row$outputs <- as.character(unlist(row$outputs))
+            row$inputs <- as.character(unlist(row$inputs))
+            pipeline[[i]] <- row
+          }
+        } else if (is.list(raw_pipeline)) {
+          pipeline <- raw_pipeline
+        }
+      }
+      cached_doc <- list(
+        input_variables = as.character(unlist(json_data$doc$input_variables)),
+        output_variables = as.character(unlist(json_data$doc$output_variables)),
+        pipeline = pipeline
+      )
+    }
+
+    # Reconstruct categories
+    categories <- list()
+    if (!is.null(json_data$categories)) {
+      raw_cats <- json_data$categories
+      if (is.data.frame(raw_cats)) {
+        for (i in seq_len(nrow(raw_cats))) {
+          row <- as.list(raw_cats[i, ])
+          # Handle empty data.frame parents from simplifyVector
+          if (is.data.frame(row$parent) && (nrow(row$parent) == 0 || ncol(row$parent) == 0)) {
+            row$parent <- NULL
+          }
+          categories[[i]] <- RecipeCategory$from_list(row)
+        }
+      } else if (is.list(raw_cats)) {
+        categories <- lapply(raw_cats, RecipeCategory$from_list)
+      }
+    }
+
+    # Reconstruct certification
+    certification <- NULL
+    if (!is.null(json_data$certification)) {
+      certification <- tryCatch(
+        RecipeCertification$from_list(json_data$certification),
+        error = function(e) NULL
+      )
+    }
+
+    # Reconstruct user_info
+    user_info <- NULL
+    if (!is.null(json_data$user_info)) {
+      user_info <- tryCatch(
+        RecipeUser$from_list(json_data$user_info),
+        error = function(e) NULL
+      )
+    }
+
+    Recipe$new(
+      name = json_data$name %||% "Unnamed Recipe",
+      user = json_data$user %||% "Unknown",
+      edition = json_data$edition %||% json_data$svy_edition %||% "Unknown",
+      survey_type = json_data$survey_type %||% json_data$svy_type %||% "Unknown",
+      default_engine = default_engine(),
+      depends_on = json_data$depends_on %||% list(),
+      description = json_data$description %||% "",
+      steps = steps,
+      id = json_data$id %||% generate_id("r"),
+      doi = json_data$doi %||% NULL,
+      topic = json_data$topic %||% NULL,
+      cached_doc = cached_doc,
+      categories = categories,
+      downloads = as.integer(json_data$downloads %||% 0),
+      certification = certification,
+      user_info = user_info,
+      version = json_data$version %||% "1.0.0"
+    )
+  } else {
+    # Old format - just return steps for backward compatibility
+    steps
+  }
 }
 
 #' Get recipe from repository or API
@@ -379,8 +716,17 @@ read_recipe <- function(file) {
 #'   \item Versioning: Access different recipe versions according to edition
 #' }
 #'
-#' The function first searches in local repositories and then queries the API
-#' if necessary. Recipes are cached to improve performance.
+#' The function queries the metasurvey API to retrieve recipes. **Internet
+#' connection is required**. If the API is unavailable or you need to work
+#' offline:
+#'
+#' \strong{Working Offline:}
+#' \itemize{
+#'   \item Don't call \code{get_recipe()} - work directly with steps
+#'   \item Set \code{options(metasurvey.skip_recipes = TRUE)} to disable API calls
+#'   \item Load recipes from local files using \code{read_recipe()}
+#'   \item Create custom recipes with \code{recipe()}
+#' }
 #'
 #' Search criteria are combined with AND operator, so all specified criteria
 #' must match for a recipe to be returned.
@@ -416,6 +762,18 @@ read_recipe <- function(file) {
 #'   bake = TRUE
 #' )
 #'
+#' # Working offline - don't use recipes
+#' ech_offline <- load_survey(
+#'   path = "ech_2023.dta",
+#'   svy_type = "ech",
+#'   svy_edition = "2023",
+#'   svy_weight = add_weight(annual = "PESOANO")
+#' )
+#'
+#' # Disable recipe API globally
+#' options(metasurvey.skip_recipes = TRUE)
+#' # Now get_recipe() will return NULL with a warning
+#'
 #' # For year ranges
 #' panel_recipe <- get_recipe(
 #'   svy_type = "ech_panel",
@@ -438,79 +796,46 @@ get_recipe <- function(
     svy_edition = NULL,
     topic = NULL,
     allowMultiple = TRUE) {
-  filterList <- list(
-    svy_type = svy_type,
-    svy_edition = svy_edition,
-    topic = topic
+  # Check if recipes should be skipped (offline mode)
+  if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
+    warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.",
+      call. = FALSE
+    )
+    return(NULL)
+  }
+
+  tryCatch(
+    {
+      recipes <- api_list_recipes(
+        survey_type = svy_type,
+        search = topic
+      )
+
+      if (length(recipes) == 0) {
+        message("The API returned no recipes for the specified criteria")
+        return(NULL)
+      }
+
+      message(glue::glue("The API returned {length(recipes)} recipes"))
+
+      if (!allowMultiple) {
+        return(recipes[[1]])
+      }
+
+      recipes
+    },
+    error = function(e) {
+      warning(
+        "Failed to retrieve recipes from API: ", e$message, "\n",
+        "  You can:\n",
+        "    - Work without recipes by not calling get_recipe()\n",
+        "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
+        "    - Check your internet connection and try again",
+        call. = FALSE
+      )
+      return(NULL)
+    }
   )
-
-  method <- "findOne"
-
-  if (allowMultiple) {
-    method <- "find"
-  }
-
-  filterList <- filterList[!sapply(filterList, is.null)]
-
-
-  content_json <- request_api(method, filterList)
-
-  n_recipe <- get_distinct_recipes_json(content_json)
-
-  if (n_recipe == 0) {
-    stop(
-      message(
-        "The API returned no recipes"
-      )
-    )
-  }
-
-  message(
-    glue::glue("The API returned {n_recipe} recipes")
-  )
-
-
-  if (n_recipe == 1) {
-    recipe <- content_json$document[[1]]
-    return(
-      Recipe$new(
-        name = unlist(recipe$name),
-        user = unlist(recipe$user),
-        edition = unlist(recipe$svy_edition),
-        survey_type = unlist(recipe$svy_type),
-        default_engine = default_engine(),
-        depends_on = unlist(recipe$depends_on),
-        description = unlist(recipe$description),
-        steps = decode_step(recipe$steps),
-        id = recipe[["_id"]],
-        doi = unlist(recipe$DOI),
-        topic = unlist(recipe$topic)
-      )
-    )
-  } else {
-    return(
-      lapply(
-        X = 1:n_recipe,
-        FUN = function(x) {
-          recipe <- content_json$documents[[x]]
-
-          Recipe$new(
-            name = unlist(recipe$name),
-            user = unlist(recipe$user),
-            edition = unlist(recipe$svy_edition),
-            survey_type = unlist(recipe$svy_type),
-            default_engine = default_engine(),
-            depends_on = list(),
-            description = unlist(recipe$description),
-            steps = decode_step(recipe$steps),
-            id = recipe[["_id"]],
-            doi = unlist(recipe$doi),
-            topic = unlist(recipe$topic)
-          )
-        }
-      )
-    )
-  }
 }
 
 #' Convert a list of steps to a recipe
@@ -524,8 +849,17 @@ get_recipe <- function(
 #' @keywords Steps
 #' @keywords Survey methods
 #' @return A Recipe object
-#' @keywords Survey methods
 #' @keywords Recipes
+#' @examples
+#' \dontrun{
+#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
+#' my_recipe <- steps_to_recipe(
+#'   name = "employment", user = "analyst",
+#'   svy = svy, description = "Employment indicators",
+#'   steps = get_steps(svy)
+#' )
+#' }
 #' @export
 
 steps_to_recipe <- function(
@@ -554,236 +888,164 @@ steps_to_recipe <- function(
 }
 
 
-get_distinct_recipes_json <- function(content_json) {
-  tryCatch(
-    {
-      if (is.null(content_json$documents)) {
-        return(1)
-      } else {
-        return(
-          length(
-            unique(
-              sapply(
-                X = seq_along(content_json$documents),
-                FUN = function(x) {
-                  content_json$documents[[x]][["_id"]]
-                }
-              )
-            )
-          )
-        )
-      }
-    },
-    error = function(e) {
-      return(0)
-    }
-  )
-}
-
-
+# Legacy helpers kept for backward compatibility with external code
+# that may call get_distinct_recipes() directly
 get_distinct_recipes <- function(recipe) {
   tryCatch(
-    {
-      length(unique(
-        sapply(
-          X = seq_along(recipe),
-          FUN = function(x) {
-            recipe <- recipe[[x]]
-            recipe$id
-          }
-        )
-      ))
-    },
-    error = function(e) {
-      return(0)
-    }
-  )
-}
-
-#' API Recipe
-#' @importFrom httr POST add_headers content
-#' @importFrom jsonlite parse_json
-#' @noRd
-#' @keywords internal
-
-request_api <- function(method, filterList) {
-  baseUrl <- url_api_host()
-
-  url <- paste0(
-    baseUrl,
-    method
-  )
-
-  key <- get_api_key()
-
-  headers <- switch(key$methodAuth,
-    apiKey = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "apiKey" = paste(
-          key$token
-        )
-      )
-    },
-    anonUser = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "Authorization" = paste(
-          "Bearer",
-          key$token
-        )
-      )
-    },
-    userPassword = {
-      c(
-        "Content-Type" = "application/json",
-        "Access-Control-Request-Headers" = "*",
-        "email" = key$email,
-        "password" = key$password
-      )
-    }
-  )
-
-  body <- list(
-    collection = "recipes",
-    database = "metasurvey",
-    dataSource = "Cluster0",
-    filter = filterList
-  )
-
-  response <- POST(
-    url,
-    body = body,
-    encode = "json",
-    add_headers(.headers = headers)
-  )
-
-  content <- content(response, "text", encoding = "UTF-8")
-
-  switch(response$status_code,
-    "400" = stop(
-      message(
-        "The API returned an error for a bad request: ",
-        response$status
-      )
-    ),
-    "401" = stop(
-      message(
-        "The API returned an error for unauthorized access: ",
-        response$status
-      )
-    ),
-    "403" = stop(
-      message(
-        "The API returned an error for forbidden access: ",
-        response$status
-      )
-    ),
-    "404" = stop(
-      message(
-        "The API returned an error for not found: ",
-        response$status
-      )
-    )
-  )
-
-
-  return(
-    content_json = parse_json(content)
+    length(unique(sapply(seq_along(recipe), function(x) recipe[[x]]$id))),
+    error = function(e) 0
   )
 }
 
 #' @title Publish Recipe
-#' @description Publishes a Recipe object to the API.
+#' @description Publishes a Recipe object to the active backend
+#'   (local JSON registry or remote API).
 #' @param recipe A Recipe object.
-#' @return A JSON object containing the API response.
-#' @details This function sends a Recipe object to the API for publication.
+#' @return The Recipe object (invisibly).
 #' @examples
-#' \dontrun{
-#' # Example of publishing a Recipe object to the API
-#' publish_recipe(recipe_obj)
-#' }
+#' set_backend("local", path = tempfile(fileext = ".json"))
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' publish_recipe(r)
+#' length(list_recipes())
 #' @keywords utils
 #' @export
 
 publish_recipe <- function(recipe) {
-  recipe <- list(
-    name = recipe$name,
-    user = recipe$user,
-    description = recipe$description,
-    svy_type = recipe$svy_type,
-    svy_edition = recipe$edition,
-    steps = recipe$steps,
-    topic = recipe$topic,
-    doi = recipe$doi,
-    depends_on = unlist(recipe$depends_on)
+  if (!inherits(recipe, "Recipe")) {
+    stop("recipe must be a Recipe object", call. = FALSE)
+  }
+  get_backend()$publish(recipe)
+  invisible(recipe)
+}
+
+#' Print method for Recipe objects
+#'
+#' Displays a formatted recipe card showing metadata, required variables,
+#' pipeline steps, and produced variables.
+#'
+#' @param x A Recipe object
+#' @param ... Additional arguments (currently unused)
+#' @return Invisibly returns the Recipe object
+#' @keywords Recipes
+#' @export
+print.Recipe <- function(x, ...) {
+  doc_info <- x$doc()
+
+  # Header
+  cat(crayon::bold(crayon::blue(paste0(
+    "\n\u2500\u2500 Recipe: ", x$name, " \u2500\u2500\n"
+  ))))
+
+  # Metadata
+  cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
+  ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
+  cat(crayon::silver("Survey:  "), x$survey_type, " / ", ed_str, "\n", sep = "")
+  cat(crayon::silver("Version: "), x$version, "\n", sep = "")
+  if (!is.null(x$topic)) {
+    cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
+  }
+  if (!is.null(x$doi)) {
+    cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
+  }
+  if (!is.null(x$description) && nzchar(x$description)) {
+    cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+  }
+  # Certification badge
+  cert_label <- switch(x$certification$level,
+    "community" = crayon::yellow("community"),
+    "reviewed" = crayon::cyan("reviewed"),
+    "official" = crayon::green("official"),
+    x$certification$level
   )
-
-  recipe <- recipe
-
-  api_url <- paste0(url_api_host(), "insertOne")
-  database_name <- "metasurvey"
-  collection_name <- "recipes"
-  key <- get_api_key()
-
-  # Verificar que el JSON no esté vacío
-  if (is.null(recipe) || length(recipe) == 0) {
-    stop("No recipe data provided.")
+  cat(crayon::silver("Certification: "), cert_label, "\n", sep = "")
+  # Downloads
+  if (x$downloads > 0) {
+    cat(crayon::silver("Downloads: "), x$downloads, "\n", sep = "")
+  }
+  # Categories
+  if (length(x$categories) > 0) {
+    cat_names <- vapply(x$categories, function(c) c$name, character(1))
+    cat(crayon::silver("Categories: "), paste(cat_names, collapse = ", "), "\n", sep = "")
   }
 
-  # Estructurar el payload para MongoDB Atlas Data API
-  payload <- list(
-    dataSource = "Cluster0", # Reemplaza con el nombre de tu clúster si es diferente
-    database = database_name,
-    collection = collection_name,
-    document = recipe
-  )
+  # Input variables
+  if (length(doc_info$input_variables) > 0) {
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Requires (", length(doc_info$input_variables), " variables) \u2500\u2500\n"
+    ))))
+    cat("  ", paste(doc_info$input_variables, collapse = ", "), "\n", sep = "")
+  }
 
-  # Estructurar encabezados de acuerdo al método de autenticación
-  headers <- switch(key$methodAuth,
-    apiKey = c(
-      "Content-Type" = "application/json",
-      "Access-Control-Request-Headers" = "*",
-      "apiKey" = key$token
-    ),
-    anonUser = c(
-      "Content-Type" = "application/json",
-      "Access-Control-Request-Headers" = "*",
-      "Authorization" = paste("Bearer", key$token)
-    ),
-    userPassword = c(
-      "Content-Type" = "application/ejson",
-      "Accept" = "application/json",
-      "email" = key$email,
-      "password" = key$password
-    )
-  )
+  # Pipeline
+  if (length(doc_info$pipeline) > 0) {
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Pipeline (", length(doc_info$pipeline), " steps) \u2500\u2500\n"
+    ))))
+    for (step_info in doc_info$pipeline) {
+      outputs_str <- if (length(step_info$outputs) > 0) {
+        paste(step_info$outputs, collapse = ", ")
+      } else {
+        "(no output)"
+      }
 
-  # Realizar la solicitud POST a la Data API de MongoDB Atlas
-  response <- tryCatch(
-    {
-      POST(
-        url = api_url,
-        add_headers(headers),
-        body = jsonlite::toJSON(payload, auto_unbox = TRUE),
-        encode = "json"
-      )
-    },
-    error = function(e) {
-      stop("Failed to publish recipe to MongoDB Atlas Data API: ", e$message)
+      comment_str <- ""
+      if (!is.null(step_info$comment) && length(step_info$comment) == 1 &&
+        nzchar(step_info$comment)) {
+        comment_str <- paste0("  \"", step_info$comment, "\"")
+      }
+
+      step_type <- step_info$type %||% "unknown"
+      cat(sprintf(
+        "  %d. [%s] -> %s%s\n",
+        step_info$index,
+        step_type,
+        outputs_str,
+        comment_str
+      ))
     }
-  )
-
-  # Verificar la respuesta de la API
-  if (response$status_code < 300) {
-    message("Recipe successfully published to metasurvey API. Thanks for your contribution :). Status code: ", response$status_code)
-    return(content(response, "parsed")) # Devuelve el contenido de la respuesta
-  } else {
-    stop(
-      "Failed to publish recipe. Status code: ", response$status_code,
-      " - ", content(response, "text", encoding = "UTF-8")
-    )
   }
+
+  # Output variables
+  if (length(doc_info$output_variables) > 0) {
+    cat(crayon::bold(crayon::blue(paste0(
+      "\n\u2500\u2500 Produces (", length(doc_info$output_variables), " variables) \u2500\u2500\n"
+    ))))
+
+    output_details <- lapply(doc_info$pipeline, function(step) {
+      if (length(step$outputs) > 0 && !is.null(step$inferred_type) &&
+        !is.na(step$inferred_type)) {
+        data.frame(
+          var = step$outputs,
+          type = step$inferred_type,
+          stringsAsFactors = FALSE
+        )
+      } else {
+        NULL
+      }
+    })
+    output_details <- do.call(rbind, output_details)
+
+    if (!is.null(output_details) && nrow(output_details) > 0) {
+      vars_by_type <- split(output_details$var, output_details$type)
+      output_parts <- sapply(names(vars_by_type), function(type) {
+        vars <- vars_by_type[[type]]
+        paste0(vars, " [", type, "]")
+      })
+      cat("  ", paste(unlist(output_parts), collapse = ", "), "\n", sep = "")
+    } else {
+      cat("  ", paste(doc_info$output_variables, collapse = ", "), "\n", sep = "")
+    }
+  }
+
+  # Steps count if no pipeline doc available
+  if (length(doc_info$pipeline) == 0 && length(x$steps) > 0) {
+    cat(crayon::silver(paste0("\n  (", length(x$steps), " steps)\n")))
+  }
+
+  cat("\n")
+  invisible(x)
 }

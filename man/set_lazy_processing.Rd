@@ -7,9 +7,15 @@
 set_lazy_processing(lazy)
 }
 \arguments{
-\item{lazy}{Lazy processing}
+\item{lazy}{Logical. If TRUE, steps are deferred until bake_steps() is called.}
 }
 \description{
 Set lazy processing
+}
+\examples{
+old <- lazy_default()
+set_lazy_processing(FALSE)
+lazy_default() # now FALSE
+set_lazy_processing(old) # restore
 }
 \keyword{utils}

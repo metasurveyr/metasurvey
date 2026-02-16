@@ -245,7 +245,7 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
 
   dates <- as.Date(sapply(unname(follow_up), function(x) x$edition))
 
-  ts_series <- stats::ts(1:length(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
+  ts_series <- stats::ts(seq_along(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
 
   apply_interval <- function(ts_series, start_year, start_month, end_year, end_month) {
     as.vector(stats::window(ts_series, start = c(start_year, start_month), end = c(end_year, end_month)))
@@ -517,7 +517,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' @export
 
 
-get_follow_up <- function(RotativePanelSurvey, index = 1:length(RotativePanelSurvey$follow_up)) {
+get_follow_up <- function(RotativePanelSurvey, index = seq_along(RotativePanelSurvey$follow_up)) {
   if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
     stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
   }

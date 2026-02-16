@@ -1,26 +1,16 @@
-template:
-  bootstrap: 5
-  bslib:
-    bg: "#F6FFFF"
-    fg: "#000000"
-    primary: "#40555D"
-    border-radius: 0.7rem
-    btn-border-radius: 0.75rem
-    code_font: {google: "Fira Code"}
-
 url: https://metasurveyr.github.io/metasurvey
 
+template:
+  bootstrap: 5
+  light-switch: true
+  bslib:
+    primary: "#0d6efd"
+    border-radius: "0.375rem"
 
 navbar:
-  bg: primary
   structure:
-    left:  [intro,articles, reference,tutorials, news]
-    right: [search, github]
-  components:
-    github:
-      icon: fa-github
-      href: https://github.com/metaSurveyR/metasurvey
-      aria-label: GitHub
+    left:  [intro, articles, reference, news]
+    right: [search, github, lightswitch]
 
 authors:
   Mauro Loprete:
@@ -31,52 +21,174 @@ authors:
     href: https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html
 
 reference:
-- title: AST System (Core Engine)
-  desc: Abstract Syntax Tree functions - the core evaluation engine
+- title: Surveys
+  desc: Create and manipulate Survey objects
   contents:
-  - has_keyword("AST")
- 
-- title: Engine
-  contents:
-    - has_keyword("engine")
-- title: Survey methods
-  contents:
-    - has_keyword("Surveymethods")
+  - Survey
+  - RotativePanelSurvey
+  - PoolSurvey
+  - load_survey
+  - load_panel_survey
+  - load_survey_example
+  - survey_empty
+  - get_data
+  - set_data
+  - get_metadata
+  - get_steps
+  - survey_to_data_frame
+  - survey_to_data.table
+  - survey_to_tibble
 - title: Steps
+  desc: Lazy transformations on surveys
   contents:
-  - has_keyword("Steps")
-  - bake_steps
-  - step_remove
+  - step_compute
+  - step_recode
   - step_rename
-- title: Preprocessing
-  contents:
-    - has_keyword("preprocessing")
-- title: Utils
-  contents:
-    - has_keyword("utils")
+  - step_remove
+  - step_join
+  - bake_steps
 - title: Recipes
+  desc: Reproducible and portable pipelines
   contents:
-    - has_keyword("Recipes")
-- title: PoolSurvey
+  - Recipe
+  - recipe
+  - steps_to_recipe
+  - add_recipe
+  - bake_recipes
+  - save_recipe
+  - read_recipe
+  - get_recipe
+  - certify_recipe
+  - print.Recipe
+  - recipe_user
+  - recipe_category
+  - recipe_certification
+  - add_category
+  - remove_category
+  - default_categories
+  - set_user_info
+  - set_version
+- title: Recipe Discovery
+  desc: Search, filter, and publish recipes
   contents:
-    - has_keyword("PoolSurvey")
-- title: RotativePanelSurvey
+  - list_recipes
+  - search_recipes
+  - filter_recipes
+  - rank_recipes
+  - explore_recipes
+  - publish_recipe
+  - set_backend
+  - get_backend
+- title: Estimation
+  desc: Survey estimation workflows
   contents:
-    - has_keyword("RotativePanelSurvey")
-- title: Survey
+  - workflow
+  - RecipeWorkflow-class
+  - evaluate_cv
+  - save_workflow
+  - read_workflow
+  - workflow_from_list
+  - list_workflows
+  - search_workflows
+  - filter_workflows
+  - rank_workflows
+  - find_workflows_for_recipe
+  - publish_workflow
+  - set_workflow_backend
+  - get_workflow_backend
+  - reproduce_workflow
+  - print.RecipeWorkflow
+- title: Rotating Panels
+  desc: Panels with implantation and follow-ups
   contents:
-    - has_keyword("Survey")
+  - get_implantation
+  - get_follow_up
+  - extract_surveys
+- title: Weights and Design
+  desc: Weight and sampling design configuration
+  contents:
+  - add_weight
+  - add_replicate
+  - resolve_weight_spec
+  - cat_design
+  - cat_design_type
+  - set_engine
+  - get_engine
+  - show_engines
+  - set_use_copy
+  - use_copy_default
+  - set_lazy_processing
+  - lazy_default
+- title: Time and Dates
+  desc: Utilities for editions and periodicity
+  contents:
+  - extract_time_pattern
+  - validate_time_pattern
+  - group_dates
+- title: Visualization
+  contents:
+  - view_graph
+- title: Remote API
+  desc: REST client for the recipe registry
+  contents:
+  - configure_api
+  - api_login
+  - api_logout
+  - api_register
+  - api_me
+  - api_refresh_token
+  - api_list_recipes
+  - api_get_recipe
+  - api_publish_recipe
+  - api_list_workflows
+  - api_get_workflow
+  - api_publish_workflow
+  - api_get_anda_variables
+- title: ANDA
+  desc: INE Uruguay ANDA catalog metadata
+  contents:
+  - anda_variables
+  - anda_download_microdata
+- title: Ecosystem Classes
+  desc: R6 classes for the recipe ecosystem
+  contents:
+  - RecipeCategory
+  - RecipeCertification
+  - RecipeUser
 
 articles:
-- title: "Getting started"
-  desc: "Tutorials that accompany the function documentation"
+- title: "Getting Started"
+  desc: "Learn the basics of metasurvey"
   contents:
   - getting-started
-  - advanced-workflows
-  - ast-core
-  - ech-case-study
-  - panel-analysis
+- title: "Core Features"
+  desc: "Recipes, workflows, and estimation"
+  contents:
   - recipes
+  - workflows-and-estimation
+- title: "Advanced Topics"
+  desc: "Complex designs, panels, and validation"
+  contents:
   - complex-designs
-  - performance-optimization
-  - ninios
+  - panel-analysis
+- title: "Web App and API"
+  desc: "Interactive explorer, REST API, and database"
+  contents:
+  - shiny-explorer
+  - api-database
+- title: "Case Studies"
+  desc: "Real-world examples with ECH data"
+  contents:
+  - ech-case-study
+- title: "Español"
+  desc: "Documentación en español"
+  contents:
+  - metasurvey-es
+  - getting-started-es
+  - recipes-es
+  - workflows-and-estimation-es
+  - complex-designs-es
+  - panel-analysis-es
+  - ech-case-study-es
+  - shiny-explorer-es
+  - api-database-es

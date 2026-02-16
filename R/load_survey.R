@@ -329,7 +329,7 @@ load_panel_survey <- function(
     names(path_survey) <- names_path_survey_year_month
 
     follow_up <- lapply(
-      X = 1:length(path_survey),
+      X = seq_along(path_survey),
       FUN = function(x) {
         y <- path_survey[[x]]
         z <- names(path_survey)[x]
@@ -416,13 +416,20 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
     stop("Unsupported file type: ", .extension)
   )
 
-  require(.read_function$package, character.only = TRUE)
+  loadNamespace(.read_function$package)
+
+  # Use the original file path (not .output_file) unless convert was used
+  .actual_file <- if (convert) .output_file else file
 
   if (is.null(.args)) {
-    .args <- list(.output_file)
-    names(.args) <- names(formals(.read_function$read_function)[1])
+    .read_fn <- get(.read_function$read_function,
+      envir = asNamespace(.read_function$package),
+      mode = "function"
+    )
+    .args <- list(.actual_file)
+    names(.args) <- names(formals(.read_fn)[1])
   } else {
-    .args$file <- .output_file
+    .args$file <- .actual_file
   }
 
   .names_args <- names(.args)
@@ -433,7 +440,18 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
 
 
-  df <- do.call(.read_function$read_function, args = .args[.names_args])
+  .fn <- get(.read_function$read_function,
+    envir = asNamespace(.read_function$package),
+    mode = "function"
+  )
+
+  # foreign::read.spss needs to.data.frame = TRUE to return a data.frame
+  call_args <- .args[.names_args]
+  if (.extension == "sav" && !"to.data.frame" %in% names(call_args)) {
+    call_args$to.data.frame <- TRUE
+  }
+
+  df <- do.call(.fn, args = call_args)
   return(data.table::data.table(df))
 }
 
@@ -475,20 +493,23 @@ load_survey.data.table <- function(...) {
         }
       )
     } else {
+      # Single recipe: could be an R6 object directly or list(R6_object)
+      single_recipe <- if (inherits(.args$recipes, "Recipe")) {
+        .args$recipes
+      } else {
+        .args$recipes[[1]]
+      }
       index_valid_recipes <- validate_recipe(
         svy_type = .args$svy_type,
         svy_edition = .args$svy_edition,
-        recipe_svy_edition = .args$recipes$edition,
-        recipe_svy_type = .args$recipes$survey_type
+        recipe_svy_edition = single_recipe$edition,
+        recipe_svy_type = single_recipe$survey_type
       )
       if (!index_valid_recipes) {
         message(
           "Invalid Recipe: \n",
-          .args$recipes$name
+          single_recipe$name
         )
-
-
-
         .args$recipes <- NULL
       }
     }
@@ -533,11 +554,9 @@ config_survey <- function(...) {
 #' @keywords internal
 
 validate_recipe <- function(svy_type, svy_edition, recipe_svy_edition, recipe_svy_type) {
-  equal_type <- svy_type == recipe_svy_type
+  equal_type <- any(tolower(svy_type) == tolower(recipe_svy_type))
 
-  equal_edition <- svy_edition == recipe_svy_edition
+  equal_edition <- any(svy_edition %in% recipe_svy_edition)
 
-
-
-  return(equal_type & equal_edition)
+  return(equal_type && equal_edition)
 }
