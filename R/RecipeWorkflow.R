@@ -26,6 +26,7 @@
 #' @field version Version string.
 #' @field doi DOI or external identifier (character|NULL).
 #' @field created_at Creation timestamp (character).
+#' @field weight_spec Named list with weight configuration per periodicity (list|NULL).
 #'
 #' @section Methods:
 #' \describe{
@@ -39,7 +40,6 @@
 #'
 #' @seealso \code{\link{save_workflow}}, \code{\link{read_workflow}},
 #'   \code{\link{workflow}}
-#' @keywords Workflows
 #' @export
 RecipeWorkflow <- R6Class("RecipeWorkflow",
   public = list(
@@ -60,6 +60,7 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
     version = "1.0.0",
     doi = NULL,
     created_at = NULL,
+    weight_spec = NULL,
 
     #' @description Create a RecipeWorkflow object
     #' @param id Unique identifier
@@ -79,14 +80,16 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
     #' @param version Version string
     #' @param doi DOI or NULL
     #' @param created_at Timestamp string or NULL (auto-generated)
+    #' @param weight_spec Named list with weight configuration per periodicity
     initialize = function(id = NULL, name, description = "", user = "Unknown",
                           user_info = NULL, survey_type = "Unknown",
                           edition = "Unknown", estimation_type = character(0),
                           recipe_ids = character(0), calls = list(),
                           call_metadata = list(), categories = list(),
                           downloads = 0L, certification = NULL,
-                          version = "1.0.0", doi = NULL, created_at = NULL) {
-      self$id <- id %||% as.character(stats::runif(1, 0, 1))
+                          version = "1.0.0", doi = NULL, created_at = NULL,
+                          weight_spec = NULL) {
+      self$id <- id %||% generate_id("w")
       self$name <- name
       self$description <- description
       self$user <- user
@@ -103,6 +106,7 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
       self$version <- version
       self$doi <- doi
       self$created_at <- created_at %||% format(Sys.time(), "%Y-%m-%dT%H:%M:%S")
+      self$weight_spec <- weight_spec
     },
 
     #' @description Generate documentation for this workflow
@@ -150,7 +154,8 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
         certification = self$certification$to_list(),
         version = self$version,
         doi = self$doi,
-        created_at = self$created_at
+        created_at = self$created_at,
+        weight_spec = self$weight_spec
       )
     },
 
@@ -187,7 +192,6 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
 #'
 #' @param lst A list (typically from JSON) with workflow fields
 #' @return A RecipeWorkflow object
-#' @keywords Workflows
 #' @export
 workflow_from_list <- function(lst) {
   # Reconstruct categories
@@ -232,7 +236,7 @@ workflow_from_list <- function(lst) {
   }
 
   RecipeWorkflow$new(
-    id = lst$id %||% as.character(stats::runif(1, 0, 1)),
+    id = lst$id %||% generate_id("w"),
     name = lst$name %||% "Unnamed Workflow",
     description = lst$description %||% "",
     user = lst$user %||% "Unknown",
@@ -248,7 +252,8 @@ workflow_from_list <- function(lst) {
     certification = certification,
     version = lst$version %||% "1.0.0",
     doi = lst$doi,
-    created_at = lst$created_at
+    created_at = lst$created_at,
+    weight_spec = lst$weight_spec
   )
 }
 
@@ -319,6 +324,25 @@ print.RecipeWorkflow <- function(x, ...) {
   # Estimation types
   if (length(x$estimation_type) > 0) {
     cat(crayon::silver("Estimation types: "), paste(x$estimation_type, collapse = ", "), "\n", sep = "")
+  }
+
+  # Weight configuration
+  if (!is.null(x$weight_spec) && length(x$weight_spec) > 0) {
+    cat(crayon::bold(crayon::blue("\n\u2500\u2500 Weights \u2500\u2500\n")))
+    for (pname in names(x$weight_spec)) {
+      ws <- x$weight_spec[[pname]]
+      if (ws$type == "simple") {
+        cat(sprintf("  %s: %s\n", pname, ws$variable))
+      } else if (ws$type == "replicate") {
+        src <- ws$replicate_source
+        src_str <- if (!is.null(src) && src$provider == "anda") {
+          paste0("anda:", src$resource)
+        } else {
+          "local"
+        }
+        cat(sprintf("  %s: %s (%s, %s)\n", pname, ws$variable, ws$replicate_type, src_str))
+      }
+    }
   }
 
   # Recipe references
