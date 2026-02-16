@@ -1,4 +1,4 @@
-# metasurvey 0.0.4
+# metasurvey 0.0.5
 
 ## Breaking changes
 
