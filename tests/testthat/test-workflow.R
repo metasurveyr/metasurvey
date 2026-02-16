@@ -1,14 +1,14 @@
 test_that("workflow function dispatches correctly", {
   # Create test survey
   survey <- make_test_survey(50)
-  
+
   # Test with regular survey - using survey package functions
   result <- workflow(
     survey = list(survey),
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual"
   )
-  
+
   expect_s3_class(result, "data.table")
   expect_true(nrow(result) > 0)
   expect_true("stat" %in% names(result))
@@ -18,14 +18,14 @@ test_that("workflow function dispatches correctly", {
 
 test_that("workflow handles multiple estimations", {
   survey <- make_test_survey(50)
-  
+
   result <- workflow(
     survey = list(survey),
     survey::svymean(~age, na.rm = TRUE),
     survey::svytotal(~income, na.rm = TRUE),
     estimation_type = "annual"
   )
-  
+
   expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 2)
 })
@@ -34,13 +34,13 @@ test_that("workflow handles multiple surveys", {
   survey1 <- make_test_survey(50)
   survey2 <- make_test_survey(50)
   survey2$edition <- "2024"
-  
+
   result <- workflow(
     survey = list(survey1, survey2),
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = "annual"
   )
-  
+
   expect_s3_class(result, "data.table")
   expect_true(nrow(result) > 0)
 })
@@ -57,13 +57,13 @@ test_that("workflow handles multiple estimation types", {
     quarterly = survey::svydesign(ids = ~1, weights = ~w, data = survey$data),
     monthly = survey::svydesign(ids = ~1, weights = ~w, data = survey$data)
   )
-  
+
   result <- workflow(
     survey = list(survey),
     survey::svymean(~age, na.rm = TRUE),
     estimation_type = c("annual", "quarterly")
   )
-  
+
   expect_s3_class(result, "data.table")
   expect_true(nrow(result) >= 2)
 })
@@ -71,9 +71,9 @@ test_that("workflow handles multiple estimation types", {
 test_that("cat_estimation helper formats results correctly", {
   survey <- make_test_survey(100)
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
-  
+
   estimation <- survey::svymean(~age, des, na.rm = TRUE)
-  
+
   # Verify estimation has required components
   expect_true(!is.null(coef(estimation)))
   expect_true(!is.null(survey::SE(estimation)))
@@ -82,9 +82,9 @@ test_that("cat_estimation helper formats results correctly", {
 test_that("svyratio estimation produces valid results", {
   survey <- make_test_survey(100)
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
-  
+
   estimation <- survey::svyratio(~income, ~age, des, na.rm = TRUE)
-  
+
   # Verify estimation structure
   expect_true(!is.null(coef(estimation)))
   expect_true(!is.null(survey::SE(estimation)))

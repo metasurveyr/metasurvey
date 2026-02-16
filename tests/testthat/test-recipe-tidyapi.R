@@ -209,7 +209,10 @@ test_that("full pipeline: recipe |> add_category |> set_user_info |> certify_rec
 
 test_that("search_recipes searches in local backend", {
   tmp <- tempfile(fileext = ".json")
-  on.exit({ unlink(tmp); options(metasurvey.backend = NULL) })
+  on.exit({
+    unlink(tmp)
+    options(metasurvey.backend = NULL)
+  })
   set_backend("local", path = tmp)
 
   r <- Recipe$new(
@@ -227,7 +230,10 @@ test_that("search_recipes searches in local backend", {
 
 test_that("rank_recipes ranks by downloads", {
   tmp <- tempfile(fileext = ".json")
-  on.exit({ unlink(tmp); options(metasurvey.backend = NULL) })
+  on.exit({
+    unlink(tmp)
+    options(metasurvey.backend = NULL)
+  })
   set_backend("local", path = tmp)
   b <- get_backend()
 
@@ -250,7 +256,10 @@ test_that("rank_recipes ranks by downloads", {
 
 test_that("filter_recipes filters by criteria", {
   tmp <- tempfile(fileext = ".json")
-  on.exit({ unlink(tmp); options(metasurvey.backend = NULL) })
+  on.exit({
+    unlink(tmp)
+    options(metasurvey.backend = NULL)
+  })
   set_backend("local", path = tmp)
   b <- get_backend()
 
@@ -274,7 +283,10 @@ test_that("filter_recipes filters by criteria", {
 
 test_that("list_recipes lists all", {
   tmp <- tempfile(fileext = ".json")
-  on.exit({ unlink(tmp); options(metasurvey.backend = NULL) })
+  on.exit({
+    unlink(tmp)
+    options(metasurvey.backend = NULL)
+  })
   set_backend("local", path = tmp)
   b <- get_backend()
   b$publish(Recipe$new(

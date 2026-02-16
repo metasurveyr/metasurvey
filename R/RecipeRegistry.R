@@ -76,7 +76,9 @@ RecipeRegistry <- R6::R6Class(
     #' @return List of Recipe objects sorted by downloads
     rank_by_downloads = function(n = NULL) {
       recipes <- private$.recipes
-      if (length(recipes) == 0) return(list())
+      if (length(recipes) == 0) {
+        return(list())
+      }
       downloads <- vapply(recipes, function(r) r$downloads, integer(1))
       ordered <- recipes[order(downloads, decreasing = TRUE)]
       if (!is.null(n)) {
@@ -90,7 +92,9 @@ RecipeRegistry <- R6::R6Class(
     #' @return List of Recipe objects sorted by cert level then downloads
     rank_by_certification = function(n = NULL) {
       recipes <- private$.recipes
-      if (length(recipes) == 0) return(list())
+      if (length(recipes) == 0) {
+        return(list())
+      }
       cert_levels <- vapply(recipes, function(r) r$certification$numeric_level(), integer(1))
       downloads <- vapply(recipes, function(r) r$downloads, integer(1))
       ordered <- recipes[order(cert_levels, downloads, decreasing = TRUE)]
@@ -204,11 +208,17 @@ RecipeRegistry <- R6::R6Class(
     #' @return List of matching Recipe objects
     list_by_institution = function(institution_name) {
       Filter(function(r) {
-        if (is.null(r$user_info)) return(FALSE)
-        if (r$user_info$user_type == "institution" && r$user_info$name == institution_name) return(TRUE)
+        if (is.null(r$user_info)) {
+          return(FALSE)
+        }
+        if (r$user_info$user_type == "institution" && r$user_info$name == institution_name) {
+          return(TRUE)
+        }
         if (r$user_info$user_type == "institutional_member" &&
-            !is.null(r$user_info$institution) &&
-            r$user_info$institution$name == institution_name) return(TRUE)
+          !is.null(r$user_info$institution) &&
+          r$user_info$institution$name == institution_name) {
+          return(TRUE)
+        }
         FALSE
       }, private$.recipes)
     },

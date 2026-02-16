@@ -60,10 +60,10 @@ test_that("step_remove handles multiple columns", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   s2 <- step_remove(s, a, b, c)
   s2 <- bake_steps(s2)
-  
+
   expect_false("a" %in% names(s2$data))
   expect_false("b" %in% names(s2$data))
   expect_false("c" %in% names(s2$data))
@@ -80,10 +80,10 @@ test_that("step_rename handles multiple renames", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   s2 <- step_rename(s, alpha = a, beta = b)
   s2 <- bake_steps(s2)
-  
+
   expect_true("alpha" %in% names(s2$data))
   expect_true("beta" %in% names(s2$data))
   expect_false("a" %in% names(s2$data))
@@ -98,7 +98,7 @@ test_that("step chains with remove and rename work correctly", {
     extra = 1,
     w = 1
   )
-  
+
   s <- Survey$new(
     data = data.table::data.table(df),
     edition = "2023",
@@ -107,13 +107,13 @@ test_that("step chains with remove and rename work correctly", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   s2 <- s %>%
     step_remove(extra) %>%
     step_rename(years = age)
-  
+
   s2 <- bake_steps(s2)
-  
+
   expect_true("years" %in% names(s2$data))
   expect_false("age" %in% names(s2$data))
   expect_false("extra" %in% names(s2$data))
@@ -130,11 +130,11 @@ test_that("step_join with different join types", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   # Test right join
   s_right <- bake_steps(step_join(s, rhs, by = "id", type = "right"))
   expect_equal(nrow(s_right$data), 3)
-  
+
   # Test full join
   s_full <- bake_steps(step_join(s, rhs, by = "id", type = "full"))
   expect_equal(nrow(s_full$data), 4)
@@ -150,14 +150,14 @@ test_that("bake_steps processes multiple steps in order", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   s2 <- s %>%
     step_remove(c) %>%
     step_rename(alpha = a, beta = b)
-  
+
   # Before baking
   expect_equal(length(s2$steps), 2)
-  
+
   # After baking
   s3 <- bake_steps(s2)
   expect_false("c" %in% names(s3$data))
@@ -175,7 +175,7 @@ test_that("step_remove validates column exists", {
     engine = "data.table",
     weight = add_weight(annual = "w")
   )
-  
+
   # Removing non-existent column should handle gracefully or error
   # depending on implementation
   expect_true(is(s, "Survey"))

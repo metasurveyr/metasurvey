@@ -8,42 +8,60 @@ explore_ui <- function(id) {
     hero_section_ui("recipes"),
 
     # Search & Filters
-    htmltools::tags$div(class = "search-container",
-      htmltools::tags$div(class = "search-row",
-        htmltools::tags$div(class = "search-field",
+    htmltools::tags$div(
+      class = "search-container",
+      htmltools::tags$div(
+        class = "search-row",
+        htmltools::tags$div(
+          class = "search-field",
           shiny::textInput(ns("search"), NULL,
-                          placeholder = "Search recipes...",
-                          width = "100%")
+            placeholder = "Search recipes...",
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_svy"), NULL,
-                           choices = c("Survey" = "", "ECH" = "ech", "EAII" = "eaii",
-                                     "EPH" = "eph", "EAI" = "eai"),
-                           width = "100%")
+            choices = c(
+              "Survey" = "", "ECH" = "ech", "EAII" = "eaii",
+              "EPH" = "eph", "EAI" = "eai"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_category"), NULL,
-                           choices = c("Category" = "",
-                                     "Labor Market" = "labor_market",
-                                     "Income" = "income",
-                                     "Education" = "education",
-                                     "Health" = "health",
-                                     "Demographics" = "demographics",
-                                     "Housing" = "housing"),
-                           width = "100%")
+            choices = c(
+              "Category" = "",
+              "Labor Market" = "labor_market",
+              "Income" = "income",
+              "Education" = "education",
+              "Health" = "health",
+              "Demographics" = "demographics",
+              "Housing" = "housing"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_cert"), NULL,
-                           choices = c("Certification" = "",
-                                     "Official" = "official",
-                                     "Reviewed" = "reviewed",
-                                     "Community" = "community"),
-                           width = "100%")
+            choices = c(
+              "Certification" = "",
+              "Official" = "official",
+              "Reviewed" = "reviewed",
+              "Community" = "community"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "refresh-field",
+        htmltools::tags$div(
+          class = "refresh-field",
           shiny::actionButton(ns("btn_refresh"), "",
-                            icon = shiny::icon("sync"),
-                            class = "btn-outline-secondary btn-sm")
+            icon = shiny::icon("sync"),
+            class = "btn-outline-secondary btn-sm"
+          )
         )
       )
     ),
@@ -86,15 +104,24 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
     }
 
     # Load on startup
-    shiny::observe({ load_recipes() }, priority = 100)
+    shiny::observe(
+      {
+        load_recipes()
+      },
+      priority = 100
+    )
 
     # Refresh button
-    shiny::observeEvent(input$btn_refresh, { load_recipes() })
+    shiny::observeEvent(input$btn_refresh, {
+      load_recipes()
+    })
 
     # Filtered recipes
     filtered <- shiny::reactive({
       recipes <- all_recipes()
-      if (length(recipes) == 0) return(list())
+      if (length(recipes) == 0) {
+        return(list())
+      }
 
       query <- tolower(trimws(input$search %||% ""))
       svy <- input$filter_svy %||% ""
@@ -106,7 +133,7 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       if (nzchar(query)) {
         result <- Filter(function(r) {
           grepl(query, tolower(r$name %||% "")) ||
-          grepl(query, tolower(r$description %||% ""))
+            grepl(query, tolower(r$description %||% ""))
         }, result)
       }
       if (nzchar(svy)) {
@@ -137,21 +164,25 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
     output$stats_row <- shiny::renderUI({
       recipes <- all_recipes()
       n_total <- length(recipes)
-      n_official <- sum(vapply(recipes, function(r)
-        (r$certification$level %||% "community") == "official", logical(1)))
+      n_official <- sum(vapply(recipes, function(r) {
+        (r$certification$level %||% "community") == "official"
+      }, logical(1)))
       total_downloads <- sum(vapply(recipes, function(r) r$downloads %||% 0L, integer(1)))
 
       htmltools::tags$div(
         style = "display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;",
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_total),
           htmltools::tags$div(class = "stat-label", "Total Recipes")
         ),
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_official),
           htmltools::tags$div(class = "stat-label", "Official")
         ),
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", format_downloads(total_downloads)),
           htmltools::tags$div(class = "stat-label", "Total Downloads")
         )
@@ -163,7 +194,8 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       recipes <- filtered()
 
       if (length(recipes) == 0) {
-        return(htmltools::tags$div(class = "empty-state",
+        return(htmltools::tags$div(
+          class = "empty-state",
           bsicons::bs_icon("journal-x", size = "4rem"),
           htmltools::tags$h5("No recipes found"),
           htmltools::tags$p("Try adjusting your search or filters.")
@@ -186,15 +218,18 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       )
 
       # Find workflows that reference this recipe
-      referencing_workflows <- tryCatch({
-        all_wf <- shiny_fetch_workflows()
-        Filter(function(wf) recipe$id %in% wf$recipe_ids, all_wf)
-      }, error = function(e) list())
+      referencing_workflows <- tryCatch(
+        {
+          all_wf <- shiny_fetch_workflows()
+          Filter(function(wf) recipe$id %in% wf$recipe_ids, all_wf)
+        },
+        error = function(e) list()
+      )
 
       # Generate unique ID for this modal's graph
       graph_counter(graph_counter() + 1)
       graph_id <- paste0("recipe_graph_", graph_counter())
-      
+
       # Create the graph output dynamically with unique ID
       if (requireNamespace("visNetwork", quietly = TRUE)) {
         output[[graph_id]] <- visNetwork::renderVisNetwork({
@@ -215,11 +250,13 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
 
       shiny::showModal(
         shiny::modalDialog(
-          recipe_detail_ui(recipe, ns = ns,
-                          referencing_workflows = referencing_workflows,
-                          graph_output_id = graph_id,
-                          all_recipes = all_recipes(),
-                          anda_labels = anda_labels),
+          recipe_detail_ui(recipe,
+            ns = ns,
+            referencing_workflows = referencing_workflows,
+            graph_output_id = graph_id,
+            all_recipes = all_recipes(),
+            anda_labels = anda_labels
+          ),
           size = "l",
           easyClose = TRUE,
           footer = shiny::modalButton("Close")
@@ -231,24 +268,32 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
     shiny::observeEvent(input$card_click, {
       idx <- input$card_click
       recipes <- filtered()
-      if (idx < 1 || idx > length(recipes)) return()
+      if (idx < 1 || idx > length(recipes)) {
+        return()
+      }
       open_recipe_modal(recipes[[idx]])
     })
 
     # Cross-navigation: open recipe by ID from another module
     if (!is.null(pending_recipe_id)) {
-      shiny::observeEvent(pending_recipe_id(), {
-        req <- pending_recipe_id()
-        if (is.null(req)) return()
-        rid <- req$id
-        recipes <- all_recipes()
-        for (r in recipes) {
-          if (as.character(r$id) == rid) {
-            open_recipe_modal(r)
+      shiny::observeEvent(pending_recipe_id(),
+        {
+          req <- pending_recipe_id()
+          if (is.null(req)) {
             return()
           }
-        }
-      }, ignoreNULL = TRUE, ignoreInit = TRUE)
+          rid <- req$id
+          recipes <- all_recipes()
+          for (r in recipes) {
+            if (as.character(r$id) == rid) {
+              open_recipe_modal(r)
+              return()
+            }
+          }
+        },
+        ignoreNULL = TRUE,
+        ignoreInit = TRUE
+      )
     }
 
     # Cross-reference: navigate to dependency recipe from recipe detail

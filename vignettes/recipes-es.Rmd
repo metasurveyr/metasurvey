@@ -83,13 +83,15 @@ n <- 200
 
 # Simular microdatos de encuesta (sustituto de load_survey)
 dt <- data.table(
-  id       = 1:n,
-  age      = sample(18:80, n, replace = TRUE),
-  sex      = sample(c(1, 2), n, replace = TRUE),
-  income   = round(runif(n, 5000, 80000)),
-  activity = sample(c(2, 3, 5, 6), n, replace = TRUE,
-                    prob = c(0.55, 0.05, 0.05, 0.35)),
-  weight   = round(runif(n, 0.5, 3.0), 4)
+  id = 1:n,
+  age = sample(18:80, n, replace = TRUE),
+  sex = sample(c(1, 2), n, replace = TRUE),
+  income = round(runif(n, 5000, 80000)),
+  activity = sample(c(2, 3, 5, 6), n,
+    replace = TRUE,
+    prob = c(0.55, 0.05, 0.05, 0.35)
+  ),
+  weight = round(runif(n, 0.5, 3.0), 4)
 )
 
 svy <- Survey$new(
@@ -109,9 +111,9 @@ svy <- step_compute(svy,
 )
 
 svy <- step_recode(svy, labor_status,
-  activity == 2      ~ "Empleado",
-  activity %in% 3:5  ~ "Desempleado",
-  activity %in% 6:8  ~ "Inactivo",
+  activity == 2 ~ "Empleado",
+  activity %in% 3:5 ~ "Desempleado",
+  activity %in% 6:8 ~ "Inactivo",
   .default = "Otro",
   comment = "Clasificacion OIT de fuerza laboral"
 )
@@ -175,13 +177,15 @@ Se pueden adjuntar una o más recipes a una encuesta y aplicarlas con `bake_reci
 # Crear una encuesta nueva con la misma estructura (simulando una nueva edición)
 set.seed(99)
 dt2 <- data.table(
-  id       = 1:100,
-  age      = sample(18:80, 100, replace = TRUE),
-  sex      = sample(c(1, 2), 100, replace = TRUE),
-  income   = round(runif(100, 5000, 80000)),
-  activity = sample(c(2, 3, 5, 6), 100, replace = TRUE,
-                    prob = c(0.55, 0.05, 0.05, 0.35)),
-  weight   = round(runif(100, 0.5, 3.0), 4)
+  id = 1:100,
+  age = sample(18:80, 100, replace = TRUE),
+  sex = sample(c(1, 2), 100, replace = TRUE),
+  income = round(runif(100, 5000, 80000)),
+  activity = sample(c(2, 3, 5, 6), 100,
+    replace = TRUE,
+    prob = c(0.55, 0.05, 0.05, 0.35)
+  ),
+  weight = round(runif(100, 0.5, 3.0), 4)
 )
 
 svy2 <- Survey$new(

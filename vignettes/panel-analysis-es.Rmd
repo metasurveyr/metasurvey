@@ -239,8 +239,10 @@ validate_time_pattern(svy_type = "ech", svy_edition = "2023")
 
 ```{r group-dates}
 # Group dates by period
-dates <- as.Date(c("2023-01-15", "2023-03-20", "2023-06-10",
-                    "2023-09-05", "2023-11-30"))
+dates <- as.Date(c(
+  "2023-01-15", "2023-03-20", "2023-06-10",
+  "2023-09-05", "2023-11-30"
+))
 group_dates(dates, type = "quarterly")
 group_dates(dates, type = "biannual")
 ```
@@ -252,10 +254,10 @@ En la práctica, los datos de panel se cargan desde archivos utilizando `load_pa
 ```{r load-panel, eval = FALSE}
 panel <- load_panel_survey(
   path_implantation = "data/ECH_implantacion_2023.csv",
-  path_follow_up    = "data/seguimiento/",
-  svy_type          = "ech",
+  path_follow_up = "data/seguimiento/",
+  svy_type = "ech",
   svy_weight_implantation = add_weight(annual = "pesoano"),
-  svy_weight_follow_up    = add_weight(monthly = "pesomes")
+  svy_weight_follow_up = add_weight(monthly = "pesomes")
 )
 
 # Access components
@@ -272,15 +274,15 @@ de la varianza:
 ```{r replicate, eval = FALSE}
 panel <- load_panel_survey(
   path_implantation = "data/ECH_implantacion_2023.csv",
-  path_follow_up    = "data/seguimiento/",
-  svy_type          = "ech",
+  path_follow_up = "data/seguimiento/",
+  svy_type = "ech",
   svy_weight_implantation = add_weight(
     annual = add_replicate(
-      weight           = "pesoano",
+      weight = "pesoano",
       replicate_pattern = "wr\\d+",
-      replicate_path   = "data/pesos_replicados_anual.csv",
-      replicate_id     = c("numero" = "numero"),
-      replicate_type   = "bootstrap"
+      replicate_path = "data/pesos_replicados_anual.csv",
+      replicate_id = c("numero" = "numero"),
+      replicate_type = "bootstrap"
     )
   ),
   svy_weight_follow_up = add_weight(monthly = "pesomes")

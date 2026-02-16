@@ -184,8 +184,10 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' @examples
 #' # Basic computation
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
-#' svy <- Survey$new(data = dt, edition = "2023", type = "test",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
 #' svy <- bake_steps(svy)
 #' get_data(svy)
@@ -902,8 +904,10 @@ step_join <- function(
 #' @return Survey object with the specified variables removed (or queued for removal).
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' svy2 <- step_remove(svy, age)
 #' svy2 <- bake_steps(svy2)
 #' "age" %in% names(get_data(svy2)) # FALSE
@@ -1001,8 +1005,10 @@ step_remove <- function(svy = survey_empty(), ..., vars = NULL, use_copy = use_c
 #' @return Survey object with the specified variables renamed (or queued for renaming).
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' svy2 <- step_rename(svy, edad = age)
 #' svy2 <- bake_steps(svy2)
 #' "edad" %in% names(get_data(svy2)) # TRUE
@@ -1102,8 +1108,10 @@ get_type_step <- function(steps) {
 #' @examples
 #' \dontrun{
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' svy <- step_compute(svy, age2 = age * 2)
 #' view_graph(svy)
 #' }
@@ -1404,8 +1412,10 @@ view_graph <- function(svy, init_step = "Load survey") {
       position = "right",
       main = list(
         text = "Step types",
-        style = paste0("font-family: system-ui, sans-serif; font-weight: 700; ",
-                       "font-size: 14px; color: ", palette$primary, ";")
+        style = paste0(
+          "font-family: system-ui, sans-serif; font-weight: 700; ",
+          "font-size: 14px; color: ", palette$primary, ";"
+        )
       ),
       zoom = FALSE
     )

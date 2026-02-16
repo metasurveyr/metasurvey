@@ -804,7 +804,10 @@ cert_badge <- function(level) {
     ""
   )
   label <- switch(level,
-    "official" = "Official", "reviewed" = "Reviewed", "community" = "Community", level
+    "official" = "Official",
+    "reviewed" = "Reviewed",
+    "community" = "Community",
+    level
   )
   htmltools::tags$span(class = cls, icon, label)
 }
@@ -821,8 +824,11 @@ category_tag <- function(name) {
 
 format_downloads <- function(n) {
   n <- as.integer(n)
-  if (n >= 1000) paste0(round(n / 1000, 1), "k")
-  else as.character(n)
+  if (n >= 1000) {
+    paste0(round(n / 1000, 1), "k")
+  } else {
+    as.character(n)
+  }
 }
 
 # Reusable code block with copy button
@@ -839,8 +845,10 @@ code_block_ui <- function(code, label = "R Code", block_id = NULL) {
     escaped_code
   )
 
-  htmltools::tags$div(class = "code-block-wrapper",
-    htmltools::tags$div(class = "code-block-header",
+  htmltools::tags$div(
+    class = "code-block-wrapper",
+    htmltools::tags$div(
+      class = "code-block-header",
       bsicons::bs_icon("code-slash", size = ".85rem"),
       label
     ),
@@ -856,14 +864,16 @@ code_block_ui <- function(code, label = "R Code", block_id = NULL) {
 # Hero section for explore pages
 hero_section_ui <- function(type = "recipes") {
   if (type == "recipes") {
-    htmltools::tags$div(class = "hero-section",
+    htmltools::tags$div(
+      class = "hero-section",
       htmltools::tags$h2(
         bsicons::bs_icon("journal-code", size = "1.4rem"),
         " Recipes"
       )
     )
   } else {
-    htmltools::tags$div(class = "hero-section",
+    htmltools::tags$div(
+      class = "hero-section",
       htmltools::tags$h2(
         bsicons::bs_icon("bar-chart-fill", size = "1.4rem"),
         " Workflows"
@@ -875,8 +885,12 @@ hero_section_ui <- function(type = "recipes") {
 # Format edition display — handles single string or array
 format_edition <- function(edition) {
   eds <- as.character(unlist(edition))
-  if (length(eds) == 0) return("Unknown")
-  if (length(eds) == 1) return(eds)
+  if (length(eds) == 0) {
+    return("Unknown")
+  }
+  if (length(eds) == 1) {
+    return(eds)
+  }
   # Show range for consecutive years
   paste0(eds[1], "-", eds[length(eds)])
 }
@@ -884,7 +898,9 @@ format_edition <- function(edition) {
 # Build S3 object path from recipe data_source metadata
 s3_object_path <- function(recipe, edition_str) {
   ds <- recipe$data_source
-  if (is.null(ds) || is.null(ds$s3_bucket)) return(NULL)
+  if (is.null(ds) || is.null(ds$s3_bucket)) {
+    return(NULL)
+  }
   s3_file <- gsub("\\{edition\\}", edition_str, ds$file_pattern %||% "")
   list(
     bucket = ds$s3_bucket,
@@ -894,7 +910,9 @@ s3_object_path <- function(recipe, edition_str) {
 
 # Convert a weight_spec to add_weight() R code (HTML-escaped)
 .weight_spec_to_code <- function(ws) {
-  if (is.null(ws) || length(ws) == 0) return(NULL)
+  if (is.null(ws) || length(ws) == 0) {
+    return(NULL)
+  }
   parts <- character(0)
   for (pname in names(ws)) {
     entry <- ws[[pname]]
@@ -924,18 +942,18 @@ s3_object_path <- function(recipe, edition_str) {
       parts <- c(parts, paste0(
         pname, ' = <span class="code-func">add_replicate</span>(\n',
         '    <span class="code-string">"', entry$variable %||% "W", '"</span>,\n',
-        '    replicate_path = ', rep_path, ',\n',
+        "    replicate_path = ", rep_path, ",\n",
         '    replicate_pattern = <span class="code-string">"', entry$replicate_pattern %||% "wr[0-9]+", '"</span>,\n',
-        '    replicate_id = ', rep_id_str, ',\n',
+        "    replicate_id = ", rep_id_str, ",\n",
         '    replicate_type = <span class="code-string">"', entry$replicate_type %||% "bootstrap", '"</span>\n',
-        '  )'
+        "  )"
       ))
     }
   }
   paste0(
     '<span class="code-func">add_weight</span>(\n  ',
     paste(parts, collapse = ",\n  "),
-    '\n)'
+    "\n)"
   )
 }
 
@@ -947,10 +965,11 @@ recipe_code_snippet <- function(recipe) {
   edition_str <- eds[length(eds)]
   dep_recipes <- as.character(unlist(recipe$depends_on_recipes))
 
-  lines <- c('library(metasurvey)', '')
+  lines <- c("library(metasurvey)", "")
 
   # Fetch recipe(s)
-  lines <- c(lines,
+  lines <- c(
+    lines,
     '<span class="code-comment"># Get recipe from registry</span>',
     paste0('recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)')
   )
@@ -958,12 +977,12 @@ recipe_code_snippet <- function(recipe) {
   if (length(dep_recipes) > 0) {
     for (i in seq_along(dep_recipes)) {
       lines <- c(lines, paste0(
-        'dep_', i, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
+        "dep_", i, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
         dep_recipes[i], '"</span>)'
       ))
     }
   }
-  lines <- c(lines, '')
+  lines <- c(lines, "")
 
   # Build weight code — recipes don't have weight_spec, use heuristic
   if (tolower(stype) == "ech") {
@@ -977,38 +996,42 @@ recipe_code_snippet <- function(recipe) {
 
   # Load survey with load_survey
   if (tolower(stype) == "ech") {
-    lines <- c(lines,
+    lines <- c(
+      lines,
       '<span class="code-comment"># Load ECH microdata from ANDA and apply recipe</span>',
       'svy &lt;- <span class="code-func">load_survey</span>(',
       paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition_str, '"</span>),'),
       paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
       paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
-      paste0('  svy_weight  = ', weight_code, ',')
+      paste0("  svy_weight  = ", weight_code, ",")
     )
   } else {
-    lines <- c(lines,
+    lines <- c(
+      lines,
       '<span class="code-comment"># Load survey with recipe</span>',
       'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-string">"path/to/', stype, '_', edition_str, '.csv"</span>,'),
+      paste0('  <span class="code-string">"path/to/', stype, "_", edition_str, '.csv"</span>,'),
       paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
       paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
-      paste0('  svy_weight  = ', weight_code, ',')
+      paste0("  svy_weight  = ", weight_code, ",")
     )
   }
 
   # Add recipes parameter
   if (length(dep_recipes) > 0) {
     dep_list <- paste0("dep_", seq_along(dep_recipes), collapse = ", ")
-    lines <- c(lines,
-      paste0('  recipes     = list(', dep_list, ', recipe),'),
+    lines <- c(
+      lines,
+      paste0("  recipes     = list(", dep_list, ", recipe),"),
       '  bake        = <span class="code-keyword">TRUE</span>',
-      ')'
+      ")"
     )
   } else {
-    lines <- c(lines,
-      '  recipes     = recipe,',
+    lines <- c(
+      lines,
+      "  recipes     = recipe,",
       '  bake        = <span class="code-keyword">TRUE</span>',
-      ')'
+      ")"
     )
   }
 
@@ -1023,7 +1046,7 @@ workflow_code_snippet <- function(wf) {
   eds <- as.character(unlist(wf$edition %||% "2023"))
   edition <- eds[length(eds)]
 
-  lines <- c('library(metasurvey)', '')
+  lines <- c("library(metasurvey)", "")
 
   # Fetch recipes
   if (length(recipe_ids) > 0) {
@@ -1035,7 +1058,7 @@ workflow_code_snippet <- function(wf) {
         recipe_ids[i], '"</span>)'
       ))
     }
-    lines <- c(lines, '')
+    lines <- c(lines, "")
   }
 
   # Build weight code from weight_spec if available, else fallback to heuristic
@@ -1053,45 +1076,49 @@ workflow_code_snippet <- function(wf) {
 
   # Load survey with load_survey
   if (tolower(stype) == "ech") {
-    lines <- c(lines,
+    lines <- c(
+      lines,
       '<span class="code-comment"># Load ECH microdata from ANDA and apply recipes</span>',
       'svy &lt;- <span class="code-func">load_survey</span>(',
       paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition, '"</span>),'),
       paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
       paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
-      paste0('  svy_weight  = ', weight_code, ',')
+      paste0("  svy_weight  = ", weight_code, ",")
     )
   } else {
-    lines <- c(lines,
+    lines <- c(
+      lines,
       '<span class="code-comment"># Load survey with recipes</span>',
       'svy &lt;- <span class="code-func">load_survey</span>(',
-      paste0('  <span class="code-string">"path/to/', stype, '_', edition, '.csv"</span>,'),
+      paste0('  <span class="code-string">"path/to/', stype, "_", edition, '.csv"</span>,'),
       paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
       paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
-      paste0('  svy_weight  = ', weight_code, ',')
+      paste0("  svy_weight  = ", weight_code, ",")
     )
   }
 
   if (length(recipe_ids) > 0) {
     recipe_list <- paste0("r", seq_along(recipe_ids), collapse = ", ")
-    lines <- c(lines,
-      paste0('  recipes     = list(', recipe_list, '),'),
+    lines <- c(
+      lines,
+      paste0("  recipes     = list(", recipe_list, "),"),
       '  bake        = <span class="code-keyword">TRUE</span>',
-      ')'
+      ")"
     )
   } else {
-    lines <- c(lines, ')')
+    lines <- c(lines, ")")
   }
 
   if (length(calls) > 0) {
-    lines <- c(lines, '',
+    lines <- c(
+      lines, "",
       '<span class="code-comment"># Run estimations</span>',
       'results &lt;- <span class="code-func">workflow</span>('
     )
-    lines <- c(lines, '  list(svy),')
+    lines <- c(lines, "  list(svy),")
     for (i in seq_along(calls)) {
       comma <- if (i < length(calls)) "," else ""
-      lines <- c(lines, paste0('  ', calls[i], comma))
+      lines <- c(lines, paste0("  ", calls[i], comma))
     }
     est_types <- unlist(wf$estimation_type)
     if (length(est_types) > 0) {
@@ -1100,7 +1127,7 @@ workflow_code_snippet <- function(wf) {
         est_types[1], '"</span>'
       ))
     }
-    lines <- c(lines, ')')
+    lines <- c(lines, ")")
   }
 
   paste(lines, collapse = "\n")
@@ -1119,23 +1146,28 @@ recipe_card_ui <- function(recipe, ns, index) {
 
   htmltools::tags$div(
     class = "recipe-card",
-    onclick = sprintf("Shiny.setInputValue('%s', %d, {priority: 'event'})",
-                      ns("card_click"), index),
-
-    htmltools::tags$div(class = paste("recipe-card-header", cert_cls),
+    onclick = sprintf(
+      "Shiny.setInputValue('%s', %d, {priority: 'event'})",
+      ns("card_click"), index
+    ),
+    htmltools::tags$div(
+      class = paste("recipe-card-header", cert_cls),
       htmltools::tags$h5(recipe$name),
-      htmltools::tags$div(class = "card-subtitle",
+      htmltools::tags$div(
+        class = "card-subtitle",
         bsicons::bs_icon("person-fill", size = ".75rem"),
         recipe$user,
-        htmltools::tags$span(style = "margin-left: .75rem;",
+        htmltools::tags$span(
+          style = "margin-left: .75rem;",
           bsicons::bs_icon("journal-code", size = ".75rem"),
           paste(recipe$survey_type, "/", format_edition(recipe$edition))
         )
       )
     ),
-
-    htmltools::tags$div(class = "recipe-card-body",
-      htmltools::tags$div(class = "description",
+    htmltools::tags$div(
+      class = "recipe-card-body",
+      htmltools::tags$div(
+        class = "description",
         recipe$description %||% "No description provided."
       ),
       htmltools::tags$div(style = "margin-bottom: .5rem;", cat_tags),
@@ -1143,20 +1175,23 @@ recipe_card_ui <- function(recipe, ns, index) {
       # Edition badges
       if (length(unlist(recipe$edition)) > 1) {
         eds <- as.character(unlist(recipe$edition))
-        htmltools::tags$div(class = "edition-badges",
+        htmltools::tags$div(
+          class = "edition-badges",
           lapply(eds, function(ed) {
             htmltools::tags$span(class = "edition-badge", ed)
           })
         )
       }
     ),
-
-    htmltools::tags$div(class = "recipe-card-footer",
-      htmltools::tags$div(class = "downloads",
+    htmltools::tags$div(
+      class = "recipe-card-footer",
+      htmltools::tags$div(
+        class = "downloads",
         bsicons::bs_icon("download", size = ".85rem"),
         format_downloads(recipe$downloads)
       ),
-      htmltools::tags$span(style = "color: #95a5a6; font-size: .75rem;",
+      htmltools::tags$span(
+        style = "color: #95a5a6; font-size: .75rem;",
         paste0("v", recipe$version %||% "1.0.0")
       ),
       htmltools::tags$button(
@@ -1177,21 +1212,35 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   header <- htmltools::tags$div(
     class = paste("recipe-detail-header", cert_cls),
     htmltools::tags$h3(recipe$name),
-    htmltools::tags$div(class = "meta-row",
-      htmltools::tags$span(class = "meta-item",
-        bsicons::bs_icon("person-fill"), recipe$user),
-      htmltools::tags$span(class = "meta-item",
+    htmltools::tags$div(
+      class = "meta-row",
+      htmltools::tags$span(
+        class = "meta-item",
+        bsicons::bs_icon("person-fill"), recipe$user
+      ),
+      htmltools::tags$span(
+        class = "meta-item",
         bsicons::bs_icon("journal-code"),
-        paste(recipe$survey_type, "/", format_edition(recipe$edition))),
-      htmltools::tags$span(class = "meta-item",
-        bsicons::bs_icon("tag-fill"), paste0("v", recipe$version %||% "1.0.0")),
-      htmltools::tags$span(class = "meta-item",
+        paste(recipe$survey_type, "/", format_edition(recipe$edition))
+      ),
+      htmltools::tags$span(
+        class = "meta-item",
+        bsicons::bs_icon("tag-fill"), paste0("v", recipe$version %||% "1.0.0")
+      ),
+      htmltools::tags$span(
+        class = "meta-item",
         bsicons::bs_icon("download"),
-        format_downloads(recipe$downloads)),
-      if (!is.null(recipe$doi)) htmltools::tags$span(class = "meta-item",
-        bsicons::bs_icon("link-45deg"), recipe$doi)
+        format_downloads(recipe$downloads)
+      ),
+      if (!is.null(recipe$doi)) {
+        htmltools::tags$span(
+          class = "meta-item",
+          bsicons::bs_icon("link-45deg"), recipe$doi
+        )
+      }
     ),
-    htmltools::tags$div(style = "margin-top: .75rem;",
+    htmltools::tags$div(
+      style = "margin-top: .75rem;",
       cert_badge(cert_level),
       if (!is.null(recipe$certification$certified_by)) {
         htmltools::tags$span(
@@ -1208,7 +1257,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           style = "color: rgba(255,255,255,.6); font-size: .75rem; margin-right: .4rem;",
           "Compatible:"
         ),
-        htmltools::tags$div(class = "edition-badges", style = "display: inline-flex;",
+        htmltools::tags$div(
+          class = "edition-badges", style = "display: inline-flex;",
           lapply(eds, function(ed) {
             htmltools::tags$span(
               class = "edition-badge",
@@ -1223,8 +1273,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
 
   # Description
   desc_section <- if (!is.null(recipe$description) && nzchar(recipe$description)) {
-    htmltools::tags$div(style = "padding: 1.25rem 0;",
-      htmltools::tags$p(style = "color: #555; font-size: .95rem; line-height: 1.7;",
+    htmltools::tags$div(
+      style = "padding: 1.25rem 0;",
+      htmltools::tags$p(
+        style = "color: #555; font-size: .95rem; line-height: 1.7;",
         recipe$description
       )
     )
@@ -1235,12 +1287,16 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   ds <- recipe$data_source
   data_source_section <- if (tolower(stype) == "ech") {
     eds <- as.character(unlist(recipe$edition))
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
       ),
-      htmltools::tags$div(style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
-        htmltools::tags$span(class = "var-chip var-chip-input",
+      htmltools::tags$div(
+        style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        htmltools::tags$span(
+          class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
           bsicons::bs_icon("database", size = ".75rem"),
           " INE Uruguay (ANDA5)"
@@ -1251,7 +1307,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
           paste0("anda_download_microdata(\"", eds[length(eds)], "\")")
         )
       ),
-      htmltools::tags$div(style = "margin-top: .5rem; font-size: .78rem; color: var(--slate-500);",
+      htmltools::tags$div(
+        style = "margin-top: .5rem; font-size: .78rem; color: var(--slate-500);",
         paste0("Ediciones disponibles: ", paste(eds, collapse = ", "))
       )
     )
@@ -1261,12 +1318,16 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     s3_path <- gsub("\\{edition\\}", latest_ed, ds$file_pattern %||% "")
     s3_full <- paste0("s3://", ds$s3_bucket, "/", ds$s3_prefix, s3_path)
 
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("cloud-arrow-down-fill"), "Data Source"
       ),
-      htmltools::tags$div(style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
-        htmltools::tags$span(class = "var-chip var-chip-input",
+      htmltools::tags$div(
+        style = "display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;",
+        htmltools::tags$span(
+          class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
           bsicons::bs_icon("database", size = ".75rem"),
           paste0(" ", ds$provider %||% "")
@@ -1282,9 +1343,12 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
 
   # Categories
   cat_section <- if (length(recipe$categories) > 0) {
-    htmltools::tags$div(style = "padding-bottom: 1rem;",
-      htmltools::tags$div(class = "section-title",
-        bsicons::bs_icon("tags-fill"), "Categories"),
+    htmltools::tags$div(
+      style = "padding-bottom: 1rem;",
+      htmltools::tags$div(
+        class = "section-title",
+        bsicons::bs_icon("tags-fill"), "Categories"
+      ),
       htmltools::tagList(lapply(recipe$categories, function(c) {
         category_tag(c$name)
       }))
@@ -1305,8 +1369,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       if (!is.null(ns)) {
         htmltools::tags$span(
           class = "cross-ref-chip cross-ref-recipe",
-          onclick = sprintf("Shiny.setInputValue('%s', '%s', {priority: 'event'})",
-                            ns("navigate_dep_recipe"), rid),
+          onclick = sprintf(
+            "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+            ns("navigate_dep_recipe"), rid
+          ),
           bsicons::bs_icon("journal-code", size = ".75rem"),
           " ", rname
         )
@@ -1319,8 +1385,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       }
     })
 
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("arrow-left-right"), "Requires Recipes"
       ),
       htmltools::tagList(dep_chips)
@@ -1330,8 +1398,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   # Pipeline graph (visNetwork)
   has_visnetwork <- requireNamespace("visNetwork", quietly = TRUE)
   graph_section <- if (length(doc$pipeline) > 0 && has_visnetwork && !is.null(ns)) {
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("diagram-3-fill"),
         paste("Pipeline Graph (", length(doc$pipeline), "steps )")
       ),
@@ -1377,10 +1447,12 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
             style = "font-size:.7rem;color:var(--slate-600);padding:.1rem 0;",
             htmltools::tags$span(style = "font-weight:600;color:var(--violet);", val),
             if (nzchar(label)) htmltools::tags$span(style = "margin:0 .3rem;", paste0("(", label, ")")),
-            if (nzchar(cond_expr)) htmltools::tags$span(
-              style = "font-family:monospace;color:var(--slate-500);font-size:.65rem;",
-              paste0(" <- ", cond_expr)
-            )
+            if (nzchar(cond_expr)) {
+              htmltools::tags$span(
+                style = "font-family:monospace;color:var(--slate-500);font-size:.65rem;",
+                paste0(" <- ", cond_expr)
+              )
+            }
           )
         })
         htmltools::tags$div(
@@ -1389,12 +1461,16 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
         )
       }
 
-      htmltools::tags$div(class = "pipeline-step",
+      htmltools::tags$div(
+        class = "pipeline-step",
         htmltools::tags$div(class = dot_cls, step$index),
-        htmltools::tags$div(class = "step-content",
+        htmltools::tags$div(
+          class = "step-content",
           htmltools::tags$span(class = type_cls, step_type),
-          htmltools::tags$span(style = "margin: 0 .35rem; color: #bbb;",
-            bsicons::bs_icon("arrow-right", size = ".7rem")),
+          htmltools::tags$span(
+            style = "margin: 0 .35rem; color: #bbb;",
+            bsicons::bs_icon("arrow-right", size = ".7rem")
+          ),
           htmltools::tags$span(class = "step-outputs", outputs_str),
           comment_html,
           expr_html,
@@ -1403,8 +1479,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       )
     })
 
-    htmltools::tags$div(class = "pipeline-section",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      class = "pipeline-section",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("list-ol"),
         "Step Details"
       ),
@@ -1448,8 +1526,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
     type_badge <- if (nzchar(vtype)) {
       type_color <- if (vtype == "discrete") "var(--violet)" else "var(--sky)"
       htmltools::tags$span(
-        style = paste0("font-size:.55rem;padding:.05rem .3rem;border-radius:3px;margin-left:.3rem;",
-                        "background:", type_color, ";color:#fff;font-weight:600;font-family:system-ui,sans-serif;"),
+        style = paste0(
+          "font-size:.55rem;padding:.05rem .3rem;border-radius:3px;margin-left:.3rem;",
+          "background:", type_color, ";color:#fff;font-weight:600;font-family:system-ui,sans-serif;"
+        ),
         vtype
       )
     }
@@ -1462,7 +1542,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       )
     }
 
-    htmltools::tags$span(class = cls,
+    htmltools::tags$span(
+      class = cls,
       title = tooltip,
       style = if (nzchar(label)) "cursor:help;" else NULL,
       v,
@@ -1481,8 +1562,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   # Input variables
   input_vars <- unlist(doc$input_variables)
   input_section <- if (length(input_vars) > 0) {
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("box-arrow-in-right"),
         paste("Requires (", length(input_vars), "variables )")
       ),
@@ -1505,15 +1588,20 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       }
     }
 
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("box-arrow-right"),
         paste("Produces (", length(output_vars), "variables )")
       ),
       htmltools::tagList(lapply(output_vars, function(v) {
         var_type <- type_map[[v]] %||% "unknown"
-        cls <- if (var_type == "categorical") "var-chip var-chip-output-cat"
-               else "var-chip var-chip-output"
+        cls <- if (var_type == "categorical") {
+          "var-chip var-chip-output-cat"
+        } else {
+          "var-chip var-chip-output"
+        }
         type_badge <- htmltools::tags$span(
           style = "font-size:.65rem; opacity:.7; margin-left:.3rem;",
           paste0("[", var_type, "]")
@@ -1531,8 +1619,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       if (!is.null(ns)) {
         htmltools::tags$span(
           class = "cross-ref-chip cross-ref-workflow",
-          onclick = sprintf("Shiny.setInputValue('%s', '%s', {priority: 'event'})",
-                            ns("navigate_workflow"), wf$id),
+          onclick = sprintf(
+            "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+            ns("navigate_workflow"), wf$id
+          ),
           bsicons::bs_icon("bar-chart-fill", size = ".75rem"),
           " ", wf_name,
           htmltools::tags$span(
@@ -1549,8 +1639,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
       }
     })
 
-    htmltools::tags$div(style = "padding: 1rem 0;",
-      htmltools::tags$div(class = "section-title",
+    htmltools::tags$div(
+      style = "padding: 1rem 0;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("bar-chart-fill"),
         paste("Used in Workflows (", length(referencing_workflows), ")")
       ),
@@ -1559,8 +1651,10 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   }
 
   # R Code snippet
-  code_section <- htmltools::tags$div(style = "padding: 1rem 0;",
-    htmltools::tags$div(class = "section-title",
+  code_section <- htmltools::tags$div(
+    style = "padding: 1rem 0;",
+    htmltools::tags$div(
+      class = "section-title",
       bsicons::bs_icon("terminal-fill"),
       "Use in R"
     ),
@@ -1574,7 +1668,8 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
   # Assemble
   htmltools::tags$div(
     header,
-    htmltools::tags$div(style = "padding: 0 2rem 1.5rem;",
+    htmltools::tags$div(
+      style = "padding: 0 2rem 1.5rem;",
       desc_section,
       data_source_section,
       cat_section,
@@ -1591,24 +1686,28 @@ recipe_detail_ui <- function(recipe, ns = NULL, referencing_workflows = list(), 
 
 # ── Build a visNetwork graph from recipe pipeline data ──
 recipe_pipeline_graph <- function(recipe) {
-  if (!requireNamespace("visNetwork", quietly = TRUE)) return(NULL)
+  if (!requireNamespace("visNetwork", quietly = TRUE)) {
+    return(NULL)
+  }
 
   doc <- recipe$doc()
   pipeline <- doc$pipeline
-  if (length(pipeline) == 0) return(NULL)
+  if (length(pipeline) == 0) {
+    return(NULL)
+  }
 
-  input_vars  <- unlist(doc$input_variables)
+  input_vars <- unlist(doc$input_variables)
   output_vars <- unlist(doc$output_variables)
-  workflows   <- list()  # Workflows now live as separate RecipeWorkflow objects
+  workflows <- list() # Workflows now live as separate RecipeWorkflow objects
 
   # Normalize pipeline steps: MongoDB returns lists, we need character vectors
   pipeline <- lapply(pipeline, function(s) {
     s$outputs <- as.character(unlist(s$outputs))
-    s$inputs  <- as.character(unlist(s$inputs))
-    s$type    <- if (is.list(s$type)) s$type[[1]] else s$type
+    s$inputs <- as.character(unlist(s$inputs))
+    s$type <- if (is.list(s$type)) s$type[[1]] else s$type
     s$comment <- if (is.list(s$comment)) s$comment[[1]] else s$comment
     s$inferred_type <- if (is.list(s$inferred_type)) s$inferred_type[[1]] else s$inferred_type
-    s$index   <- if (is.list(s$index)) as.integer(s$index[[1]]) else as.integer(s$index)
+    s$index <- if (is.list(s$index)) as.integer(s$index[[1]]) else as.integer(s$index)
     s
   })
 
@@ -1635,8 +1734,11 @@ recipe_pipeline_graph <- function(recipe) {
   step_color <- function(type) {
     base <- gsub("^(ast_|step_)", "", type)
     switch(base,
-      "compute" = pal$compute, "recode" = pal$recode,
-      "join" = pal$join, "remove" = pal$remove, "rename" = pal$rename,
+      "compute" = pal$compute,
+      "recode" = pal$recode,
+      "join" = pal$join,
+      "remove" = pal$remove,
+      "rename" = pal$rename,
       pal$default
     )
   }
@@ -1644,8 +1746,10 @@ recipe_pipeline_graph <- function(recipe) {
   wf_color <- function(type) {
     base <- gsub("^survey::", "", type)
     switch(base,
-      "svymean" = pal$wf_mean, "svytotal" = pal$wf_total,
-      "svyratio" = pal$wf_ratio, "svyby" = pal$wf_by,
+      "svymean" = pal$wf_mean,
+      "svytotal" = pal$wf_total,
+      "svyratio" = pal$wf_ratio,
+      "svyby" = pal$wf_by,
       pal$wf_mean
     )
   }
@@ -1673,7 +1777,9 @@ recipe_pipeline_graph <- function(recipe) {
   node_id <- 0L
   nodes <- list()
   edges <- list()
-  add_node <- function(df) { nodes[[length(nodes) + 1L]] <<- df }
+  add_node <- function(df) {
+    nodes[[length(nodes) + 1L]] <<- df
+  }
   add_edge <- function(from, to, edgetype = "default") {
     edges[[length(edges) + 1L]] <<- data.frame(from = from, to = to, edgetype = edgetype, stringsAsFactors = FALSE)
   }
@@ -1735,19 +1841,31 @@ recipe_pipeline_graph <- function(recipe) {
         "<div style='font-weight:700;font-size:13px;color:", step_color(stype), ";",
         "text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;'>",
         htmltools::htmlEscape(stype), "</div>",
-        if (nzchar(outputs_str)) paste0(
-          "<div style='font-size:12px;font-weight:600;color:", pal$primary, ";'>",
-          htmltools::htmlEscape(outputs_str), "</div>"
-        ) else "",
-        if (nzchar(expr_str)) paste0(
-          "<div style='font-family:SFMono-Regular,monospace;font-size:10px;color:", pal$primary, ";",
-          "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;white-space:pre-wrap;'>",
-          htmltools::htmlEscape(expr_str), "</div>"
-        ) else "",
-        if (nzchar(comment_str)) paste0(
-          "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
-          htmltools::htmlEscape(comment_str), "</div>"
-        ) else "",
+        if (nzchar(outputs_str)) {
+          paste0(
+            "<div style='font-size:12px;font-weight:600;color:", pal$primary, ";'>",
+            htmltools::htmlEscape(outputs_str), "</div>"
+          )
+        } else {
+          ""
+        },
+        if (nzchar(expr_str)) {
+          paste0(
+            "<div style='font-family:SFMono-Regular,monospace;font-size:10px;color:", pal$primary, ";",
+            "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;white-space:pre-wrap;'>",
+            htmltools::htmlEscape(expr_str), "</div>"
+          )
+        } else {
+          ""
+        },
+        if (nzchar(comment_str)) {
+          paste0(
+            "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
+            htmltools::htmlEscape(comment_str), "</div>"
+          )
+        } else {
+          ""
+        },
         "</div>"
       ),
       group = stype, level = as.integer(s$index) + 1L,
@@ -1836,10 +1954,14 @@ recipe_pipeline_graph <- function(recipe) {
           "<div style='font-family:SFMono-Regular,monospace;font-size:11px;color:", pal$primary, ";",
           "background:", pal$bg, ";padding:6px 8px;border-radius:4px;margin:4px 0;'>",
           htmltools::htmlEscape(paste0(base_type, "(", formula_str, by_str, ")")), "</div>",
-          if (nzchar(desc_str)) paste0(
-            "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
-            htmltools::htmlEscape(desc_str), "</div>"
-          ) else "",
+          if (nzchar(desc_str)) {
+            paste0(
+              "<div style='font-size:11px;color:#95a5a6;font-style:italic;margin-top:4px;'>",
+              htmltools::htmlEscape(desc_str), "</div>"
+            )
+          } else {
+            ""
+          },
           "</div>"
         ),
         group = paste0("wf_", base_type), level = wf_level,
@@ -1868,7 +1990,9 @@ recipe_pipeline_graph <- function(recipe) {
 
   # ── Assemble data.frames ──
   all_nodes <- do.call(rbind, nodes)
-  all_edges <- if (length(edges) > 0) do.call(rbind, edges) else {
+  all_edges <- if (length(edges) > 0) {
+    do.call(rbind, edges)
+  } else {
     data.frame(from = integer(), to = integer(), edgetype = character(), stringsAsFactors = FALSE)
   }
 
@@ -1890,8 +2014,10 @@ recipe_pipeline_graph <- function(recipe) {
     visNetwork::visGroups(
       groupname = "input_var",
       shape = "box",
-      color = list(background = "#ebf5fb", border = "#aed6f1",
-                   highlight = list(background = "#d4e6f1", border = pal$input_var)),
+      color = list(
+        background = "#ebf5fb", border = "#aed6f1",
+        highlight = list(background = "#d4e6f1", border = pal$input_var)
+      ),
       font = list(size = 11, color = pal$input_var, face = "monospace"),
       borderWidth = 1,
       shadow = list(enabled = TRUE, size = 3, color = "rgba(36,113,163,.1)")
@@ -1950,24 +2076,30 @@ recipe_pipeline_graph <- function(recipe) {
     # Output variable groups
     visNetwork::visGroups(
       groupname = "output_numeric", shape = "box",
-      color = list(background = "#eafaf1", border = "#a9dfbf",
-                   highlight = list(background = "#d5f5e3", border = pal$output_var)),
+      color = list(
+        background = "#eafaf1", border = "#a9dfbf",
+        highlight = list(background = "#d5f5e3", border = pal$output_var)
+      ),
       font = list(size = 11, color = pal$output_var, face = "monospace"),
       borderWidth = 1,
       shadow = list(enabled = TRUE, size = 3, color = "rgba(30,132,73,.1)")
     ) |>
     visNetwork::visGroups(
       groupname = "output_categorical", shape = "box",
-      color = list(background = "#f5eef8", border = "#d2b4de",
-                   highlight = list(background = "#ebdef0", border = "#7d3c98")),
+      color = list(
+        background = "#f5eef8", border = "#d2b4de",
+        highlight = list(background = "#ebdef0", border = "#7d3c98")
+      ),
       font = list(size = 11, color = "#7d3c98", face = "monospace"),
       borderWidth = 1,
       shadow = list(enabled = TRUE, size = 3, color = "rgba(125,60,152,.1)")
     ) |>
     visNetwork::visGroups(
       groupname = "output_unknown", shape = "box",
-      color = list(background = "#f8f9fa", border = "#dee2e6",
-                   highlight = list(background = "#eee", border = "#95a5a6")),
+      color = list(
+        background = "#f8f9fa", border = "#dee2e6",
+        highlight = list(background = "#eee", border = "#95a5a6")
+      ),
       font = list(size = 11, color = "#6c757d", face = "monospace"),
       borderWidth = 1
     ) |>
@@ -2044,15 +2176,19 @@ workflow_card_ui <- function(wf, ns, index) {
 
   htmltools::tags$div(
     class = "recipe-card",
-    onclick = sprintf("Shiny.setInputValue('%s', %d, {priority: 'event'})",
-                      ns("wf_card_click"), index),
-
-    htmltools::tags$div(class = paste("recipe-card-header", cert_cls),
+    onclick = sprintf(
+      "Shiny.setInputValue('%s', %d, {priority: 'event'})",
+      ns("wf_card_click"), index
+    ),
+    htmltools::tags$div(
+      class = paste("recipe-card-header", cert_cls),
       htmltools::tags$h5(wf$name),
-      htmltools::tags$div(class = "card-subtitle",
+      htmltools::tags$div(
+        class = "card-subtitle",
         bsicons::bs_icon("person-fill", size = ".75rem"),
         wf$user,
-        htmltools::tags$span(style = "margin-left: .75rem;",
+        htmltools::tags$span(
+          style = "margin-left: .75rem;",
           bsicons::bs_icon("bar-chart-fill", size = ".75rem"),
           paste(n_est, "estimations"),
           bsicons::bs_icon("journal-code", size = ".75rem", class = "ms-2"),
@@ -2060,21 +2196,24 @@ workflow_card_ui <- function(wf, ns, index) {
         )
       )
     ),
-
-    htmltools::tags$div(class = "recipe-card-body",
-      htmltools::tags$div(class = "description",
+    htmltools::tags$div(
+      class = "recipe-card-body",
+      htmltools::tags$div(
+        class = "description",
         wf$description %||% "No description provided."
       ),
       htmltools::tags$div(style = "margin-bottom: .5rem;", est_badges),
       cert_badge(cert_level)
     ),
-
-    htmltools::tags$div(class = "recipe-card-footer",
-      htmltools::tags$div(class = "downloads",
+    htmltools::tags$div(
+      class = "recipe-card-footer",
+      htmltools::tags$div(
+        class = "downloads",
         bsicons::bs_icon("download", size = ".85rem"),
         format_downloads(wf$downloads)
       ),
-      htmltools::tags$span(style = "color: #95a5a6; font-size: .75rem;",
+      htmltools::tags$span(
+        style = "color: #95a5a6; font-size: .75rem;",
         paste0("v", wf$version %||% "1.0.0")
       ),
       htmltools::tags$button(
@@ -2094,23 +2233,32 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
   cert_cls <- paste0("cert-", cert_level)
 
   # Header
-  header <- htmltools::tags$div(class = paste("recipe-detail-header", cert_cls),
+  header <- htmltools::tags$div(
+    class = paste("recipe-detail-header", cert_cls),
     htmltools::tags$h3(wf$name),
-    htmltools::tags$div(class = "meta-row",
-      htmltools::tags$div(class = "meta-item",
+    htmltools::tags$div(
+      class = "meta-row",
+      htmltools::tags$div(
+        class = "meta-item",
         bsicons::bs_icon("person-fill"), wf$user
       ),
-      htmltools::tags$div(class = "meta-item",
+      htmltools::tags$div(
+        class = "meta-item",
         bsicons::bs_icon("clipboard-data"), paste(wf$survey_type, "/", format_edition(wf$edition))
       ),
-      if (length(wf$estimation_type) > 0) htmltools::tags$div(class = "meta-item",
-        bsicons::bs_icon("bar-chart-fill"),
-        paste(wf$estimation_type, collapse = ", ")
-      ),
-      htmltools::tags$div(class = "meta-item",
+      if (length(wf$estimation_type) > 0) {
+        htmltools::tags$div(
+          class = "meta-item",
+          bsicons::bs_icon("bar-chart-fill"),
+          paste(wf$estimation_type, collapse = ", ")
+        )
+      },
+      htmltools::tags$div(
+        class = "meta-item",
         bsicons::bs_icon("tag-fill"), paste0("v", wf$version)
       ),
-      htmltools::tags$div(class = "meta-item",
+      htmltools::tags$div(
+        class = "meta-item",
         bsicons::bs_icon("download"), format_downloads(wf$downloads)
       )
     )
@@ -2118,7 +2266,8 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
 
   # Description
   desc_section <- if (!is.null(wf$description) && nzchar(wf$description)) {
-    htmltools::tags$div(style = "padding: 1rem 1.5rem;",
+    htmltools::tags$div(
+      style = "padding: 1rem 1.5rem;",
       htmltools::tags$p(style = "color: #6c757d; line-height: 1.6;", wf$description)
     )
   }
@@ -2139,8 +2288,10 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
       if (!is.null(ns)) {
         htmltools::tags$span(
           class = "cross-ref-chip cross-ref-recipe",
-          onclick = sprintf("Shiny.setInputValue('%s', '%s', {priority: 'event'})",
-                            ns("navigate_recipe"), rid),
+          onclick = sprintf(
+            "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+            ns("navigate_recipe"), rid
+          ),
           bsicons::bs_icon("journal-code", size = ".75rem"),
           " ", rname
         )
@@ -2153,8 +2304,10 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
       }
     })
 
-    recipe_refs <- htmltools::tags$div(style = "padding: 0 1.5rem 1rem;",
-      htmltools::tags$div(class = "section-title",
+    recipe_refs <- htmltools::tags$div(
+      style = "padding: 0 1.5rem 1rem;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("journal-code"), " Uses Recipes"
       ),
       htmltools::tagList(ref_chips)
@@ -2170,27 +2323,36 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
       dot_cls <- paste0("wf-dot wf-dot-", est_type)
       type_cls <- paste0("step-type step-type-", est_type)
 
-      htmltools::tags$div(class = "workflow-step",
+      htmltools::tags$div(
+        class = "workflow-step",
         htmltools::tags$div(class = dot_cls, i),
-        htmltools::tags$div(class = "step-content",
+        htmltools::tags$div(
+          class = "step-content",
           htmltools::tags$div(class = type_cls, est_type),
-          htmltools::tags$div(class = "step-outputs",
+          htmltools::tags$div(
+            class = "step-outputs",
             cm$formula %||% ""
           ),
-          if (!is.null(cm$by)) htmltools::tags$div(
-            style = "color: #7f8c8d; font-size: .8rem;",
-            paste("by:", cm$by)
-          ),
-          if (!is.null(cm$description) && nzchar(cm$description %||% "")) htmltools::tags$div(
-            style = "color: #95a5a6; font-size: .8rem; font-style: italic;",
-            cm$description
-          )
+          if (!is.null(cm$by)) {
+            htmltools::tags$div(
+              style = "color: #7f8c8d; font-size: .8rem;",
+              paste("by:", cm$by)
+            )
+          },
+          if (!is.null(cm$description) && nzchar(cm$description %||% "")) {
+            htmltools::tags$div(
+              style = "color: #95a5a6; font-size: .8rem; font-style: italic;",
+              cm$description
+            )
+          }
         )
       )
     })
 
-    est_section <- htmltools::tags$div(style = "padding: 0 1.5rem 1rem;",
-      htmltools::tags$div(class = "section-title",
+    est_section <- htmltools::tags$div(
+      style = "padding: 0 1.5rem 1rem;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("bar-chart-fill"), " Estimations"
       ),
       htmltools::tagList(est_items)
@@ -2204,8 +2366,10 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
       cls <- paste0("est-type-badge est-type-", et)
       htmltools::tags$span(class = cls, et)
     })
-    est_type_section <- htmltools::tags$div(style = "padding: 0 1.5rem 1rem;",
-      htmltools::tags$div(class = "section-title",
+    est_type_section <- htmltools::tags$div(
+      style = "padding: 0 1.5rem 1rem;",
+      htmltools::tags$div(
+        class = "section-title",
         bsicons::bs_icon("clock-fill"), " Estimation Types"
       ),
       htmltools::tagList(est_badges)
@@ -2213,8 +2377,10 @@ workflow_detail_ui <- function(wf, recipes_list = list(), ns = NULL) {
   }
 
   # R Code snippet
-  code_section <- htmltools::tags$div(style = "padding: 0 1.5rem 1rem;",
-    htmltools::tags$div(class = "section-title",
+  code_section <- htmltools::tags$div(
+    style = "padding: 0 1.5rem 1rem;",
+    htmltools::tags$div(
+      class = "section-title",
       bsicons::bs_icon("terminal-fill"),
       "Use in R"
     ),

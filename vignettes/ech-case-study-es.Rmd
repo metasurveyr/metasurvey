@@ -121,20 +121,26 @@ set.seed(2023)
 n <- 500
 
 ech_sim <- data.table(
-  numero   = rep(1:100, each = 5),
-  nper     = rep(1:5, 100),
-  e26      = sample(c(1, 2), n, replace = TRUE),
-  e27      = sample(0:90, n, replace = TRUE),
-  e31      = sample(1:14, n, replace = TRUE,
-                    prob = c(0.20, 0.15, 0.25, 0.05, 0.03,
-                             0.02, 0.03, 0.02, 0.02, 0.01,
-                             0.01, 0.01, 0.05, 0.15)),
-  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n, replace = TRUE,
-                    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)),
-  e51      = sample(1:14, n, replace = TRUE),
-  ht11     = round(runif(n, 5000, 120000)),
-  dpto     = sample(1:19, n, replace = TRUE),
-  pesoano  = round(runif(n, 0.5, 3.0), 4)
+  numero = rep(1:100, each = 5),
+  nper = rep(1:5, 100),
+  e26 = sample(c(1, 2), n, replace = TRUE),
+  e27 = sample(0:90, n, replace = TRUE),
+  e31 = sample(1:14, n,
+    replace = TRUE,
+    prob = c(
+      0.20, 0.15, 0.25, 0.05, 0.03,
+      0.02, 0.03, 0.02, 0.02, 0.01,
+      0.01, 0.01, 0.05, 0.15
+    )
+  ),
+  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n,
+    replace = TRUE,
+    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)
+  ),
+  e51 = sample(1:14, n, replace = TRUE),
+  ht11 = round(runif(n, 5000, 120000)),
+  dpto = sample(1:19, n, replace = TRUE),
+  pesoano = round(runif(n, 0.5, 3.0), 4)
 )
 
 svy <- Survey$new(
@@ -188,19 +194,19 @@ Esto replica el marco estándar de fuerza laboral de la OIT:
 
 ```{r labor}
 svy <- step_recode(svy, labor_status,
-  pobpcoac == 2      ~ "Employed",
-  pobpcoac %in% 3:5  ~ "Unemployed",
-  pobpcoac %in% 6:7  ~ "Inactive",
+  pobpcoac == 2 ~ "Employed",
+  pobpcoac %in% 3:5 ~ "Unemployed",
+  pobpcoac %in% 6:7 ~ "Inactive",
   .default = NA_character_,
   comment = "ILO labor force status from POBPCOAC"
 )
 
 # Create binary indicators
 svy <- step_compute(svy,
-  employed     = ifelse(pobpcoac == 2, 1L, 0L),
-  unemployed   = ifelse(pobpcoac %in% 3:5, 1L, 0L),
-  active       = ifelse(pobpcoac %in% 2:5, 1L, 0L),
-  working_age  = ifelse(e27 >= 14, 1L, 0L),
+  employed = ifelse(pobpcoac == 2, 1L, 0L),
+  unemployed = ifelse(pobpcoac %in% 3:5, 1L, 0L),
+  active = ifelse(pobpcoac %in% 2:5, 1L, 0L),
+  working_age = ifelse(e27 >= 14, 1L, 0L),
   comment = "Labor force binary indicators"
 )
 ```
@@ -212,9 +218,9 @@ con datos de la ECH:
 
 ```{r income}
 svy <- step_compute(svy,
-  income_pc    = ht11 / 5,
+  income_pc = ht11 / 5,
   income_thousands = ht11 / 1000,
-  log_income   = log(ht11 + 1),
+  log_income = log(ht11 + 1),
   comment = "Income transformations"
 )
 ```
@@ -224,11 +230,13 @@ svy <- step_compute(svy,
 ```{r geography}
 dept_names <- data.table(
   dpto = 1:19,
-  department = c("Montevideo", "Artigas", "Canelones", "Cerro Largo",
-                 "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-                 "Maldonado", "Paysandu", "Rio Negro", "Rivera", "Rocha",
-                 "Salto", "San Jose", "Soriano", "Tacuarembo",
-                 "Treinta y Tres"),
+  department = c(
+    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
+    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
+    "Maldonado", "Paysandu", "Rio Negro", "Rivera", "Rocha",
+    "Salto", "San Jose", "Soriano", "Tacuarembo",
+    "Treinta y Tres"
+  ),
   region = c("Montevideo", rep("Interior", 18))
 )
 
@@ -246,16 +254,16 @@ Convertir todas las transformaciones en un recipe portable:
 
 ```{r recipe}
 ech_recipe <- steps_to_recipe(
-  name        = "ECH Labor Market Indicators",
-  user        = "Research Team",
-  svy         = svy,
+  name = "ECH Labor Market Indicators",
+  user = "Research Team",
+  svy = svy,
   description = paste(
     "Standard labor market indicators for the ECH.",
     "Includes demographic recoding, ILO labor classification,",
     "income transformations, and geographic joins."
   ),
-  steps       = get_steps(svy),
-  topic       = "labor"
+  steps = get_steps(svy),
+  topic = "labor"
 )
 
 ech_recipe
@@ -367,20 +375,26 @@ Aquí simulamos una "edición 2024" con la misma estructura:
 ```{r reproduce}
 set.seed(2024)
 ech_2024 <- data.table(
-  numero   = rep(1:100, each = 5),
-  nper     = rep(1:5, 100),
-  e26      = sample(c(1, 2), n, replace = TRUE),
-  e27      = sample(0:90, n, replace = TRUE),
-  e31      = sample(1:14, n, replace = TRUE,
-                    prob = c(0.20, 0.15, 0.25, 0.05, 0.03,
-                             0.02, 0.03, 0.02, 0.02, 0.01,
-                             0.01, 0.01, 0.05, 0.15)),
-  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n, replace = TRUE,
-                    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)),
-  e51      = sample(1:14, n, replace = TRUE),
-  ht11     = round(runif(n, 5500, 130000)),
-  dpto     = sample(1:19, n, replace = TRUE),
-  pesoano  = round(runif(n, 0.5, 3.0), 4)
+  numero = rep(1:100, each = 5),
+  nper = rep(1:5, 100),
+  e26 = sample(c(1, 2), n, replace = TRUE),
+  e27 = sample(0:90, n, replace = TRUE),
+  e31 = sample(1:14, n,
+    replace = TRUE,
+    prob = c(
+      0.20, 0.15, 0.25, 0.05, 0.03,
+      0.02, 0.03, 0.02, 0.02, 0.01,
+      0.01, 0.01, 0.05, 0.15
+    )
+  ),
+  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n,
+    replace = TRUE,
+    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)
+  ),
+  e51 = sample(1:14, n, replace = TRUE),
+  ht11 = round(runif(n, 5500, 130000)),
+  dpto = sample(1:19, n, replace = TRUE),
+  pesoano = round(runif(n, 0.5, 3.0), 4)
 )
 
 svy_2024 <- Survey$new(

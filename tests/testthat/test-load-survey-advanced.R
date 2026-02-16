@@ -12,20 +12,20 @@ test_that("load_survey with bake=TRUE applies recipes", {
     x = 1:10,
     w = 1
   )
-  
+
   tmp <- tempfile(fileext = ".csv")
   on.exit(unlink(tmp), add = TRUE)
   data.table::fwrite(df, tmp)
-  
+
   svy_empty <- make_test_survey()
-  
+
   rec <- recipe(
     name = "test recipe",
     user = "tester",
     svy = svy_empty,
     description = "Test recipe with step"
   )
-  
+
   s <- load_survey(
     path = tmp,
     svy_type = "ech",
@@ -34,7 +34,7 @@ test_that("load_survey with bake=TRUE applies recipes", {
     recipes = rec,
     bake = TRUE
   )
-  
+
   expect_s3_class(s, "Survey")
 })
 
@@ -43,9 +43,9 @@ test_that("load_survey handles different survey types", {
   tmp <- tempfile(fileext = ".csv")
   on.exit(unlink(tmp), add = TRUE)
   data.table::fwrite(df, tmp)
-  
+
   types <- c("ech", "eph", "eai", "eaii")
-  
+
   for (type in types) {
     s <- load_survey(
       path = tmp,
@@ -53,7 +53,7 @@ test_that("load_survey handles different survey types", {
       svy_edition = "2023",
       svy_weight = add_weight(annual = "w")
     )
-    
+
     expect_equal(s$type, type)
   }
 })
@@ -107,7 +107,7 @@ test_that("read_file handles unsupported extension", {
   tmp <- tempfile(fileext = ".xyz")
   writeLines("test", tmp)
   on.exit(unlink(tmp), add = TRUE)
-  
+
   expect_error(
     metasurvey:::read_file(tmp),
     "Unsupported file type"
@@ -121,7 +121,7 @@ test_that("validate_recipe returns FALSE for mismatched type", {
     recipe_svy_edition = "2023",
     recipe_svy_type = "eph"
   )
-  
+
   expect_false(result)
 })
 
@@ -132,7 +132,7 @@ test_that("validate_recipe returns FALSE for mismatched edition", {
     recipe_svy_edition = "2022",
     recipe_svy_type = "ech"
   )
-  
+
   expect_false(result)
 })
 
@@ -143,7 +143,6 @@ test_that("validate_recipe returns TRUE for matching type and edition", {
     recipe_svy_edition = "2023",
     recipe_svy_type = "ech"
   )
-  
+
   expect_true(result)
 })
-

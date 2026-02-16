@@ -52,7 +52,9 @@ RecipeCategory <- R6::R6Class(
     is_subcategory_of = function(ancestor_name) {
       current <- self$parent
       while (!is.null(current)) {
-        if (current$name == ancestor_name) return(TRUE)
+        if (current$name == ancestor_name) {
+          return(TRUE)
+        }
         current <- current$parent
       }
       FALSE
@@ -118,12 +120,18 @@ RecipeCategory <- R6::R6Class(
 #' @return RecipeCategory object or NULL
 #' @keywords internal
 RecipeCategory$set("public", "from_list", function(lst) {
-  if (is.null(lst)) return(NULL)
-  parent <- if (!is.null(lst$parent)) RecipeCategory$new(
-    name = lst$parent$name,
-    description = lst$parent$description %||% "",
-    parent = RecipeCategory$public_methods$from_list(NULL, lst$parent$parent)
-  ) else NULL
+  if (is.null(lst)) {
+    return(NULL)
+  }
+  parent <- if (!is.null(lst$parent)) {
+    RecipeCategory$new(
+      name = lst$parent$name,
+      description = lst$parent$description %||% "",
+      parent = RecipeCategory$public_methods$from_list(NULL, lst$parent$parent)
+    )
+  } else {
+    NULL
+  }
   RecipeCategory$new(
     name = lst$name,
     description = lst$description %||% "",
@@ -133,15 +141,21 @@ RecipeCategory$set("public", "from_list", function(lst) {
 
 # Make from_list callable as RecipeCategory$from_list() (class-level)
 RecipeCategory$from_list <- function(lst) {
-  if (is.null(lst)) return(NULL)
+  if (is.null(lst)) {
+    return(NULL)
+  }
   # Handle empty data.frames from JSON simplifyVector
-  if (is.data.frame(lst) && (nrow(lst) == 0 || ncol(lst) == 0)) return(NULL)
+  if (is.data.frame(lst) && (nrow(lst) == 0 || ncol(lst) == 0)) {
+    return(NULL)
+  }
   # Handle empty lists from JSON (NULL serialized as {})
-  if (is.list(lst) && length(lst) == 0) return(NULL)
+  if (is.list(lst) && length(lst) == 0) {
+    return(NULL)
+  }
   parent_obj <- NULL
   if (!is.null(lst$parent) &&
-      !(is.data.frame(lst$parent) && (nrow(lst$parent) == 0 || ncol(lst$parent) == 0)) &&
-      !(is.list(lst$parent) && length(lst$parent) == 0)) {
+    !(is.data.frame(lst$parent) && (nrow(lst$parent) == 0 || ncol(lst$parent) == 0)) &&
+    !(is.list(lst$parent) && length(lst$parent) == 0)) {
     parent_obj <- RecipeCategory$from_list(lst$parent)
   }
   RecipeCategory$new(

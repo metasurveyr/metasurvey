@@ -54,10 +54,10 @@ conglomerados ni estratificación:
 
 ```{r simple}
 svy_simple <- Survey$new(
-  data   = dt_strat,
+  data = dt_strat,
   edition = "2000",
-  type   = "api",
-  psu    = NULL,
+  type = "api",
+  psu = NULL,
   engine = "data.table",
   weight = add_weight(annual = "pw")
 )
@@ -120,16 +120,16 @@ se utiliza `add_replicate()` dentro de `add_weight()`:
 ```{r bootstrap, eval = FALSE}
 # This example requires external files
 svy_boot <- load_survey(
-  path       = "data/main_survey.csv",
-  svy_type   = "ech",
+  path = "data/main_survey.csv",
+  svy_type = "ech",
   svy_edition = "2023",
   svy_weight = add_weight(
     annual = add_replicate(
-      weight_var       = "pesoano",
-      replicate_path   = "data/bootstrap_replicates.csv",
-      replicate_id     = c("numero" = "id"),
+      weight_var = "pesoano",
+      replicate_path = "data/bootstrap_replicates.csv",
+      replicate_id = c("numero" = "id"),
       replicate_pattern = "bsrep[0-9]+",
-      replicate_type   = "bootstrap"
+      replicate_type = "bootstrap"
     )
   )
 )
@@ -352,8 +352,8 @@ se recomienda verificar lo siguiente:
 validate_pipeline <- function(svy) {
   data <- get_data(svy)
   checks <- list(
-    has_data    = !is.null(data),
-    has_rows    = nrow(data) > 0,
+    has_data = !is.null(data),
+    has_rows = nrow(data) > 0,
     has_weights = all(
       unlist(svy$weight)[is.character(unlist(svy$weight))] %in% names(data)
     )

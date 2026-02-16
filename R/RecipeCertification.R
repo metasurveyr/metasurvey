@@ -36,14 +36,14 @@ RecipeCertification <- R6::R6Class(
 
       if (level == "official") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
-            certified_by$user_type != "institution") {
+          certified_by$user_type != "institution") {
           stop("official certification requires a RecipeUser of type 'institution'")
         }
       }
 
       if (level == "reviewed") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
-            !certified_by$user_type %in% c("institutional_member", "institution")) {
+          !certified_by$user_type %in% c("institutional_member", "institution")) {
           stop("reviewed certification requires a RecipeUser of type 'institutional_member' or 'institution'")
         }
       }
@@ -115,7 +115,9 @@ RecipeCertification <- R6::R6Class(
 
 # Class-level from_list
 RecipeCertification$from_list <- function(lst) {
-  if (is.null(lst)) return(NULL)
+  if (is.null(lst)) {
+    return(NULL)
+  }
   certified_by <- NULL
   if (!is.null(lst$certified_by)) {
     certified_by <- RecipeUser$from_list(lst$certified_by)
