@@ -6,8 +6,8 @@
 #' @field type Character backend type ("local" or "api").
 #'
 #' @examples
-#' \donttest{
-#' # Local backend
+#' \dontrun{
+#' # Local backend (internal class, use set_backend() instead)
 #' backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
 #' backend$search("labor")
 #' }

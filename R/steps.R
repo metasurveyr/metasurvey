@@ -3,13 +3,13 @@
 NULL
 
 compute <- function(svy, ..., .by = NULL,
-                    use_copy = use_copy_default(),
+                    .copy = use_copy_default(),
                     lazy = lazy_default()) {
   .dots <- substitute(...)
 
 
   if (!lazy) {
-    if (!use_copy) {
+    if (!.copy) {
       .data <- get_data(svy)
     } else {
       .clone <- svy$shallow_clone()
@@ -40,13 +40,13 @@ compute <- function(svy, ..., .by = NULL,
     }
 
 
-    if (!use_copy) {
+    if (!.copy) {
       return(set_data(svy, .data))
     } else {
       return(set_data(.clone, .data))
     }
   } else {
-    if (!use_copy) {
+    if (!.copy) {
       return(svy)
     } else {
       return(svy$shallow_clone())
@@ -60,11 +60,11 @@ compute <- function(svy, ..., .by = NULL,
 recode <- function(svy, new_var, ...,
                    .default = NA_character_,
                    ordered = FALSE,
-                   use_copy = use_copy_default(),
+                   .copy = use_copy_default(),
                    .to_factor = FALSE,
                    lazy = lazy_default()) {
   if (!lazy) {
-    if (!use_copy) {
+    if (!.copy) {
       .data <- svy$get_data()
     } else {
       .clone <- svy$shallow_clone()
@@ -129,16 +129,16 @@ recode <- function(svy, new_var, ...,
       X = seq_along(.exprs)
     )
 
-    if (!use_copy) {
+    if (!.copy) {
       return(set_data(svy, .data))
     } else {
       return(set_data(.clone, .data))
     }
   } else {
-    if (!use_copy) {
+    if (!.copy) {
       return(svy)
     } else {
-      return(svy$clone())
+      return(svy$shallow_clone())
     }
   }
 }
@@ -159,9 +159,10 @@ recode <- function(svy, new_var, ...,
 #' @param .by Vector of variables to group computations
 #'   by. The system automatically validates these
 #'   variables exist before execution
-#' @param use_copy Logical indicating whether to create
+#' @param .copy Logical indicating whether to create
 #'   a copy of the object before applying
 #'   transformations. Defaults to `use_copy_default()`
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @param comment Descriptive text for the step for
 #'   documentation and traceability. Compatible with
 #'   Markdown syntax. Defaults to "Compute step"
@@ -174,30 +175,24 @@ recode <- function(svy, new_var, ...,
 #'   with new computed variables and the step added to the history
 #'
 #' @details
-#' **CORE ENGINE FEATURES**:
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called. This allows building
+#' a full pipeline before materializing any changes. Set
+#' `options(metasurvey.lazy_processing = FALSE)` to apply steps immediately.
 #'
-#' \strong{1. Automatic Expression Processing:}
-#' - All expressions are evaluated using R's native evaluation
-#' - Dependency detection using variable name analysis
-#' - Runtime validation prevents errors
+#' **Expression processing:**
+#' Expressions are evaluated using data.table's `:=` operator.
+#' Variable dependencies are detected automatically via `all.vars()`.
+#' Missing variables are caught before execution.
 #'
-#' \strong{2. Enhanced Error Prevention:}
-#' - Missing variables detected before execution
-#' - Type checking when possible
-#' - Precise error locations with context
+#' **Grouped computations:** Use `.by` to compute aggregated values
+#' (e.g., group means) that are automatically joined back to the data.
 #'
-#' \strong{3. Performance Benefits:}
-#' - Direct evaluation for minimal overhead
-#' - Efficient data.table operations
-#' - Optimized for large survey datasets
-#'
-#' For RotativePanelSurvey objects, validation ensures computations
-#' are compatible with the specified hierarchical level:
-#' - "implantation": Household/dwelling level computations
-#' - "follow_up": Individual/person level computations
-#' - "quarter": Quarterly aggregated computations
-#' - "month": Monthly aggregated computations
-#' - "auto": Automatically detects appropriate level
+#' For RotativePanelSurvey objects, `.level` controls where computations
+#' are applied:
+#' - `"auto"` (default): applies to both implantation and follow-ups
+#' - `"implantation"`: household/dwelling level only
+#' - `"follow_up"`: individual/person level only
 #'
 #' @examples
 #' # Basic computation
@@ -229,9 +224,14 @@ recode <- function(svy, new_var, ...,
 
 step_compute <- function(
     svy = NULL, ..., .by = NULL,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Compute step",
-    .level = "auto") {
+    .level = "auto",
+    use_copy = deprecated()) {
+  if (lifecycle::is_present(use_copy)) {
+    lifecycle::deprecate_warn("0.0.12", "step_compute(use_copy)", "step_compute(.copy)")
+    .copy <- use_copy
+  }
   .call <- match.call()
 
   # Capture and prepare expressions
@@ -245,7 +245,7 @@ step_compute <- function(
 
   if (is(svy, "RotativePanelSurvey")) {
     return(step_compute_rotative(svy, ...,
-      .by = .by, use_copy = use_copy,
+      .by = .by, .copy = .copy,
       comment = comment, .level = .level, .call = .call
     ))
   }
@@ -253,26 +253,13 @@ step_compute <- function(
   # Store dependencies
   depends_on <- if (length(dependencies) > 0) dependencies else NULL
 
-  if (use_copy) {
-    tryCatch(
-      {
-        .svy_before <- svy$shallow_clone()
-      },
-      error = function(e) {
-        stop(paste0(
-          "Error in shallow_clone. Please run ",
-          "set_use_copy(TRUE) and instance a new ",
-          "survey object and try again"
-        ))
-      }
-    )
-
+  if (.copy) {
     # Direct evaluation with compute function
     # (force lazy=FALSE to execute immediately)
     .svy_after <- compute(
       svy, ...,
       .by = .by,
-      use_copy = use_copy, lazy = FALSE
+      .copy = .copy, lazy = FALSE
     )
 
     .new_vars <- expr_names
@@ -286,7 +273,7 @@ step_compute <- function(
         new_var = paste(.new_vars, collapse = ", "),
         exprs = substitute(list(...)),
         call = .call,
-        svy_before = svy,
+        svy_before = NULL,
         default_engine = get_engine(),
         depends_on = depends_on,
         comment = comment
@@ -295,7 +282,13 @@ step_compute <- function(
       if (validate_step(svy, step)) {
         .svy_after$add_step(step)
       } else {
-        stop("Error in step")
+        stop(
+          sprintf(
+            "Step validation failed for compute step creating: %s",
+            paste(.new_vars, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
       return(.svy_after)
     } else {
@@ -303,8 +296,8 @@ step_compute <- function(
       return(svy)
     }
   } else {
-    names_vars <- names(copy(get_data(svy)))
-    compute(svy, ..., .by = .by, use_copy = use_copy, lazy = FALSE)
+    names_vars <- names(get_data(svy))
+    compute(svy, ..., .by = .by, .copy = .copy, lazy = FALSE)
     .new_vars <- names(substitute(list(...)))[-1]
     not_in_data <- !(.new_vars %in% names_vars)
     .new_vars <- .new_vars[not_in_data]
@@ -331,7 +324,7 @@ step_compute <- function(
 #' Step compute rotative
 #' @param svy Survey object
 #' @param ... Expressions to compute
-#' @param use_copy Use copy
+#' @param .copy Copy
 #' @param .by By
 #' @param comment Comment
 #' @return Survey object
@@ -342,7 +335,7 @@ step_compute <- function(
 
 step_compute_rotative <- function(
     svy, ..., .by = NULL,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Compute step",
     .level = "auto", .call) {
   follow_up_processed <- svy$follow_up
@@ -354,7 +347,7 @@ step_compute_rotative <- function(
       step_compute(
         sub_svy, ...,
         .by = .by,
-        use_copy = use_copy,
+        .copy = .copy,
         comment = comment
       )
     })
@@ -364,7 +357,7 @@ step_compute_rotative <- function(
     implantation_processed <- step_compute(
       svy$implantation, ...,
       .by = .by,
-      use_copy = use_copy,
+      .copy = .copy,
       comment = comment
     )
   }
@@ -393,7 +386,7 @@ step_compute_rotative <- function(
 
   result$steps <- steps
 
-  if (use_copy) {
+  if (.copy) {
     return(result)
   } else {
     svy$implantation <- implantation_processed
@@ -422,15 +415,17 @@ step_compute_rotative <- function(
 #'   Format: `condition ~ value`
 #' @param .default Default value assigned when no
 #'   condition is met. Defaults to `NA_character_`
-#' @param .name_step Custom name for the step to
-#'   identify it in the history. If not provided,
-#'   generated automatically with "Recode" prefix
+#' @param .name_step `r lifecycle::badge("deprecated")`
+#'   Custom name for the step in the history. Now
+#'   auto-generated from the variable name. Use `comment`
+#'   for user-facing documentation instead.
 #' @param ordered Logical indicating whether the new
 #'   variable should be an ordered factor.
 #'   Defaults to FALSE
-#' @param use_copy Logical indicating whether to
+#' @param .copy Logical indicating whether to
 #'   create a copy of the object before applying
 #'   transformations. Defaults to `use_copy_default()`
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @param comment Descriptive text for the step for
 #'   documentation and traceability. Compatible with
 #'   Markdown syntax. Defaults to "Recode step"
@@ -446,32 +441,19 @@ step_compute_rotative <- function(
 #'   with the new recoded variable and the step added to the history
 #'
 #' @details
-#' **CORE ENGINE FOR RECODING**:
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called. This allows building
+#' a full pipeline before materializing any changes.
 #'
-#' \strong{1. Automatic Condition Processing:}
-#' - All LHS conditions are automatically analyzed
-#' - Static analysis of logical expressions
-#' - Dependency detection for all referenced variables
-#' - Optimization of conditional logic
-#'
-#' \strong{2. Enhanced Condition Evaluation:}
-#' - Conditions evaluated in order
-#' - First matching condition determines assignment
-#' - Optimized short-circuit evaluation
-#' - Better error reporting with expression context
-#'
-#' \strong{3. Performance Features:}
-#' - Direct evaluation using R's native conditional logic
-#' - Efficient execution for all condition types
-#' - Dependency validation prevents runtime errors
+#' **Condition evaluation:** Conditions are two-sided formulas evaluated
+#' in order. The first matching condition determines the assigned value.
+#' If no condition matches, `.default` is used.
 #'
 #' Condition examples:
-#' - Simple: `variable == 1`
-#' - Complex: `age >= 18 & income > 12000`
-#' - Vectorized: `variable %in% c(1,2,3)`
-#' - Vectorized: `variable %in% c(1,2,3)` (validates `variable` exists)
-#' - Logical: `!is.na(education) &
-#'   education > mean(education, na.rm = TRUE)`
+#' - Simple: `variable == 1 ~ "Yes"`
+#' - Complex: `age >= 18 & income > 12000 ~ "High"`
+#' - Vectorized: `variable %in% c(1,2,3) ~ "Group A"`
+#' - Logical: `!is.na(education) ~ "Has education"`
 #'
 #' @examples
 #' # Basic recode: categorize ages
@@ -513,21 +495,26 @@ step_compute_rotative <- function(
 #' @export
 
 step_recode <- function(
-    svy = survey_empty(),
+    svy,
     new_var, ...,
     .default = NA_character_,
     .name_step = NULL,
     ordered = FALSE,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Recode step",
     .to_factor = FALSE,
-    .level = "auto") {
+    .level = "auto",
+    use_copy = deprecated()) {
+  if (lifecycle::is_present(use_copy)) {
+    lifecycle::deprecate_warn("0.0.12", "step_recode(use_copy)", "step_recode(.copy)")
+    .copy <- use_copy
+  }
   .call <- match.call()
 
   if (is(svy, "RotativePanelSurvey")) {
     return(step_recode_rotative(svy, as.character(substitute(new_var)), ...,
       .default = .default, .name_step = .name_step,
-      ordered = ordered, use_copy = use_copy,
+      ordered = ordered, .copy = .copy,
       comment = comment, .to_factor = .to_factor,
       .level = .level, .call = .call
     ))
@@ -536,7 +523,7 @@ step_recode <- function(
   if (is(svy, "Survey")) {
     return(step_recode_survey(svy, as.character(substitute(new_var)), ...,
       .default = .default, .name_step = .name_step,
-      ordered = ordered, use_copy = use_copy,
+      ordered = ordered, .copy = .copy,
       comment = comment, .to_factor = .to_factor,
       .call = .call
     ))
@@ -564,7 +551,7 @@ step_recode <- function(
 #' @param .default Default value
 #' @param .name_step Name of the step
 #' @param ordered Ordered
-#' @param use_copy Use copy
+#' @param .copy Copy
 #' @param comment Comment
 #' @keywords step
 #' @noRd
@@ -575,7 +562,7 @@ step_recode_survey <- function(
     .default = NA_character_,
     .name_step = NULL,
     ordered = FALSE,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Recode step",
     .to_factor = FALSE,
     .call = .call) {
@@ -605,12 +592,12 @@ step_recode_survey <- function(
 
   depends_on <- if (length(dependencies) > 0) dependencies else NULL
 
-  if (use_copy) {
+  if (.copy) {
     # Direct recode evaluation (force lazy=FALSE to execute immediately)
     .svy_after <- recode(
       svy = svy, new_var = new_var, ...,
       .default = .default,
-      use_copy = use_copy,
+      .copy = .copy,
       .to_factor = .to_factor,
       lazy = FALSE
     )
@@ -623,10 +610,10 @@ step_recode_survey <- function(
       new_var = new_var,
       exprs = list(...),
       call = .call,
-      svy_before = svy,
+      svy_before = NULL,
       default_engine = get_engine(),
       depends_on = depends_on,
-      comments = comment
+      comment = comment
     )
     .svy_after$add_step(step)
     return(.svy_after)
@@ -634,7 +621,7 @@ step_recode_survey <- function(
     recode(
       svy = svy, new_var = new_var, ...,
       .default = .default,
-      use_copy = use_copy,
+      .copy = .copy,
       .to_factor = .to_factor,
       lazy = FALSE
     )
@@ -649,7 +636,7 @@ step_recode_survey <- function(
       svy_before = NULL,
       default_engine = get_engine(),
       depends_on = depends_on,
-      comments = comment
+      comment = comment
     )
     svy$add_step(step)
     invisible(svy)
@@ -663,7 +650,7 @@ step_recode_survey <- function(
 #' @param .default Default value
 #' @param .name_step Name of the step
 #' @param ordered Ordered
-#' @param use_copy Use copy
+#' @param .copy Copy
 #' @param comment Comment
 #' @param .to_factor To factor
 #' @return Survey object
@@ -676,7 +663,7 @@ step_recode_rotative <- function(
     .default = NA_character_,
     .name_step = NULL,
     ordered = FALSE,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Recode step",
     .to_factor = FALSE,
     .level = "auto", .call) {
@@ -690,7 +677,7 @@ step_recode_rotative <- function(
         .default = .default,
         .name_step = .name_step,
         ordered = ordered,
-        use_copy = use_copy,
+        .copy = .copy,
         comment = comment,
         .to_factor = .to_factor,
         .call = .call
@@ -704,7 +691,7 @@ step_recode_rotative <- function(
       .default = .default,
       .name_step = .name_step,
       ordered = ordered,
-      use_copy = use_copy,
+      .copy = .copy,
       comment = comment,
       .to_factor = .to_factor,
       .call = .call
@@ -722,7 +709,7 @@ step_recode_rotative <- function(
     design = NULL
   )
 
-  if (use_copy) {
+  if (.copy) {
     return(result)
   } else {
     svy$implantation <- implantation_processed
@@ -777,7 +764,7 @@ get_comments <- function(steps) {
       X = seq_along(steps),
       FUN = function(x) {
         step <- steps[[x]]
-        step$comments
+        step$comment
       },
       FUN.VALUE = character(1)
     )
@@ -790,12 +777,15 @@ get_comments <- function(steps) {
 #'
 #' Creates a step that joins additional data into a
 #' Survey or RotativePanelSurvey.
-#' Works with a data.frame/data.table or another Survey as the right-hand side.
 #'
-#' - Supports left, inner, right, and full joins
-#' - Allows named `by` mapping (e.g., c("id" = "code")) or simple vector
-#' - Avoids extra dependencies; resolves name
-#'   conflicts by suffixing RHS columns
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Supports left, inner, right, and full joins. Allows named `by`
+#' mapping (e.g., `c("id" = "code")`) or a simple character vector.
+#' Conflicting column names are resolved by appending `suffixes`
+#' to the right-hand side columns.
 #'
 #' @param svy A Survey or RotativePanelSurvey object.
 #'   If NULL, returns a step call
@@ -808,7 +798,8 @@ get_comments <- function(steps) {
 #' @param suffixes Length-2 character vector of suffixes
 #'   for conflicting columns
 #'   from `svy` and `x` respectively. Defaults to c("", ".y")
-#' @param use_copy Whether to operate on a copy (default: use_copy_default())
+#' @param .copy Whether to operate on a copy (default: use_copy_default())
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @param comment Optional description for the step
 #'
 #' @return Modified survey object with the join
@@ -836,21 +827,26 @@ get_comments <- function(steps) {
 #' s3 <- step_join(s, s_right, by = c("id" = "id"), type = "inner")
 #' s3 <- bake_steps(s3)
 #'
-#' @param lazy Logical, whether to delay execution.
-#' @param record Logical, whether to record the step.
+#' @param lazy Internal. Whether to delay execution.
+#' @param record Internal. Whether to record the step.
 #' @keywords step
 #' @family steps
 #' @export
 step_join <- function(
-    svy = survey_empty(),
+    svy,
     x,
     by = NULL,
     type = c("left", "inner", "right", "full"),
     suffixes = c("", ".y"),
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Join step",
+    use_copy = deprecated(),
     lazy = lazy_default(),
     record = TRUE) {
+  if (lifecycle::is_present(use_copy)) {
+    lifecycle::deprecate_warn("0.0.12", "step_join(use_copy)", "step_join(.copy)")
+    .copy <- use_copy
+  }
   .call <- match.call()
   type <- match.arg(type)
 
@@ -864,7 +860,7 @@ step_join <- function(
   if (methods::is(svy, "RotativePanelSurvey")) {
     svy$implantation <- step_join(
       svy = svy$implantation, x = x, by = by, type = type,
-      suffixes = suffixes, use_copy = use_copy, comment = comment
+      suffixes = suffixes, .copy = .copy, comment = comment
     )
     svy$follow_up <- lapply(
       svy$follow_up,
@@ -874,7 +870,7 @@ step_join <- function(
           x = x, by = by,
           type = type,
           suffixes = suffixes,
-          use_copy = use_copy,
+          .copy = .copy,
           comment = comment
         )
       }
@@ -928,7 +924,6 @@ step_join <- function(
     setdiff(names(rhs_data), by.y)
   )
   if (length(overlap) > 0 && (suffixes[2] %in% c("", NA))) {
-    # Ensure RHS conflicts are suffixed to avoid overwriting LHS
     suffixes[2] <- ".y"
   }
   if (length(overlap) > 0) {
@@ -981,7 +976,7 @@ step_join <- function(
   }
 
   # Assign data to copy or in-place
-  if (use_copy) {
+  if (.copy) {
     out <- svy$shallow_clone()
     out$set_data(merged)
   } else {
@@ -1003,7 +998,7 @@ step_join <- function(
       svy_before = NULL,
       default_engine = get_engine(),
       depends_on = depends_on,
-      comments = comment,
+      comment = comment,
       bake = FALSE
     )
     out$add_step(step)
@@ -1018,13 +1013,25 @@ step_join <- function(
 #'
 #' @param svy A Survey or RotativePanelSurvey object
 #' @param ... Unquoted variable names to remove, or a character vector
-#' @param use_copy Whether to operate on a copy (default: use_copy_default())
-#' @param comment Optional description for the step
 #' @param vars Character vector of variable names to remove.
-#' @param lazy Logical, whether to delay execution.
-#' @param record Logical, whether to record the step.
+#'   Alternative to `...` for programmatic use.
+#' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
+#' @param comment Descriptive text for the step for
+#'   documentation and traceability. Defaults to "Remove variables"
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @return Survey object with the specified variables
 #'   removed (or queued for removal).
+#'
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Variables can be specified in two ways:
+#' - **Unquoted names:** `step_remove(svy, age, income)`
+#' - **Character vector:** `step_remove(svy, vars = c("age", "income"))`
+#'
+#' Variables that don't exist in the data produce a warning
+#' (not an error), allowing pipelines to be robust to missing columns.
 #' @examples
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
@@ -1037,15 +1044,22 @@ step_join <- function(
 #' svy2 <- step_remove(svy, age)
 #' svy2 <- bake_steps(svy2)
 #' "age" %in% names(get_data(svy2)) # FALSE
+#' @param lazy Internal. Whether to delay execution.
+#' @param record Internal. Whether to record the step.
 #' @family steps
 #' @export
 step_remove <- function(
-    svy = survey_empty(), ...,
+    svy, ...,
     vars = NULL,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Remove variables",
+    use_copy = deprecated(),
     lazy = lazy_default(),
     record = TRUE) {
+  if (lifecycle::is_present(use_copy)) {
+    lifecycle::deprecate_warn("0.0.12", "step_remove(use_copy)", "step_remove(.copy)")
+    .copy <- use_copy
+  }
   .call <- match.call()
   var_names <- NULL
   # Prefer explicit vars argument when provided
@@ -1057,18 +1071,6 @@ step_remove <- function(
     }
   } else {
     dots_list <- as.list(substitute(list(...)))[-1]
-    # Drop injected 'lazy' and 'record' arguments if present
-    if (length(dots_list) > 0) {
-      is_arg <- vapply(
-        dots_list,
-        function(x) {
-          !is.null(names(x)) &&
-            names(x) %in% c("lazy", "record")
-        },
-        logical(1)
-      )
-      dots_list <- dots_list[!is_arg]
-    }
     # Allow character vector passed via ...
     if (length(dots_list) == 1) {
       evald <- try(
@@ -1089,7 +1091,7 @@ step_remove <- function(
     svy$implantation <- step_remove(
       svy$implantation,
       vars = var_names,
-      use_copy = use_copy,
+      .copy = .copy,
       comment = comment,
       record = record,
       lazy = lazy
@@ -1100,7 +1102,7 @@ step_remove <- function(
         step_remove(
           x,
           vars = var_names,
-          use_copy = use_copy,
+          .copy = .copy,
           comment = comment,
           record = record,
           lazy = lazy
@@ -1114,7 +1116,7 @@ step_remove <- function(
     return(.call)
   }
 
-  out <- if (use_copy) svy$shallow_clone() else svy
+  out <- if (.copy) svy$shallow_clone() else svy
 
   data <- get_data(svy) # Check against original data
   missing <- setdiff(var_names, names(data))
@@ -1152,7 +1154,7 @@ step_remove <- function(
       svy_before = NULL,
       default_engine = get_engine(),
       depends_on = NULL,
-      comments = comment,
+      comment = comment,
       bake = FALSE
     )
     out$add_step(step)
@@ -1165,15 +1167,27 @@ step_remove <- function(
 #' Creates a step that renames variables in the survey data when baked.
 #'
 #' @param svy A Survey or RotativePanelSurvey object
-#' @param ... Pairs in the form new_name = old_name (unquoted or character)
-#' @param use_copy Whether to operate on a copy (default: use_copy_default())
-#' @param comment Optional description for the step
+#' @param ... Pairs in the form `new_name = old_name` (unquoted).
 #' @param mapping A named character vector of the form
-#'   `c(new_name = "old_name")`.
-#' @param lazy Logical, whether to delay execution.
-#' @param record Logical, whether to record the step.
+#'   `c(new_name = "old_name")`. Alternative to `...` for
+#'   programmatic use.
+#' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
+#' @param comment Descriptive text for the step for
+#'   documentation and traceability. Defaults to "Rename variables"
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @return Survey object with the specified variables
 #'   renamed (or queued for renaming).
+#'
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Variables can be renamed in two ways:
+#' - **Unquoted pairs:** `step_rename(svy, new_name = old_name)`
+#' - **Named character vector:** `step_rename(svy, mapping = c(new_name = "old_name"))`
+#'
+#' Variables that don't exist in the data cause an error, unlike
+#' [step_remove()] which issues a warning.
 #' @examples
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
@@ -1186,15 +1200,22 @@ step_remove <- function(
 #' svy2 <- step_rename(svy, edad = age)
 #' svy2 <- bake_steps(svy2)
 #' "edad" %in% names(get_data(svy2)) # TRUE
+#' @param lazy Internal. Whether to delay execution.
+#' @param record Internal. Whether to record the step.
 #' @family steps
 #' @export
 step_rename <- function(
-    svy = survey_empty(), ...,
+    svy, ...,
     mapping = NULL,
-    use_copy = use_copy_default(),
+    .copy = use_copy_default(),
     comment = "Rename variables",
+    use_copy = deprecated(),
     lazy = lazy_default(),
     record = TRUE) {
+  if (lifecycle::is_present(use_copy)) {
+    lifecycle::deprecate_warn("0.0.12", "step_rename(use_copy)", "step_rename(.copy)")
+    .copy <- use_copy
+  }
   .call <- match.call()
   # Build mapping new -> old
   if (!is.null(mapping)) {
@@ -1206,18 +1227,6 @@ step_rename <- function(
     pairs <- as.list(substitute(list(...)))[-1]
     if (length(pairs) == 0) {
       return(svy)
-    }
-    # Drop injected 'lazy' and 'record' arguments if present
-    if (length(pairs) > 0) {
-      is_arg <- vapply(
-        pairs,
-        function(x) {
-          !is.null(names(x)) &&
-            names(x) %in% c("lazy", "record")
-        },
-        logical(1)
-      )
-      pairs <- pairs[!is_arg]
     }
     new_names <- names(pairs)
     old_names <- vapply(
@@ -1239,7 +1248,7 @@ step_rename <- function(
     svy$implantation <- step_rename(
       svy = svy$implantation,
       mapping = map,
-      use_copy = use_copy,
+      .copy = .copy,
       comment = comment,
       lazy = lazy,
       record = record
@@ -1250,7 +1259,7 @@ step_rename <- function(
         step_rename(
           svy = x,
           mapping = map,
-          use_copy = use_copy,
+          .copy = .copy,
           comment = comment,
           lazy = lazy,
           record = record
@@ -1264,7 +1273,7 @@ step_rename <- function(
     return(.call)
   }
 
-  out <- if (use_copy) svy$shallow_clone() else svy
+  out <- if (.copy) svy$shallow_clone() else svy
 
   data <- get_data(svy) # Check against original data
   missing <- setdiff(unname(map), names(data))
@@ -1298,7 +1307,7 @@ step_rename <- function(
       svy_before = NULL,
       default_engine = get_engine(),
       depends_on = NULL,
-      comments = comment,
+      comment = comment,
       bake = FALSE
     )
     out$add_step(step)

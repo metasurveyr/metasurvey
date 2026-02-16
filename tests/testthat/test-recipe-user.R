@@ -181,3 +181,66 @@ test_that("email defaults to NULL", {
   user <- RecipeUser$new(name = "Juan", user_type = "individual")
   expect_null(user$email)
 })
+
+# ── Batch 10: RecipeUser print edges, review_status, can_certify edge ─────────
+
+test_that("RecipeUser print shows institutional_member with institution", {
+  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    email = "m@iecon.edu.uy", institution = inst
+  )
+  expect_output(print(member), "Maria")
+  expect_output(print(member), "Institution")
+})
+
+test_that("RecipeUser print shows URL for institution", {
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution",
+    url = "https://iecon.edu.uy"
+  )
+  expect_output(print(inst), "URL")
+})
+
+test_that("RecipeUser print shows pending review_status", {
+  user <- RecipeUser$new(
+    name = "Pending User", user_type = "individual",
+    review_status = "pending"
+  )
+  expect_output(print(user), "pending")
+})
+
+test_that("RecipeUser print shows rejected review_status", {
+  user <- RecipeUser$new(
+    name = "Rejected User", user_type = "individual",
+    review_status = "rejected"
+  )
+  expect_output(print(user), "rejected")
+})
+
+test_that("can_certify with community level always allowed", {
+  individual <- RecipeUser$new(name = "A", user_type = "individual")
+  # Community level requires trust_level >= 0
+  expect_true(individual$can_certify("community"))
+})
+
+test_that("to_list includes URL and review_status", {
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution",
+    url = "https://iecon.edu.uy", verified = TRUE,
+    review_status = "pending"
+  )
+  lst <- inst$to_list()
+  expect_equal(lst$url, "https://iecon.edu.uy")
+  expect_true(lst$verified)
+  expect_equal(lst$review_status, "pending")
+})
+
+test_that("from_list uses defaults for missing optional fields", {
+  lst <- list(name = "Simple", user_type = "individual")
+  user <- RecipeUser$from_list(lst)
+  expect_null(user$email)
+  expect_null(user$affiliation)
+  expect_false(user$verified)
+  expect_equal(user$review_status, "approved")
+})

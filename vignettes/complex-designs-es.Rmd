@@ -65,7 +65,53 @@ svy_simple <- Survey$new(
 cat_design(svy_simple)
 ```
 
-### Inspección del diseño
+### Diseno estratificado por conglomerados
+
+Muchas encuestas nacionales utilizan muestreo estratificado multietapico.
+Se pasan `strata` y `psu` a `Survey$new()`:
+
+```{r stratified}
+dt_clus <- data.table(apiclus1)
+
+svy_strat_clus <- Survey$new(
+  data    = dt_strat,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  strata  = "stype",
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw")
+)
+
+cat_design(svy_strat_clus)
+```
+
+Validacion cruzada con el paquete `survey`:
+
+```{r stratified-validate}
+design_strat <- svydesign(id = ~1, strata = ~stype, weights = ~pw,
+                          data = dt_strat)
+direct_strat <- svymean(~api00, design_strat)
+
+wf_strat <- workflow(
+  list(svy_strat_clus),
+  survey::svymean(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+cat("Direct estimate:", round(coef(direct_strat), 2), "\n")
+cat("Workflow estimate:", round(wf_strat$value, 2), "\n")
+cat("Match:", all.equal(
+  as.numeric(coef(direct_strat)),
+  wf_strat$value,
+  tolerance = 1e-6
+), "\n")
+```
+
+Para ejemplos reales de disenos estratificados por conglomerados con datos
+de CASEN, PNADc, ENIGH y DHS, ver `vignette("international-surveys")`.
+
+### Inspeccion del diseno
 
 ```{r inspect-design}
 # Check design type
@@ -117,7 +163,7 @@ cat("Monthly estimate:", round(monthly_est$value, 1), "\n")
 Para encuestas que proporcionan réplicas bootstrap (como la ECH de Uruguay),
 se utiliza `add_replicate()` dentro de `add_weight()`:
 
-```{r bootstrap, eval = FALSE}
+```r
 # This example requires external files
 svy_boot <- load_survey(
   path = "data/main_survey.csv",
@@ -273,7 +319,7 @@ cat("Match:", all.equal(
 Se puede utilizar `view_graph()` para visualizar el grafo de dependencias
 entre steps:
 
-```{r view-graph, eval = FALSE}
+```{r view-graph, eval = requireNamespace("visNetwork", quietly = TRUE)}
 # Requires the visNetwork package
 svy_viz <- step_compute(svy_simple,
   api_diff = api00 - api99,

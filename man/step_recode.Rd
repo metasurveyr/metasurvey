@@ -5,16 +5,17 @@
 \title{Create recoding steps for categorical variables}
 \usage{
 step_recode(
-  svy = survey_empty(),
+  svy,
   new_var,
   ...,
   .default = NA_character_,
   .name_step = NULL,
   ordered = FALSE,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Recode step",
   .to_factor = FALSE,
-  .level = "auto"
+  .level = "auto",
+  use_copy = deprecated()
 )
 }
 \arguments{
@@ -34,15 +35,16 @@ Format: \code{condition ~ value}}
 \item{.default}{Default value assigned when no
 condition is met. Defaults to \code{NA_character_}}
 
-\item{.name_step}{Custom name for the step to
-identify it in the history. If not provided,
-generated automatically with "Recode" prefix}
+\item{.name_step}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+Custom name for the step in the history. Now
+auto-generated from the variable name. Use \code{comment}
+for user-facing documentation instead.}
 
 \item{ordered}{Logical indicating whether the new
 variable should be an ordered factor.
 Defaults to FALSE}
 
-\item{use_copy}{Logical indicating whether to
+\item{.copy}{Logical indicating whether to
 create a copy of the object before applying
 transformations. Defaults to \code{use_copy_default()}}
 
@@ -58,6 +60,8 @@ Defaults to FALSE}
 specifies the level where recoding is applied:
 "implantation", "follow_up", "quarter",
 "month", or "auto"}
+
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
@@ -70,38 +74,20 @@ expressions are validated and optimized for
 efficient execution.
 }
 \details{
-\strong{CORE ENGINE FOR RECODING}:
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called. This allows building
+a full pipeline before materializing any changes.
 
-\strong{1. Automatic Condition Processing:}
-\itemize{
-\item All LHS conditions are automatically analyzed
-\item Static analysis of logical expressions
-\item Dependency detection for all referenced variables
-\item Optimization of conditional logic
-}
-
-\strong{2. Enhanced Condition Evaluation:}
-\itemize{
-\item Conditions evaluated in order
-\item First matching condition determines assignment
-\item Optimized short-circuit evaluation
-\item Better error reporting with expression context
-}
-
-\strong{3. Performance Features:}
-\itemize{
-\item Direct evaluation using R's native conditional logic
-\item Efficient execution for all condition types
-\item Dependency validation prevents runtime errors
-}
+\strong{Condition evaluation:} Conditions are two-sided formulas evaluated
+in order. The first matching condition determines the assigned value.
+If no condition matches, \code{.default} is used.
 
 Condition examples:
 \itemize{
-\item Simple: \code{variable == 1}
-\item Complex: \code{age >= 18 & income > 12000}
-\item Vectorized: \code{variable \%in\% c(1,2,3)}
-\item Vectorized: \code{variable \%in\% c(1,2,3)} (validates \code{variable} exists)
-\item Logical: \code{!is.na(education) & education > mean(education, na.rm = TRUE)}
+\item Simple: \code{variable == 1 ~ "Yes"}
+\item Complex: \code{age >= 18 & income > 12000 ~ "High"}
+\item Vectorized: \code{variable \%in\% c(1,2,3) ~ "Group A"}
+\item Logical: \code{!is.na(education) ~ "Has education"}
 }
 }
 \examples{

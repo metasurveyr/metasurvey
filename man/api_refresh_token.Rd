@@ -16,7 +16,7 @@ The new token is stored automatically. This is called internally by
 minutes).
 }
 \examples{
-\donttest{
+\dontrun{
 api_refresh_token()
 }
 }

@@ -35,6 +35,10 @@ reference:
   - set_data
   - get_metadata
   - get_steps
+  - has_steps
+  - has_recipes
+  - has_design
+  - is_baked
   - survey_to_data_frame
   - survey_to_data.table
   - survey_to_tibble
@@ -193,6 +197,7 @@ articles:
   contents:
   - ech-demographics-recipe
   - ech-case-study
+  - international-surveys
 - title: "Español"
   desc: "Documentación en español"
   contents:
@@ -206,3 +211,4 @@ articles:
   - api-database-es
   - stata-transpiler-es
   - ech-demographics-recipe-es
+  - international-surveys-es

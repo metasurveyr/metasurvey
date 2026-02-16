@@ -19,3 +19,10 @@ skipped, manual_review, coverage_pct
 Reports what percentage of commands in a .do file (or directory
 of files) can be automatically transpiled vs require manual review.
 }
+\examples{
+\donttest{
+tf <- tempfile(fileext = ".do")
+writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
+transpile_coverage(tf)
+}
+}

@@ -19,7 +19,12 @@ Cast design type from survey
 }
 \examples{
 \donttest{
-svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+library(data.table)
+dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+                  psu = NULL, engine = "data.table",
+                  weight = add_weight(annual = "w"))
+svy$ensure_design()
 cat_design_type(svy, "annual")
 }
 }
@@ -29,6 +34,10 @@ Other survey-objects:
 \code{\link{cat_design}()},
 \code{\link{get_data}()},
 \code{\link{get_metadata}()},
+\code{\link{has_design}()},
+\code{\link{has_recipes}()},
+\code{\link{has_steps}()},
+\code{\link{is_baked}()},
 \code{\link{set_data}()},
 \code{\link{survey_empty}()},
 \code{\link{survey_to_data.table}()},

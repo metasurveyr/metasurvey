@@ -11,6 +11,7 @@ load_panel_survey(
   svy_type,
   svy_weight_implantation,
   svy_weight_follow_up,
+  svy_strata = NULL,
   ...
 )
 }
@@ -38,6 +39,9 @@ weights information specifing periodicity and the name
 of the weight variable. Recomended to use the helper
 function add_weight().}
 
+\item{svy_strata}{Stratification variable name (character or NULL).
+Passed to Survey$new(strata = ...).}
+
 \item{...}{Further arguments to be passed to
 load_panel_survey}
 }
@@ -49,7 +53,7 @@ Read panel survey files from different formats
 and create a RotativePanelSurvey object
 }
 \examples{
-\donttest{
+\dontrun{
 # example code
 path_dir <- here::here("example-data", "ech", "ech_2023")
 ech_2023 <- load_panel_survey(
@@ -86,7 +90,7 @@ ech_2023 <- load_panel_survey(
   )
 )
 }
-\donttest{
+\dontrun{
 # Example of loading a panel survey
 panel_survey <- load_panel_survey(
   path_implantation = "path/to/implantation.csv",

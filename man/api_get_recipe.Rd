@@ -17,7 +17,7 @@ A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 Get recipe(s) by ID
 }
 \examples{
-\donttest{
+\dontrun{
 api_get_recipe("r_1739654400_742")
 }
 }

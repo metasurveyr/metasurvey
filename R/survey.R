@@ -4,23 +4,6 @@
 #' periodicity), sampling design (simple/replicate), steps/recipes/workflows,
 #' and utilities to manage them.
 #'
-#' @format An R6 class with public fields: `data`, `edition`, `type`,
-#' `periodicity`, `default_engine`, `weight`, `steps`, `recipes`, `workflows`,
-#' `design`; and methods such as `initialize()`, `get_data()`, `set_data()`,
-#' `add_step()`, `add_recipe()`, `bake()`, `head()`, `str()`, `update_design()`.
-#'
-#' @section Methods:
-#' \describe{
-#'   \item{initialize(data, edition, type, psu, engine,
-#'     weight, design, steps, recipes)}{Create a Survey
-#'     object}
-#'   \item{get_data(), get_edition(), get_type()}{Basic accessors}
-#'   \item{set_data(), set_edition(), set_type(), set_weight()}{Mutators}
-#'   \item{add_step(step), add_recipe(recipe),
-#'     add_workflow(wf)}{Pipeline management}
-#'   \item{bake()}{Bake associated recipes}
-#' }
-#'
 #' @seealso \code{\link{survey_empty}}, \code{\link{bake_recipes}},
 #'   \code{\link{cat_design}}, \code{\link{cat_recipes}}
 #' @keywords survey
@@ -40,43 +23,34 @@
 #' @field workflows List of workflows.
 #' @field design List of survey design objects (survey/surveyrep).
 #' @field psu Primary Sampling Unit specification (formula or character).
+#' @field strata Stratification variable name (character or NULL).
 #' @field design_initialized Logical flag for lazy design initialization.
-#' @field design_active Active binding that recomputes
-#' design on-demand from current data and weights.
-#'
-#' @section Active bindings:
-#' \describe{
-#'   \item{design_active}{Recompute design on-demand
-#'     from current data and weights.}
-#' }
 #'
 #' @section Main methods:
 #' \describe{
-#'   \item{$new(data, edition, type, psu, engine,
+#'   \item{$new(data, edition, type, psu, strata, engine,
 #'     weight, design = NULL, steps = NULL,
 #'     recipes = list())}{Constructor.}
-#'   \item{$get_data()}{Return data.}
-#'   \item{$get_edition()}{Return edition.}
-#'   \item{$get_type()}{Return type.}
 #'   \item{$set_data(data)}{Set data.}
 #'   \item{$set_edition(edition)}{Set edition.}
 #'   \item{$set_type(type)}{Set type.}
 #'   \item{$set_weight(weight)}{Set weight specification.}
 #'   \item{$print()}{Print summarized metadata.}
-#'   \item{$add_step(step)}{Add a step and update design.}
-#'   \item{$add_recipe(recipe, bake = lazy_default())}{Add a recipe.}
+#'   \item{$add_step(step)}{Add a step and invalidate design.}
+#'   \item{$add_recipe(recipe)}{Add a recipe (validates type and dependencies).}
 #'   \item{$add_workflow(workflow)}{Add a workflow.}
 #'   \item{$bake()}{Apply recipes and return updated Survey.}
-#'   \item{$head()}{Return data head.}
-#'   \item{$str()}{Structure of data.}
-#'   \item{$set_design(design)}{Set design.}
+#'   \item{$ensure_design()}{Lazily initialize the sampling design.}
 #'   \item{$update_design()}{Update design variables with current data.}
+#'   \item{$shallow_clone()}{Efficient copy (shares design, copies data).}
 #' }
 #'
 #' @param data Survey data.
 #' @param edition Edition or period.
 #' @param type Survey type (character).
 #' @param psu PSU variable or formula (optional).
+#' @param strata Stratification variable name (optional). Passed to
+#'   [survey::svydesign()] as the `strata` argument.
 #' @param engine Default engine.
 #' @param weight Weight specification(s) per estimation type.
 #' @param design Pre-built design (optional).
@@ -107,6 +81,7 @@ Survey <- R6Class(
     workflows = list(),
     design = NULL,
     psu = NULL,
+    strata = NULL,
     design_initialized = FALSE,
 
     #' @description Create a Survey object
@@ -114,13 +89,15 @@ Survey <- R6Class(
     #' @param edition Edition or period
     #' @param type Survey type (character)
     #' @param psu PSU variable or formula (optional)
+    #' @param strata Stratification variable name (optional)
     #' @param engine Default engine
     #' @param weight Weight specification(s) per estimation type
     #' @param design Pre-built design (optional)
     #' @param steps Initial steps list (optional)
     #' @param recipes List of Recipe (optional)
     initialize = function(data, edition, type,
-                          psu = NULL, engine, weight,
+                          psu = NULL, strata = NULL,
+                          engine, weight,
                           design = NULL, steps = NULL,
                           recipes = list()) {
       self$data <- data
@@ -134,6 +111,7 @@ Survey <- R6Class(
 
       # LAZY DESIGN: Store PSU for later, don't create design yet
       self$psu <- psu
+      self$strata <- strata
       self$edition <- time_pattern$svy_edition
       self$type <- time_pattern$svy_type
       self$default_engine <- engine
@@ -189,7 +167,6 @@ Survey <- R6Class(
     #' @description Set weight specification(s) per estimation type
     #' @param weight Weight specification list or character
     set_weight = function(weight) {
-      message("Setting weight")
       data <- self$data
       weight_list <- validate_weight_time_pattern(data, weight)
       self$weight <- weight_list
@@ -200,14 +177,14 @@ Survey <- R6Class(
       get_metadata(self)
     },
 
-    #' @description Add a step and update design
+    #' @description Add a step and invalidate design
     #' @param step Step object
     add_step = function(step) {
       name_index <- length(self$steps) + 1
       name_index <- paste0("step_", name_index, " ", step$name)
       step$name <- name_index
       self$steps[[name_index]] <- step
-      self$update_design()
+      self$design_initialized <- FALSE
     },
 
     #' @description Add a recipe
@@ -280,7 +257,18 @@ Survey <- R6Class(
       if (!self$design_initialized) {
         weight_list <- self$weight
         psu <- self$psu
+        strata_var <- self$strata
         data <- self$data
+
+        if (!is.null(strata_var) && !is.null(data)) {
+          if (!strata_var %in% names(data)) {
+            stop(
+              "Strata variable '", strata_var,
+              "' not found in survey data",
+              call. = FALSE
+            )
+          }
+        }
 
         design_list <- lapply(
           weight_list,
@@ -292,8 +280,15 @@ Survey <- R6Class(
                 psu <- as.formula(paste("~", psu))
               }
 
+              strata_fml <- if (!is.null(strata_var)) {
+                as.formula(paste("~", strata_var))
+              } else {
+                NULL
+              }
+
               survey::svydesign(
                 id = psu,
+                strata = strata_fml,
                 weights = as.formula(paste("~", x)),
                 data = data,
                 calibrate.formula = ~1
@@ -340,13 +335,11 @@ Survey <- R6Class(
 
     #' @description Update design variables using current data and weight
     update_design = function() {
-      # Ensure design exists before updating
       self$ensure_design()
 
       weight_list <- self$weight
       data_now <- self$get_data()
 
-      # Defensive check: ensure design matches weight_list length
       if (length(self$design) != length(weight_list)) {
         warning("Design length mismatch, reinitializing design")
         self$design_initialized <- FALSE
@@ -373,61 +366,16 @@ Survey <- R6Class(
     #'   Much faster than clone(deep=TRUE) but design objects are shared.
     #' @return New Survey object with copied data but shared design
     shallow_clone = function() {
-      new_svy <- Survey$new(
-        data = data.table::copy(self$data),
-        edition = self$edition,
-        type = self$type,
-        psu = self$psu,
-        engine = self$default_engine,
-        weight = self$weight
-      )
-
-      # Share the design if already initialized (no copy)
-      if (self$design_initialized) {
-        new_svy$design <- self$design
-        new_svy$design_initialized <- TRUE
-      }
-
-      # Copy steps metadata (shallow)
-      new_svy$steps <- self$steps
-      new_svy$recipes <- self$recipes
-      new_svy$workflows <- self$workflows
-      new_svy$periodicity <- self$periodicity
-
+      new_svy <- self$clone(deep = FALSE)
+      new_svy$data <- data.table::copy(self$data)
       return(new_svy)
     }
   ),
   active = list(
+    #' @field design_active Deprecated. Use \code{ensure_design()} instead.
     design_active = function() {
-      weight_list <- self$weight
-      design_list <- lapply(
-        weight_list,
-        function(x) {
-          if (is.character(x)) {
-            survey::svydesign(
-              id = ~1,
-              weights = as.formula(paste("~", x)),
-              data = self$data,
-              calibrate.formula = ~1
-            )
-          } else {
-            survey::svrepdesign(
-              weights = as.formula(paste("~", x$weight)),
-              data = merge(
-                self$data, x$replicate_file,
-                by.x = names(x$replicate_id),
-                by.y = x$replicate_id
-              ),
-              repweights = x$replicate_pattern,
-              type = x$replicate_type
-            )
-          }
-        }
-      )
-
-      names(design_list) <- names(weight_list)
-
-      return(design_list)
+      self$ensure_design()
+      self$design
     }
   )
 )
@@ -569,7 +517,8 @@ get_type <- function(svy) {
 }
 
 get_design <- function(self) {
-  self$active$design_active()
+  self$ensure_design()
+  self$design
 }
 
 set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
@@ -609,6 +558,63 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
   }
 }
 
+#' Check if survey has steps
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_steps(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_steps <- function(svy) {
+  length(svy$steps) > 0
+}
+
+#' Check if survey has recipes
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_recipes(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_recipes <- function(svy) {
+  length(svy$recipes) > 0
+}
+
+#' Check if all steps are baked
+#'
+#' Returns TRUE when every step attached to the survey has been
+#' executed (bake == TRUE), or when there are no steps.
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' is_baked(svy) # TRUE (no steps)
+#' @family survey-objects
+#' @export
+is_baked <- function(svy) {
+  steps <- svy$steps
+  if (length(steps) == 0) return(TRUE)
+  all(vapply(steps, function(s) isTRUE(s$bake), logical(1)))
+}
+
+#' Check if survey has a design
+#'
+#' @param svy A Survey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_design(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_design <- function(svy) {
+  !is.null(svy$design) || isTRUE(svy$design_initialized)
+}
+
 #' @title get_metadata
 #' @description Get metadata from survey
 #' @keywords survey
@@ -642,11 +648,13 @@ get_metadata <- function(self) {
               {blue Recipes:} {names_recipes}
               ",
         type = toupper(self$type),
-        edition = ifelse(
-          is(self$edition, "character") || is(self$edition, "numeric"),
-          self$edition,
+        edition = if (is.null(self$edition) || identical(self$edition, NA)) {
+          "Unknown"
+        } else if (is(self$edition, "character") || is(self$edition, "numeric")) {
+          self$edition
+        } else {
           format(self$edition, "%Y-%m")
-        ),
+        },
         default_engine = self$default_engine,
         design = cat_design(self),
         steps = ifelse(
@@ -845,12 +853,12 @@ get_metadata <- function(self) {
 #'
 #' @examples
 #' \donttest{
-#' # Display design for survey with multiple estimation types
-#' ech_survey <- load_survey("ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023"
-#' )
-#' cat_design(ech_survey)
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' cat_design(svy)
 #' }
 #'
 #' @seealso \code{\link{cat_design_type}} for design type classification
@@ -860,7 +868,6 @@ get_metadata <- function(self) {
 #'
 
 cat_design <- function(self) {
-  # Ensure design is initialized before displaying
   if (!self$design_initialized) {
     return(paste0(
       "\n  Design: Not initialized",
@@ -921,7 +928,12 @@ cat_design <- function(self) {
 #' @return Character string describing the design type, or "None".
 #' @examples
 #' \donttest{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' svy$ensure_design()
 #' cat_design_type(svy, "annual")
 #' }
 #' @family survey-objects
@@ -976,8 +988,8 @@ cat_design_type <- function(self, design_name) {
 #' @param self Object of class Survey
 #' @return Character string listing recipe names, or "None".
 #' @examples
-#' \donttest{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' \dontrun{
+#' svy <- survey_empty(type = "demo", edition = "2023")
 #' cat_recipes(svy)
 #' }
 #' @keywords internal
@@ -1050,6 +1062,7 @@ get_steps <- function(svy) {
 #' @param weight Weight of survey
 #' @param engine Engine of survey
 #' @param psu PSU variable or formula (optional)
+#' @param strata Stratification variable name (optional)
 #' @examples
 #' empty <- survey_empty(edition = "2023", type = "test")
 #' empty_typed <- survey_empty(edition = "2023", type = "ech")
@@ -1059,12 +1072,13 @@ get_steps <- function(svy) {
 
 survey_empty <- function(edition = NULL, type = NULL,
                          weight = NULL, engine = NULL,
-                         psu = NULL) {
+                         psu = NULL, strata = NULL) {
   Survey$new(
     data = NULL,
     edition = edition,
     type = type,
     psu = psu,
+    strata = strata,
     weight = weight,
     engine = engine
   )
@@ -1076,10 +1090,14 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' @keywords survey
 #' @examples
 #' \donttest{
-#' svy <- load_survey("data.csv",
-#'   svy_type = "ech", svy_edition = "2023",
-#'   recipes = my_recipe
-#' )
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' r <- recipe(name = "Demo", user = "test", svy = svy,
+#'             description = "Demo recipe")
+#' svy <- add_recipe(svy, r)
 #' processed <- bake_recipes(svy)
 #' }
 #' @family recipes
@@ -1133,7 +1151,6 @@ bake_recipes <- function(svy) {
       }
     }
 
-    # Disable lazy processing so all recipe steps execute immediately
     old_lazy <- getOption("metasurvey.lazy_processing")
     options(metasurvey.lazy_processing = FALSE)
     on.exit(options(metasurvey.lazy_processing = old_lazy), add = TRUE)
