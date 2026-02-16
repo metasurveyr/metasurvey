@@ -612,6 +612,63 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
   }
 }
 
+#' Check if survey has steps
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_steps(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_steps <- function(svy) {
+  length(svy$steps) > 0
+}
+
+#' Check if survey has recipes
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_recipes(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_recipes <- function(svy) {
+  length(svy$recipes) > 0
+}
+
+#' Check if all steps are baked
+#'
+#' Returns TRUE when every step attached to the survey has been
+#' executed (bake == TRUE), or when there are no steps.
+#'
+#' @param svy A Survey or RotativePanelSurvey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' is_baked(svy) # TRUE (no steps)
+#' @family survey-objects
+#' @export
+is_baked <- function(svy) {
+  steps <- svy$steps
+  if (length(steps) == 0) return(TRUE)
+  all(vapply(steps, function(s) isTRUE(s$bake), logical(1)))
+}
+
+#' Check if survey has a design
+#'
+#' @param svy A Survey object.
+#' @return Logical.
+#' @examples
+#' svy <- survey_empty(type = "test", edition = "2023")
+#' has_design(svy) # FALSE
+#' @family survey-objects
+#' @export
+has_design <- function(svy) {
+  !is.null(svy$design) || isTRUE(svy$design_initialized)
+}
+
 #' @title get_metadata
 #' @description Get metadata from survey
 #' @keywords survey
