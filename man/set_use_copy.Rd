@@ -11,7 +11,7 @@ set_use_copy(use_copy)
 FALSE to modify data in place (more efficient)}
 }
 \value{
-Invisibly, the value set.
+Invisibly, the previous value (for restoring).
 }
 \description{
 Configures whether survey operations should create copies of the data or
