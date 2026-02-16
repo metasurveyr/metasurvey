@@ -44,15 +44,13 @@ set_engine <- function(.engine = show_engines()) {
     )
   )
 
-  metacode <- glue(
-    "if (!require({.engine},quietly = TRUE, warn.conflicts = TRUE)) install.packages('{.engine}', repos = 'http://cran.us.r-project.org')",
-    .engine = get_engine()
-  )
-
-  identity_transformer(
-    text = metacode,
-    envir = parent.frame()
-  )
+  engine_name <- get_engine()
+  if (!requireNamespace(engine_name, quietly = TRUE)) {
+    warning(
+      paste0("Package '", engine_name, "' is not installed. Install with: install.packages('", engine_name, "')"),
+      call. = FALSE
+    )
+  }
 }
 
 #' @title show_engines
