@@ -89,14 +89,16 @@ n <- 200
 
 # Simulate ECH-like microdata
 dt <- data.table(
-  numero     = 1:n,                           # Household ID
-  e27        = sample(18:80, n, replace = TRUE),     # Age
-  e26        = sample(c(1, 2), n, replace = TRUE),   # Sex
-  ht11       = round(runif(n, 5000, 80000)),  # Household income (Uruguayan pesos)
-  POBPCOAC   = sample(c(2, 3, 4, 5, 6), n, replace = TRUE,
-                      prob = c(0.55, 0.03, 0.02, 0.03, 0.37)),  # Labor status
-  dpto       = sample(1:19, n, replace = TRUE),      # Department
-  pesoano    = round(runif(n, 0.5, 3.0), 4)   # Annual weight
+  numero = 1:n, # Household ID
+  e27 = sample(18:80, n, replace = TRUE), # Age
+  e26 = sample(c(1, 2), n, replace = TRUE), # Sex
+  ht11 = round(runif(n, 5000, 80000)), # Household income (Uruguayan pesos)
+  POBPCOAC = sample(c(2, 3, 4, 5, 6), n,
+    replace = TRUE,
+    prob = c(0.55, 0.03, 0.02, 0.03, 0.37)
+  ), # Labor status
+  dpto = sample(1:19, n, replace = TRUE), # Department
+  pesoano = round(runif(n, 0.5, 3.0), 4) # Annual weight
 )
 
 # Create Survey object
@@ -104,8 +106,8 @@ svy <- Survey$new(
   data    = dt,
   edition = "2023",
   type    = "ech",
-  psu     = NULL,              # No PSU for simple random sample
-  engine  = "data.table",      # Fast data manipulation
+  psu     = NULL, # No PSU for simple random sample
+  engine  = "data.table", # Fast data manipulation
   weight  = add_weight(annual = "pesoano")
 )
 ```
@@ -148,7 +150,6 @@ svy <- step_compute(svy,
 
   # Working age population (14+ years, ECH standard)
   working_age = ifelse(e27 >= 14, 1, 0),
-
   comment = "Basic labor force indicators"
 )
 ```
@@ -172,21 +173,21 @@ Conditions are evaluated **top to bottom**, and the first match applies.
 ```{r step-recode}
 # Recode labor force status (POBPCOAC) into meaningful categories
 svy <- step_recode(svy, labor_status,
-  POBPCOAC == 2      ~ "Employed",      # Ocupado
-  POBPCOAC %in% 3:5  ~ "Unemployed",    # Desocupado
-  POBPCOAC %in% 6:8  ~ "Inactive",      # Inactivo
+  POBPCOAC == 2 ~ "Employed", # Ocupado
+  POBPCOAC %in% 3:5 ~ "Unemployed", # Desocupado
+  POBPCOAC %in% 6:8 ~ "Inactive", # Inactivo
   .default = "Not classified",
   comment = "Labor force status - ILO standard"
 )
 
 # Create standard age groups for labor statistics
 svy <- step_recode(svy, age_group,
-  e27 < 25  ~ "Youth (14-24)",
-  e27 < 45  ~ "Adult (25-44)",
-  e27 < 65  ~ "Mature (45-64)",
+  e27 < 25 ~ "Youth (14-24)",
+  e27 < 45 ~ "Adult (25-44)",
+  e27 < 65 ~ "Mature (45-64)",
   .default = "Elderly (65+)",
-  .to_factor = TRUE,          # Convert to factor
-  ordered = TRUE,              # Ordered factor
+  .to_factor = TRUE, # Convert to factor
+  ordered = TRUE, # Ordered factor
   comment = "Age groups for labor analysis"
 )
 
@@ -205,8 +206,8 @@ Rename variables for clarity or consistency:
 
 ```{r step-rename}
 svy <- step_rename(svy,
-  age = e27,           # Rename e27 to age
-  sex_code = e26       # Keep original as sex_code
+  age = e27, # Rename e27 to age
+  sex_code = e26 # Keep original as sex_code
 )
 ```
 
@@ -229,10 +230,12 @@ Use `step_join()` to merge in external reference data. This is useful for adding
 # Department names and regions
 department_info <- data.table(
   dpto = 1:19,
-  dpto_name = c("Montevideo", "Artigas", "Canelones", "Cerro Largo",
-                "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-                "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
-                "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"),
+  dpto_name = c(
+    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
+    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
+    "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
+    "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
+  ),
   region = c("Montevideo", rep("Interior", 18))
 )
 
@@ -259,7 +262,7 @@ The step history is preserved for documentation and reproducibility:
 
 ```{r get-steps, eval=FALSE}
 steps <- get_steps(svy)
-length(steps)  # Number of transformation steps
+length(steps) # Number of transformation steps
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
@@ -317,9 +320,9 @@ You can compute several statistics in a single call:
 ```{r workflow-multi}
 results <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE),          # Mean income
-  survey::svytotal(~employed, na.rm = TRUE),      # Total employed
-  survey::svymean(~labor_status, na.rm = TRUE),   # Employment distribution
+  survey::svymean(~ht11, na.rm = TRUE), # Mean income
+  survey::svytotal(~employed, na.rm = TRUE), # Total employed
+  survey::svymean(~labor_status, na.rm = TRUE), # Employment distribution
   estimation_type = "annual"
 )
 
@@ -393,15 +396,15 @@ Create a recipe from the steps you have developed:
 ```{r recipe-create}
 # Convert current steps to a recipe
 labor_recipe <- steps_to_recipe(
-  name        = "ECH Labor Force Indicators",
-  user        = "National Statistics Office",
-  svy         = svy,
+  name = "ECH Labor Force Indicators",
+  user = "National Statistics Office",
+  svy = svy,
   description = paste(
     "Standard labor force indicators following ILO definitions.",
     "Creates employment status, age groups, and gender classifications."
   ),
-  steps       = get_steps(svy),
-  topic       = "labor_statistics"
+  steps = get_steps(svy),
+  topic = "labor_statistics"
 )
 
 class(labor_recipe)
@@ -412,11 +415,11 @@ Or you can define a recipe from scratch:
 
 ```{r recipe-define, eval=FALSE}
 minimal_recipe <- recipe(
-  name        = "Basic Demographics",
-  user        = "analyst",
-  svy         = survey_empty(type = "ech", edition = "2023"),
+  name = "Basic Demographics",
+  user = "analyst",
+  svy = survey_empty(type = "ech", edition = "2023"),
   description = "Basic demographic recoding",
-  topic       = "demographics",
+  topic = "demographics",
 
   # Define steps inline
   step_recode(
@@ -425,7 +428,6 @@ minimal_recipe <- recipe(
     e26 == 2 ~ "Female",
     .default = "Other"
   ),
-
   step_recode(
     age_group,
     e27 < 18 ~ "Minor",
@@ -469,13 +471,13 @@ metasurvey provides global settings that can be adjusted to suit your workflow:
 
 ```{r config}
 # Check current lazy-processing setting
-lazy_default()  # TRUE = steps recorded but not executed immediately
+lazy_default() # TRUE = steps recorded but not executed immediately
 
 # Check data-copy behavior
-use_copy_default()  # TRUE = operate on copies (safer but slower)
+use_copy_default() # TRUE = operate on copies (safer but slower)
 
 # View available computation engines
-show_engines()  # "data.table", "dplyr", etc.
+show_engines() # "data.table", "dplyr", etc.
 ```
 
 You can modify settings for the current session:

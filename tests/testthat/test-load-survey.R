@@ -32,8 +32,10 @@ test_that("load_survey with weight creates survey design", {
   )
 
   # Trigger design initialization by adding and baking a step
-  s <- s %>% step_compute(double_val = val * 2) %>% bake_steps()
-  
+  s <- s %>%
+    step_compute(double_val = val * 2) %>%
+    bake_steps()
+
   expect_true(length(s$design) >= 1)
   expect_true(inherits(s$design[[1]], "survey.design"))
 })
@@ -73,11 +75,11 @@ test_that("load_survey handles PSU specification", {
     val = rnorm(10),
     w = 1
   )
-  
+
   tmp <- tempfile(fileext = ".csv")
   on.exit(unlink(tmp), add = TRUE)
   data.table::fwrite(df, tmp)
-  
+
   s <- load_survey(
     path = tmp,
     svy_type = "ech",
@@ -85,7 +87,7 @@ test_that("load_survey handles PSU specification", {
     svy_weight = add_weight(annual = "w"),
     svy_psu = "psu_var"
   )
-  
+
   expect_s3_class(s, "Survey")
   # Note: PSU might not be set in current implementation
 })
@@ -95,9 +97,9 @@ test_that("load_survey sets correct survey type", {
   tmp <- tempfile(fileext = ".csv")
   on.exit(unlink(tmp), add = TRUE)
   data.table::fwrite(df, tmp)
-  
+
   types_to_test <- c("ech", "eph", "eai", "eaii")
-  
+
   for (type in types_to_test) {
     s <- load_survey(
       path = tmp,
@@ -105,7 +107,7 @@ test_that("load_survey sets correct survey type", {
       svy_edition = "2023",
       svy_weight = add_weight(annual = "w")
     )
-    
+
     expect_equal(s$type, type)
   }
 })

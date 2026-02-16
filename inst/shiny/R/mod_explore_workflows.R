@@ -8,39 +8,57 @@ explore_workflows_ui <- function(id) {
     hero_section_ui("workflows"),
 
     # Search & Filters
-    htmltools::tags$div(class = "search-container",
-      htmltools::tags$div(class = "search-row",
-        htmltools::tags$div(class = "search-field",
+    htmltools::tags$div(
+      class = "search-container",
+      htmltools::tags$div(
+        class = "search-row",
+        htmltools::tags$div(
+          class = "search-field",
           shiny::textInput(ns("search"), NULL,
-                          placeholder = "Search workflows...",
-                          width = "100%")
+            placeholder = "Search workflows...",
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_svy"), NULL,
-                           choices = c("Survey" = "", "ECH" = "ech", "EAII" = "eaii",
-                                     "EPH" = "eph", "EAI" = "eai"),
-                           width = "100%")
+            choices = c(
+              "Survey" = "", "ECH" = "ech", "EAII" = "eaii",
+              "EPH" = "eph", "EAI" = "eai"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_est_type"), NULL,
-                           choices = c("Estimation" = "",
-                                     "Annual" = "annual",
-                                     "Quarterly" = "quarterly",
-                                     "Monthly" = "monthly"),
-                           width = "100%")
+            choices = c(
+              "Estimation" = "",
+              "Annual" = "annual",
+              "Quarterly" = "quarterly",
+              "Monthly" = "monthly"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "filter-field",
+        htmltools::tags$div(
+          class = "filter-field",
           shiny::selectInput(ns("filter_cert"), NULL,
-                           choices = c("Certification" = "",
-                                     "Official" = "official",
-                                     "Reviewed" = "reviewed",
-                                     "Community" = "community"),
-                           width = "100%")
+            choices = c(
+              "Certification" = "",
+              "Official" = "official",
+              "Reviewed" = "reviewed",
+              "Community" = "community"
+            ),
+            width = "100%"
+          )
         ),
-        htmltools::tags$div(class = "refresh-field",
+        htmltools::tags$div(
+          class = "refresh-field",
           shiny::actionButton(ns("btn_refresh"), "",
-                            icon = shiny::icon("sync"),
-                            class = "btn-outline-secondary btn-sm")
+            icon = shiny::icon("sync"),
+            class = "btn-outline-secondary btn-sm"
+          )
         )
       )
     ),
@@ -80,15 +98,24 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
     }
 
     # Load on startup
-    shiny::observe({ load_workflows() }, priority = 100)
+    shiny::observe(
+      {
+        load_workflows()
+      },
+      priority = 100
+    )
 
     # Refresh button
-    shiny::observeEvent(input$btn_refresh, { load_workflows() })
+    shiny::observeEvent(input$btn_refresh, {
+      load_workflows()
+    })
 
     # Filtered workflows
     filtered <- shiny::reactive({
       workflows <- all_workflows()
-      if (length(workflows) == 0) return(list())
+      if (length(workflows) == 0) {
+        return(list())
+      }
 
       query <- tolower(trimws(input$search %||% ""))
       svy <- input$filter_svy %||% ""
@@ -99,7 +126,7 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
       if (nzchar(query)) {
         result <- Filter(function(wf) {
           grepl(query, tolower(wf$name %||% "")) ||
-          grepl(query, tolower(wf$description %||% ""))
+            grepl(query, tolower(wf$description %||% ""))
         }, result)
       }
       if (nzchar(svy)) {
@@ -127,21 +154,25 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
     output$stats_row <- shiny::renderUI({
       workflows <- all_workflows()
       n_total <- length(workflows)
-      n_official <- sum(vapply(workflows, function(wf)
-        (wf$certification$level %||% "community") == "official", logical(1)))
+      n_official <- sum(vapply(workflows, function(wf) {
+        (wf$certification$level %||% "community") == "official"
+      }, logical(1)))
       total_downloads <- sum(vapply(workflows, function(wf) wf$downloads %||% 0L, integer(1)))
 
       htmltools::tags$div(
         style = "display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;",
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_total),
           htmltools::tags$div(class = "stat-label", "Total Workflows")
         ),
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_official),
           htmltools::tags$div(class = "stat-label", "Official")
         ),
-        htmltools::tags$div(class = "stat-box",
+        htmltools::tags$div(
+          class = "stat-box",
           htmltools::tags$div(class = "stat-number", format_downloads(total_downloads)),
           htmltools::tags$div(class = "stat-label", "Total Downloads")
         )
@@ -153,7 +184,8 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
       workflows <- filtered()
 
       if (length(workflows) == 0) {
-        return(htmltools::tags$div(class = "empty-state",
+        return(htmltools::tags$div(
+          class = "empty-state",
           bsicons::bs_icon("bar-chart-line", size = "4rem"),
           htmltools::tags$h5("No workflows found"),
           htmltools::tags$p("Try adjusting your search or filters.")
@@ -189,24 +221,32 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
     shiny::observeEvent(input$wf_card_click, {
       idx <- input$wf_card_click
       workflows <- filtered()
-      if (idx < 1 || idx > length(workflows)) return()
+      if (idx < 1 || idx > length(workflows)) {
+        return()
+      }
       open_workflow_modal(workflows[[idx]])
     })
 
     # Cross-navigation: open workflow by ID from another module
     if (!is.null(pending_workflow_id)) {
-      shiny::observeEvent(pending_workflow_id(), {
-        req <- pending_workflow_id()
-        if (is.null(req)) return()
-        wid <- req$id
-        workflows <- all_workflows()
-        for (wf in workflows) {
-          if (as.character(wf$id) == wid) {
-            open_workflow_modal(wf)
+      shiny::observeEvent(pending_workflow_id(),
+        {
+          req <- pending_workflow_id()
+          if (is.null(req)) {
             return()
           }
-        }
-      }, ignoreNULL = TRUE, ignoreInit = TRUE)
+          wid <- req$id
+          workflows <- all_workflows()
+          for (wf in workflows) {
+            if (as.character(wf$id) == wid) {
+              open_workflow_modal(wf)
+              return()
+            }
+          }
+        },
+        ignoreNULL = TRUE,
+        ignoreInit = TRUE
+      )
     }
 
     # Cross-reference: navigate to recipe from workflow detail

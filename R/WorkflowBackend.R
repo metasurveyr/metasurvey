@@ -123,8 +123,10 @@ WorkflowBackend <- R6::R6Class(
     #' @return List of matching RecipeWorkflow objects
     filter = function(survey_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
       if (self$type == "local") {
-        private$.registry$filter(survey_type = survey_type, edition = edition,
-                                  recipe_id = recipe_id, certification_level = certification_level)
+        private$.registry$filter(
+          survey_type = survey_type, edition = edition,
+          recipe_id = recipe_id, certification_level = certification_level
+        )
       } else if (self$type == "api") {
         tryCatch(
           api_list_workflows(survey_type = survey_type, recipe_id = recipe_id),

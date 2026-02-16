@@ -54,15 +54,24 @@ store_token <- function(token) {
 
 #' @keywords internal
 token_expires_soon <- function(token, margin_secs = 300) {
-  if (is.null(token)) return(FALSE)
-  tryCatch({
-    parts <- strsplit(token, "\\.")[[1]]
-    if (length(parts) < 2) return(FALSE)
-    payload <- jsonlite::fromJSON(rawToChar(jose::base64url_decode(parts[2])))
-    exp <- as.numeric(payload$exp)
-    if (is.na(exp)) return(FALSE)
-    (exp - as.numeric(Sys.time())) < margin_secs
-  }, error = function(e) FALSE)
+  if (is.null(token)) {
+    return(FALSE)
+  }
+  tryCatch(
+    {
+      parts <- strsplit(token, "\\.")[[1]]
+      if (length(parts) < 2) {
+        return(FALSE)
+      }
+      payload <- jsonlite::fromJSON(rawToChar(jose::base64url_decode(parts[2])))
+      exp <- as.numeric(payload$exp)
+      if (is.na(exp)) {
+        return(FALSE)
+      }
+      (exp - as.numeric(Sys.time())) < margin_secs
+    },
+    error = function(e) FALSE
+  )
 }
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -119,10 +128,13 @@ api_request <- function(endpoint, method = "GET", body = NULL, params = NULL) {
   headers <- c("Content-Type" = "application/json")
   token <- api_token()
   if (!is.null(token) && token_expires_soon(token) && endpoint != "auth/refresh") {
-    tryCatch({
-      refreshed <- api_refresh_token()
-      if (!is.null(refreshed)) token <- refreshed
-    }, error = function(e) NULL)
+    tryCatch(
+      {
+        refreshed <- api_refresh_token()
+        if (!is.null(refreshed)) token <- refreshed
+      },
+      error = function(e) NULL
+    )
   }
   if (!is.null(token)) {
     headers <- c(headers, "Authorization" = paste("Bearer", token))
@@ -201,8 +213,10 @@ api_register <- function(name, email, password,
 #' api_login("ana@example.com", "s3cret")
 #' }
 api_login <- function(email, password) {
-  result <- api_request("auth/login", method = "POST",
-                        body = list(email = email, password = password))
+  result <- api_request("auth/login",
+    method = "POST",
+    body = list(email = email, password = password)
+  )
 
   if (!is.null(result$token)) {
     store_token(result$token)
@@ -296,12 +310,16 @@ api_get_recipe <- function(id) {
   result <- tryCatch(
     api_request(paste0("recipes/", id), method = "GET"),
     error = function(e) {
-      if (grepl("404", e$message)) return(NULL)
+      if (grepl("404", e$message)) {
+        return(NULL)
+      }
       stop(e)
     }
   )
 
-  if (is.null(result) || is.null(result$recipe)) return(NULL)
+  if (is.null(result) || is.null(result$recipe)) {
+    return(NULL)
+  }
 
   tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
     warning("Failed to parse recipe: ", e$message, call. = FALSE)
@@ -377,12 +395,16 @@ api_get_workflow <- function(id) {
   result <- tryCatch(
     api_request(paste0("workflows/", id), method = "GET"),
     error = function(e) {
-      if (grepl("404", e$message)) return(NULL)
+      if (grepl("404", e$message)) {
+        return(NULL)
+      }
       stop(e)
     }
   )
 
-  if (is.null(result) || is.null(result$workflow)) return(NULL)
+  if (is.null(result) || is.null(result$workflow)) {
+    return(NULL)
+  }
 
   tryCatch(workflow_from_list(result$workflow), error = function(e) {
     warning("Failed to parse workflow: ", e$message, call. = FALSE)
@@ -421,9 +443,13 @@ api_download_workflow <- function(id) {
 #' @param id Object ID
 #' @keywords internal
 api_track_download <- function(type, id) {
-  if (type == "recipe") api_download_recipe(id)
-  else if (type == "workflow") api_download_workflow(id)
-  else warning("Unknown type: ", type, call. = FALSE)
+  if (type == "recipe") {
+    api_download_recipe(id)
+  } else if (type == "workflow") {
+    api_download_workflow(id)
+  } else {
+    warning("Unknown type: ", type, call. = FALSE)
+  }
 }
 
 # ── Recipe JSON parser ───────────────────────────────────────────────────────
@@ -511,10 +537,13 @@ api_get_anda_variables <- function(survey_type = "ech", var_names = NULL) {
     params$names <- paste(tolower(var_names), collapse = ",")
   }
 
-  tryCatch({
-    resp <- api_request("anda/variables", method = "GET", params = params)
-    resp$variables %||% list()
-  }, error = function(e) {
-    list()
-  })
+  tryCatch(
+    {
+      resp <- api_request("anda/variables", method = "GET", params = params)
+      resp$variables %||% list()
+    },
+    error = function(e) {
+      list()
+    }
+  )
 }

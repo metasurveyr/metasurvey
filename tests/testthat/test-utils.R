@@ -82,7 +82,7 @@ test_that("validate_time_pattern handles different edition formats", {
   # Test MMYYYY format
   result1 <- validate_time_pattern(svy_type = "ech", svy_edition = "012023")
   expect_equal(result1$svy_periodicity, "Monthly")
-  
+
   # Test year range format
   result2 <- validate_time_pattern(svy_type = "eaii", svy_edition = "2019-2021")
   expect_equal(result2$svy_periodicity, "Trianual")
@@ -102,7 +102,7 @@ test_that("add_weight handles custom periods", {
     quarterly = "w_quarterly",
     monthly = "w_monthly"
   )
-  
+
   expect_equal(length(w), 3)
   expect_equal(w$annual, "w_annual")
   expect_equal(w$quarterly, "w_quarterly")
@@ -117,7 +117,7 @@ test_that("extract_time_pattern handles edge cases", {
 
 test_that("validate_time_pattern returns consistent structure", {
   result <- validate_time_pattern(svy_type = "ech", svy_edition = "202306")
-  
+
   expect_true("svy_type" %in% names(result))
   expect_true("svy_edition" %in% names(result))
   expect_true("svy_periodicity" %in% names(result))
@@ -135,7 +135,7 @@ test_that("add_weight preserves order of arguments", {
     annual = "a",
     monthly = "m"
   )
-  
+
   # add_weight may reorder - just check all are present
   expect_true(all(c("quarterly", "annual", "monthly") %in% names(w)))
   expect_equal(length(w), 3)
@@ -143,7 +143,7 @@ test_that("add_weight preserves order of arguments", {
 
 test_that("validate_time_pattern handles multianual correctly", {
   result <- validate_time_pattern(svy_type = "eaii", svy_edition = "2018-2020")
-  
+
   expect_equal(result$svy_periodicity, "Trianual")
   expect_equal(result$svy_type, "eaii")
 })
@@ -291,10 +291,13 @@ test_that("%@% returns y when x is blank", {
 test_that("get_user returns public by default", {
   old_key <- getOption("metasurvey.api_key")
   old_user <- getOption("metasurvey.user")
-  on.exit({
-    options(metasurvey.api_key = old_key)
-    options(metasurvey.user = old_user)
-  }, add = TRUE)
+  on.exit(
+    {
+      options(metasurvey.api_key = old_key)
+      options(metasurvey.user = old_user)
+    },
+    add = TRUE
+  )
   options(metasurvey.api_key = NULL)
   options(metasurvey.user = NULL)
   expect_equal(metasurvey:::get_user(), "public")
@@ -310,10 +313,13 @@ test_that("get_user returns user when set", {
 test_that("get_user returns apiKey when api_key is set", {
   old_key <- getOption("metasurvey.api_key")
   old_user <- getOption("metasurvey.user")
-  on.exit({
-    options(metasurvey.api_key = old_key)
-    options(metasurvey.user = old_user)
-  }, add = TRUE)
+  on.exit(
+    {
+      options(metasurvey.api_key = old_key)
+      options(metasurvey.user = old_user)
+    },
+    add = TRUE
+  )
   options(metasurvey.api_key = "some-key")
   options(metasurvey.user = NULL)
   expect_equal(metasurvey:::get_user(), "apiKey")

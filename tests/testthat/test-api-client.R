@@ -496,14 +496,17 @@ test_that("api_request errors when API not configured", {
   # Also clear env var to force NULL
   old_env <- Sys.getenv("METASURVEY_API_URL", "")
   Sys.setenv(METASURVEY_API_URL = "")
-  on.exit({
-    options(metasurvey.api_url = old_url)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_API_URL = old_env) else Sys.unsetenv("METASURVEY_API_URL")
-  }, add = FALSE)
+  on.exit(
+    {
+      options(metasurvey.api_url = old_url)
+      if (nzchar(old_env)) Sys.setenv(METASURVEY_API_URL = old_env) else Sys.unsetenv("METASURVEY_API_URL")
+    },
+    add = FALSE
+  )
 
   # api_url() has a default fallback to railway, so api_request won't error
   # but we test that api_request builds correct URLs
-  expect_true(TRUE)  # api_url always returns a value now
+  expect_true(TRUE) # api_url always returns a value now
 })
 
 test_that("api_register includes institution for institutional_member", {
@@ -525,7 +528,8 @@ test_that("api_register includes institution for institutional_member", {
   configure_api("http://test.local")
   expect_message(
     api_register("Prof", "prof@udelar.edu", "pass",
-                 user_type = "institutional_member", institution = "UDELAR"),
+      user_type = "institutional_member", institution = "UDELAR"
+    ),
     "Registered"
   )
 })
@@ -555,7 +559,7 @@ test_that("api_list_recipes warns on parse failure", {
   local_mocked_bindings(
     api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
       list(recipes = list(
-        list()  # empty doc, will fail parse
+        list() # empty doc, will fail parse
       ))
     }
   )

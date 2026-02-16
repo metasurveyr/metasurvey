@@ -100,8 +100,9 @@ test_that("step_recode with use_copy=FALSE modifies survey in place", {
   # use_copy=FALSE triggers the recode() fallback path
   result <- tryCatch(
     step_recode(s, age_cat, age < 30 ~ "young", age >= 30 ~ "old",
-                .default = "unknown", use_copy = FALSE),
-    error = function(e) s  # May error due to known bug with recode(record=FALSE)
+      .default = "unknown", use_copy = FALSE
+    ),
+    error = function(e) s # May error due to known bug with recode(record=FALSE)
   )
   expect_s3_class(result, "Survey")
 })
@@ -117,9 +118,3 @@ test_that("step_recode with NULL svy returns standalone step", {
   # Should return standalone step list, or NULL on error
   expect_true(is.null(result) || is.list(result))
 })
-
-
-
-
-
-

@@ -162,14 +162,14 @@ analysis reproducible and shareable. It records:
 
 ```{r create-wf}
 wf <- RecipeWorkflow$new(
-  name            = "API Score Analysis 2000",
-  description     = "Mean API score estimation by school type",
-  user            = "Research Team",
-  survey_type     = "api",
-  edition         = "2000",
+  name = "API Score Analysis 2000",
+  description = "Mean API score estimation by school type",
+  user = "Research Team",
+  survey_type = "api",
+  edition = "2000",
   estimation_type = "annual",
-  recipe_ids      = character(0),
-  calls           = list(
+  recipe_ids = character(0),
+  calls = list(
     "survey::svymean(~api00, na.rm = TRUE)",
     "survey::svyby(~api00, ~stype, survey::svymean, na.rm = TRUE)"
   )

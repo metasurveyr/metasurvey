@@ -198,24 +198,24 @@ Recipe <- R6Class("Recipe",
         for (i in seq_along(self$step_objects)) {
           step <- self$step_objects[[i]]
 
-          step_outputs <- switch(
-            step$type,
-            "compute" = , "ast_compute" = {
+          step_outputs <- switch(step$type,
+            "compute" = ,
+            "ast_compute" = {
               # Try to extract variable names from step
               var_names <- character(0)
-              
+
               # Check if exprs has names (works for both lists and calls)
               if (!is.null(names(step$exprs)) && length(names(step$exprs)) > 0) {
                 # Filter out empty names (first element in calls)
                 var_names <- setdiff(names(step$exprs), "")
               }
-              
+
               # Fallback to parsing new_var if available
               if (length(var_names) == 0 && !is.null(step$new_var)) {
                 # new_var might be comma-separated
                 var_names <- strsplit(step$new_var, ",\\s*")[[1]]
               }
-              
+
               var_names
             },
             "recode" = step$new_var,
@@ -227,10 +227,10 @@ Recipe <- R6Class("Recipe",
 
           step_inputs <- unlist(step$depends_on)
 
-          inferred_type <- switch(
-            step$type,
+          inferred_type <- switch(step$type,
             "recode" = "categorical",
-            "compute" = , "ast_compute" = "numeric",
+            "compute" = ,
+            "ast_compute" = "numeric",
             "step_rename" = "inherited",
             NA_character_
           )
@@ -514,7 +514,7 @@ decode_step <- function(steps) {
 save_recipe <- function(recipe, file) {
   # Auto-generate documentation
   doc_info <- recipe$doc()
-  
+
   recipe_data <- list(
     name = recipe$name,
     user = recipe$user,
@@ -796,43 +796,46 @@ get_recipe <- function(
     svy_edition = NULL,
     topic = NULL,
     allowMultiple = TRUE) {
-
   # Check if recipes should be skipped (offline mode)
   if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
     warning("Recipe API is disabled (metasurvey.skip_recipes = TRUE). Returning NULL.",
-            call. = FALSE)
-    return(NULL)
-  }
-
-  tryCatch({
-    recipes <- api_list_recipes(
-      survey_type = svy_type,
-      search = topic
-    )
-
-    if (length(recipes) == 0) {
-      message("The API returned no recipes for the specified criteria")
-      return(NULL)
-    }
-
-    message(glue::glue("The API returned {length(recipes)} recipes"))
-
-    if (!allowMultiple) {
-      return(recipes[[1]])
-    }
-
-    recipes
-  }, error = function(e) {
-    warning(
-      "Failed to retrieve recipes from API: ", e$message, "\n",
-      "  You can:\n",
-      "    - Work without recipes by not calling get_recipe()\n",
-      "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
-      "    - Check your internet connection and try again",
       call. = FALSE
     )
     return(NULL)
-  })
+  }
+
+  tryCatch(
+    {
+      recipes <- api_list_recipes(
+        survey_type = svy_type,
+        search = topic
+      )
+
+      if (length(recipes) == 0) {
+        message("The API returned no recipes for the specified criteria")
+        return(NULL)
+      }
+
+      message(glue::glue("The API returned {length(recipes)} recipes"))
+
+      if (!allowMultiple) {
+        return(recipes[[1]])
+      }
+
+      recipes
+    },
+    error = function(e) {
+      warning(
+        "Failed to retrieve recipes from API: ", e$message, "\n",
+        "  You can:\n",
+        "    - Work without recipes by not calling get_recipe()\n",
+        "    - Set options(metasurvey.skip_recipes = TRUE) to disable recipe API calls\n",
+        "    - Check your internet connection and try again",
+        call. = FALSE
+      )
+      return(NULL)
+    }
+  )
 }
 
 #' Convert a list of steps to a recipe
@@ -991,16 +994,18 @@ print.Recipe <- function(x, ...) {
 
       comment_str <- ""
       if (!is.null(step_info$comment) && length(step_info$comment) == 1 &&
-          nzchar(step_info$comment)) {
+        nzchar(step_info$comment)) {
         comment_str <- paste0("  \"", step_info$comment, "\"")
       }
 
       step_type <- step_info$type %||% "unknown"
-      cat(sprintf("  %d. [%s] -> %s%s\n",
-                  step_info$index,
-                  step_type,
-                  outputs_str,
-                  comment_str))
+      cat(sprintf(
+        "  %d. [%s] -> %s%s\n",
+        step_info$index,
+        step_type,
+        outputs_str,
+        comment_str
+      ))
     }
   }
 
@@ -1012,7 +1017,7 @@ print.Recipe <- function(x, ...) {
 
     output_details <- lapply(doc_info$pipeline, function(step) {
       if (length(step$outputs) > 0 && !is.null(step$inferred_type) &&
-          !is.na(step$inferred_type)) {
+        !is.na(step$inferred_type)) {
         data.frame(
           var = step$outputs,
           type = step$inferred_type,

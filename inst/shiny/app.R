@@ -96,7 +96,6 @@ ui <- page_navbar(
 
 # Server
 server <- function(input, output, session) {
-
   # Auth state
   auth <- reactiveValues(
     user = NULL,
@@ -144,13 +143,15 @@ server <- function(input, output, session) {
   # Recipes module returns reactive of all recipes
   explore_recipes_rv <- explore_server("explore", auth,
     navigate_to_workflow = navigate_to_workflow,
-    pending_recipe_id = pending_recipe_id)
+    pending_recipe_id = pending_recipe_id
+  )
 
   # Workflows module receives all_recipes for cross-refs
   explore_workflows_server("workflows", auth,
     all_recipes = explore_recipes_rv,
     navigate_to_recipe = navigate_to_recipe,
-    pending_workflow_id = pending_workflow_id)
+    pending_workflow_id = pending_workflow_id
+  )
 }
 
 shinyApp(ui, server)

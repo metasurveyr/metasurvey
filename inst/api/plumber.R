@@ -68,33 +68,37 @@ function(pr) {
 
 # -- Config -------------------------------------------------------------------
 
-MONGO_URI    <- Sys.getenv("METASURVEY_MONGO_URI", "")
-DATABASE     <- Sys.getenv("METASURVEY_DB", "metasurvey")
-JWT_SECRET   <- Sys.getenv("METASURVEY_JWT_SECRET", "metasurvey-dev-secret-change-me")
-ADMIN_EMAIL  <- Sys.getenv("METASURVEY_ADMIN_EMAIL", "")
+MONGO_URI <- Sys.getenv("METASURVEY_MONGO_URI", "")
+DATABASE <- Sys.getenv("METASURVEY_DB", "metasurvey")
+JWT_SECRET <- Sys.getenv("METASURVEY_JWT_SECRET", "metasurvey-dev-secret-change-me")
+ADMIN_EMAIL <- Sys.getenv("METASURVEY_ADMIN_EMAIL", "")
 
 if (!nzchar(MONGO_URI)) {
-  stop("METASURVEY_MONGO_URI environment variable is required. ",
-       "Set it to your MongoDB connection string, e.g.:\n",
-       "  export METASURVEY_MONGO_URI='mongodb+srv://user:pass@cluster.mongodb.net'")
+  stop(
+    "METASURVEY_MONGO_URI environment variable is required. ",
+    "Set it to your MongoDB connection string, e.g.:\n",
+    "  export METASURVEY_MONGO_URI='mongodb+srv://user:pass@cluster.mongodb.net'"
+  )
 }
 
 # -- mongolite connections (one per collection, reused) -----------------------
 
-db_users     <- mongolite::mongo(collection = "users",          db = DATABASE, url = MONGO_URI)
-db_recipes   <- mongolite::mongo(collection = "recipes",        db = DATABASE, url = MONGO_URI)
-db_workflows <- mongolite::mongo(collection = "workflows",      db = DATABASE, url = MONGO_URI)
-db_anda      <- mongolite::mongo(collection = "anda_variables", db = DATABASE, url = MONGO_URI)
+db_users <- mongolite::mongo(collection = "users", db = DATABASE, url = MONGO_URI)
+db_recipes <- mongolite::mongo(collection = "recipes", db = DATABASE, url = MONGO_URI)
+db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
+db_anda <- mongolite::mongo(collection = "anda_variables", db = DATABASE, url = MONGO_URI)
 
 message(sprintf("[metasurvey-api] Connected to MongoDB: %s (db: %s)", sub("://.*@", "://***@", MONGO_URI), DATABASE))
-message(sprintf("[metasurvey-api] Collections — users: %d, recipes: %d, workflows: %d, anda: %d",
-                db_users$count(), db_recipes$count(), db_workflows$count(), db_anda$count()))
+message(sprintf(
+  "[metasurvey-api] Collections — users: %d, recipes: %d, workflows: %d, anda: %d",
+  db_users$count(), db_recipes$count(), db_workflows$count(), db_anda$count()
+))
 
 # -- JWT helpers --------------------------------------------------------------
 
 jwt_encode <- function(payload) {
   payload$iat <- as.integer(Sys.time())
-  payload$exp <- as.integer(Sys.time()) + 86400L  # 24h
+  payload$exp <- as.integer(Sys.time()) + 86400L # 24h
   jwt_claim <- jose::jwt_claim(
     iss = "metasurvey-api",
     sub = payload$email,
@@ -121,9 +125,13 @@ hash_password <- function(pw) {
 
 get_user_from_request <- function(req) {
   auth_header <- req$HTTP_AUTHORIZATION
-  if (is.null(auth_header)) return(NULL)
+  if (is.null(auth_header)) {
+    return(NULL)
+  }
   token <- sub("^Bearer\\s+", "", auth_header)
-  if (!nzchar(token)) return(NULL)
+  if (!nzchar(token)) {
+    return(NULL)
+  }
   jwt_decode(token)
 }
 
@@ -138,7 +146,9 @@ require_auth <- function(req, res) {
 
 require_admin <- function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
   if (!nzchar(ADMIN_EMAIL) || user$sub != ADMIN_EMAIL) {
     res$status <- 403L
     return(list(error = "Admin access required"))
@@ -217,33 +227,36 @@ function(req, res, name, email, password, user_type = "individual", institution 
     created_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
   ), auto_unbox = TRUE, null = "null")
 
-  tryCatch({
-    db_users$insert(doc)
+  tryCatch(
+    {
+      db_users$insert(doc)
 
-    if (needs_review) {
-      res$status <- 201L
-      list(
-        ok = TRUE,
-        pending = TRUE,
-        message = paste0(
-          "Account created. Institutional accounts require admin review before activation. ",
-          "You will be able to login once your account is approved."
-        ),
-        user = list(name = name, email = email, user_type = user_type, review_status = "pending")
-      )
-    } else {
-      token <- jwt_encode(list(email = email, name = name, user_type = user_type))
-      res$status <- 201L
-      list(
-        ok = TRUE,
-        token = token,
-        user = list(name = name, email = email, user_type = user_type, review_status = "approved")
-      )
+      if (needs_review) {
+        res$status <- 201L
+        list(
+          ok = TRUE,
+          pending = TRUE,
+          message = paste0(
+            "Account created. Institutional accounts require admin review before activation. ",
+            "You will be able to login once your account is approved."
+          ),
+          user = list(name = name, email = email, user_type = user_type, review_status = "pending")
+        )
+      } else {
+        token <- jwt_encode(list(email = email, name = name, user_type = user_type))
+        res$status <- 201L
+        list(
+          ok = TRUE,
+          token = token,
+          user = list(name = name, email = email, user_type = user_type, review_status = "approved")
+        )
+      }
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste("Registration failed:", e$message))
     }
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = paste("Registration failed:", e$message))
-  })
+  )
 }
 
 #* Login and receive a JWT token (24h expiry). Use the token in Authorization: Bearer <token> header.
@@ -315,7 +328,9 @@ function(req, res, email, password) {
 #* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
   result <- db_users$find(
     query = toJSON(list(email = user$sub), auto_unbox = TRUE),
@@ -344,7 +359,9 @@ function(req, res) {
 #* @response 200 Returns {ok, token}.
 function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
   # Issue a new token with fresh expiry
   token <- jwt_encode(list(
@@ -361,7 +378,9 @@ function(req, res) {
 #* @response 200 Returns {ok, token, expires_in, expires_at}.
 function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
   payload <- list(
     email = user$sub,
@@ -369,7 +388,7 @@ function(req, res) {
     user_type = user$user_type
   )
   payload$iat <- as.integer(Sys.time())
-  payload$exp <- as.integer(Sys.time()) + 90L * 86400L  # 90 days
+  payload$exp <- as.integer(Sys.time()) + 90L * 86400L # 90 days
 
   jwt_claim <- jose::jwt_claim(
     iss = "metasurvey-api",
@@ -400,20 +419,27 @@ function(req, res) {
 #* @response 403 Admin access required.
 function(req, res) {
   user <- require_admin(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
-  tryCatch({
-    result <- db_users$find(
-      query = '{"review_status": "pending"}',
-      fields = '{"password_hash": 0}'
-    )
-    if (nrow(result) == 0) return(list(ok = TRUE, count = 0L, users = list()))
-    users <- lapply(seq_len(nrow(result)), function(i) as.list(result[i, ]))
-    list(ok = TRUE, count = length(users), users = users)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  tryCatch(
+    {
+      result <- db_users$find(
+        query = '{"review_status": "pending"}',
+        fields = '{"password_hash": 0}'
+      )
+      if (nrow(result) == 0) {
+        return(list(ok = TRUE, count = 0L, users = list()))
+      }
+      users <- lapply(seq_len(nrow(result)), function(i) as.list(result[i, ]))
+      list(ok = TRUE, count = length(users), users = users)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
 }
 
 #* Approve an institutional account. Sets review_status to "approved". Requires admin JWT.
@@ -422,22 +448,27 @@ function(req, res) {
 #* @response 200 Returns {ok, message}.
 function(req, res, email) {
   user <- require_admin(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
-  tryCatch({
-    db_users$update(
-      query = toJSON(list(email = email), auto_unbox = TRUE),
-      update = toJSON(list(`$set` = list(
-        review_status = "approved",
-        reviewed_by = user$sub,
-        reviewed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
-      )), auto_unbox = TRUE)
-    )
-    list(ok = TRUE, message = paste("Account approved:", email))
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  tryCatch(
+    {
+      db_users$update(
+        query = toJSON(list(email = email), auto_unbox = TRUE),
+        update = toJSON(list(`$set` = list(
+          review_status = "approved",
+          reviewed_by = user$sub,
+          reviewed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
+        )), auto_unbox = TRUE)
+      )
+      list(ok = TRUE, message = paste("Account approved:", email))
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
 }
 
 #* Reject an institutional account. Sets review_status to "rejected". Requires admin JWT.
@@ -446,22 +477,27 @@ function(req, res, email) {
 #* @response 200 Returns {ok, message}.
 function(req, res, email) {
   user <- require_admin(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
-  tryCatch({
-    db_users$update(
-      query = toJSON(list(email = email), auto_unbox = TRUE),
-      update = toJSON(list(`$set` = list(
-        review_status = "rejected",
-        reviewed_by = user$sub,
-        reviewed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
-      )), auto_unbox = TRUE)
-    )
-    list(ok = TRUE, message = paste("Account rejected:", email))
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  tryCatch(
+    {
+      db_users$update(
+        query = toJSON(list(email = email), auto_unbox = TRUE),
+        update = toJSON(list(`$set` = list(
+          review_status = "rejected",
+          reviewed_by = user$sub,
+          reviewed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
+        )), auto_unbox = TRUE)
+      )
+      list(ok = TRUE, message = paste("Account rejected:", email))
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
 }
 
 # ==============================================================================
@@ -482,14 +518,18 @@ function(req, res, email) {
 function(req, res, search = NULL, survey_type = NULL, topic = NULL,
          certification = NULL, user = NULL, limit = 50, offset = 0) {
   filter <- list()
-  if (!is.null(survey_type) && nzchar(survey_type))
+  if (!is.null(survey_type) && nzchar(survey_type)) {
     filter$survey_type <- survey_type
-  if (!is.null(topic) && nzchar(topic))
+  }
+  if (!is.null(topic) && nzchar(topic)) {
     filter$topic <- topic
-  if (!is.null(certification) && nzchar(certification))
+  }
+  if (!is.null(certification) && nzchar(certification)) {
     filter[["certification.level"]] <- certification
-  if (!is.null(user) && nzchar(user))
+  }
+  if (!is.null(user) && nzchar(user)) {
     filter$user <- user
+  }
 
   if (!is.null(search) && nzchar(search)) {
     filter$name <- list(`$regex` = search, `$options` = "i")
@@ -497,26 +537,29 @@ function(req, res, search = NULL, survey_type = NULL, topic = NULL,
 
   query_json <- if (length(filter) == 0) "{}" else toJSON(filter, auto_unbox = TRUE)
 
-  tryCatch({
-    # mongolite $find returns a data.frame; use $iterate for list-of-lists
-    iter <- db_recipes$iterate(
-      query = query_json,
-      sort = '{"downloads": -1}',
-      skip = as.integer(offset),
-      limit = as.integer(limit)
-    )
+  tryCatch(
+    {
+      # mongolite $find returns a data.frame; use $iterate for list-of-lists
+      iter <- db_recipes$iterate(
+        query = query_json,
+        sort = '{"downloads": -1}',
+        skip = as.integer(offset),
+        limit = as.integer(limit)
+      )
 
-    docs <- list()
-    while (!is.null(doc <- iter$one())) {
-      doc[["_id"]] <- NULL
-      docs[[length(docs) + 1L]] <- doc
+      docs <- list()
+      while (!is.null(doc <- iter$one())) {
+        doc[["_id"]] <- NULL
+        docs[[length(docs) + 1L]] <- doc
+      }
+
+      list(ok = TRUE, count = length(docs), recipes = docs)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste("Failed to fetch recipes:", e$message))
     }
-
-    list(ok = TRUE, count = length(docs), recipes = docs)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = paste("Failed to fetch recipes:", e$message))
-  })
+  )
 }
 
 #* Get a single recipe by its unique ID.
@@ -525,24 +568,27 @@ function(req, res, search = NULL, survey_type = NULL, topic = NULL,
 #* @response 200 Returns {ok, recipe: {id, name, user, survey_type, ...}}.
 #* @response 404 Recipe not found.
 function(req, res, id) {
-  tryCatch({
-    iter <- db_recipes$iterate(
-      query = toJSON(list(id = id), auto_unbox = TRUE),
-      limit = 1
-    )
-    doc <- iter$one()
+  tryCatch(
+    {
+      iter <- db_recipes$iterate(
+        query = toJSON(list(id = id), auto_unbox = TRUE),
+        limit = 1
+      )
+      doc <- iter$one()
 
-    if (is.null(doc)) {
-      res$status <- 404L
-      return(list(error = "Recipe not found"))
+      if (is.null(doc)) {
+        res$status <- 404L
+        return(list(error = "Recipe not found"))
+      }
+
+      doc[["_id"]] <- NULL
+      list(ok = TRUE, recipe = doc)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
     }
-
-    doc[["_id"]] <- NULL
-    list(ok = TRUE, recipe = doc)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  )
 }
 
 #* Publish a new recipe. Requires JWT authentication. Send the recipe as JSON body with required fields: name, survey_type, edition. Optional: description, topic, steps, depends_on, categories, version, doc.
@@ -553,7 +599,9 @@ function(req, res, id) {
 #* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
   body <- req$body
   if (is.null(body)) {
@@ -570,7 +618,7 @@ function(req, res) {
   }
 
   # Set metadata
-  body$user <- user$sub  # email from JWT
+  body$user <- user$sub # email from JWT
   body$downloads <- 0L
   body$created_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
   if (is.null(body$id)) body$id <- paste0("r_", as.integer(Sys.time()), "_", sample.int(999, 1))
@@ -589,14 +637,17 @@ function(req, res) {
     )
   }
 
-  tryCatch({
-    db_recipes$insert(toJSON(body, auto_unbox = TRUE, null = "null"))
-    res$status <- 201L
-    list(ok = TRUE, id = body$id)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = paste("Failed to publish recipe:", e$message))
-  })
+  tryCatch(
+    {
+      db_recipes$insert(toJSON(body, auto_unbox = TRUE, null = "null"))
+      res$status <- 201L
+      list(ok = TRUE, id = body$id)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste("Failed to publish recipe:", e$message))
+    }
+  )
 }
 
 #* Increment recipe download counter. No authentication required.
@@ -604,16 +655,19 @@ function(req, res) {
 #* @post /recipes/<id>/download
 #* @response 200 Returns {ok}.
 function(req, res, id) {
-  tryCatch({
-    db_recipes$update(
-      query = toJSON(list(id = id), auto_unbox = TRUE),
-      update = '{"$inc": {"downloads": 1}}'
-    )
-    list(ok = TRUE)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  tryCatch(
+    {
+      db_recipes$update(
+        query = toJSON(list(id = id), auto_unbox = TRUE),
+        update = '{"$inc": {"downloads": 1}}'
+      )
+      list(ok = TRUE)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
 }
 
 # ==============================================================================
@@ -633,36 +687,43 @@ function(req, res, id) {
 function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
          user = NULL, limit = 50, offset = 0) {
   filter <- list()
-  if (!is.null(survey_type) && nzchar(survey_type))
+  if (!is.null(survey_type) && nzchar(survey_type)) {
     filter$survey_type <- survey_type
-  if (!is.null(recipe_id) && nzchar(recipe_id))
+  }
+  if (!is.null(recipe_id) && nzchar(recipe_id)) {
     filter$recipe_ids <- recipe_id
-  if (!is.null(user) && nzchar(user))
+  }
+  if (!is.null(user) && nzchar(user)) {
     filter$user <- user
-  if (!is.null(search) && nzchar(search))
+  }
+  if (!is.null(search) && nzchar(search)) {
     filter$name <- list(`$regex` = search, `$options` = "i")
+  }
 
   query_json <- if (length(filter) == 0) "{}" else toJSON(filter, auto_unbox = TRUE)
 
-  tryCatch({
-    iter <- db_workflows$iterate(
-      query = query_json,
-      sort = '{"downloads": -1}',
-      skip = as.integer(offset),
-      limit = as.integer(limit)
-    )
+  tryCatch(
+    {
+      iter <- db_workflows$iterate(
+        query = query_json,
+        sort = '{"downloads": -1}',
+        skip = as.integer(offset),
+        limit = as.integer(limit)
+      )
 
-    docs <- list()
-    while (!is.null(doc <- iter$one())) {
-      doc[["_id"]] <- NULL
-      docs[[length(docs) + 1L]] <- doc
+      docs <- list()
+      while (!is.null(doc <- iter$one())) {
+        doc[["_id"]] <- NULL
+        docs[[length(docs) + 1L]] <- doc
+      }
+
+      list(ok = TRUE, count = length(docs), workflows = docs)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste("Failed to fetch workflows:", e$message))
     }
-
-    list(ok = TRUE, count = length(docs), workflows = docs)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = paste("Failed to fetch workflows:", e$message))
-  })
+  )
 }
 
 #* Get a single workflow by its unique ID.
@@ -671,24 +732,27 @@ function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
 #* @response 200 Returns {ok, workflow: {id, name, user, survey_type, ...}}.
 #* @response 404 Workflow not found.
 function(req, res, id) {
-  tryCatch({
-    iter <- db_workflows$iterate(
-      query = toJSON(list(id = id), auto_unbox = TRUE),
-      limit = 1
-    )
-    doc <- iter$one()
+  tryCatch(
+    {
+      iter <- db_workflows$iterate(
+        query = toJSON(list(id = id), auto_unbox = TRUE),
+        limit = 1
+      )
+      doc <- iter$one()
 
-    if (is.null(doc)) {
-      res$status <- 404L
-      return(list(error = "Workflow not found"))
+      if (is.null(doc)) {
+        res$status <- 404L
+        return(list(error = "Workflow not found"))
+      }
+
+      doc[["_id"]] <- NULL
+      list(ok = TRUE, workflow = doc)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
     }
-
-    doc[["_id"]] <- NULL
-    list(ok = TRUE, workflow = doc)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  )
 }
 
 #* Publish a new workflow. Requires JWT authentication. Send the workflow as JSON body with required fields: name, survey_type, edition. Optional: description, estimation_type, recipe_ids, calls, call_metadata, categories, version.
@@ -699,7 +763,9 @@ function(req, res, id) {
 #* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
-  if (is.list(user) && !is.null(user$error)) return(user)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
 
   body <- req$body
   if (is.null(body)) {
@@ -733,14 +799,17 @@ function(req, res) {
     )
   }
 
-  tryCatch({
-    db_workflows$insert(toJSON(body, auto_unbox = TRUE, null = "null"))
-    res$status <- 201L
-    list(ok = TRUE, id = body$id)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = paste("Failed to publish workflow:", e$message))
-  })
+  tryCatch(
+    {
+      db_workflows$insert(toJSON(body, auto_unbox = TRUE, null = "null"))
+      res$status <- 201L
+      list(ok = TRUE, id = body$id)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste("Failed to publish workflow:", e$message))
+    }
+  )
 }
 
 #* Increment workflow download counter. No authentication required.
@@ -748,16 +817,19 @@ function(req, res) {
 #* @post /workflows/<id>/download
 #* @response 200 Returns {ok}.
 function(req, res, id) {
-  tryCatch({
-    db_workflows$update(
-      query = toJSON(list(id = id), auto_unbox = TRUE),
-      update = '{"$inc": {"downloads": 1}}'
-    )
-    list(ok = TRUE)
-  }, error = function(e) {
-    res$status <- 500L
-    list(error = e$message)
-  })
+  tryCatch(
+    {
+      db_workflows$update(
+        query = toJSON(list(id = id), auto_unbox = TRUE),
+        update = '{"$inc": {"downloads": 1}}'
+      )
+      list(ok = TRUE)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
 }
 
 # ==============================================================================
@@ -795,10 +867,13 @@ function(survey_type = "ech", names = "") {
 #* @response 200 Returns {status, service, version, database, mongodb, timestamp}.
 function() {
   # Quick connectivity check
-  ok <- tryCatch({
-    db_users$count()
-    TRUE
-  }, error = function(e) FALSE)
+  ok <- tryCatch(
+    {
+      db_users$count()
+      TRUE
+    },
+    error = function(e) FALSE
+  )
 
   list(
     status = if (ok) "ok" else "degraded",

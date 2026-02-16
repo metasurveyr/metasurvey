@@ -126,11 +126,11 @@ Survey <- R6Class(
       self$default_engine <- engine
       self$weight <- weight_list
       self$periodicity <- time_pattern$svy_periodicity
-      
+
       # Mark design as not initialized
       self$design <- NULL
       self$design_initialized <- FALSE
-      
+
       if (length(recipes) == 1) {
         recipes <- list(recipes)
       }
@@ -203,8 +203,8 @@ Survey <- R6Class(
     add_recipe = function(recipe, bake = lazy_default()) {
       # Validate survey_type match (if both are set)
       if (!is.null(self$type) && !is.null(recipe$survey_type) &&
-          nzchar(self$type) && nzchar(recipe$survey_type) &&
-          tolower(self$type) != tolower(recipe$survey_type)) {
+        nzchar(self$type) && nzchar(recipe$survey_type) &&
+        tolower(self$type) != tolower(recipe$survey_type)) {
         stop(
           "Recipe survey type mismatch: survey is '", self$type,
           "' but recipe '", recipe$name, "' targets '", recipe$survey_type, "'",
@@ -258,7 +258,7 @@ Survey <- R6Class(
       self$design <- design
       self$design_initialized <- TRUE
     },
-    
+
     #' @description Ensure survey design is initialized (lazy initialization)
     #' @return Invisibly returns self
     ensure_design = function() {
@@ -266,7 +266,7 @@ Survey <- R6Class(
         weight_list <- self$weight
         psu <- self$psu
         data <- self$data
-        
+
         design_list <- lapply(
           weight_list,
           function(x) {
@@ -315,15 +315,15 @@ Survey <- R6Class(
         self$design <- design_list
         self$design_initialized <- TRUE
       }
-      
+
       return(invisible(self))
     },
-    
+
     #' @description Update design variables using current data and weight
     update_design = function() {
       # Ensure design exists before updating
       self$ensure_design()
-      
+
       weight_list <- self$weight
       data_now <- self$get_data()
 
@@ -347,7 +347,7 @@ Survey <- R6Class(
         }
       }
     },
-    
+
     #' @description Create a shallow copy of the Survey (optimized for performance)
     #' @details Only copies the data; reuses design objects and other metadata.
     #'   Much faster than clone(deep=TRUE) but design objects are shared.
@@ -361,19 +361,19 @@ Survey <- R6Class(
         engine = self$default_engine,
         weight = self$weight
       )
-      
+
       # Share the design if already initialized (no copy)
       if (self$design_initialized) {
         new_svy$design <- self$design
         new_svy$design_initialized <- TRUE
       }
-      
+
       # Copy steps metadata (shallow)
       new_svy$steps <- self$steps
       new_svy$recipes <- self$recipes
       new_svy$workflows <- self$workflows
       new_svy$periodicity <- self$periodicity
-      
+
       return(new_svy)
     }
   ),
@@ -415,8 +415,10 @@ Survey <- R6Class(
 #' @param svy Survey object
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' df <- survey_to_data_frame(svy)
 #' class(df) # "data.frame"
 #' @export
@@ -432,8 +434,10 @@ survey_to_data_frame <- function(svy) {
 #' @examples
 #' \dontrun{
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' tbl <- survey_to_tibble(svy)
 #' class(tbl)
 #' }
@@ -450,8 +454,10 @@ survey_to_tibble <- function(svy) {
 #' @param svy Survey object
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' result <- survey_to_data.table(svy)
 #' data.table::is.data.table(result) # TRUE
 #' @export
@@ -468,8 +474,10 @@ survey_to_data.table <- function(svy) {
 #' @keywords Surveymethods
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' head(get_data(svy))
 #' @export
 #' @return Data
@@ -579,8 +587,10 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @param self Object of class Survey
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' get_metadata(svy)
 #' @export
 
@@ -793,7 +803,7 @@ cat_design <- function(self) {
   if (!self$design_initialized) {
     return("\n  Design: Not initialized (lazy initialization - will be created when needed)\n")
   }
-  
+
   design_list <- self$design
 
 
@@ -951,8 +961,10 @@ cat_recipes <- function(self) {
 #' @keywords Steps
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "ech",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
 #' svy <- step_compute(svy, age2 = age * 2)
 #' get_steps(svy) # list of Step objects
 #' @export
@@ -995,8 +1007,10 @@ survey_empty <- function(edition = NULL, type = NULL, weight = NULL, engine = NU
 #' @keywords Surveymethods
 #' @examples
 #' \dontrun{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023",
-#'   recipes = my_recipe)
+#' svy <- load_survey("data.csv",
+#'   svy_type = "ech", svy_edition = "2023",
+#'   recipes = my_recipe
+#' )
 #' processed <- bake_recipes(svy)
 #' }
 #' @export
@@ -1052,7 +1066,7 @@ bake_recipes <- function(svy) {
       }
       # Replace pipe placeholder '.' with 'svy' in call objects
       if (is.call(step_call) && length(step_call) >= 2 &&
-          is.name(step_call[[2]]) && as.character(step_call[[2]]) == ".") {
+        is.name(step_call[[2]]) && as.character(step_call[[2]]) == ".") {
         step_call[[2]] <- as.name("svy")
       }
       svy <- eval(step_call, envir = eval_env)

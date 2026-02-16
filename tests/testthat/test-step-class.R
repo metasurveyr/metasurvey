@@ -13,7 +13,7 @@ test_that("Step$new creates step with all fields", {
     comments = "Test step",
     bake = FALSE
   )
-  
+
   expect_s3_class(step, "Step")
   expect_equal(step$name, "test_step")
   expect_equal(step$edition, "2023")
@@ -35,7 +35,7 @@ test_that("Step stores dependencies correctly", {
     default_engine = "data.table",
     depends_on = list("var1", "var2", "var3")
   )
-  
+
   expect_equal(length(step$depends_on), 3)
   expect_true("var1" %in% step$depends_on)
 })
@@ -53,7 +53,7 @@ test_that("Step can be created with minimal arguments", {
     default_engine = "data.table",
     depends_on = list()
   )
-  
+
   expect_s3_class(step, "Step")
   expect_null(step$new_var)
   expect_equal(length(step$exprs), 0)
@@ -73,7 +73,7 @@ test_that("Step bake flag can be toggled", {
     depends_on = list(),
     bake = FALSE
   )
-  
+
   expect_false(step$bake)
   step$bake <- TRUE
   expect_true(step$bake)
@@ -81,7 +81,7 @@ test_that("Step bake flag can be toggled", {
 
 test_that("Step stores different types correctly", {
   types <- c("compute", "recode", "filter", "join", "remove")
-  
+
   for (type in types) {
     step <- Step$new(
       name = paste0(type, "_step"),
@@ -95,7 +95,7 @@ test_that("Step stores different types correctly", {
       default_engine = "data.table",
       depends_on = list()
     )
-    
+
     expect_equal(step$type, type)
   }
 })
@@ -114,10 +114,10 @@ test_that("Step clone creates independent copy", {
     default_engine = "data.table",
     depends_on = list()
   )
-  
+
   step2 <- step1$clone()
   step2$name <- "cloned"
-  
+
   expect_equal(step1$name, "original")
   expect_equal(step2$name, "cloned")
 })

@@ -423,8 +423,9 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
   if (is.null(.args)) {
     .read_fn <- get(.read_function$read_function,
-                    envir = asNamespace(.read_function$package),
-                    mode = "function")
+      envir = asNamespace(.read_function$package),
+      mode = "function"
+    )
     .args <- list(.actual_file)
     names(.args) <- names(formals(.read_fn)[1])
   } else {
@@ -440,8 +441,9 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
 
   .fn <- get(.read_function$read_function,
-              envir = asNamespace(.read_function$package),
-              mode = "function")
+    envir = asNamespace(.read_function$package),
+    mode = "function"
+  )
 
   # foreign::read.spss needs to.data.frame = TRUE to return a data.frame
   call_args <- .args[.names_args]

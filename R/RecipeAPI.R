@@ -112,12 +112,16 @@ RecipeBackend <- R6::R6Class(
     #' @return List of matching Recipe objects
     filter = function(survey_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
       if (self$type == "local") {
-        private$.registry$filter(survey_type = survey_type, edition = edition,
-                                 category = category, certification_level = certification_level)
+        private$.registry$filter(
+          survey_type = survey_type, edition = edition,
+          category = category, certification_level = certification_level
+        )
       } else if (self$type == "api") {
         tryCatch(
-          api_list_recipes(survey_type = survey_type, topic = category,
-                           certification = certification_level),
+          api_list_recipes(
+            survey_type = survey_type, topic = category,
+            certification = certification_level
+          ),
           error = function(e) list()
         )
       }

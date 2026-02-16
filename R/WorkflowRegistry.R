@@ -78,7 +78,9 @@ WorkflowRegistry <- R6::R6Class(
     #' @return List of RecipeWorkflow objects sorted by downloads
     rank_by_downloads = function(n = NULL) {
       workflows <- private$.workflows
-      if (length(workflows) == 0) return(list())
+      if (length(workflows) == 0) {
+        return(list())
+      }
       downloads <- vapply(workflows, function(w) w$downloads, integer(1))
       ordered <- workflows[order(downloads, decreasing = TRUE)]
       if (!is.null(n)) {
