@@ -15,7 +15,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/metasurveyr/metasurvey/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/metasurveyr/metasurvey/blob/v0.0.7/inst/CITATION)
 
 Loprete M, da Silva N, Machado F (2025). *metasurvey: Survey Processing
 with Meta-Programming*. R package version 0.0.7,
