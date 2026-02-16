@@ -247,11 +247,11 @@ jobs:
 
       - name: Deploy API to Railway
         if: needs.build-api.result == 'success'
-        run: railway up --service ${{ secrets.RAILWAY_API_SERVICE_ID }} inst/api
+        run: railway up --service ${{ secrets.RAILWAY_API_SERVICE_ID }} --path-as-root inst/api
 
       - name: Deploy Shiny to Railway
         if: needs.build-shiny.result == 'success'
-        run: railway up --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }} inst/shiny
+        run: railway up --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }} --path-as-root inst/shiny
 
       - name: Deployment summary
         run: |
