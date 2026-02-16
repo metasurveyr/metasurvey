@@ -56,11 +56,8 @@ set_engine <- function(.engine = show_engines()) {
   engine_name <- get_engine()
   if (!requireNamespace(engine_name, quietly = TRUE)) {
     warning(
-      paste0(
-        "Package '", engine_name,
-        "' is not installed. Install with: ",
-        "install.packages('", engine_name, "')"
-      ),
+      "Package '", engine_name, "' is required. ",
+      "Install it with: install.packages('", engine_name, "')",
       call. = FALSE
     )
   }
