@@ -1,7 +1,6 @@
 # source("renv/activate.R")
 
-# Skip example-data setup in CI environments
-if (nzchar(Sys.getenv("CI"))) return(invisible())
+if (!nzchar(Sys.getenv("CI"))) {
 
 library(utils)
 
@@ -63,3 +62,5 @@ if (cache) {
   clean_directory_ech(cache = FALSE)
   download_example_ech()
 }
+
+} # end CI guard
