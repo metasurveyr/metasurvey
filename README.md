@@ -33,6 +33,51 @@ for **complex sampling designs** and **recurring estimations** over time
 
 ---
 
+## Works with any household survey
+
+The step pipeline and workflow system are survey-agnostic. The same
+verbs process Argentina's EPH, Chile's CASEN, Brazil's PNAD-C, the
+US CPS, Mexico's ENIGH, or DHS data from 90+ countries.
+
+| | EPH | CASEN | PNAD-C | CPS | ENIGH | DHS |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Steps (compute / recode / rename / remove / join) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Weights (`add_weight`) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Replicate weights (`add_replicate`) | -- | -- | :white_check_mark: | :white_check_mark: | -- | -- |
+| Rotating panels (`RotativePanelSurvey`) | :white_check_mark: | -- | :white_check_mark: | :white_check_mark: | -- | -- |
+| Recipes & workflows | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+
+```r
+# Same pipeline, different surveys ─────────────────────────
+
+# Argentina (eph)
+eph_svy <- Survey$new(
+  data = as.data.table(eph::get_microdata(2023, 3)),
+  edition = "2023-T3", type = "eph", psu = NULL,
+  engine = "data.table", weight = add_weight(quarterly = "PONDERA")
+)
+
+# Chile (casen)
+casen_svy <- Survey$new(
+  data = as.data.table(casen::descargar_casen_github(2017)),
+  edition = "2017", type = "casen", psu = "varunit",
+  engine = "data.table", weight = add_weight(annual = "expr")
+)
+
+# Both use the exact same verbs
+process <- function(svy) {
+  svy |>
+    step_recode(employed, labor_status == 1 ~ 1L, .default = 0L,
+                comment = "Binary employment indicator") |>
+    bake_steps()
+}
+```
+
+See [issue #190](https://github.com/metasurveyr/metasurvey/issues/190)
+for the full compatibility analysis across six national surveys.
+
+---
+
 ## Installation
 
 Development version from GitHub:
