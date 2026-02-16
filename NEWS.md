@@ -1,3 +1,23 @@
+# metasurvey 0.0.12
+
+## Bug fixes
+* Fixed critical memory leak when chaining N steps: eliminated `svy_before`
+  retention chain that prevented GC from freeing N copies of the data.table.
+* Fixed `bake_step` re-recording step_join/step_remove/step_rename during bake,
+  which caused duplicate steps.
+
+## Performance
+* `bake_steps()` uses `shallow_clone()` instead of `clone(deep=TRUE)`,
+  avoiding duplication of the entire step chain on every bake.
+* `add_step()` invalidates design lazily instead of rebuilding `svydesign`
+  on every step addition.
+* Removed wasteful `copy()` calls in `step_compute` and `step_recode`.
+
+## Internal
+* Added 500+ tests: memory behavior (test-memory.R), expanded integration
+  pipelines (test-integration.R), and stress tests with 100 steps on 10k+
+  rows (test-stress.R, skipped on CRAN).
+
 # metasurvey 0.0.11
 
 ## Documentation
