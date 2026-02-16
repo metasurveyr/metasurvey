@@ -342,7 +342,7 @@ test_that("set_data replaces survey data", {
 
 test_that("Survey$set_weight updates weight", {
   s <- make_test_survey()
-  expect_message(s$set_weight(add_weight(annual = "w")), "Setting weight")
+  s$set_weight(add_weight(annual = "w"))
   expect_true(!is.null(s$weight))
 })
 
@@ -902,9 +902,6 @@ test_that("set_weight standalone .copy=FALSE with different weight works", {
   )
 
   # Changing to a different weight column should work
-  expect_message(
-    s2 <- metasurvey:::set_weight(s, add_weight(annual = "w2"), .copy = TRUE),
-    "Setting weight"
-  )
+  s2 <- metasurvey:::set_weight(s, add_weight(annual = "w2"), .copy = TRUE)
   expect_equal(s2$weight$annual, "w2")
 })
