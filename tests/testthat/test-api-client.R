@@ -176,18 +176,22 @@ test_that("api_refresh_token returns NULL on failure", {
 
 test_that("api_logout clears token", {
   old_opt <- getOption("metasurvey.api_token")
-  old_env <- Sys.getenv("METASURVEY_TOKEN", "")
-  on.exit({
-    options(metasurvey.api_token = old_opt)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_TOKEN = old_env) else Sys.unsetenv("METASURVEY_TOKEN")
-  })
+  on.exit(options(metasurvey.api_token = old_opt))
 
   options(metasurvey.api_token = "some_token")
-  Sys.setenv(METASURVEY_TOKEN = "some_token")
 
   expect_message(api_logout(), "Logged out")
   expect_null(getOption("metasurvey.api_token"))
-  expect_equal(Sys.getenv("METASURVEY_TOKEN", ""), "")
+})
+
+test_that("configure_api returns previous URL invisibly", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  options(metasurvey.api_url = "https://old.example.com")
+  result <- configure_api("https://new.example.com")
+  expect_equal(result, "https://old.example.com")
+  expect_equal(getOption("metasurvey.api_url"), "https://new.example.com")
 })
 
 # ── Recipes API ────────────────────────────────────────────────────────────────

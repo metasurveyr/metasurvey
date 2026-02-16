@@ -1,6 +1,6 @@
 Package: metasurvey
-Title: Survey Processing with Meta-Programming
-Version: 0.0.7
+Title: Reproducible Survey Data Processing with Step Pipelines
+Version: 0.0.8
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
@@ -33,7 +33,11 @@ Authors@R:
             email = "fabricio.mch.slv@gmail.com"
         )
     )
-Description: Provides a set of functions to process survey data using meta-programming. It is designed to work with the 'survey' package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.
+Description: Wraps the 'survey' package with 'R6' classes and a step-based
+    pipeline for reproducible survey data processing. Supports complex sampling
+    designs including rotating panels with bootstrap replicate weights, and
+    provides a recipe system for sharing and reproducing data transformation
+    workflows across survey editions.
 License: GPL (>= 3)
 Imports:
     data.table (>= 1.14.2),

@@ -10,7 +10,7 @@ configure_api(url)
 \item{url}{API base URL (e.g., \code{"https://metasurvey-api.example.com"})}
 }
 \value{
-Invisibly, the configured URL.
+Invisibly, the previous URL (for restoring).
 }
 \description{
 Set API base URL and optionally load stored credentials.

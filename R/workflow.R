@@ -117,7 +117,7 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
 
               partial_result <- rbindlist(
                 lapply(
-                  2:length(.calls),
+                  seq.int(2L, length(.calls)),
                   function(i) {
                     call <- as.list(.calls[[i]])
                     name_function <- deparse(call[[1]])
@@ -195,7 +195,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
 
               result <- rbindlist(
                 lapply(
-                  2:length(.calls),
+                  seq.int(2L, length(.calls)),
                   function(j) {
                     call <- as.list(.calls[[j]])
                     name_function <- deparse(call[[1]])
@@ -439,7 +439,7 @@ cat_estimation.svyratio <- function(estimation, call) {
   call_metadata <- list()
 
   if (length(.calls) > 1) {
-    for (i in 2:length(.calls)) {
+    for (i in seq.int(2L, length(.calls))) {
       raw_call <- .calls[[i]]
       deparsed <- deparse(raw_call, width.cutoff = 200)
       calls_str[[length(calls_str) + 1]] <- paste(deparsed, collapse = " ")
