@@ -18,7 +18,7 @@ configure_api(url)
 
 ## Value
 
-Invisibly, the configured URL.
+Invisibly, the previous URL (for restoring).
 
 ## Examples
 

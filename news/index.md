@@ -1,5 +1,68 @@
 # Changelog
 
+## metasurvey 0.0.8
+
+### Bug fixes
+
+- Fixed 5 occurrences of `stop(message(...))` which silently called
+  `stop(NULL)` instead of raising a proper error
+  ([`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md),
+  [`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md),
+  [`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md)).
+- Fixed `.Rbuildignore` double-escape bug: patterns had `\\\\.` instead
+  of `\\.`, causing hidden files and non-standard files to leak into the
+  tarball.
+- Replaced unsafe `1:n` sequences with
+  [`seq_len()`](https://rdrr.io/r/base/seq.html)/[`seq.int()`](https://rdrr.io/r/base/seq.html)
+  to avoid `c(1, 0)` when n=0 (7 occurrences across survey.R,
+  workflow.R, steps.R).
+- Removed duplicate internal
+  [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md)
+  definition in survey.R.
+- Replaced raw ANSI escape codes with
+  [`crayon::red()`](http://r-lib.github.io/crayon/reference/crayon.md)/[`crayon::green()`](http://r-lib.github.io/crayon/reference/crayon.md)
+  in
+  [`cat_design()`](https://metasurveyr.github.io/metasurvey/reference/cat_design.md)
+  for cross-platform compatibility.
+- Removed unreachable dead code in
+  [`load_survey_example()`](https://metasurveyr.github.io/metasurvey/reference/load_survey_example.md).
+- [`requireNamespace("parallel")`](https://rdrr.io/r/base/ns-load.html)
+  now uses `quietly = TRUE` and checks the return value before using the
+  package.
+- [`requireNamespace("rio")`](https://gesistsa.github.io/rio/) return
+  value is now checked before calling
+  [`rio::convert()`](http://gesistsa.github.io/rio/reference/convert.md).
+
+### Security
+
+- SSL certificate verification in ANDA client is now enabled by default.
+  Previously hardcoded `ssl_verifypeer = FALSE`; now user-controllable
+  via `options(metasurvey.ssl_verify = FALSE)`.
+- [`api_logout()`](https://metasurveyr.github.io/metasurvey/reference/api_logout.md)
+  no longer calls `Sys.unsetenv("METASURVEY_TOKEN")` — only clears the R
+  option, per CRAN policy on environment variables.
+
+### CRAN compliance
+
+- [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md),
+  [`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md),
+  [`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md),
+  and
+  [`configure_api()`](https://metasurveyr.github.io/metasurvey/reference/configure_api.md)
+  now return the previous value invisibly, allowing users to restore
+  global options.
+- All user-facing messages translated from Spanish to English.
+- [`evaluate_cv()`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md)
+  returns English labels (“Excellent”, “Good”, etc.).
+- [`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md)
+  returns “Invalid format”/“Unknown format”.
+- DESCRIPTION title and description rewritten to be substantive.
+- `inst/CITATION` updated: removed deprecated
+  [`citHeader()`](https://rdrr.io/r/utils/citation.html), dynamic year.
+- Fixed inconsistent maintainer email across DESCRIPTION and package
+  docs.
+- R CMD check now passes with 0 errors, 0 warnings, 0 NOTEs.
+
 ## metasurvey 0.0.7
 
 ### New features

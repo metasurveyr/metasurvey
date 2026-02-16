@@ -128,6 +128,6 @@ package version 4.0.
 
 ## Author
 
-Mauro Loprete <mauroloprete1@gmail.com>, Natalia da Silva
+Mauro Loprete <mauro.loprete@icloud.com>, Natalia da Silva
 <natalia.dasilva@fcea.edu.uy>, Fabricio Machado
 <fabricio.mch.slv@gmail.com>

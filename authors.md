@@ -15,16 +15,16 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/metasurveyr/metasurvey/blob/v0.0.7/inst/CITATION)
+[`inst/CITATION`](https://github.com/metasurveyr/metasurvey/blob/develop/inst/CITATION)
 
-Loprete M, da Silva N, Machado F (2025). *metasurvey: Survey Processing
-with Meta-Programming*. R package version 0.0.7,
+Loprete M, da Silva N, Machado F (2026). *metasurvey: Reproducible
+Survey Data Processing with Step Pipelines*. R package version 0.0.8,
 <https://github.com/metasurveyr/metasurvey>.
 
     @Manual{,
-      title = {metasurvey: Survey Processing with Meta-Programming},
+      title = {metasurvey: Reproducible Survey Data Processing with Step Pipelines},
       author = {Mauro Loprete and Natalia {da Silva} and Fabricio Machado},
-      year = {2025},
+      year = {2026},
       url = {https://github.com/metasurveyr/metasurvey},
-      note = {R package version 0.0.7},
+      note = {R package version 0.0.8},
     }

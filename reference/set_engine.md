@@ -22,7 +22,7 @@ set_engine(.engine = show_engines())
 
 ## Value
 
-Invisibly, the configured engine name.
+Invisibly, the previous engine name (for restoring).
 
 ## Examples
 

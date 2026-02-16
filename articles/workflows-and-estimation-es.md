@@ -180,7 +180,7 @@ quality <- evaluate_cv(cv_pct)
 cat("CV:", round(cv_pct, 2), "%\n")
 #> CV: 1.45 %
 cat("Quality:", quality, "\n")
-#> Quality: Excelente
+#> Quality: Excellent
 ```
 
 ## RecipeWorkflow: Estimaciones publicables
@@ -381,8 +381,8 @@ for (i in seq_len(nrow(estimates))) {
     evaluate_cv(cv_val), "\n"
   )
 }
-#> survey::svymean: api_growth : 6.6 % CV - Muy bueno 
-#> survey::svymean: high_growth : 12.4 % CV - Bueno
+#> survey::svymean: api_growth : 6.6 % CV - Very good 
+#> survey::svymean: high_growth : 12.4 % CV - Good
 ```
 
 ## Proximos pasos

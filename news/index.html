@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,9 +41,46 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.7/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.8" id="metasurvey-008">metasurvey 0.0.8<a class="anchor" aria-label="anchor" href="#metasurvey-008"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-8"></a></h3>
+<ul><li>Fixed 5 occurrences of <code>stop(message(...))</code> which silently called <code>stop(NULL)</code> instead of raising a proper error (<code><a href="../reference/set_engine.html">set_engine()</a></code>, <code><a href="../reference/load_survey.html">load_survey()</a></code>, <code><a href="../reference/recipe.html">recipe()</a></code>).</li>
+<li>Fixed <code>.Rbuildignore</code> double-escape bug: patterns had <code>\\\\.</code> instead of <code>\\.</code>, causing hidden files and non-standard files to leak into the tarball.</li>
+<li>Replaced unsafe <code>1:n</code> sequences with <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len()</a></code>/<code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int()</a></code> to avoid <code>c(1, 0)</code> when n=0 (7 occurrences across survey.R, workflow.R, steps.R).</li>
+<li>Removed duplicate internal <code><a href="../reference/set_data.html">set_data()</a></code> definition in survey.R.</li>
+<li>Replaced raw ANSI escape codes with <code><a href="http://r-lib.github.io/crayon/reference/crayon.html" class="external-link">crayon::red()</a></code>/<code><a href="http://r-lib.github.io/crayon/reference/crayon.html" class="external-link">crayon::green()</a></code> in <code><a href="../reference/cat_design.html">cat_design()</a></code> for cross-platform compatibility.</li>
+<li>Removed unreachable dead code in <code><a href="../reference/load_survey_example.html">load_survey_example()</a></code>.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace("parallel")</a></code> now uses <code>quietly = TRUE</code> and checks the return value before using the package.</li>
+<li>
+<code><a href="https://gesistsa.github.io/rio/" class="external-link">requireNamespace("rio")</a></code> return value is now checked before calling <code><a href="http://gesistsa.github.io/rio/reference/convert.html" class="external-link">rio::convert()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="security-0-0-8">Security<a class="anchor" aria-label="anchor" href="#security-0-0-8"></a></h3>
+<ul><li>SSL certificate verification in ANDA client is now enabled by default. Previously hardcoded <code>ssl_verifypeer = FALSE</code>; now user-controllable via <code>options(metasurvey.ssl_verify = FALSE)</code>.</li>
+<li>
+<code><a href="../reference/api_logout.html">api_logout()</a></code> no longer calls <code>Sys.unsetenv("METASURVEY_TOKEN")</code> — only clears the R option, per CRAN policy on environment variables.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="cran-compliance-0-0-8">CRAN compliance<a class="anchor" aria-label="anchor" href="#cran-compliance-0-0-8"></a></h3>
+<ul><li>
+<code><a href="../reference/set_engine.html">set_engine()</a></code>, <code><a href="../reference/set_use_copy.html">set_use_copy()</a></code>, <code><a href="../reference/set_lazy_processing.html">set_lazy_processing()</a></code>, and <code><a href="../reference/configure_api.html">configure_api()</a></code> now return the previous value invisibly, allowing users to restore global options.</li>
+<li>All user-facing messages translated from Spanish to English.</li>
+<li>
+<code><a href="../reference/evaluate_cv.html">evaluate_cv()</a></code> returns English labels (“Excellent”, “Good”, etc.).</li>
+<li>
+<code><a href="../reference/extract_time_pattern.html">extract_time_pattern()</a></code> returns “Invalid format”/“Unknown format”.</li>
+<li>DESCRIPTION title and description rewritten to be substantive.</li>
+<li>
+<code>inst/CITATION</code> updated: removed deprecated <code><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citHeader()</a></code>, dynamic year.</li>
+<li>Fixed inconsistent maintainer email across DESCRIPTION and package docs.</li>
+<li>R CMD check now passes with 0 errors, 0 warnings, 0 NOTEs.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.7" id="metasurvey-007">metasurvey 0.0.7<a class="anchor" aria-label="anchor" href="#metasurvey-007"></a></h2>
 <div class="section level3">

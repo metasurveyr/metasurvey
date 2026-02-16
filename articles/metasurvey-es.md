@@ -397,7 +397,7 @@ calidad <- evaluate_cv(cv_porcentaje)
 cat("CV:", round(cv_porcentaje, 2), "%\n")
 #> CV: 4.08 %
 cat("Calidad:", calidad, "\n")
-#> Calidad: Excelente
+#> Calidad: Excellent
 ```
 
 Para estadísticas oficiales, siempre reporte:

@@ -331,8 +331,8 @@ for (i in seq_len(nrow(results_quality))) {
     evaluate_cv(cv_pct), "\n"
   )
 }
-#> survey::svymean: api00 : 1.4 % CV - Excelente 
-#> survey::svymean: enroll : 4.5 % CV - Excelente
+#> survey::svymean: api00 : 1.4 % CV - Excellent 
+#> survey::svymean: enroll : 4.5 % CV - Excellent
 ```
 
 ### Recipe Validation

@@ -19,7 +19,7 @@ set_use_copy(use_copy)
 
 ## Value
 
-Invisibly, the value set.
+Invisibly, the previous value (for restoring).
 
 ## Details
 

@@ -16,15 +16,15 @@ evaluate_cv(cv)
 
 ## Value
 
-Character string with the quality category (e.g. "Excelente", "Bueno").
+Character string with the quality category (e.g. "Excellent", "Good").
 
 ## Examples
 
 ``` r
-evaluate_cv(3) # "Excelente"
-#> [1] "Excelente"
-evaluate_cv(12) # "Bueno"
-#> [1] "Bueno"
-evaluate_cv(30) # "Utilizar con precaucion"
-#> [1] "Utilizar con precaucion"
+evaluate_cv(3) # "Excellent"
+#> [1] "Excellent"
+evaluate_cv(12) # "Good"
+#> [1] "Good"
+evaluate_cv(30) # "Use with caution"
+#> [1] "Use with caution"
 ```

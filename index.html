@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Survey Processing with Meta-Programming • metasurvey</title>
+<title>Reproducible Survey Data Processing with Step Pipelines • metasurvey</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -16,9 +16,9 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
-<meta property="og:title" content="Survey Processing with Meta-Programming">
-<meta name="description" content="Provides a set of functions to process survey data using meta-programming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.">
-<meta property="og:description" content="Provides a set of functions to process survey data using meta-programming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.">
+<meta property="og:title" content="Reproducible Survey Data Processing with Step Pipelines">
+<meta name="description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
+<meta property="og:description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
 <meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png">
 <!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="">
 <script src="ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">

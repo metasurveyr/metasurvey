@@ -409,8 +409,8 @@ for (i in seq_len(nrow(results_all))) {
     evaluate_cv(cv_pct), "\n"
   )
 }
-#> survey::svymean: ht11 : 2.7 % CV - Excelente 
-#> survey::svymean: employed : 4.1 % CV - Excelente
+#> survey::svymean: ht11 : 2.7 % CV - Excellent 
+#> survey::svymean: employed : 4.1 % CV - Excellent
 ```
 
 ## Reproducibility: same recipe, different edition
