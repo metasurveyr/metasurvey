@@ -1,7 +1,23 @@
-template:
-  package: rotemplate
+url: https://metasurveyr.github.io/metasurvey
 
-url: https://docs.ropensci.org/metasurvey
+template:
+  bootstrap: 5
+  light-switch: true
+  bslib:
+    primary: "#6366f1"
+    secondary: "#64748b"
+    success: "#10b981"
+    warning: "#f59e0b"
+    info: "#0ea5e9"
+    danger: "#f43f5e"
+    body-bg: "#f8fafc"
+    body-color: "#1e293b"
+    navbar-bg: "#0f172a"
+    navbar-dark-color: "#e2e8f0"
+    enable-rounded: true
+    border-radius: "0.5rem"
+  includes:
+    in_header: pkgdown/templates/in-header.html
 
 navbar:
   structure:
@@ -17,108 +33,144 @@ authors:
     href: https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html
 
 reference:
-- title: Engine
+- title: Surveys
+  desc: Create and manipulate Survey objects
   contents:
-    - has_keyword("engine")
-- title: Survey methods
-  contents:
-    - has_keyword("Surveymethods")
+  - Survey
+  - RotativePanelSurvey
+  - PoolSurvey
+  - load_survey
+  - load_panel_survey
+  - load_survey_example
+  - survey_empty
+  - get_data
+  - set_data
+  - get_metadata
+  - get_steps
+  - survey_to_data_frame
+  - survey_to_data.table
+  - survey_to_tibble
 - title: Steps
+  desc: Lazy transformations on surveys
   contents:
-  - has_keyword("Steps")
-  - bake_steps
-  - step_remove
+  - step_compute
+  - step_recode
   - step_rename
-- title: Preprocessing
-  contents:
-    - has_keyword("preprocessing")
-- title: Utils
-  contents:
-    - has_keyword("utils")
+  - step_remove
+  - step_join
+  - bake_steps
 - title: Recipes
+  desc: Reproducible and portable pipelines
   contents:
-    - has_keyword("Recipes")
-- title: Recipe Infrastructure
+  - Recipe
+  - recipe
+  - steps_to_recipe
+  - add_recipe
+  - bake_recipes
+  - save_recipe
+  - read_recipe
+  - get_recipe
+  - certify_recipe
+  - print.Recipe
+  - recipe_user
+  - recipe_category
+  - recipe_certification
+  - add_category
+  - remove_category
+  - default_categories
+  - set_user_info
+  - set_version
+- title: Recipe Discovery
+  desc: Search, filter, and publish recipes
   contents:
-    - RecipeBackend
-    - RecipeRegistry
-    - RecipeUser
-    - RecipeCategory
-    - RecipeCategory-from_list
-    - RecipeCertification
-    - get_backend
-    - set_backend
-    - default_categories
-    - add_category
-    - add_recipe
-    - certify_recipe
-    - filter_recipes
-    - explore_recipes
-    - list_recipes
-    - rank_recipes
-    - search_recipes
-    - remove_category
-    - recipe_category
-    - recipe_user
-    - recipe_certification
-    - set_data
-    - set_user_info
-    - set_version
-- title: Workflows
+  - list_recipes
+  - search_recipes
+  - filter_recipes
+  - rank_recipes
+  - explore_recipes
+  - publish_recipe
+  - set_backend
+  - get_backend
+- title: Estimation
+  desc: Survey estimation workflows
   contents:
-    - has_keyword("Workflows")
-    - RecipeWorkflow-class
-    - WorkflowBackend
-    - WorkflowRegistry
-    - workflow_from_list
-    - get_workflow_backend
-    - set_workflow_backend
-    - filter_workflows
-    - find_workflows_for_recipe
-    - list_workflows
-    - rank_workflows
-    - search_workflows
-    - publish_workflow
-- title: API Client
+  - workflow
+  - RecipeWorkflow-class
+  - evaluate_cv
+  - save_workflow
+  - read_workflow
+  - workflow_from_list
+  - list_workflows
+  - search_workflows
+  - filter_workflows
+  - rank_workflows
+  - find_workflows_for_recipe
+  - publish_workflow
+  - set_workflow_backend
+  - get_workflow_backend
+  - print.RecipeWorkflow
+- title: Rotating Panels
+  desc: Panels with implantation and follow-ups
   contents:
-    - configure_api
-    - api_list_recipes
-    - api_get_recipe
-    - api_publish_recipe
-    - api_list_workflows
-    - api_get_workflow
-    - api_publish_workflow
-    - api_login
-    - api_logout
-    - api_me
-    - api_register
-    - api_refresh_token
-    - api_get_anda_variables
-- title: ANDA Metadata
+  - get_implantation
+  - get_follow_up
+  - extract_surveys
+- title: Weights and Design
+  desc: Weight and sampling design configuration
   contents:
-    - anda_variables
-    - anda_variable_detail
-    - anda_fetch_ddi
-    - anda_parse_variables
-    - anda_catalog_search
-    - anda_list_editions
-    - anda_download_microdata
-- title: PoolSurvey
+  - add_weight
+  - add_replicate
+  - cat_design
+  - cat_design_type
+  - set_engine
+  - get_engine
+  - show_engines
+  - set_use_copy
+  - use_copy_default
+  - set_lazy_processing
+  - lazy_default
+- title: Time and Dates
+  desc: Utilities for editions and periodicity
   contents:
-    - has_keyword("PoolSurvey")
-- title: RotativePanelSurvey
+  - extract_time_pattern
+  - validate_time_pattern
+  - group_dates
+- title: Visualization
   contents:
-    - has_keyword("RotativePanelSurvey")
-- title: Survey
+  - view_graph
+- title: Remote API
+  desc: REST client for the recipe registry
   contents:
-    - has_keyword("Survey")
+  - configure_api
+  - api_login
+  - api_logout
+  - api_register
+  - api_me
+  - api_refresh_token
+  - api_list_recipes
+  - api_get_recipe
+  - api_publish_recipe
+  - api_list_workflows
+  - api_get_workflow
+  - api_publish_workflow
+  - api_get_anda_variables
+- title: ANDA
+  desc: INE Uruguay ANDA catalog metadata
+  contents:
+  - anda_variables
+  - anda_download_microdata
+- title: Ecosystem Classes
+  desc: R6 classes for the recipe ecosystem
+  contents:
+  - RecipeCategory
+  - RecipeCertification
+  - RecipeUser
 
 articles:
 - title: "Getting Started"
   desc: "Learn the basics of metasurvey"
   contents:
   - getting-started
-  - metasurvey-es
 - title: "Core Features"
   desc: "Recipes, workflows, and estimation"
   contents:
@@ -138,3 +190,15 @@ articles:
   desc: "Real-world examples with ECH data"
   contents:
   - ech-case-study
+- title: "Español"
+  desc: "Documentación en español"
+  contents:
+  - metasurvey-es
+  - getting-started-es
+  - recipes-es
+  - workflows-and-estimation-es
+  - complex-designs-es
+  - panel-analysis-es
+  - ech-case-study-es
+  - shiny-explorer-es
+  - api-database-es
