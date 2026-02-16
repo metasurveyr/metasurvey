@@ -6,15 +6,10 @@
 #' @field type Character backend type ("local" or "api").
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Local backend
-#' backend <- RecipeBackend$new("local", path = "recipes.json")
-#' backend$publish(my_recipe)
+#' backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
 #' backend$search("labor")
-#'
-#' # API backend (requires configure_api() first)
-#' configure_api("https://metasurvey-api.example.com")
-#' backend <- RecipeBackend$new("api")
 #' }
 #'
 #' @keywords internal

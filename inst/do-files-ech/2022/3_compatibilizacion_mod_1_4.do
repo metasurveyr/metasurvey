@@ -687,4 +687,3 @@ recode g144_1 g261 g261_1 (.=0)
 save "$rutainterm/servdom22.dta", replace
 restore
 drop if e30==14
-

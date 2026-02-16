@@ -460,7 +460,6 @@ survey_to_data_frame <- function(svy) {
 #' @description Convert survey to tibble
 #' @param svy Survey object
 #' @examples
-#' \dontrun{
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
 #'   w = rep(1, 5)
@@ -471,7 +470,6 @@ survey_to_data_frame <- function(svy) {
 #' )
 #' tbl <- survey_to_tibble(svy)
 #' class(tbl)
-#' }
 #' @family survey-objects
 #' @export
 #' @return tibble
@@ -846,7 +844,7 @@ get_metadata <- function(self) {
 #' Output is color-coded for better readability in supporting terminals.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Display design for survey with multiple estimation types
 #' ech_survey <- load_survey("ech_2023.dta",
 #'   svy_type = "ech",
@@ -922,7 +920,7 @@ cat_design <- function(self) {
 #' @param design_name Name of design
 #' @return Character string describing the design type, or "None".
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' cat_design_type(svy, "annual")
 #' }
@@ -978,7 +976,7 @@ cat_design_type <- function(self, design_name) {
 #' @param self Object of class Survey
 #' @return Character string listing recipe names, or "None".
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' cat_recipes(svy)
 #' }
@@ -1077,7 +1075,7 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' @param svy Survey object
 #' @keywords survey
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' svy <- load_survey("data.csv",
 #'   svy_type = "ech", svy_edition = "2023",
 #'   recipes = my_recipe
@@ -1209,9 +1207,12 @@ set_data <- function(svy, data, .copy = FALSE) {
 #' @family recipes
 #' @export
 #' @examples
-#' \dontrun{
-#' svy <- add_recipe(svy, my_recipe)
-#' }
+#' svy <- survey_empty(type = "ech", edition = "2023")
+#' r <- recipe(
+#'   name = "Example", user = "test",
+#'   svy = svy, description = "Example"
+#' )
+#' svy <- add_recipe(svy, r)
 add_recipe <- function(svy, recipe, bake = lazy_default()) {
   svy$add_recipe(recipe, bake = bake)
   invisible(svy)

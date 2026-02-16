@@ -16,9 +16,9 @@ List of matching RecipeWorkflow objects.
 Search for workflows by name or description in the active workflow backend.
 }
 \examples{
-\dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 results <- search_workflows("labor market")
-}
+length(results)
 
 }
 \seealso{

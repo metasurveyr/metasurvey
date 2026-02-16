@@ -1,3 +1,27 @@
+# metasurvey 0.0.10
+
+## New features
+* Docker deployment pipeline with GitHub Actions: builds and pushes images
+  to GHCR, deploys to Railway on push to main.
+* `docker-compose.yml` for local development (API + Shiny stack).
+
+## Bug fixes
+* `api_url()` no longer falls back to a hardcoded production URL; returns
+  NULL when no URL is configured via option or environment variable.
+
+## Documentation
+* Replaced remaining `\dontrun{}` with `\donttest{}` across all exported
+  examples for CRAN compliance.
+* Added runnable examples for `RecipeWorkflow`, `save_workflow`,
+  `read_workflow`, `search_workflows`, `rank_workflows`, `RecipeBackend`.
+* Added STATA transpiler usage section to README.
+* Added Spanish vignettes: `stata-transpiler-es`, `ech-demographics-recipe-es`.
+
+## Internal
+* Updated API Dockerfile with curl-based healthcheck.
+* Updated Shiny Dockerfile: configurable `METASURVEY_REF` build arg,
+  added `jose` and `git` dependencies.
+
 # metasurvey 0.0.9
 
 ## CRAN compliance

@@ -7,15 +7,10 @@
 #' @field type Character backend type ("local" or "api").
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Local backend
-#' backend <- WorkflowBackend$new("local", path = "workflows.json")
-#' backend$publish(my_workflow)
+#' backend <- WorkflowBackend$new("local", path = tempfile(fileext = ".json"))
 #' backend$search("labor")
-#'
-#' # API backend (requires configure_api() first)
-#' configure_api("https://metasurvey-api.example.com")
-#' backend <- WorkflowBackend$new("api")
 #' }
 #'
 #' @keywords internal
@@ -198,7 +193,7 @@ WorkflowBackend <- R6::R6Class(
 #' \donttest{
 #' set_workflow_backend("local", path = tempfile(fileext = ".json"))
 #' }
-#' \dontrun{
+#' \donttest{
 #' set_workflow_backend("api")
 #' }
 #' @family backends

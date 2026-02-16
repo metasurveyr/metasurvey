@@ -119,8 +119,10 @@ transpile_stata_module <- function(year_dir, year, user = "iecon",
   )
 
   # Find all .do files in the directory
-  do_files <- list.files(year_dir, pattern = "\\.do$",
-                         full.names = TRUE, ignore.case = TRUE)
+  do_files <- list.files(year_dir,
+    pattern = "\\.do$",
+    full.names = TRUE, ignore.case = TRUE
+  )
 
   # Extract labels from label files
   label_files <- do_files[grepl(
@@ -143,8 +145,10 @@ transpile_stata_module <- function(year_dir, year, user = "iecon",
     demographics = "data_prep",
     income_detail = c("data_prep", "demographics"),
     income_aggregate = c("data_prep", "demographics", "income_detail"),
-    cleanup = c("data_prep", "demographics", "income_detail",
-                "income_aggregate")
+    cleanup = c(
+      "data_prep", "demographics", "income_detail",
+      "income_aggregate"
+    )
   )
 
   # IECON institution user (shared across modules)
@@ -216,8 +220,10 @@ transpile_stata_module <- function(year_dir, year, user = "iecon",
     cert <- RecipeCertification$new(
       level = "official",
       certified_by = iecon_user,
-      notes = paste("Transpiled from official IECON do-files:",
-                    paste(source_files, collapse = ", "))
+      notes = paste(
+        "Transpiled from official IECON do-files:",
+        paste(source_files, collapse = ", ")
+      )
     )
 
     rec <- Recipe$new(
@@ -236,11 +242,11 @@ transpile_stata_module <- function(year_dir, year, user = "iecon",
       user_info = iecon_user,
       depends_on_recipes = as.list(dep_recipe_ids),
       labels = if (length(module_labels$var_labels) > 0 ||
-                   length(module_labels$val_labels) > 0) {
-      module_labels
-    } else {
-      NULL
-    }
+        length(module_labels$val_labels) > 0) {
+        module_labels
+      } else {
+        NULL
+      }
     )
 
     recipes[[module_name]] <- rec
@@ -316,8 +322,10 @@ translate_commands <- function(commands, strict = FALSE) {
       }
     } else {
       # Unhandled command
-      w <- sprintf("# MANUAL_REVIEW: %s -- unhandled command '%s'",
-                    cmd$raw_line, cmd$cmd)
+      w <- sprintf(
+        "# MANUAL_REVIEW: %s -- unhandled command '%s'",
+        cmd$raw_line, cmd$cmd
+      )
       if (strict) {
         stop(w, call. = FALSE)
       }
@@ -356,7 +364,7 @@ translate_gen_block <- function(commands, start_idx) {
     if (next_cmd$cmd == "replace") {
       rep_parsed <- parse_replace_args(next_cmd$args)
       if (!is.null(rep_parsed) && rep_parsed$var_name == var_name &&
-          !is.null(next_cmd$if_clause)) {
+        !is.null(next_cmd$if_clause)) {
         replace_cmds <- c(replace_cmds, list(list(
           expr = rep_parsed$expr,
           if_clause = next_cmd$if_clause
@@ -380,7 +388,7 @@ translate_gen_block <- function(commands, start_idx) {
       by_str <- sprintf(', .by = "%s"', by_vars)
     } else {
       by_str <- sprintf(
-        ', .by = c(%s)',
+        ", .by = c(%s)",
         paste(sprintf('"%s"', by_vars), collapse = ", ")
       )
     }
@@ -395,8 +403,10 @@ translate_gen_block <- function(commands, start_idx) {
         var_name, cond, init_expr, by_str %||% ""
       )
     } else {
-      sprintf("step_compute(svy, %s = %s%s)",
-              var_name, init_expr, by_str %||% "")
+      sprintf(
+        "step_compute(svy, %s = %s%s)",
+        var_name, init_expr, by_str %||% ""
+      )
     }
     return(list(steps = step, advance = advance))
   }
@@ -409,9 +419,15 @@ translate_gen_block <- function(commands, start_idx) {
   if (all_constant && is_constant_rhs(init_expr)) {
     # Build step_recode (RHS must be quoted strings for step_recode)
     quote_recode_val <- function(val) {
-      if (grepl('^"', val)) val  # already quoted
-      else if (val == "NA") val  # NA stays unquoted
-      else paste0('"', val, '"')
+      if (grepl('^"', val)) {
+        val
+      } # already quoted
+      else if (val == "NA") {
+        val
+      } # NA stays unquoted
+      else {
+        paste0('"', val, '"')
+      }
     }
     conditions <- vapply(replace_cmds, function(rc) {
       cond <- translate_stata_expr(rc$if_clause)
@@ -448,7 +464,9 @@ translate_gen_block <- function(commands, start_idx) {
 # Translate standalone replace (not part of gen block)
 translate_replace <- function(cmd) {
   parsed <- parse_replace_args(cmd$args)
-  if (is.null(parsed)) return(NULL)
+  if (is.null(parsed)) {
+    return(NULL)
+  }
 
   expr <- translate_stata_expr(parsed$expr)
   var_name <- parsed$var_name
@@ -494,7 +512,10 @@ translate_recode <- function(cmd) {
     var_tokens <- character(0)
     map_start <- length(tokens) + 1
     for (ti in seq_along(tokens)) {
-      if (grepl("=", tokens[ti])) { map_start <- ti; break }
+      if (grepl("=", tokens[ti])) {
+        map_start <- ti
+        break
+      }
       # Check for var range (contains -)
       var_tokens <- c(var_tokens, tokens[ti])
     }
@@ -509,7 +530,9 @@ translate_recode <- function(cmd) {
   if (length(all_vars) <= 1) {
     # Single variable — use standard parse
     parsed <- parse_recode_args(args_str, cmd$options)
-    if (is.null(parsed)) return(NULL)
+    if (is.null(parsed)) {
+      return(NULL)
+    }
     return(list(steps = translate_recode_single(parsed)))
   }
 
@@ -560,8 +583,10 @@ translate_recode_single <- function(parsed) {
       if (length(from_vals) == 1) {
         cond <- sprintf("%s == %s", source_var, from_vals[1])
       } else {
-        cond <- sprintf("%s %%in%% c(%s)", source_var,
-                        paste(from_vals, collapse = ", "))
+        cond <- sprintf(
+          "%s %%in%% c(%s)", source_var,
+          paste(from_vals, collapse = ", ")
+        )
       }
       step <- sprintf(
         "step_compute(svy, %s = data.table::fifelse(%s, %s, %s))",
@@ -586,7 +611,9 @@ translate_recode_single <- function(parsed) {
 translate_rename <- function(cmd) {
   args <- trimws(cmd$args)
   parts <- strsplit(args, "\\s+")[[1]]
-  if (length(parts) < 2) return(NULL)
+  if (length(parts) < 2) {
+    return(NULL)
+  }
 
   old_name <- parts[1]
   new_name <- parts[2]
@@ -607,7 +634,9 @@ translate_drop <- function(cmd) {
     )))
   }
   vars <- strsplit(args, "\\s+")[[1]]
-  if (length(vars) == 0) return(NULL)
+  if (length(vars) == 0) {
+    return(NULL)
+  }
 
   # Expand variable ranges (e.g., aux1-aux14_max -> aux1..aux14, aux1_max..aux14_max)
   expanded <- unlist(lapply(vars, expand_var_range))
@@ -629,7 +658,9 @@ translate_keep <- function(cmd) {
 # Translate destring (supports multiple space-separated variables)
 translate_destring <- function(cmd) {
   parsed <- parse_destring_args(cmd$args, cmd$options)
-  if (is.null(parsed)) return(NULL)
+  if (is.null(parsed)) {
+    return(NULL)
+  }
 
   # destring can take multiple variables: destring v1 v2 v3, replace
   var_names <- strsplit(trimws(parsed$var_name), "\\s+")[[1]]
@@ -664,7 +695,9 @@ translate_tostring <- function(cmd) {
 # Translate mvencode
 translate_mvencode <- function(cmd) {
   parsed <- parse_mvencode_args(cmd$args, cmd$options)
-  if (is.null(parsed)) return(NULL)
+  if (is.null(parsed)) {
+    return(NULL)
+  }
 
   # Expand variable ranges (e.g., suma1-suma4 -> suma1 suma2 suma3 suma4)
   expanded <- unlist(lapply(parsed$var_names, expand_var_range))
@@ -686,7 +719,9 @@ translate_egen <- function(cmd) {
     by_group = cmd$by_group,
     options = cmd$options
   )
-  if (is.null(parsed)) return(NULL)
+  if (is.null(parsed)) {
+    return(NULL)
+  }
 
   # Map STATA egen functions to R
   r_func <- switch(parsed$func,
@@ -707,7 +742,7 @@ translate_egen <- function(cmd) {
       by_str <- sprintf('"%s"', by_vars)
     } else {
       by_str <- sprintf(
-        'c(%s)',
+        "c(%s)",
         paste(sprintf('"%s"', by_vars), collapse = ", ")
       )
     }
@@ -734,7 +769,9 @@ translate_merge <- function(cmd) {
 
 # Step optimization pass
 optimize_steps <- function(steps) {
-  if (length(steps) == 0) return(steps)
+  if (length(steps) == 0) {
+    return(steps)
+  }
 
   result <- character(0)
   i <- 1
@@ -762,8 +799,10 @@ optimize_steps <- function(steps) {
           }
         }
         if (length(pairs) > 0) {
-          step <- sprintf("step_rename(svy, %s)",
-                          paste(pairs, collapse = ", "))
+          step <- sprintf(
+            "step_rename(svy, %s)",
+            paste(pairs, collapse = ", ")
+          )
         }
       }
       result <- c(result, step)
@@ -790,8 +829,10 @@ optimize_steps <- function(steps) {
           }
         }
         all_vars <- unique(trimws(all_vars))
-        step <- sprintf("step_remove(svy, %s)",
-                        paste(all_vars, collapse = ", "))
+        step <- sprintf(
+          "step_remove(svy, %s)",
+          paste(all_vars, collapse = ", ")
+        )
       }
       result <- c(result, step)
       i <- j
@@ -850,10 +891,12 @@ extract_input_vars <- function(steps) {
 
   # Input vars = referenced vars that are NOT created by steps
   # Remove known non-variables
-  remove <- c("svy", "data.table", "fifelse", "fcase", "TRUE", "FALSE",
-               "NA", "NULL", "is.na", "sum", "max", "min", "mean", "sd",
-               "as.numeric", "as.character", "suppressWarnings",
-               "step_compute", "step_recode", "step_rename", "step_remove")
+  remove <- c(
+    "svy", "data.table", "fifelse", "fcase", "TRUE", "FALSE",
+    "NA", "NULL", "is.na", "sum", "max", "min", "mean", "sd",
+    "as.numeric", "as.character", "suppressWarnings",
+    "step_compute", "step_recode", "step_rename", "step_remove"
+  )
   all_vars <- setdiff(unique(all_vars), c(output_vars, remove))
   all_vars
 }
@@ -909,18 +952,21 @@ build_doc_from_steps <- function(steps) {
     }
 
     # Extract inputs via parsing
-    step_inputs <- tryCatch({
-      parsed <- parse(text = step)
-      refs <- all.vars(parsed)
-      remove_names <- c(
-        "svy", "data.table", "fifelse", "fcase", "TRUE", "FALSE",
-        "NA", "NULL", "is.na", "sum", "max", "min", "mean", "sd",
-        "as.numeric", "as.character", "suppressWarnings", "nchar",
-        "step_compute", "step_recode", "step_rename", "step_remove",
-        "shift", "lag", "lead"
-      )
-      setdiff(refs, remove_names)
-    }, error = function(e) character(0))
+    step_inputs <- tryCatch(
+      {
+        parsed <- parse(text = step)
+        refs <- all.vars(parsed)
+        remove_names <- c(
+          "svy", "data.table", "fifelse", "fcase", "TRUE", "FALSE",
+          "NA", "NULL", "is.na", "sum", "max", "min", "mean", "sd",
+          "as.numeric", "as.character", "suppressWarnings", "nchar",
+          "step_compute", "step_recode", "step_rename", "step_remove",
+          "shift", "lag", "lead"
+        )
+        setdiff(refs, remove_names)
+      },
+      error = function(e) character(0)
+    )
 
     # Track cumulative inputs/outputs
     external_inputs <- setdiff(step_inputs, all_outputs)
@@ -931,7 +977,8 @@ build_doc_from_steps <- function(steps) {
     expr_txt <- if (step_type == "compute") {
       m <- regmatches(step, regexec(
         "step_compute\\(svy,\\s*\\w+\\s*=\\s*(.+?)\\s*(?:,\\s*\\.by|\\))$",
-        step, perl = TRUE
+        step,
+        perl = TRUE
       ))[[1]]
       if (length(m) >= 2) m[[2]] else ""
     } else {
@@ -975,8 +1022,10 @@ filter_labels <- function(labels, vars) {
 #' @export
 transpile_coverage <- function(path, recursive = TRUE) {
   if (dir.exists(path)) {
-    do_files <- list.files(path, pattern = "\\.do$",
-                           full.names = TRUE, recursive = recursive)
+    do_files <- list.files(path,
+      pattern = "\\.do$",
+      full.names = TRUE, recursive = recursive
+    )
   } else if (file.exists(path)) {
     do_files <- path
   } else {
@@ -984,41 +1033,44 @@ transpile_coverage <- function(path, recursive = TRUE) {
   }
 
   results <- lapply(do_files, function(f) {
-    tryCatch({
-      commands <- parse_do_file(f)
-      result <- translate_commands(commands, strict = FALSE)
-      total <- result$stats$translated + result$stats$skipped +
-        result$stats$manual_review
-      coverage <- if (total > 0) {
-        round(
-          (result$stats$translated + result$stats$skipped) / total * 100,
-          1
+    tryCatch(
+      {
+        commands <- parse_do_file(f)
+        result <- translate_commands(commands, strict = FALSE)
+        total <- result$stats$translated + result$stats$skipped +
+          result$stats$manual_review
+        coverage <- if (total > 0) {
+          round(
+            (result$stats$translated + result$stats$skipped) / total * 100,
+            1
+          )
+        } else {
+          100
+        }
+        data.frame(
+          file = basename(f),
+          path = f,
+          total_commands = total,
+          translated = result$stats$translated,
+          skipped = result$stats$skipped,
+          manual_review = result$stats$manual_review,
+          coverage_pct = coverage,
+          stringsAsFactors = FALSE
         )
-      } else {
-        100
+      },
+      error = function(e) {
+        data.frame(
+          file = basename(f),
+          path = f,
+          total_commands = NA_integer_,
+          translated = NA_integer_,
+          skipped = NA_integer_,
+          manual_review = NA_integer_,
+          coverage_pct = NA_real_,
+          stringsAsFactors = FALSE
+        )
       }
-      data.frame(
-        file = basename(f),
-        path = f,
-        total_commands = total,
-        translated = result$stats$translated,
-        skipped = result$stats$skipped,
-        manual_review = result$stats$manual_review,
-        coverage_pct = coverage,
-        stringsAsFactors = FALSE
-      )
-    }, error = function(e) {
-      data.frame(
-        file = basename(f),
-        path = f,
-        total_commands = NA_integer_,
-        translated = NA_integer_,
-        skipped = NA_integer_,
-        manual_review = NA_integer_,
-        coverage_pct = NA_real_,
-        stringsAsFactors = FALSE
-      )
-    })
+    )
   })
 
   df <- do.call(rbind, results)

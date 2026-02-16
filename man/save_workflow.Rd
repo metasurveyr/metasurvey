@@ -18,9 +18,14 @@ NULL (called for side-effect)
 Save a RecipeWorkflow to a JSON file
 }
 \examples{
-\dontrun{
-save_workflow(wf, "my_workflow.json")
-}
+wf <- RecipeWorkflow$new(
+  name = "Example", description = "Test",
+  survey_type = "ech", edition = "2023",
+  recipe_id = "r_001", estimation_type = "svymean",
+  variables = "income"
+)
+f <- tempfile(fileext = ".json")
+save_workflow(wf, f)
 }
 \seealso{
 Other workflows: 

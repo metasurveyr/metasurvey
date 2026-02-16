@@ -13,9 +13,9 @@ List of all RecipeWorkflow objects.
 List all workflows from the active workflow backend.
 }
 \examples{
-\dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 all <- list_workflows()
-}
+length(all)
 
 }
 \seealso{

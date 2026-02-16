@@ -27,12 +27,10 @@ api_url <- function() {
   url <- getOption("metasurvey.api_url", default = NULL)
   if (is.null(url)) {
     env <- Sys.getenv("METASURVEY_API_URL", "")
-    url <- if (nzchar(env)) {
-      sub("/$", "", env)
-    } else {
-      "https://metasurvey-api-production.up.railway.app"
+    if (nzchar(env)) {
+      url <- sub("/$", "", env)
+      options(metasurvey.api_url = url)
     }
-    options(metasurvey.api_url = url)
   }
   url
 }
@@ -91,7 +89,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #' @return Invisibly, the previous URL (for restoring).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api(url = "https://metasurvey-api.example.com")
 #' }
 #' @family api-auth
@@ -141,8 +139,8 @@ api_request <- function(endpoint, method = "GET",
   headers <- c("Content-Type" = "application/json")
   token <- api_token()
   if (!is.null(token) &&
-      token_expires_soon(token) &&
-      endpoint != "auth/refresh") {
+    token_expires_soon(token) &&
+    endpoint != "auth/refresh") {
     tryCatch(
       {
         refreshed <- api_refresh_token()
@@ -165,7 +163,8 @@ api_request <- function(endpoint, method = "GET",
     POST = httr::POST(
       url,
       body = jsonlite::toJSON(
-        body, auto_unbox = TRUE, null = "null"
+        body,
+        auto_unbox = TRUE, null = "null"
       ),
       httr::add_headers(.headers = headers),
       encode = "raw",
@@ -189,7 +188,8 @@ api_request <- function(endpoint, method = "GET",
     }
     stop(
       "API error (", httr::status_code(resp), "): ",
-      msg, call. = FALSE
+      msg,
+      call. = FALSE
     )
   }
 
@@ -214,7 +214,7 @@ api_request <- function(endpoint, method = "GET",
 #'   \code{token}, \code{user}).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api("https://metasurvey-api.example.com")
 #' api_register("Ana Garcia", "ana@example.com", "s3cret")
 #' }
@@ -222,8 +222,8 @@ api_request <- function(endpoint, method = "GET",
 api_register <- function(name, email, password,
                          user_type = "individual", institution = NULL) {
   if (!is.character(password) ||
-      nchar(password) < 8 ||
-      nchar(password) > 128) {
+    nchar(password) < 8 ||
+    nchar(password) > 128) {
     stop(
       "Password must be between 8 and 128 characters.",
       call. = FALSE
@@ -252,7 +252,7 @@ api_register <- function(name, email, password,
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_login("ana@example.com", "s3cret")
 #' }
 #' @family api-auth
@@ -274,7 +274,7 @@ api_login <- function(email, password) {
 #' @return List with user fields (name, email, user_type, etc.)
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_me()
 #' }
 #' @family api-auth
@@ -290,7 +290,7 @@ api_me <- function() {
 #' @return The new token string (invisibly), or NULL if refresh fails.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_refresh_token()
 #' }
 #' @family api-auth
@@ -312,7 +312,7 @@ api_refresh_token <- function() {
 #' @return Invisibly, NULL.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_logout()
 #' }
 #' @family api-auth
@@ -327,7 +327,7 @@ api_logout <- function() {
 #' @keywords internal
 validate_api_id <- function(id) {
   if (!is.character(id) || length(id) != 1L ||
-      !grepl("^[a-zA-Z0-9_.-]+$", id)) {
+    !grepl("^[a-zA-Z0-9_.-]+$", id)) {
     stop(
       "Invalid API ID: must be a single ",
       "alphanumeric string (a-z, 0-9, _, ., -)",
@@ -354,7 +354,7 @@ validate_api_id <- function(id) {
 #' @return List of Recipe objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api("https://metasurvey-api.example.com")
 #' recipes <- api_list_recipes(survey_type = "ech")
 #' }
@@ -384,7 +384,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_recipe("r_1739654400_742")
 #' }
 #' @family api-recipes
@@ -406,7 +406,8 @@ api_get_recipe <- function(id) {
     tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
       warning(
         "Failed to parse recipe '", single_id,
-        "': ", e$message, call. = FALSE
+        "': ", e$message,
+        call. = FALSE
       )
       NULL
     })
@@ -428,7 +429,7 @@ api_get_recipe <- function(id) {
 #' @return Invisibly, the API response with the assigned ID.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_publish_recipe(my_recipe)
 #' }
 #' @family api-recipes
@@ -437,7 +438,8 @@ api_publish_recipe <- function(recipe) {
     stop("recipe must be a Recipe object", call. = FALSE)
   }
   result <- api_request(
-    "recipes", method = "POST", body = recipe$to_list()
+    "recipes",
+    method = "POST", body = recipe$to_list()
   )
   if (isTRUE(result$ok)) {
     message("Recipe published: ", result$id)
@@ -458,7 +460,8 @@ api_download_recipe <- function(id) {
     error = function(e) {
       warning(
         "Failed to track recipe download for '",
-        id, "': ", e$message, call. = FALSE
+        id, "': ", e$message,
+        call. = FALSE
       )
       invisible(NULL)
     }
@@ -481,7 +484,7 @@ api_download_recipe <- function(id) {
 #' @return List of RecipeWorkflow objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_list_workflows(survey_type = "ech")
 #' }
 #' @family api-workflows
@@ -509,7 +512,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 #' @return RecipeWorkflow object or NULL
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_workflow("w_1739654400_123")
 #' }
 #' @family api-workflows
@@ -542,7 +545,7 @@ api_get_workflow <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_publish_workflow(my_workflow)
 #' }
 #' @family api-workflows
@@ -551,7 +554,8 @@ api_publish_workflow <- function(workflow) {
     stop("workflow must be a RecipeWorkflow object", call. = FALSE)
   }
   result <- api_request(
-    "workflows", method = "POST",
+    "workflows",
+    method = "POST",
     body = workflow$to_list()
   )
   if (isTRUE(result$ok)) {
@@ -573,7 +577,8 @@ api_download_workflow <- function(id) {
     error = function(e) {
       warning(
         "Failed to track workflow download for '",
-        id, "': ", e$message, call. = FALSE
+        id, "': ", e$message,
+        call. = FALSE
       )
       invisible(NULL)
     }
@@ -674,7 +679,7 @@ parse_recipe_from_json <- function(doc) {
 #' @return A list of variable metadata objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 #' @family anda

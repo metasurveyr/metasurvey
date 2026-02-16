@@ -18,7 +18,7 @@ Character string describing the design type, or "None".
 Cast design type from survey
 }
 \examples{
-\dontrun{
+\donttest{
 svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 cat_design_type(svy, "annual")
 }
