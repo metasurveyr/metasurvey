@@ -42,7 +42,7 @@ extraccion de etiquetas.
 
 ## Inicio rapido
 
-```{r eval=FALSE}
+```r
 library(metasurvey)
 
 # Transpilar un archivo .do
@@ -95,7 +95,7 @@ comando. Maneja:
 - **Manejo de prefijos**: `capture`, `bysort group:`, y abreviaciones de
   comandos (`g` por `gen`, `cap` por `capture`)
 
-```{r eval=FALSE}
+```r
 commands <- parse_do_file("demographics.do")
 commands[[1]]
 #> $cmd
@@ -332,7 +332,7 @@ lab def sex_lbl 1 "Male" 2 "Female"
 lab val sex sex_lbl
 ```
 
-```{r eval=FALSE}
+```r
 result$labels
 #> $var_labels
 #> $var_labels$sex
@@ -491,7 +491,7 @@ str(result$labels$val_labels)
 
 ### Construir una Recipe a partir de los steps transpilados
 
-```{r eval=FALSE}
+```r
 rec <- Recipe$new(
   id = "example_demographics",
   name = "Demografia (transpilada)",
@@ -521,7 +521,7 @@ Para proyectos que organizan archivos `.do` por anio y modulo tematico,
 `transpile_stata_module()` procesa un directorio de un anio completo y agrupa
 los resultados en objetos Recipe separados:
 
-```{r eval=FALSE}
+```r
 recipes <- transpile_stata_module(
   year_dir = "do_files/2022",
   year = 2022,
@@ -543,7 +543,7 @@ recipes$income_detail$depends_on_recipes
 `transpile_coverage()` reporta cuantos comandos en un archivo `.do` (o
 directorio) pueden transpilarse automaticamente:
 
-```{r eval=FALSE}
+```r
 transpile_coverage("do_files/")
 #>                               file total translated skipped manual coverage
 #> 1   2022/2_correc_datos.do             82        60      22      0   100.00

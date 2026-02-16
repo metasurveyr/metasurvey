@@ -217,7 +217,7 @@ first_two <- extract_surveys(panel, index = 1:2)
 class(first_two)
 ```
 
-```{r extract-monthly, eval = FALSE}
+```r
 # Extract by month (requires Date-format editions)
 march_data <- extract_surveys(panel, monthly = 3)
 ```
@@ -251,7 +251,7 @@ group_dates(dates, type = "biannual")
 
 In practice, panel data is loaded from files using `load_panel_survey()`:
 
-```{r load-panel, eval = FALSE}
+```r
 panel <- load_panel_survey(
   path_implantation = "data/ECH_implantacion_2023.csv",
   path_follow_up = "data/seguimiento/",
@@ -271,7 +271,7 @@ For surveys that provide bootstrap replicate weights (such as the ECH), use
 `add_replicate()` inside `add_weight()` to configure robust variance
 estimation:
 
-```{r replicate, eval = FALSE}
+```r
 panel <- load_panel_survey(
   path_implantation = "data/ECH_implantacion_2023.csv",
   path_follow_up = "data/seguimiento/",
