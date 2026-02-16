@@ -17,12 +17,12 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-metasurvey includes a Shiny web application for browsing, searching, and
-managing recipes and workflows interactively. The app connects to the
-metasurvey API to display community-contributed recipes, or works in
-offline mode with built-in example data.
+metasurvey includes a Shiny web application for interactively exploring,
+searching, and managing recipes and workflows. The application connects
+to the metasurvey API to display community-contributed recipes, or works
+in offline mode with built-in sample data.
 
-## Launching the App
+## Launching the application
 
 ```{r launch}
 library(metasurvey)
@@ -34,20 +34,20 @@ explore_recipes()
 explore_recipes(port = 3838, host = "127.0.0.1")
 ```
 
-The `explore_recipes()` function starts the Shiny app and opens it in
-your browser. No additional configuration is needed---the app connects
-to the production API automatically.
+The `explore_recipes()` function starts the Shiny application and opens
+it in the browser. No additional configuration is needed: the
+application automatically connects to the production API.
 
-## Navigating the Interface
+## Interface navigation
 
-The app has three main tabs in the top navigation bar:
+The application has three main tabs in the top navigation bar:
 
-### Recipes Tab
+### Recipes tab
 
-The **Recipes** tab is the main entry point. It shows a searchable grid
-of published recipes, each displayed as a card with:
+The **Recipes** tab is the main entry point. It displays a searchable
+grid of published recipes, each presented as a card with:
 
-- **Name and edition** metadata
+- **Name and edition** as metadata
 - **Description** (truncated to two lines)
 - **Category tags** with colored badges (Labor Market, Income,
   Education, Health, Demographics, Housing)
@@ -57,13 +57,13 @@ of published recipes, each displayed as a card with:
   - Slate = Community
 - **Download count** and a "View" button
 
-#### Searching and Filtering
+#### Search and filtering
 
-The top of the Recipes tab provides four filters:
+The top of the Recipes tab offers four filters:
 
 | Filter | Options | Purpose |
 |--------|---------|---------|
-| Search | Free text | Matches recipe name and description |
+| Search | Free text | Searches recipe name and description |
 | Survey type | ECH, EAII, EPH, EAI | Filter by survey |
 | Category | Labor Market, Income, Education, Health, Demographics, Housing | Filter by topic |
 | Certification | Official, Reviewed, Community | Filter by trust level |
@@ -71,73 +71,76 @@ The top of the Recipes tab provides four filters:
 Filters are applied client-side for instant results. Use the refresh
 button to reload data from the API.
 
-#### Statistics Row
+#### Statistics row
 
-Below the filters, three stat boxes summarize the current data:
+Below the filters, three statistics boxes summarize the current data:
 
 - **Total recipes** in the registry
 - **Official recipes** with institutional certification
 - **Total downloads** across all recipes
 
-#### Recipe Detail Modal
+#### Recipe detail modal
 
 Click "View" on any recipe card to open a detail modal showing:
 
 1. **Metadata**: name, description, edition, survey type
-2. **Author info**: creator name, institution, trust level
-3. **Input variables**: what the recipe expects in the survey data
-   (shown as chips)
-4. **Output variables**: what the recipe creates (shown as chips)
+2. **Author information**: creator name, institution, trust level
+3. **Input variables**: what the recipe expects to find in the survey
+   data (displayed as chips)
+4. **Output variables**: what the recipe creates (displayed as chips)
 5. **Pipeline visualization**: interactive step graph (if the
    `visNetwork` package is installed)
-6. **Dependent recipes**: other recipes this one depends on (clickable
-   for navigation)
-7. **Referencing workflows**: workflows that use this recipe (clickable
-   to jump to the Workflows tab)
+6. **Dependent recipes**: other recipes this one depends on (with
+   navigation links)
+7. **Referencing workflows**: workflows that use this recipe (with a
+   link to navigate to the Workflows tab)
 8. **ANDA metadata**: variable labels from the INE data catalog, when
-   available (unofficial integration -- verify against official codebook)
+   available (unofficial integration; verify against the official
+   codebook)
 
-### Workflows Tab
+### Workflows tab
 
-The **Workflows** tab shows published estimation workflows. Each workflow
-card displays the estimation type (Annual, Quarterly, Monthly) and the
-recipes it references.
+The **Workflows** tab displays published estimation workflows. Each
+workflow card shows the estimation type (Annual, Quarterly, Monthly) and
+the recipes it references.
 
-Workflows use the same search and filter interface as recipes. The detail
-modal shows:
+Workflows use the same search and filtering interface as recipes. The
+detail modal shows:
 
 - All estimation calls (`svymean`, `svytotal`, `svyratio`, `svyby`)
-  displayed as a visual timeline
+  presented as a visual timeline
 - Cross-references to the recipes used for data preparation
-- Click on a referenced recipe to navigate directly to its detail
+- Click a referenced recipe to navigate directly to its detail
 
-### Cross-Navigation
+### Cross-navigation
 
 Recipes and workflows are linked bidirectionally:
 
-- From a **recipe detail**, click on a referencing workflow to jump to
-  the Workflows tab and open that workflow's detail
-- From a **workflow detail**, click on a referenced recipe to jump back
-  to the Recipes tab and open that recipe's detail
+- From a **recipe detail**, click a referencing workflow to go to the
+  Workflows tab and open that workflow's detail
+- From a **workflow detail**, click a referenced recipe to return to
+  the Recipes tab and open that recipe's detail
 
-This lets you trace the full analysis pipeline: from data
+This allows tracing the complete analysis pipeline: from data
 transformation (recipe) to estimation (workflow).
 
-### Profile Tab
+### Profile tab
 
-The Profile tab changes depending on your authentication state:
+The Profile tab changes based on the authentication state:
 
-**Before login**: shows a login/register form with two sub-tabs:
+**Before logging in**: displays a login/registration form with two
+sub-tabs:
 
 - **Login**: email and password
 - **Register**: name, email, password, account type (Individual,
   Institutional Member, or Institution)
 
-**After login**: shows your profile with:
+**After logging in**: displays the profile with:
 
 - Name, account type, trust level, email, and institution
-- **My Recipes** button to view your published recipes
-- **API Token** section to generate a long-lived token for scripting
+- **My Recipes** button to view published recipes
+- **API Token** section to generate a long-lived token for use in
+  scripts
 - **Logout** button
 
 #### Generating an API Token
@@ -155,17 +158,17 @@ recipes <- api_list_recipes(survey_type = "ech")
 
 This is useful for automated scripts and CI/CD pipelines.
 
-#### Admin Panel
+#### Administration panel
 
-If your account has admin privileges, an additional panel appears for
-reviewing institutional account requests. Admins can approve or reject
-pending registrations.
+If your account has administrator privileges, an additional panel
+appears for reviewing institutional account requests. Administrators
+can approve or reject pending registrations.
 
-## Offline Mode
+## Offline mode
 
-If the API is unreachable, the app automatically switches to offline
-mode using built-in example data. This includes 13 sample recipes and 6
-sample workflows covering common ECH use cases:
+If the API is unavailable, the application automatically switches to
+offline mode using built-in sample data. This includes 13 sample recipes
+and 6 sample workflows covering common ECH use cases:
 
 - Labor market indicators
 - Income distribution and poverty
@@ -173,13 +176,13 @@ sample workflows covering common ECH use cases:
 - Demographics and housing
 - Innovation indicators (EAII)
 
-Offline mode is useful for demonstrations and for exploring the interface
-without network access.
+Offline mode is useful for demonstrations and for exploring the
+interface without network access.
 
-## Docker Deployment
+## Docker deployment
 
-For production or team-internal deployment, the app includes a
-Dockerfile:
+For production deployment or team-internal use, the application includes
+a Dockerfile:
 
 ```bash
 # Build the image
@@ -192,13 +195,13 @@ docker run -p 3838:3838 \
 ```
 
 The `METASURVEY_API_URL` environment variable configures which API the
-app connects to. This can point to a self-hosted instance.
+application connects to. It can point to a self-hosted instance.
 
-## Next Steps
+## Next steps
 
 - **[API and Database Reference](api-database.html)** -- Technical
-  details on API endpoints and MongoDB schema
+  details about the API endpoints and MongoDB schema
 - **[Creating and Sharing Recipes](recipes.html)** -- Build recipes
   programmatically and publish them
 - **[Estimation Workflows](workflows-and-estimation.html)** -- Compute
-  survey-weighted estimates with `workflow()`
+  weighted survey estimates with `workflow()`

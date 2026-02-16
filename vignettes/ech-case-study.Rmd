@@ -16,41 +16,47 @@ knitr::opts_chunk$set(
 )
 ```
 
-## The ECH Compatibility Problem
+## The ECH harmonization problem
 
 Uruguay's *Encuesta Continua de Hogares* (ECH) is published annually by the
-Instituto Nacional de Estadistica (INE). Over the years, INE has changed
+Instituto Nacional de Estadistica (INE). Over the years, the INE has changed
 variable names, codebook definitions, and module structure across editions.
-Researchers who work with ECH data must *compatibilize* variables---mapping
-different naming conventions to a common schema---before any cross-year
+Researchers working with ECH data must *harmonize* variables ---that is, map
+different naming conventions to a common schema--- before any cross-year
 analysis is possible.
 
+ECH harmonization has historically been carried out by the Instituto de Economia
+(IECON) at the Universidad de la Republica. The resulting dataset has DOI:
+[http://doi.org/10.47426/ECH.INE](http://doi.org/10.47426/ECH.INE) (Instituto de
+Economia, 2020). metasurvey aims to complement and facilitate this kind of work
+by providing reproducible tools in R.
+
 In Uruguayan academia, this work has been done in STATA for over 30 years.
-A typical compatibility pipeline consists of approximately
+A typical harmonization pipeline consists of approximately
 **8 .do files per year**, covering:
 
-1. `2_correc_datos.do` -- Load raw data, merge person and household files,
-   fix variable names
-2. `3_compatibilizacion_mod_1_4.do` -- Harmonize demographics, health,
+1. `2_correc_datos.do` -- Raw data loading, merging person and household files,
+   variable name corrections
+2. `3_compatibilizacion_mod_1_4.do` -- Harmonization of demographic, health,
    education, and labor modules
-3. `4_ingreso_ht11.do` -- Construct household income (`ht11`)
-4. `5_descomp_fuentes.do` -- Decompose income by source
+3. `4_ingreso_ht11.do` -- Household income construction (`ht11`)
+4. `5_descomp_fuentes.do` -- Income decomposition by source
 5. `6_ingreso_ht11_sss.do` -- Social security adjustments
-6. `7_check_ingr.do` -- Validate income variables
+6. `7_check_ingr.do` -- Income variable validation
 7. `8_arregla_base_comp.do` -- Final dataset preparation
-8. `9_labels.do` -- Apply value labels
+8. `9_labels.do` -- Value label application
 
-Multiplied across 30+ years, that is over **240 STATA scripts** doing
+Multiplied over 30+ years, that means over **240 STATA scripts** doing
 essentially the same task: mapping raw ECH variables to a common schema.
 
 **metasurvey solves this with recipes.** Instead of maintaining hundreds of
 `.do` files, you write a single recipe that encodes the transformation logic
 and can be applied to any ECH edition.
 
-## STATA vs metasurvey: Side by Side
+## STATA vs metasurvey: Side-by-side comparison
 
-Here is a fragment of a typical STATA compatibility script for sex, age,
-and relationship:
+Below is a snippet from a typical STATA harmonization script
+for sex, age, and relationship to head of household:
 
 ```stata
 * STATA: Typical ECH compatibility script
@@ -72,7 +78,7 @@ g bc_pe4 = -9
   replace bc_pe4 = 7 if e31 == 14
 ```
 
-The equivalent in metasurvey:
+The metasurvey equivalent:
 
 ```r
 svy <- step_rename(svy, sex = e26, age = e27)
@@ -90,22 +96,22 @@ svy <- step_recode(svy, relationship,
 )
 ```
 
-The key differences:
+Key differences:
 
 | Aspect | STATA `.do` file | metasurvey recipe |
-|--------|-----------------|------------------|
-| Format | Flat script with hardcoded paths | Portable JSON with metadata |
-| Validation | Manual `assert` checks | Automatic `validate()` method |
-| Documentation | Comments in code | Auto-generated `doc()` method |
+|--------|-----------------|-------------------|
+| Format | Flat script with hard-coded paths | Portable JSON with metadata |
+| Validation | Manual checks with `assert` | Automatic `validate()` method |
+| Documentation | In-code comments | Auto-generated `doc()` method |
 | Sharing | Copy files via email/server | Registry with search and versioning |
 | Reproducibility | Depends on file paths and environment | Self-contained, any machine |
 | Cross-edition | Duplicate script per year | One recipe, multiple editions |
 
-## Simulating ECH-Like Data
+## Simulating ECH-like data
 
-For this vignette we simulate data that mirrors the structure of a real ECH
-microdata file. The simulated variables follow the same naming conventions
-and value ranges used by INE.
+For this vignette we simulate data that replicates the structure of a real
+ECH microdata file. The simulated variables follow the same naming conventions
+and value ranges used by the INE.
 
 ```{r simulate}
 library(metasurvey)
@@ -143,9 +149,9 @@ svy <- Survey$new(
 head(get_data(svy), 3)
 ```
 
-## Step 1: Demographic Variables
+## Step 1: Demographic variables
 
-Rename raw INE codes to readable names and recode categorical variables:
+Recode raw INE codes to readable names and recode categorical variables:
 
 ```{r demographics}
 # Recode sex from INE codes (e26: 1=Male, 2=Female)
@@ -169,16 +175,16 @@ svy <- step_recode(svy, age_group,
 )
 ```
 
-## Step 2: Labor Force Classification
+## Step 2: Labor force classification
 
-The variable `POBPCOAC` (Poblacion por condicion de actividad) is the
+The `POBPCOAC` variable (Population by activity status) is the
 central labor status classification in the ECH. INE codes:
 
 - 2 = Employed
 - 3-5 = Unemployed (various subcategories)
 - 6-7 = Inactive
 
-This mirrors the ILO standard labor force framework:
+This replicates the standard ILO labor force framework:
 
 ```{r labor}
 svy <- step_recode(svy, labor_status,
@@ -199,10 +205,10 @@ svy <- step_compute(svy,
 )
 ```
 
-## Step 3: Income Variables
+## Step 3: Income variables
 
-Construct income indicators following the standard methodology used with
-ECH data:
+Build income indicators following the standard methodology used
+with ECH data:
 
 ```{r income}
 svy <- step_compute(svy,
@@ -213,7 +219,7 @@ svy <- step_compute(svy,
 )
 ```
 
-## Step 4: Geographic Classification
+## Step 4: Geographic classification
 
 ```{r geography}
 dept_names <- data.table(
@@ -234,7 +240,7 @@ svy <- step_join(svy,
 )
 ```
 
-## Building the Recipe
+## Building the recipe
 
 Convert all transformations into a portable recipe:
 
@@ -255,7 +261,7 @@ ech_recipe <- steps_to_recipe(
 ech_recipe
 ```
 
-### Auto-Documentation
+### Automatic documentation
 
 ```{r recipe-doc}
 doc <- ech_recipe$doc()
@@ -267,14 +273,14 @@ doc$input_variables
 doc$output_variables
 ```
 
-### Publishing to the Registry
+### Publishing to the registry
 
 Publish the recipe so others can discover and reuse it:
 
 ```{r recipe-publish}
 # Set up a local registry
 set_backend("local", path = tempfile(fileext = ".json"))
-get_backend()$publish(ech_recipe)
+publish_recipe(ech_recipe)
 
 # Now anyone can find it
 found <- search_recipes("labor")
@@ -283,7 +289,7 @@ cat("Found", length(found), "recipe(s)\n")
 
 ## Estimation with workflow()
 
-Now compute standard labor market indicators:
+Now we compute standard labor market indicators:
 
 ```{r estimation}
 # Mean household income
@@ -307,7 +313,7 @@ result_employment <- workflow(
 result_employment
 ```
 
-### Domain Estimation
+### Domain estimation
 
 Compute estimates by subpopulation:
 
@@ -333,7 +339,7 @@ employment_sex <- workflow(
 employment_sex
 ```
 
-### Quality Assessment
+### Quality assessment
 
 ```{r quality}
 results_all <- workflow(
@@ -353,10 +359,10 @@ for (i in seq_len(nrow(results_all))) {
 }
 ```
 
-## Reproducibility: Same Recipe, Different Edition
+## Reproducibility: same recipe, different edition
 
-The power of recipes is applying them unchanged to new data. Here we
-simulate a "2024 edition" with the same structure:
+The power of recipes lies in applying them unchanged to new data.
+Here we simulate a "2024 edition" with the same structure:
 
 ```{r reproduce}
 set.seed(2024)
@@ -400,10 +406,10 @@ result_2024
 
 Same recipe, different data, consistent methodology.
 
-## For STATA Users: Quick Reference
+## For STATA users: quick reference
 
-If you are transitioning from STATA to R for survey analysis, here is a
-mapping of common operations:
+If you are transitioning from STATA to R for survey analysis,
+here is a mapping of common operations:
 
 | STATA | metasurvey | Notes |
 |-------|-----------|-------|
@@ -419,27 +425,27 @@ mapping of common operations:
 | `.do` file | `steps_to_recipe()` + publish | Portable, discoverable, version-controlled |
 | `use "data.dta"` | `load_survey(path = "data.dta")` | Reads STATA, CSV, RDS, etc. |
 
-### Key Differences
+### Key differences
 
 1. **Lazy evaluation**: In STATA, commands execute immediately. In
    metasurvey, steps are recorded and executed together with `bake_steps()`.
    This enables validation and optimization before execution.
 
 2. **Immutability**: metasurvey creates new variables instead of modifying
-   existing ones. `step_recode()` creates a new column; it does not
-   overwrite the source variable.
+   existing ones. `step_recode()` creates a new column; it does not overwrite
+   the source variable.
 
 3. **Design awareness**: Survey weights and design are attached to the
-   `Survey` object. You never need to prefix commands with `svy:` or
-   remember to set the design---`workflow()` handles it automatically.
+   `Survey` object. There is no need to prefix commands with `svy:` or
+   remember to set up the design ---`workflow()` handles it automatically.
 
 4. **Recipes vs .do files**: Recipes are self-documenting (via `doc()`),
    self-validating (via `validate()`), and discoverable (via the registry).
    A `.do` file is just a script; a recipe is a structured, portable object.
 
-## Next Steps
+## Next steps
 
-- **[Creating and Sharing Recipes](recipes.html)** -- Learn about recipe registries, certification, and discovery
-- **[Estimation Workflows](workflows-and-estimation.html)** -- Deep dive into `workflow()` and `RecipeWorkflow`
-- **[Rotating Panels and PoolSurvey](panel-analysis.html)** -- Work with the ECH's rotating panel structure
-- **[Getting Started](getting-started.html)** -- Review the basics
+- **[Creating and publishing recipes](recipes.html)** -- Learn about recipe registries, certification, and discovery
+- **[Estimation workflows](workflows-and-estimation.html)** -- Deep dive into `workflow()` and `RecipeWorkflow`
+- **[Rotating panels and PoolSurvey](panel-analysis.html)** -- Working with the ECH's rotating panel structure
+- **[Getting started](getting-started.html)** -- Review the basics
