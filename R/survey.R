@@ -712,14 +712,15 @@ get_metadata <- function(self) {
             ",
         type = toupper(
           unique(
-            sapply(
+            vapply(
               self$surveys[[1]],
-              function(x) x[[1]]$type
+              function(x) x[[1]]$type,
+              character(1)
             )
           )
         ),
         steps = unique(
-          sapply(
+          vapply(
             self$surveys[[1]],
             function(x) {
               ifelse(
@@ -730,20 +731,23 @@ get_metadata <- function(self) {
                   paste0(names(x[[1]]$steps), collapse = "\n  - ")
                 )
               )
-            }
+            },
+            character(1)
           )
         ),
         periodicity = names(self$surveys),
         periodicity_each = tolower(
-          unique(sapply(
+          unique(vapply(
             self$surveys[[1]],
-            function(x) x[[1]]$periodicity
+            function(x) x[[1]]$periodicity,
+            character(1)
           ))
         ),
         names_recipes = unique(
-          sapply(
+          vapply(
             self$surveys[[1]],
-            function(x) cat_recipes(x[[1]])
+            function(x) cat_recipes(x[[1]]),
+            character(1)
           )
         ),
         groups = Reduce(
@@ -819,7 +823,7 @@ cat_design <- function(self) {
   reset <- "\033[39m"
   red <- "\033[31m"
 
-  output_list <- sapply(
+  output_list <- vapply(
     names(design_list),
     function(x) {
       call <- design_list[[x]]$call
@@ -845,7 +849,8 @@ cat_design <- function(self) {
       )
 
       return(paste("\n  ", text))
-    }
+    },
+    character(1)
   )
 
   output <- glue::glue_col(paste0(output_list, collapse = ""))
@@ -938,7 +943,7 @@ cat_recipes <- function(self) {
     f = function(x, y) {
       paste0(x, "\n  - ", y)
     },
-    x = sapply(
+    x = vapply(
       X = 1:n_recipes,
       FUN = function(x) {
         glue::glue_col(
@@ -954,7 +959,8 @@ cat_recipes <- function(self) {
             self$recipes[[x]]$DOI
           )
         )
-      }
+      },
+      FUN.VALUE = character(1)
     ),
     init = ""
   )
@@ -1034,14 +1040,15 @@ bake_recipes <- function(svy) {
     recipes <- list(recipes)
   }
 
-  eval_env <- environment()
+  eval_env <- new.env(parent = parent.frame())
+  eval_env$svy <- svy
   for (i in seq_along(recipes)) {
     recipe <- recipes[[i]]
 
     # Validate depends_on before baking each recipe (case-insensitive)
-    if (length(recipe$depends_on) > 0 && !is.null(svy$data)) {
+    if (length(recipe$depends_on) > 0 && !is.null(eval_env$svy$data)) {
       deps <- unlist(recipe$depends_on)
-      survey_vars <- names(svy$data)
+      survey_vars <- names(eval_env$svy$data)
       missing_vars <- deps[!tolower(deps) %in% tolower(survey_vars)]
       if (length(missing_vars) > 0) {
         stop(
@@ -1059,8 +1066,8 @@ bake_recipes <- function(svy) {
         if (!dep %in% survey_vars) {
           match_idx <- which(survey_vars_lower == tolower(dep))
           if (length(match_idx) > 0) {
-            data.table::setnames(svy$data, survey_vars[match_idx[1]], dep)
-            survey_vars <- names(svy$data)
+            data.table::setnames(eval_env$svy$data, survey_vars[match_idx[1]], dep)
+            survey_vars <- names(eval_env$svy$data)
             survey_vars_lower <- tolower(survey_vars)
           }
         }
@@ -1077,9 +1084,10 @@ bake_recipes <- function(svy) {
         is.name(step_call[[2]]) && as.character(step_call[[2]]) == ".") {
         step_call[[2]] <- as.name("svy")
       }
-      svy <- eval(step_call, envir = eval_env)
+      eval_env$svy <- eval(step_call, envir = eval_env)
     }
   }
+  svy <- eval_env$svy
 
   svy_after <- svy$clone(deep = TRUE)
   svy_after$recipes <- lapply(
