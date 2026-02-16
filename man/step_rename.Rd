@@ -5,11 +5,12 @@
 \title{Rename variables in survey data (step)}
 \usage{
 step_rename(
-  svy = survey_empty(),
+  svy,
   ...,
   mapping = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Rename variables",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -17,18 +18,22 @@ step_rename(
 \arguments{
 \item{svy}{A Survey or RotativePanelSurvey object}
 
-\item{...}{Pairs in the form new_name = old_name (unquoted or character)}
+\item{...}{Pairs in the form \code{new_name = old_name} (unquoted).}
 
 \item{mapping}{A named character vector of the form
-\code{c(new_name = "old_name")}.}
+\code{c(new_name = "old_name")}. Alternative to \code{...} for
+programmatic use.}
 
-\item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
+\item{.copy}{Whether to operate on a copy (default: \code{use_copy_default()})}
 
-\item{comment}{Optional description for the step}
+\item{comment}{Descriptive text for the step for
+documentation and traceability. Defaults to "Rename variables"}
 
-\item{lazy}{Logical, whether to delay execution.}
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
-\item{record}{Logical, whether to record the step.}
+\item{lazy}{Internal. Whether to delay execution.}
+
+\item{record}{Internal. Whether to record the step.}
 }
 \value{
 Survey object with the specified variables
@@ -36,6 +41,19 @@ renamed (or queued for renaming).
 }
 \description{
 Creates a step that renames variables in the survey data when baked.
+}
+\details{
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called.
+
+Variables can be renamed in two ways:
+\itemize{
+\item \strong{Unquoted pairs:} \code{step_rename(svy, new_name = old_name)}
+\item \strong{Named character vector:} \code{step_rename(svy, mapping = c(new_name = "old_name"))}
+}
+
+Variables that don't exist in the data cause an error, unlike
+\code{\link[=step_remove]{step_remove()}} which issues a warning.
 }
 \examples{
 dt <- data.table::data.table(

@@ -13,7 +13,7 @@ List with user fields (name, email, user_type, etc.)
 Returns profile info for the currently authenticated user.
 }
 \examples{
-\donttest{
+\dontrun{
 api_me()
 }
 }

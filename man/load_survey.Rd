@@ -10,6 +10,7 @@ load_survey(
   svy_edition = NULL,
   svy_weight = NULL,
   svy_psu = NULL,
+  svy_strata = NULL,
   ...,
   bake = FALSE,
   recipes = NULL
@@ -40,6 +41,9 @@ patterns:
 weight variable name. Use helper function \code{\link{add_weight}}}
 
 \item{svy_psu}{Primary sampling unit (PSU) variable as string}
+
+\item{svy_strata}{Stratification variable name as string (optional).
+Used in \code{\link[survey:svydesign]{survey::svydesign()}} for stratified sampling designs.}
 
 \item{...}{Additional arguments passed to specific reading functions}
 
@@ -76,7 +80,7 @@ If no \code{path} is provided, an empty Survey object is created that can
 be used to build step pipelines without initial data.
 }
 \examples{
-\donttest{
+\dontrun{
 # Load ECH 2023 with recipes
 ech_2023 <- load_survey(
   path = "data/ech_2023.csv",

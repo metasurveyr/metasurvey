@@ -20,8 +20,7 @@ set_workflow_backend("local", path = tempfile(fileext = ".json"))
 wf <- RecipeWorkflow$new(
   name = "Example", description = "Test",
   survey_type = "ech", edition = "2023",
-  recipe_id = "r_001", estimation_type = "svymean",
-  variables = "income"
+  recipe_ids = "r_001", estimation_type = "svymean"
 )
 publish_workflow(wf)
 

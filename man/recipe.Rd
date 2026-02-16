@@ -55,20 +55,19 @@ r <- recipe(
 r
 
 \donttest{
-# Recipe with steps
-r2 <- recipe(
-  name = "Labor Market ECH",
-  user = "Labor Team",
-  svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Full labor market analysis",
-  step_recode(
-    labor_status,
-    POBPCOAC == 2 ~ "Employed",
-    POBPCOAC \%in\% 3:5 ~ "Unemployed",
-    .default = "Other"
-  ),
-  step_compute(activity_rate = active / total * 100)
-)
+# Recipe with steps using local data
+library(data.table)
+dt <- data.table(id = 1:50, age = sample(18:65, 50, TRUE),
+                 income = runif(50, 1000, 5000), w = runif(50, 0.5, 2))
+svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+                  psu = NULL, engine = "data.table",
+                  weight = add_weight(annual = "w"))
+svy <- svy |>
+  step_compute(income_cat = ifelse(income > 3000, "high", "low")) |>
+  step_recode(age_group, age < 30 ~ "young", .default = "adult")
+r2 <- recipe(name = "Demo", user = "test", svy = svy,
+            description = "Demo recipe", steps = get_steps(svy))
+r2
 }
 
 }

@@ -13,7 +13,7 @@
 #'
 #' @return NULL (called for side effect of launching the app).
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Local / RStudio viewer
 #' explore_recipes()
 #'

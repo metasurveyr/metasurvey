@@ -5,11 +5,12 @@
 \title{Remove variables from survey data (step)}
 \usage{
 step_remove(
-  svy = survey_empty(),
+  svy,
   ...,
   vars = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Remove variables",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -19,15 +20,19 @@ step_remove(
 
 \item{...}{Unquoted variable names to remove, or a character vector}
 
-\item{vars}{Character vector of variable names to remove.}
+\item{vars}{Character vector of variable names to remove.
+Alternative to \code{...} for programmatic use.}
 
-\item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
+\item{.copy}{Whether to operate on a copy (default: \code{use_copy_default()})}
 
-\item{comment}{Optional description for the step}
+\item{comment}{Descriptive text for the step for
+documentation and traceability. Defaults to "Remove variables"}
 
-\item{lazy}{Logical, whether to delay execution.}
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
-\item{record}{Logical, whether to record the step.}
+\item{lazy}{Internal. Whether to delay execution.}
+
+\item{record}{Internal. Whether to record the step.}
 }
 \value{
 Survey object with the specified variables
@@ -36,6 +41,19 @@ removed (or queued for removal).
 \description{
 Creates a step that removes one or more variables
 from the survey data when baked.
+}
+\details{
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called.
+
+Variables can be specified in two ways:
+\itemize{
+\item \strong{Unquoted names:} \code{step_remove(svy, age, income)}
+\item \strong{Character vector:} \code{step_remove(svy, vars = c("age", "income"))}
+}
+
+Variables that don't exist in the data produce a warning
+(not an error), allowing pipelines to be robust to missing columns.
 }
 \examples{
 dt <- data.table::data.table(

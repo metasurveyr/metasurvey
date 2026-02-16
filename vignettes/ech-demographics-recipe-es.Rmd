@@ -206,7 +206,7 @@ El pipeline es un DAG (grafo aciclico dirigido) de transformaciones.
 `view_graph()` lo renderiza como una red interactiva -- cada nodo es un step,
 y las aristas muestran dependencias de variables:
 
-```{r eval=FALSE}
+```{r eval = requireNamespace("visNetwork", quietly = TRUE)}
 view_graph(svy)
 ```
 
@@ -218,7 +218,7 @@ Para salida estatica podemos inspeccionar la lista de steps:
 
 ```{r}
 for (s in get_steps(svy)) {
-  cat(sprintf("[%s] %s\n", s$type, s$comments %||% ""))
+  cat(sprintf("[%s] %s\n", s$type, s$comment %||% ""))
 }
 ```
 

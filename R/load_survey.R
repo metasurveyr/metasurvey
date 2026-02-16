@@ -24,6 +24,8 @@
 #' @param svy_weight List with weight information specifying periodicity and
 #'   weight variable name. Use helper function \code{\link{add_weight}}
 #' @param svy_psu Primary sampling unit (PSU) variable as string
+#' @param svy_strata Stratification variable name as string (optional).
+#'   Used in [survey::svydesign()] for stratified sampling designs.
 #' @param ... Additional arguments passed to specific reading functions
 #' @param bake Logical indicating whether recipes are processed automatically
 #'   when loading data. Defaults to FALSE
@@ -51,7 +53,7 @@
 #' be used to build step pipelines without initial data.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Load ECH 2023 with recipes
 #' ech_2023 <- load_survey(
 #'   path = "data/ech_2023.csv",
@@ -101,6 +103,7 @@ load_survey <- function(
     svy_edition = NULL,
     svy_weight = NULL,
     svy_psu = NULL,
+    svy_strata = NULL,
     ..., bake = FALSE,
     recipes = NULL) {
   path_null <- missing(path)
@@ -131,6 +134,7 @@ load_survey <- function(
     svy_edition = svy_edition,
     svy_weight = svy_weight,
     svy_psu = svy_psu,
+    svy_strata = svy_strata,
     .engine_name = .engine,
     bake = bake,
     recipes = recipes,
@@ -172,11 +176,13 @@ load_survey <- function(
 #'   weights information specifing periodicity and the name
 #'   of the weight variable. Recomended to use the helper
 #'   function add_weight().
+#' @param svy_strata Stratification variable name (character or NULL).
+#'   Passed to Survey$new(strata = ...).
 #' @param ... Further arguments to be passed to
 #'   load_panel_survey
 #' @return RotativePanelSurvey object
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # example code
 #' path_dir <- here::here("example-data", "ech", "ech_2023")
 #' ech_2023 <- load_panel_survey(
@@ -213,7 +219,7 @@ load_survey <- function(
 #'   )
 #' )
 #' }
-#' \donttest{
+#' \dontrun{
 #' # Example of loading a panel survey
 #' panel_survey <- load_panel_survey(
 #'   path_implantation = "path/to/implantation.csv",
@@ -234,6 +240,7 @@ load_panel_survey <- function(
     svy_type,
     svy_weight_implantation,
     svy_weight_follow_up,
+    svy_strata = NULL,
     ...) {
   names_survey <- gsub(
     "\\..*",
@@ -264,7 +271,8 @@ load_panel_survey <- function(
     path_implantation,
     svy_type = svy_type,
     svy_edition = basename(path_implantation),
-    svy_weight = svy_weight_implantation
+    svy_weight = svy_weight_implantation,
+    svy_strata = svy_strata
   )
 
   if (!is.null(svy_weight_follow_up$replicate_path)) {
@@ -358,7 +366,8 @@ load_panel_survey <- function(
           y,
           svy_type = svy_type,
           svy_edition = basename(y),
-          svy_weight = svy_weight
+          svy_weight = svy_weight,
+          svy_strata = svy_strata
         )
       }
     )
@@ -372,7 +381,8 @@ load_panel_survey <- function(
           path_survey[[x]],
           svy_type = svy_type,
           svy_edition = x,
-          svy_weight = svy_weight_follow_up
+          svy_weight = svy_weight_follow_up,
+          svy_strata = svy_strata
         )
       }
     )
@@ -547,6 +557,7 @@ load_survey.data.table <- function(...) {
     edition = .args$svy_edition,
     type = .args$svy_type,
     psu = .args$svy_psu,
+    strata = .args$svy_strata,
     engine = .engine_name,
     weight = .args$svy_weight,
     recipes = .args$recipes %||% NULL

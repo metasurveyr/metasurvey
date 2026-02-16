@@ -9,14 +9,10 @@ and retrieval. Supports "local" (JSON-backed
 RecipeRegistry) and "api" (remote plumber API) backends.
 }
 \examples{
-# Local backend
+\dontrun{
+# Local backend (internal class, use set_backend() instead)
 backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
 backend$search("labor")
-
-\donttest{
-# API backend (requires configure_api() first)
-configure_api("https://metasurvey-api.example.com")
-backend <- RecipeBackend$new("api")
 }
 
 }

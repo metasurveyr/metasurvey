@@ -9,7 +9,8 @@ survey_empty(
   type = NULL,
   weight = NULL,
   engine = NULL,
-  psu = NULL
+  psu = NULL,
+  strata = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ survey_empty(
 \item{engine}{Engine of survey}
 
 \item{psu}{PSU variable or formula (optional)}
+
+\item{strata}{Stratification variable name (optional)}
 }
 \value{
 Survey object
@@ -40,6 +43,10 @@ Other survey-objects:
 \code{\link{cat_design_type}()},
 \code{\link{get_data}()},
 \code{\link{get_metadata}()},
+\code{\link{has_design}()},
+\code{\link{has_recipes}()},
+\code{\link{has_steps}()},
+\code{\link{is_baked}()},
 \code{\link{set_data}()},
 \code{\link{survey_to_data.table}()},
 \code{\link{survey_to_data_frame}()},

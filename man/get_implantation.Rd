@@ -44,7 +44,7 @@ This function is essential for analysis requiring:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 # Load ECH rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",

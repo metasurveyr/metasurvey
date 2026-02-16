@@ -238,50 +238,20 @@ jobs:
         (needs.build-shiny.result == 'success')
       )
     environment: production
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-
       - name: Deploy API to Railway
         if: needs.build-api.result == 'success'
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          echo "Deploying API service to Railway..."
-          railway up --service metasurvey-api --detach || {
-            echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "${{ secrets.RAILWAY_API_WEBHOOK }}" ]; then
-              curl -X POST "${{ secrets.RAILWAY_API_WEBHOOK }}" \
-                -H "Content-Type: application/json" \
-                -d '{"image":"${{ env.API_IMAGE_NAME }}:latest"}'
-            else
-              echo "No webhook configured, deployment may have failed"
-              exit 1
-            fi
-          }
+        run: railway up --service ${{ secrets.RAILWAY_API_SERVICE_ID }} --path-as-root inst/api
 
       - name: Deploy Shiny to Railway
         if: needs.build-shiny.result == 'success'
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          echo "Deploying Shiny service to Railway..."
-          railway up --service metasurvey-shiny --detach || {
-            echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" ]; then
-              curl -X POST "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" \
-                -H "Content-Type: application/json" \
-                -d '{"image":"${{ env.SHINY_IMAGE_NAME }}:latest"}'
-            else
-              echo "No webhook configured, deployment may have failed"
-              exit 1
-            fi
-          }
+        run: railway up --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }} --path-as-root inst/shiny
 
       - name: Deployment summary
         run: |

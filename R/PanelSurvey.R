@@ -208,7 +208,7 @@ RotativePanelSurvey <- R6Class(
 #' with a warning.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
@@ -498,7 +498,7 @@ PoolSurvey <- R6Class(
 #' - Evaluation of sampling design quality
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Load ECH rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
@@ -586,7 +586,7 @@ get_implantation <- function(RotativePanelSurvey) {
 #' - Each follow-up maintains methodological consistency with implantation
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",

@@ -49,10 +49,10 @@ In STATA, teams share `.do` files, but these are tightly coupled to specific fil
 
 The typical starting point is loading a survey with `load_survey()`. You can load example data or point to your own files:
 
-```{r load-survey, eval = FALSE}
+```r
 library(metasurvey)
 
-# Load ECH 2022 with example data
+# Load ECH 2022 with example data (downloads from GitHub)
 ech_2022 <- load_survey(
   load_survey_example("ech", "ech_2022"),
   svy_type    = "ech",
@@ -60,7 +60,7 @@ ech_2022 <- load_survey(
   svy_weight  = add_weight(annual = "pesoano")
 )
 
-# Or load with existing recipes from the registry
+# Or load with existing recipes from the registry (requires API server)
 ech_2022 <- load_survey(
   load_survey_example("ech", "ech_2022"),
   svy_type    = "ech",
@@ -205,8 +205,8 @@ The same recipe applied to a different edition produces consistent results. This
 
 In practice, you can load a survey and apply published recipes in a single call:
 
-```{r load-with-recipes, eval = FALSE}
-# Load ECH 2023 and apply the labor recipe from the registry
+```r
+# Load ECH 2023 and apply the labor recipe from the registry (requires API)
 ech_2023 <- load_survey(
   load_survey_example("ech", "ech_2023"),
   svy_type    = "ech",
@@ -254,7 +254,7 @@ The real power of recipes lies in sharing them. Every recipe you create can be p
 
 The recommended workflow is to publish recipes to the public API. Anyone can browse recipes without an account; publishing requires registration:
 
-```{r api-sharing, eval = FALSE}
+```r
 # One-time: register and authenticate
 api_register("Your Name", "you@example.com", "password")
 api_login("you@example.com", "password")
@@ -269,7 +269,7 @@ When authenticated, `api_publish_recipe()` attaches your user profile to the rec
 
 No authentication is needed to browse and download recipes:
 
-```{r api-browse, eval = FALSE}
+```r
 # Browse all ECH recipes
 ech_recipes <- api_list_recipes(survey_type = "ech")
 
@@ -281,7 +281,7 @@ r <- api_get_recipe(id = "recipe_id_here")
 
 The Shiny app provides a visual interface for browsing recipes and workflows:
 
-```{r shiny-app, eval = FALSE}
+```r
 explore_recipes()
 ```
 
@@ -291,7 +291,7 @@ The explorer shows recipe cards with certification badges, download counts, and 
 
 Institutions that work with **confidential or restricted-access surveys** may need a private registry. metasurvey supports this via a self-hosted backend with MongoDB:
 
-```{r private-registry, eval = FALSE}
+```r
 # Point to your institution's private API
 configure_api("https://your-institution.example.com/api")
 

@@ -16,8 +16,8 @@ Character string listing recipe names, or "None".
 Cast recipes from survey
 }
 \examples{
-\donttest{
-svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+\dontrun{
+svy <- survey_empty(type = "demo", edition = "2023")
 cat_recipes(svy)
 }
 }

@@ -51,8 +51,8 @@ operations.}
 
 \item{\code{call}}{The function call associated with the step.}
 
-\item{\code{svy_before}}{The survey object before the step is
-applied.}
+\item{\code{svy_before}}{Deprecated. Always NULL to prevent memory
+retention chains. Kept for backwards compatibility.}
 
 \item{\code{default_engine}}{The default engine used for
 processing the step.}
@@ -60,7 +60,7 @@ processing the step.}
 \item{\code{depends_on}}{A list of variables that the step
 depends on.}
 
-\item{\code{comments}}{Comments or notes about the step.}
+\item{\code{comment}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the step
 has been executed.}
@@ -91,9 +91,9 @@ Create a new Step object
   svy_before,
   default_engine,
   depends_on,
-  comments = NULL,
+  comment = NULL,
   bake = !lazy_default(),
-  comment = NULL
+  comments = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -118,8 +118,8 @@ step's operations.}
 \item{\code{call}}{The function call associated with the
 step.}
 
-\item{\code{svy_before}}{The survey object before the step
-is applied.}
+\item{\code{svy_before}}{Deprecated. Ignored (always set to
+NULL) to prevent memory retention chains.}
 
 \item{\code{default_engine}}{The default engine used for
 processing the step.}
@@ -127,13 +127,12 @@ processing the step.}
 \item{\code{depends_on}}{A list of variables that the step
 depends on.}
 
-\item{\code{comments}}{Comments or notes about the step.}
+\item{\code{comment}}{Comments or notes about the step.}
 
 \item{\code{bake}}{A logical value indicating whether the
 step has been executed.}
 
-\item{\code{comment}}{Optional alias of \code{comments} for
-backwards compatibility.}
+\item{\code{comments}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{comment} instead.}
 }
 \if{html}{\out{</div>}}
 }
