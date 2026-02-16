@@ -376,27 +376,8 @@ Survey <- R6Class(
     #'   Much faster than clone(deep=TRUE) but design objects are shared.
     #' @return New Survey object with copied data but shared design
     shallow_clone = function() {
-      new_svy <- Survey$new(
-        data = data.table::copy(self$data),
-        edition = self$edition,
-        type = self$type,
-        psu = self$psu,
-        engine = self$default_engine,
-        weight = self$weight
-      )
-
-      # Share the design if already initialized (no copy)
-      if (self$design_initialized) {
-        new_svy$design <- self$design
-        new_svy$design_initialized <- TRUE
-      }
-
-      # Copy steps metadata (shallow)
-      new_svy$steps <- self$steps
-      new_svy$recipes <- self$recipes
-      new_svy$workflows <- self$workflows
-      new_svy$periodicity <- self$periodicity
-
+      new_svy <- self$clone(deep = FALSE)
+      new_svy$data <- data.table::copy(self$data)
       return(new_svy)
     }
   ),
@@ -702,11 +683,13 @@ get_metadata <- function(self) {
               {blue Recipes:} {names_recipes}
               ",
         type = toupper(self$type),
-        edition = ifelse(
-          is(self$edition, "character") || is(self$edition, "numeric"),
-          self$edition,
+        edition = if (is.null(self$edition) || identical(self$edition, NA)) {
+          "Unknown"
+        } else if (is(self$edition, "character") || is(self$edition, "numeric")) {
+          self$edition
+        } else {
           format(self$edition, "%Y-%m")
-        ),
+        },
         default_engine = self$default_engine,
         design = cat_design(self),
         steps = ifelse(
