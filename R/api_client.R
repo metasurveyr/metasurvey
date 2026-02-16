@@ -141,8 +141,8 @@ api_request <- function(endpoint, method = "GET",
   headers <- c("Content-Type" = "application/json")
   token <- api_token()
   if (!is.null(token) &&
-      token_expires_soon(token) &&
-      endpoint != "auth/refresh") {
+    token_expires_soon(token) &&
+    endpoint != "auth/refresh") {
     tryCatch(
       {
         refreshed <- api_refresh_token()
@@ -165,7 +165,8 @@ api_request <- function(endpoint, method = "GET",
     POST = httr::POST(
       url,
       body = jsonlite::toJSON(
-        body, auto_unbox = TRUE, null = "null"
+        body,
+        auto_unbox = TRUE, null = "null"
       ),
       httr::add_headers(.headers = headers),
       encode = "raw",
@@ -189,7 +190,8 @@ api_request <- function(endpoint, method = "GET",
     }
     stop(
       "API error (", httr::status_code(resp), "): ",
-      msg, call. = FALSE
+      msg,
+      call. = FALSE
     )
   }
 
@@ -222,8 +224,8 @@ api_request <- function(endpoint, method = "GET",
 api_register <- function(name, email, password,
                          user_type = "individual", institution = NULL) {
   if (!is.character(password) ||
-      nchar(password) < 8 ||
-      nchar(password) > 128) {
+    nchar(password) < 8 ||
+    nchar(password) > 128) {
     stop(
       "Password must be between 8 and 128 characters.",
       call. = FALSE
@@ -327,7 +329,7 @@ api_logout <- function() {
 #' @keywords internal
 validate_api_id <- function(id) {
   if (!is.character(id) || length(id) != 1L ||
-      !grepl("^[a-zA-Z0-9_.-]+$", id)) {
+    !grepl("^[a-zA-Z0-9_.-]+$", id)) {
     stop(
       "Invalid API ID: must be a single ",
       "alphanumeric string (a-z, 0-9, _, ., -)",
@@ -406,7 +408,8 @@ api_get_recipe <- function(id) {
     tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
       warning(
         "Failed to parse recipe '", single_id,
-        "': ", e$message, call. = FALSE
+        "': ", e$message,
+        call. = FALSE
       )
       NULL
     })
@@ -437,7 +440,8 @@ api_publish_recipe <- function(recipe) {
     stop("recipe must be a Recipe object", call. = FALSE)
   }
   result <- api_request(
-    "recipes", method = "POST", body = recipe$to_list()
+    "recipes",
+    method = "POST", body = recipe$to_list()
   )
   if (isTRUE(result$ok)) {
     message("Recipe published: ", result$id)
@@ -458,7 +462,8 @@ api_download_recipe <- function(id) {
     error = function(e) {
       warning(
         "Failed to track recipe download for '",
-        id, "': ", e$message, call. = FALSE
+        id, "': ", e$message,
+        call. = FALSE
       )
       invisible(NULL)
     }
@@ -551,7 +556,8 @@ api_publish_workflow <- function(workflow) {
     stop("workflow must be a RecipeWorkflow object", call. = FALSE)
   }
   result <- api_request(
-    "workflows", method = "POST",
+    "workflows",
+    method = "POST",
     body = workflow$to_list()
   )
   if (isTRUE(result$ok)) {
@@ -573,7 +579,8 @@ api_download_workflow <- function(id) {
     error = function(e) {
       warning(
         "Failed to track workflow download for '",
-        id, "': ", e$message, call. = FALSE
+        id, "': ", e$message,
+        call. = FALSE
       )
       invisible(NULL)
     }

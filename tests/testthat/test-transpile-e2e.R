@@ -53,38 +53,41 @@ test_that("transpile 2022 do-files and bake sequentially on ECH data", {
     eval_env$svy <- svy
     steps_ok <- 0
     for (step_str in executable_steps) {
-      tryCatch({
-        step_call <- parse(text = step_str)[[1]]
-        if (is.call(step_call) && length(step_call) >= 2 &&
+      tryCatch(
+        {
+          step_call <- parse(text = step_str)[[1]]
+          if (is.call(step_call) && length(step_call) >= 2 &&
             is.name(step_call[[2]]) &&
             as.character(step_call[[2]]) == ".") {
-          step_call[[2]] <- as.name("svy")
+            step_call[[2]] <- as.name("svy")
+          }
+          eval_env$svy <- eval(step_call, envir = eval_env)
+          steps_ok <- steps_ok + 1
+        },
+        error = function(e) {
+          msg <- conditionMessage(e)
+          # Skip expected errors:
+          # - missing variables (orchestrator creates them)
+          # - parse errors (untranslated STATA syntax like _n, _N)
+          # - undefined columns
+          is_expected <- grepl(
+            paste0(
+              "not found|not exist|Variables to rename|",
+              "undefined columns|cannot remove|object.*not found|",
+              "unexpected symbol|unexpected '='|parse error|",
+              "type logical but|type character but|type double but|",
+              "type integer but|same type"
+            ),
+            msg
+          )
+          if (!is_expected) {
+            fail(sprintf(
+              "Module '%s' unexpected error: %s\nStep: %s",
+              module_name, msg, substr(step_str, 1, 120)
+            ))
+          }
         }
-        eval_env$svy <- eval(step_call, envir = eval_env)
-        steps_ok <- steps_ok + 1
-      }, error = function(e) {
-        msg <- conditionMessage(e)
-        # Skip expected errors:
-        # - missing variables (orchestrator creates them)
-        # - parse errors (untranslated STATA syntax like _n, _N)
-        # - undefined columns
-        is_expected <- grepl(
-          paste0(
-            "not found|not exist|Variables to rename|",
-            "undefined columns|cannot remove|object.*not found|",
-            "unexpected symbol|unexpected '='|parse error|",
-            "type logical but|type character but|type double but|",
-            "type integer but|same type"
-          ),
-          msg
-        )
-        if (!is_expected) {
-          fail(sprintf(
-            "Module '%s' unexpected error: %s\nStep: %s",
-            module_name, msg, substr(step_str, 1, 120)
-          ))
-        }
-      })
+      )
     }
     svy <- eval_env$svy
 
