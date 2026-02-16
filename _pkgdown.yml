@@ -108,6 +108,7 @@ reference:
   - publish_workflow
   - set_workflow_backend
   - get_workflow_backend
+  - reproduce_workflow
   - print.RecipeWorkflow
 - title: Rotating Panels
   desc: Panels with implantation and follow-ups
@@ -120,6 +121,7 @@ reference:
   contents:
   - add_weight
   - add_replicate
+  - resolve_weight_spec
   - cat_design
   - cat_design_type
   - set_engine
