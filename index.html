@@ -11,12 +11,12 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
-<link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Survey Processing with Meta-Programming">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Survey Processing with Meta-Programming">
 <meta name="description" content="Provides a set of functions to process survey data using meta-programming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.">
 <meta property="og:description" content="Provides a set of functions to process survey data using meta-programming. It is designed to work with the survey package, but it can be used with any other package that provides a similar data structure. The main goal of this package is to provide a set of functions that can be used to process survey data in a more efficient way, by using meta-programming to generate code that can be used to process the data.">
 <meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png">
@@ -30,14 +30,20 @@
 </style>
 </head>
 <body>
+<p>
+pkgdown/templates/in-header.html
+
+  
+
+  </p>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +60,15 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/metaSurveyR/metasurvey" aria-label="GitHub"><span class="fa fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/metasurveyr/metasurvey/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -69,24 +83,33 @@
 </div>
 <!-- badges: start -->
 
-<p><strong>metasurvey</strong> provides tools to streamline the analysis of complex survey data using metaprogramming and reproducible pipelines.<br>
-It integrates tightly with the <a href="https://cran.r-project.org/package=survey" class="external-link"><code>survey</code></a> package and is especially helpful when working with <strong>complex survey designs</strong> and <strong>recurrent estimations</strong> over time (e.g., rotating panels or repeated cross-sections).</p>
-<p>Key features:</p>
+<p><strong>metasurvey</strong> is an R package for processing and analysing complex survey data using metaprogramming and reproducible pipelines. It integrates with the <a href="https://cran.r-project.org/package=survey" class="external-link"><code>survey</code></a> package and is designed for <strong>complex sampling designs</strong> and <strong>recurring estimations</strong> over time (rotating panels, repeated cross-sections).</p>
+<div class="section level3">
+<h3 id="key-features">Key features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h3>
 <ul>
-<li>Tidy-style API for survey processing and estimation.</li>
-<li>Reproducible survey pipelines with steps and workflows.</li>
-<li>Support for advanced variance estimation methods (e.g., bootstrap replicates).</li>
-<li>Recipes and reusable metadata to manage harmonized survey definitions over time.</li>
+<li>
+<strong>Steps</strong>: lazy transformation pipeline (<code>step_compute</code>, <code>step_recode</code>, <code>step_rename</code>, <code>step_remove</code>, <code>step_join</code>) executed via <code><a href="reference/bake_steps.html">bake_steps()</a></code>.</li>
+<li>
+<strong>Recipes</strong>: portable, versioned objects that encapsulate harmonisation pipelines with automatic documentation (<code>doc()</code>) and validation (<code>validate()</code>).</li>
+<li>
+<strong>Workflows</strong>: estimation with <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svymean</a></code>, <code>svytotal</code>, <code>svyratio</code> and <code>svyby</code> integrated in <code><a href="reference/workflow.html">workflow()</a></code>, returning a <code>data.table</code> with value, standard error and coefficient of variation.</li>
+<li>
+<strong>Rotating panels</strong>: support for <code>RotativePanelSurvey</code> with implantation and follow-ups, and <code>PoolSurvey</code> for combined estimation.</li>
+<li>
+<strong>Replicate weights</strong>: bootstrap replicate configuration via <code><a href="reference/add_replicate.html">add_replicate()</a></code> for robust variance with <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">survey::svrepdesign</a></code>.</li>
+<li>
+<strong>Recipe registry</strong>: publish, search and discover recipes and workflows through a REST API or a local JSON registry.</li>
+<li>
+<strong>Shiny app</strong>: interactive recipe and workflow explorer with <code>run_metasurvey_app()</code>.</li>
 </ul>
 <hr>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the stable version from CRAN:</p>
+<p>Development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"metasurvey"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"metasurveyR/metasurvey"</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -94,70 +117,63 @@ It integrates tightly with the <a href="https://cran.r-project.org/package=surve
 <div class="section level2">
 <h2 id="quick-example">Quick example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey">metasurvey</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ech_2022</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
-<span>    <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="reference/load_survey_example.html">load_survey_example</a></span><span class="op">(</span></span>
-<span>        <span class="st">"ech"</span>,</span>
-<span>        <span class="st">"ech_2022"</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    svy_edition <span class="op">=</span> <span class="st">"2022"</span>,</span>
-<span>    svy_type <span class="op">=</span> <span class="st">"ech"</span>,</span>
-<span>    svy_weight <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w_ano"</span><span class="op">)</span>,</span>
-<span>    recipes <span class="op">=</span> <span class="fu"><a href="reference/get_recipe.html">get_recipe</a></span><span class="op">(</span></span>
-<span>        <span class="st">"ech"</span>,</span>
-<span>        <span class="st">"2022"</span></span>
-<span>    <span class="op">)</span></span>
+<span><span class="co"># Create a survey with sample data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">api</span>, package <span class="op">=</span> <span class="st">"survey"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  data    <span class="op">=</span> <span class="va">apistrat</span>,</span>
+<span>  edition <span class="op">=</span> <span class="st">"2000"</span>,</span>
+<span>  type    <span class="op">=</span> <span class="st">"api"</span>,</span>
+<span>  psu     <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  engine  <span class="op">=</span> <span class="st">"data.table"</span>,</span>
+<span>  weight  <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pw"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Lazy transformations</span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>, growth <span class="op">=</span> <span class="va">api00</span> <span class="op">-</span> <span class="va">api99</span>, comment <span class="op">=</span> <span class="st">"API growth"</span><span class="op">)</span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">school_level</span>,</span>
+<span>  <span class="va">stype</span> <span class="op">==</span> <span class="st">"E"</span> <span class="op">~</span> <span class="st">"Elementary"</span>,</span>
+<span>  <span class="va">stype</span> <span class="op">==</span> <span class="st">"M"</span> <span class="op">~</span> <span class="st">"Middle"</span>,</span>
+<span>  <span class="va">stype</span> <span class="op">==</span> <span class="st">"H"</span> <span class="op">~</span> <span class="st">"High"</span>,</span>
+<span>  .default <span class="op">=</span> <span class="cn">NA_character_</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Estimation</span></span>
+<span><span class="fu"><a href="reference/workflow.html">workflow</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">growth</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="full-panel-example-with-bootstrap-replicates">Full panel example (with bootstrap replicates)<a class="anchor" aria-label="anchor" href="#full-panel-example-with-bootstrap-replicates"></a>
+<h2 id="full-example-ech-panel-with-bootstrap-replicate-weights">Full example: ECH panel with bootstrap replicate weights<a class="anchor" aria-label="anchor" href="#full-example-ech-panel-with-bootstrap-replicate-weights"></a>
 </h2>
-<p>This example uses the Uruguayan <a href="https://www.google.com/search?client=safari&amp;rls=en&amp;q=ECH&amp;ie=UTF-8&amp;oe=UTF-8" class="external-link"><em>ECH</em></a> panel with bootstrap replicate weights.<br>
-First, download and unzip the example data:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-o</span> example-data.zip <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">mkdir</span> example-data</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">mkdir</span> temp <span class="kw">&amp;&amp;</span> <span class="fu">unzip</span> example-data.zip <span class="at">-d</span> temp <span class="kw">&amp;&amp;</span> <span class="fu">mv</span> temp/example-data/<span class="pp">*</span> example-data/ <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> temp</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">rm</span> example-data.zip</span></code></pre></div>
-<p>Or run the following R script to download and unzip the data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># download_example_data.R</span></span>
-<span></span>
-<span><span class="co"># This script downloads and unzips the example-data.zip from S3</span></span>
-<span></span>
-<span><span class="va">download_example_ech</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<p>This example uses the rotating panel from Uruguay’s <a href="https://www.ine.gub.uy/encuesta-continua-de-hogares" class="external-link"><em>Encuesta Continua de Hogares</em></a> (ECH) with bootstrap replicate weights. First, download the example data:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">download_example_ech</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">zip_url</span> <span class="op">&lt;-</span> <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
 <span>  <span class="va">dest_zip</span> <span class="op">&lt;-</span> <span class="st">"example-data.zip"</span></span>
 <span>  <span class="va">temp_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"example-data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Download the zip file</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="va">zip_url</span>, destfile <span class="op">=</span> <span class="va">dest_zip</span>, mode <span class="op">=</span> <span class="st">"wb"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Downloaded example-data.zip"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Unzip to temporary directory</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">temp_dir</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/unzip.html" class="external-link">unzip</a></span><span class="op">(</span><span class="va">dest_zip</span>, exdir <span class="op">=</span> <span class="va">temp_dir</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Unzipped example-data.zip"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">target_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"example-data"</span><span class="op">)</span></span>
+<span>  <span class="va">target_dir</span> <span class="op">&lt;-</span> <span class="st">"example-data"</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">target_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.rename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, </span>
-<span>              <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">target_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Moved unzipped data to chapters/example-data"</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Cleanup</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.rename</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">target_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">temp_dir</span>, <span class="st">"example-data"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">dest_zip</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">temp_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Cleanup done"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Run the function</span></span>
 <span><span class="fu">download_example_ech</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Then, you can run the following analysis:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>With the data downloaded:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span></span>
@@ -189,14 +205,20 @@ First, download and unzip the example data:</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Build labour market indicators</span></span>
 <span><span class="va">ech_2023</span> <span class="op">&lt;-</span> <span class="va">ech_2023</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pea"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PEA"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pet"</span>, <span class="va">e27</span> <span class="op">&gt;=</span> <span class="fl">14</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PET"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"po"</span>, <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PO"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pd"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>, comment <span class="op">=</span> <span class="st">"PD"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pea"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>              comment <span class="op">=</span> <span class="st">"EAP"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pet"</span>, <span class="va">e27</span> <span class="op">&gt;=</span> <span class="fl">14</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>              comment <span class="op">=</span> <span class="st">"WAP"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"po"</span>, <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>              comment <span class="op">=</span> <span class="st">"Employed"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="st">"pd"</span>, <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="fl">1</span>, .default <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>              comment <span class="op">=</span> <span class="st">"Unemployed"</span>, .level <span class="op">=</span> <span class="st">"follow_up"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ech_2023_bake</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">ech_2023</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Quarterly rates: activity, employment and unemployment</span></span>
 <span><span class="va">workflow_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  survey <span class="op">=</span> <span class="fu"><a href="reference/extract_surveys.html">extract_surveys</a></span><span class="op">(</span><span class="va">ech_2023_bake</span>, quarterly <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyratio.html" class="external-link">svyratio</a></span><span class="op">(</span><span class="op">~</span><span class="va">pea</span>, denominator <span class="op">=</span> <span class="op">~</span><span class="va">pet</span><span class="op">)</span>,</span>
@@ -208,6 +230,22 @@ First, download and unzip the example data:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">workflow_result</span></span></code></pre></div>
+<p>This pipeline loads a rotating panel with bootstrap replicate weights, builds binary labour market indicators (EAP, WAP, employed, unemployed), and estimates activity, employment and unemployment rates by quarter with robust variance.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<ul>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/getting-started.html">Getting started</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/recipes.html">Recipes</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/workflows-and-estimation.html">Workflows and estimation</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/complex-designs.html">Complex designs</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/panel-analysis.html">Rotating panels</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/ech-case-study.html">Case study: ECH</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html">Interactive explorer</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/api-database.html">API and database</a></li>
+</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -226,6 +264,13 @@ First, download and unzip the example data:</p>
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -241,16 +286,16 @@ First, download and unzip the example data:</p>
 <a href="https://www.mauroloprete.com" class="external-link">Mauro Loprete</a> <br><small class="roles"> Author, maintainer </small>   </li>
 <li>
 <a href="https://natydasilva.github.io/natydasilva/" class="external-link">Natalia da Silva</a> <br><small class="roles"> Author </small>   </li>
+<li>
+<a href="https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html" class="external-link">Fabricio Machado</a> <br><small class="roles"> Author </small>   </li>
 </ul>
 </div>
 
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=metasurvey" class="external-link"><img src="https://www.r-pkg.org/badges/version/metasSurvey" alt="CRAN status"></a></li>
 <li><a href="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main" alt="pkgdown"></a></li>
-<li><a href="https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main" class="external-link"><img src="https://codecov.io/gh/tidyverse/dplyr/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://results.pre-commit.ci/latest/github/metasurveyr/metasurvey/main" class="external-link"><img src="https://results.pre-commit.ci/badge/github/metasurveyr/metasurvey/main.svg" alt="pre-commit.ci status"></a></li>
+<li><a href="https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main" class="external-link"><img src="https://codecov.io/gh/metasurveyr/metasurvey/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
@@ -259,11 +304,11 @@ First, download and unzip the example data:</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://www.mauroloprete.com" class="external-link">Mauro Loprete</a>, <a href="https://natydasilva.github.io/natydasilva/" class="external-link">Natalia da Silva</a>.</p>
+  <p>Developed by <a href="https://www.mauroloprete.com" class="external-link">Mauro Loprete</a>, <a href="https://natydasilva.github.io/natydasilva/" class="external-link">Natalia da Silva</a>, <a href="https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html" class="external-link">Fabricio Machado</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
@@ -273,5 +318,6 @@ First, download and unzip the example data:</p>
 
 
 
-  </body>
+  
+</body>
 </html>

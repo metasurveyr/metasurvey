@@ -1,8 +1,25 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
-articles: {}
-last_built: 2025-09-08T02:34Z
+articles:
+  api-database-es: api-database-es.html
+  api-database: api-database.html
+  complex-designs-es: complex-designs-es.html
+  complex-designs: complex-designs.html
+  ech-case-study-es: ech-case-study-es.html
+  ech-case-study: ech-case-study.html
+  getting-started-es: getting-started-es.html
+  getting-started: getting-started.html
+  metasurvey-es: metasurvey-es.html
+  panel-analysis-es: panel-analysis-es.html
+  panel-analysis: panel-analysis.html
+  recipes-es: recipes-es.html
+  recipes: recipes.html
+  shiny-explorer-es: shiny-explorer-es.html
+  shiny-explorer: shiny-explorer.html
+  workflows-and-estimation-es: workflows-and-estimation-es.html
+  workflows-and-estimation: workflows-and-estimation.html
+last_built: 2026-02-16T02:15Z
 urls:
   reference: https://metasurveyr.github.io/metasurvey/reference
   article: https://metasurveyr.github.io/metasurvey/articles

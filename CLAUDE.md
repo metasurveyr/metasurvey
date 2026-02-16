@@ -1,0 +1,148 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working
+with code in this repository.
+
+## What is metasurvey?
+
+An R package for processing survey data using metaprogramming. It wraps
+the `survey` package with R6 classes, reproducible pipelines
+(steps/recipes/workflows), and support for complex designs like rotating
+panels with bootstrap replicate weights.
+
+## Build & Test Commands
+
+``` bash
+# Run full test suite
+Rscript -e 'devtools::test()'
+
+# Run a single test file
+Rscript -e 'devtools::test(filter = "steps-basic")'
+
+# R CMD check (full package validation: 0 errors/0 warnings expected)
+Rscript -e 'devtools::check()'
+
+# Regenerate docs (roxygen2 → NAMESPACE + man/)
+Rscript -e 'devtools::document()'
+
+# Build package
+R CMD build .
+
+# Install locally
+Rscript -e 'devtools::install()'
+
+# Test coverage
+Rscript -e 'covr::package_coverage()'
+```
+
+## Architecture
+
+### Core R6 Class Hierarchy
+
+- **Survey** (`R/survey.R`) — Base class. Holds data (data.table),
+  metadata (type, edition, periodicity), weight spec, sampling design
+  ([`survey::svydesign`](https://rdrr.io/pkg/survey/man/svydesign.html)/`svrepdesign`),
+  and attached steps/recipes/workflows.
+- **RotativePanelSurvey** (`R/PanelSurvey.R`) — Extends the concept for
+  rotating panels: has an `implantation` Survey + list of `follow_up`
+  Surveys. Steps can target `.level = "follow_up"` or `"implantation"`.
+- **PoolSurvey** (`R/survey.R`) — Groups multiple surveys by time
+  hierarchy (e.g., `list(annual = list(group1 = list(s1, s2)))`).
+
+### Step Pipeline (lazy evaluation)
+
+- **Step** (`R/Step.R`) — R6 class storing a transformation: type
+  (`compute`/`recode`/`rename`/`remove`/`join`), expressions,
+  dependencies, bake status.
+- **Step functions** (`R/steps.R`, largest file) —
+  [`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+  [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+  [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+  [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+  [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md).
+  By default (`lazy_processing=TRUE`), steps are recorded but not
+  executed until
+  [`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+  is called.
+- **[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)**
+  (`R/steps.R`) — Materializes all pending lazy steps on the survey
+  data.
+- Internal `compute()` and `recode()` functions at the top of
+  `R/steps.R` handle the actual data.table mutations.
+
+### Recipe System
+
+- **Recipe** (`R/Recipes.R`) — R6 class bundling metadata + a list of
+  step calls for reproducible survey processing. Has `doc()` for
+  auto-documentation and `validate(svy)` to check dependencies.
+- **RecipeRegistry/RecipeBackend** (`R/RecipeRegistry.R`,
+  `R/RecipeAPI.R`) — Registry pattern with pluggable backends (JSON
+  file, MongoDB) for publishing/discovering recipes.
+- **RecipeCategory, RecipeCertification, RecipeUser** — Supporting R6
+  classes for the recipe ecosystem.
+- Tidy API wrappers in `R/recipe_tidy_api.R`:
+  [`list_recipes()`](https://metasurveyr.github.io/metasurvey/reference/list_recipes.md),
+  [`search_recipes()`](https://metasurveyr.github.io/metasurvey/reference/search_recipes.md),
+  [`filter_recipes()`](https://metasurveyr.github.io/metasurvey/reference/filter_recipes.md),
+  [`rank_recipes()`](https://metasurveyr.github.io/metasurvey/reference/rank_recipes.md),
+  etc.
+
+### Workflow System
+
+- **[`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)**
+  (`R/workflow.R`) — Executes
+  [`survey::svymean`](https://rdrr.io/pkg/survey/man/surveysummary.html)/`svytotal`/`svyratio`/`svyby`
+  calls on Survey objects, returns a `data.table` of results with
+  metadata.
+- **RecipeWorkflow** (`R/RecipeWorkflow.R`) — R6 class for publishable
+  workflow objects (captures estimation calls, references recipe IDs).
+- **WorkflowRegistry/WorkflowBackend** (`R/WorkflowRegistry.R`,
+  `R/WorkflowBackend.R`) — Same registry pattern as recipes.
+- Tidy API in `R/workflow_tidy_api.R`:
+  [`list_workflows()`](https://metasurveyr.github.io/metasurvey/reference/list_workflows.md),
+  [`search_workflows()`](https://metasurveyr.github.io/metasurvey/reference/search_workflows.md),
+  etc.
+
+### Global Options
+
+Controlled via [`options()`](https://rdrr.io/r/base/options.html), set
+on package load in `R/meta.R`: - `metasurvey.engine` — default data
+engine (`"data.table"`) - `use_copy` — whether step operations clone
+data
+([`use_copy_default()`](https://metasurveyr.github.io/metasurvey/reference/use_copy_default.md)) -
+`metasurvey.lazy_processing` — lazy step execution
+([`lazy_default()`](https://metasurveyr.github.io/metasurvey/reference/lazy_default.md),
+TRUE by default)
+
+## Testing Conventions
+
+- testthat edition 3 (`Config/testthat/edition: 3`)
+- Test helpers in `tests/testthat/helper-survey.R`:
+  `make_test_survey(n)`, `make_test_data(n)`, `make_test_panel()`
+- Integration tests using `example-data/` directory use
+  `skip_on_cran()` + `skip_if_not(file.exists(...))`
+- Test file naming: `test-{topic}.R` (e.g., `test-steps-basic.R`,
+  `test-recipe.R`, `test-workflow.R`)
+
+## Known Gotchas
+
+- **recode + bake_steps**: `bake_step()` passes `record=FALSE` to
+  internal `recode()` which doesn’t accept it. Avoid calling
+  [`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+  after
+  [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md)
+  in new tests — test column creation directly with `use_copy=TRUE`.
+- **lazy_processing=FALSE interaction**: Steps apply immediately but
+  Step objects are created with `bake=FALSE`, leading to
+  double-execution on
+  [`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md).
+  Prefer `lazy_processing=TRUE` (the default).
+- **PoolSurvey construction**: Use nested list structure:
+  `PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))`.
+
+## Git Workflow
+
+- `main` branch for releases/PRs
+- `develop` branch for active development
+- roxygen2 generates NAMESPACE and man/ pages — run
+  `devtools::document()` after changing any roxygen comments

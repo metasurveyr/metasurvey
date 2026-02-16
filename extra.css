@@ -1,0 +1,363 @@
+/* ============================================================
+   metasurvey pkgdown custom CSS
+   Color scheme inspired by the Shiny Recipe Explorer app
+   Design system: indigo accent + slate neutrals
+   ============================================================ */
+
+/* -- CSS Custom Properties (matching Shiny app) -- */
+:root {
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50:  #f8fafc;
+  --indigo: #6366f1;
+  --indigo-light: #818cf8;
+  --indigo-dark: #4f46e5;
+  --indigo-50: #eef2ff;
+  --emerald: #10b981;
+  --emerald-50: #ecfdf5;
+  --amber: #f59e0b;
+  --amber-50: #fffbeb;
+  --sky: #0ea5e9;
+  --sky-50: #f0f9ff;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+}
+
+/* -- Navbar -- */
+.navbar {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--slate-300);
+  transition: color 0.15s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: #fff;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* -- Global Typography -- */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--slate-800);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--slate-900);
+  font-weight: 700;
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* -- Links -- */
+a {
+  color: var(--indigo);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover,
+a:focus {
+  color: var(--indigo-dark);
+  text-decoration: underline;
+}
+
+.navbar-dark a {
+  text-decoration: none;
+}
+
+/* -- Hero / Package Title Section -- */
+.page-header {
+  background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+  color: #fff;
+  border-bottom: 3px solid var(--indigo);
+  padding: 2.5rem 0;
+}
+
+.page-header h1 {
+  color: #fff;
+  font-weight: 800;
+}
+
+.page-header p {
+  color: var(--slate-300);
+}
+
+/* -- Buttons -- */
+.btn-primary {
+  background-color: var(--indigo);
+  border-color: var(--indigo);
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--indigo-dark);
+  border-color: var(--indigo-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background-color: #4338ca;
+  transform: translateY(0);
+}
+
+/* -- Content Cards -- */
+.card {
+  border: 1px solid var(--slate-200);
+  border-radius: 0.625rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+  border-color: var(--slate-300);
+}
+
+.card-header {
+  background-color: var(--slate-50);
+  border-bottom: 1px solid var(--slate-200);
+  font-weight: 600;
+}
+
+/* -- Reference Page -- */
+.section h2 {
+  border-bottom: 2px solid var(--indigo);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Reference topic list */
+.contents .desc {
+  color: var(--slate-600);
+}
+
+dl dt {
+  color: var(--slate-900);
+  font-weight: 600;
+}
+
+dl dd {
+  color: var(--slate-600);
+}
+
+/* -- Code Blocks -- */
+pre {
+  background-color: var(--slate-900);
+  color: var(--slate-100);
+  border: 1px solid var(--slate-700);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+pre code {
+  color: var(--slate-100);
+}
+
+code {
+  color: var(--indigo);
+  background-color: var(--indigo-50);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* -- Sidebar / Table of Contents -- */
+.pkgdown .contents a {
+  color: var(--indigo);
+}
+
+.pkgdown .contents a:hover {
+  color: var(--indigo-dark);
+}
+
+/* TOC active state */
+.toc .nav-link.active {
+  color: var(--indigo) !important;
+  font-weight: 600;
+  border-left: 3px solid var(--indigo);
+}
+
+.toc .nav-link {
+  color: var(--slate-600);
+  transition: color 0.15s ease;
+}
+
+.toc .nav-link:hover {
+  color: var(--indigo);
+}
+
+/* -- Footer -- */
+footer {
+  background-color: var(--slate-900);
+  color: var(--slate-400);
+  border-top: 3px solid var(--indigo);
+}
+
+footer a {
+  color: var(--indigo-light);
+}
+
+footer a:hover {
+  color: #fff;
+}
+
+/* -- Articles / Vignettes List -- */
+.contents h2 a {
+  color: var(--slate-900);
+}
+
+.contents h2 a:hover {
+  color: var(--indigo);
+}
+
+/* -- Badges / Labels -- */
+.badge {
+  font-weight: 600;
+  border-radius: 0.25rem;
+  letter-spacing: 0.01em;
+}
+
+.badge.bg-primary {
+  background-color: var(--indigo) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--emerald) !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--amber) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--sky) !important;
+}
+
+.badge.bg-danger {
+  background-color: var(--rose) !important;
+}
+
+/* -- Tables -- */
+.table {
+  --bs-table-striped-bg: var(--slate-50);
+}
+
+.table thead th {
+  background-color: var(--slate-800);
+  color: #fff;
+  font-weight: 600;
+  border-bottom: 2px solid var(--indigo);
+}
+
+.table td {
+  color: var(--slate-700);
+}
+
+/* -- Breadcrumbs -- */
+.breadcrumb-item a {
+  color: var(--indigo);
+}
+
+.breadcrumb-item.active {
+  color: var(--slate-500);
+}
+
+/* -- Search -- */
+.form-control:focus {
+  border-color: var(--indigo-light);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.2);
+}
+
+/* -- Dropdown Menus -- */
+.dropdown-menu {
+  border: 1px solid var(--slate-200);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: var(--indigo-50);
+  color: var(--indigo);
+}
+
+.dropdown-item.active {
+  background-color: var(--indigo);
+  color: #fff;
+}
+
+/* -- Light/Dark Switch styling -- */
+.navbar .form-check-input:checked {
+  background-color: var(--indigo);
+  border-color: var(--indigo);
+}
+
+/* -- Scrollbar (webkit) -- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--slate-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--slate-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-500);
+}
+
+/* -- Selection -- */
+::selection {
+  background-color: var(--indigo-50);
+  color: var(--indigo-dark);
+}
+
+/* -- Responsive adjustments -- */
+@media (max-width: 767.98px) {
+  .page-header {
+    padding: 1.5rem 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  pre {
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,289 @@
+# RotativePanelSurvey Class
+
+This class represents a rotative panel survey, which includes
+implantation and follow-up surveys. It provides methods to access and
+manipulate survey data, steps, recipes, workflows, and designs.
+
+## Public fields
+
+- `implantation`:
+
+  A survey object representing the implantation survey.
+
+- `follow_up`:
+
+  A list of survey objects representing the follow-up surveys.
+
+- `type`:
+
+  A string indicating the type of the survey.
+
+- `default_engine`:
+
+  A string specifying the default engine used for processing.
+
+- `steps`:
+
+  A list of steps applied to the survey.
+
+- `recipes`:
+
+  A list of recipes associated with the survey.
+
+- `workflows`:
+
+  A list of workflows associated with the survey.
+
+- `design`:
+
+  A design object for the survey.
+
+- `periodicity`:
+
+  A list containing the periodicity of the implantation and follow-up
+  surveys.
+
+## Methods
+
+### Public methods
+
+- [`RotativePanelSurvey$new()`](#method-RotativePanelSurvey-new)
+
+- [`RotativePanelSurvey$get_implantation()`](#method-RotativePanelSurvey-get_implantation)
+
+- [`RotativePanelSurvey$get_follow_up()`](#method-RotativePanelSurvey-get_follow_up)
+
+- [`RotativePanelSurvey$get_type()`](#method-RotativePanelSurvey-get_type)
+
+- [`RotativePanelSurvey$get_default_engine()`](#method-RotativePanelSurvey-get_default_engine)
+
+- [`RotativePanelSurvey$get_steps()`](#method-RotativePanelSurvey-get_steps)
+
+- [`RotativePanelSurvey$get_recipes()`](#method-RotativePanelSurvey-get_recipes)
+
+- [`RotativePanelSurvey$get_workflows()`](#method-RotativePanelSurvey-get_workflows)
+
+- [`RotativePanelSurvey$get_design()`](#method-RotativePanelSurvey-get_design)
+
+- [`RotativePanelSurvey$print()`](#method-RotativePanelSurvey-print)
+
+- [`RotativePanelSurvey$clone()`](#method-RotativePanelSurvey-clone)
+
+------------------------------------------------------------------------
+
+### Method `new()`
+
+Initializes a new instance of the RotativePanelSurvey class.
+
+#### Usage
+
+    RotativePanelSurvey$new(
+      implantation,
+      follow_up,
+      type,
+      default_engine,
+      steps,
+      recipes,
+      workflows,
+      design
+    )
+
+#### Arguments
+
+- `implantation`:
+
+  A survey object representing the implantation survey.
+
+- `follow_up`:
+
+  A list of survey objects representing the follow-up surveys.
+
+- `type`:
+
+  A string indicating the type of the survey.
+
+- `default_engine`:
+
+  A string specifying the default engine used for processing.
+
+- `steps`:
+
+  A list of steps applied to the survey.
+
+- `recipes`:
+
+  A list of recipes associated with the survey.
+
+- `workflows`:
+
+  A list of workflows associated with the survey.
+
+- `design`:
+
+  A design object for the survey.
+
+------------------------------------------------------------------------
+
+### Method [`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
+
+Retrieves the implantation survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_implantation()
+
+#### Returns
+
+A survey object representing the implantation survey.
+
+------------------------------------------------------------------------
+
+### Method [`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
+
+Retrieves the follow-up surveys.
+
+#### Usage
+
+    RotativePanelSurvey$get_follow_up(
+      index = length(self$follow_up),
+      monthly = NULL,
+      quarterly = NULL,
+      semiannual = NULL,
+      annual = NULL
+    )
+
+#### Arguments
+
+- `index`:
+
+  An integer specifying the index of the follow-up survey to retrieve.
+
+- `monthly`:
+
+  A vector of integers specifying monthly intervals.
+
+- `quarterly`:
+
+  A vector of integers specifying quarterly intervals.
+
+- `semiannual`:
+
+  A vector of integers specifying semiannual intervals.
+
+- `annual`:
+
+  A vector of integers specifying annual intervals.
+
+#### Returns
+
+A list of follow-up surveys matching the specified criteria.
+
+------------------------------------------------------------------------
+
+### Method `get_type()`
+
+Retrieves the type of the survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_type()
+
+#### Returns
+
+A string indicating the type of the survey.
+
+------------------------------------------------------------------------
+
+### Method `get_default_engine()`
+
+Retrieves the default engine used for processing.
+
+#### Usage
+
+    RotativePanelSurvey$get_default_engine()
+
+#### Returns
+
+A string specifying the default engine.
+
+------------------------------------------------------------------------
+
+### Method [`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md)
+
+Retrieves the steps applied to the survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_steps()
+
+#### Returns
+
+A list containing the steps for the implantation and follow-up surveys.
+
+------------------------------------------------------------------------
+
+### Method `get_recipes()`
+
+Retrieves the recipes associated with the survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_recipes()
+
+#### Returns
+
+A list of recipes.
+
+------------------------------------------------------------------------
+
+### Method `get_workflows()`
+
+Retrieves the workflows associated with the survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_workflows()
+
+#### Returns
+
+A list of workflows.
+
+------------------------------------------------------------------------
+
+### Method `get_design()`
+
+Retrieves the design object for the survey.
+
+#### Usage
+
+    RotativePanelSurvey$get_design()
+
+#### Returns
+
+A design object.
+
+------------------------------------------------------------------------
+
+### Method [`print()`](https://rdrr.io/r/base/print.html)
+
+Prints metadata about the RotativePanelSurvey object.
+
+#### Usage
+
+    RotativePanelSurvey$print()
+
+------------------------------------------------------------------------
+
+### Method `clone()`
+
+The objects of this class are cloneable with this method.
+
+#### Usage
+
+    RotativePanelSurvey$clone(deep = FALSE)
+
+#### Arguments
+
+- `deep`:
+
+  Whether to make a deep clone.

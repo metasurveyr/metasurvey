@@ -1,0 +1,213 @@
+# Explorador Interactivo de Recetas (ES)
+
+## Descripción general
+
+metasurvey incluye una aplicación web Shiny para explorar, buscar y
+gestionar recetas y workflows de forma interactiva. La aplicación se
+conecta a la API de metasurvey para mostrar recetas contribuidas por la
+comunidad, o funciona en modo offline con datos de ejemplo incorporados.
+
+## Iniciar la aplicación
+
+``` r
+library(metasurvey)
+
+# Open in your default browser
+explore_recipes()
+
+# Or specify host and port
+explore_recipes(port = 3838, host = "127.0.0.1")
+```
+
+La función
+[`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md)
+inicia la aplicación Shiny y la abre en el navegador. No se necesita
+configuración adicional: la aplicación se conecta automáticamente a la
+API de producción.
+
+## Navegación de la interfaz
+
+La aplicación tiene tres pestañas principales en la barra de navegación
+superior:
+
+### Pestaña de Recetas
+
+La pestaña **Recipes** es el punto de entrada principal. Muestra una
+grilla con búsqueda de recetas publicadas, cada una presentada como una
+tarjeta con:
+
+- **Nombre y edición** como metadatos
+- **Descripción** (truncada a dos líneas)
+- **Etiquetas de categoría** con insignias de colores (Labor Market,
+  Income, Education, Health, Demographics, Housing)
+- **Nivel de certificación** indicado por el color del encabezado de la
+  tarjeta:
+  - Índigo = Official
+  - Esmeralda = Reviewed
+  - Pizarra = Community
+- **Cantidad de descargas** y un botón “View”
+
+#### Búsqueda y filtrado
+
+La parte superior de la pestaña de Recetas ofrece cuatro filtros:
+
+| Filtro        | Opciones                                                       | Propósito                                        |
+|---------------|----------------------------------------------------------------|--------------------------------------------------|
+| Search        | Texto libre                                                    | Busca en el nombre y la descripción de la receta |
+| Survey type   | ECH, EAII, EPH, EAI                                            | Filtrar por encuesta                             |
+| Category      | Labor Market, Income, Education, Health, Demographics, Housing | Filtrar por tema                                 |
+| Certification | Official, Reviewed, Community                                  | Filtrar por nivel de confianza                   |
+
+Los filtros se aplican del lado del cliente para obtener resultados
+instantáneos. Utilice el botón de actualización para recargar los datos
+desde la API.
+
+#### Fila de estadísticas
+
+Debajo de los filtros, tres cuadros de estadísticas resumen los datos
+actuales:
+
+- **Recetas totales** en el registro
+- **Recetas oficiales** con certificación institucional
+- **Descargas totales** de todas las recetas
+
+#### Modal de detalle de receta
+
+Haga clic en “View” en cualquier tarjeta de receta para abrir un modal
+de detalle que muestra:
+
+1.  **Metadatos**: nombre, descripción, edición, tipo de encuesta
+2.  **Información del autor**: nombre del creador, institución, nivel de
+    confianza
+3.  **Variables de entrada**: lo que la receta espera encontrar en los
+    datos de la encuesta (mostradas como chips)
+4.  **Variables de salida**: lo que la receta crea (mostradas como
+    chips)
+5.  **Visualización del pipeline**: grafo interactivo de pasos (si el
+    paquete `visNetwork` está instalado)
+6.  **Recetas dependientes**: otras recetas de las que esta depende (con
+    enlaces para navegación)
+7.  **Workflows que la referencian**: workflows que utilizan esta receta
+    (con enlace para ir a la pestaña de Workflows)
+8.  **Metadatos ANDA**: etiquetas de variables del catálogo de datos del
+    INE, cuando están disponibles (integración no oficial; verifique
+    contra el libro de códigos oficial)
+
+### Pestaña de Workflows
+
+La pestaña **Workflows** muestra los workflows de estimación publicados.
+Cada tarjeta de workflow presenta el tipo de estimación (Annual,
+Quarterly, Monthly) y las recetas que referencia.
+
+Los workflows utilizan la misma interfaz de búsqueda y filtrado que las
+recetas. El modal de detalle muestra:
+
+- Todas las llamadas de estimación (`svymean`, `svytotal`, `svyratio`,
+  `svyby`) presentadas como una línea de tiempo visual
+- Referencias cruzadas a las recetas utilizadas para la preparación de
+  datos
+- Haga clic en una receta referenciada para navegar directamente a su
+  detalle
+
+### Navegación cruzada
+
+Las recetas y los workflows están vinculados bidireccionalmente:
+
+- Desde el **detalle de una receta**, haga clic en un workflow que la
+  referencia para ir a la pestaña de Workflows y abrir el detalle de ese
+  workflow
+- Desde el **detalle de un workflow**, haga clic en una receta
+  referenciada para volver a la pestaña de Recetas y abrir el detalle de
+  esa receta
+
+Esto permite rastrear el pipeline de análisis completo: desde la
+transformación de datos (receta) hasta la estimación (workflow).
+
+### Pestaña de Perfil
+
+La pestaña de Perfil cambia según el estado de autenticación:
+
+**Antes de iniciar sesión**: muestra un formulario de inicio de
+sesión/registro con dos sub-pestañas:
+
+- **Login**: correo electrónico y contraseña
+- **Register**: nombre, correo electrónico, contraseña, tipo de cuenta
+  (Individual, Institutional Member o Institution)
+
+**Después de iniciar sesión**: muestra el perfil con:
+
+- Nombre, tipo de cuenta, nivel de confianza, correo electrónico e
+  institución
+- Botón **My Recipes** para ver las recetas publicadas
+- Sección **API Token** para generar un token de larga duración para uso
+  en scripts
+- Botón **Logout**
+
+#### Generación de un API Token
+
+Desde la pestaña de Perfil, haga clic en “Generate API Token” para crear
+un token de 90 días para usar en scripts de R:
+
+``` r
+# Use the token generated from the app
+Sys.setenv(METASURVEY_TOKEN = "your-token-here")
+
+# Now API calls work without interactive login
+recipes <- api_list_recipes(survey_type = "ech")
+```
+
+Esto es útil para scripts automatizados y pipelines de CI/CD.
+
+#### Panel de administración
+
+Si su cuenta tiene privilegios de administrador, aparece un panel
+adicional para revisar solicitudes de cuentas institucionales. Los
+administradores pueden aprobar o rechazar registros pendientes.
+
+## Modo offline
+
+Si la API no está disponible, la aplicación cambia automáticamente al
+modo offline utilizando datos de ejemplo incorporados. Esto incluye 13
+recetas de muestra y 6 workflows de muestra que cubren casos de uso
+comunes de la ECH:
+
+- Indicadores del mercado laboral
+- Distribución del ingreso y pobreza
+- Educación y cobertura de salud
+- Demografía y vivienda
+- Indicadores de innovación (EAII)
+
+El modo offline es útil para demostraciones y para explorar la interfaz
+sin acceso a la red.
+
+## Despliegue con Docker
+
+Para despliegue en producción o uso interno de un equipo, la aplicación
+incluye un Dockerfile:
+
+``` bash
+# Build the image
+docker build -t metasurvey-shiny inst/shiny/
+
+# Run on port 3838
+docker run -p 3838:3838 \
+  -e METASURVEY_API_URL="https://metasurvey-api-production.up.railway.app" \
+  metasurvey-shiny
+```
+
+La variable de entorno `METASURVEY_API_URL` configura a qué API se
+conecta la aplicación. Puede apuntar a una instancia auto-alojada.
+
+## Próximos pasos
+
+- **[Referencia de API y Base de
+  Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.md)**
+  – Detalles técnicos sobre los endpoints de la API y el esquema de
+  MongoDB
+- **[Creación y Compartición de
+  Recetas](https://metasurveyr.github.io/metasurvey/articles/recipes.md)**
+  – Construir recetas de forma programática y publicarlas
+- **[Workflows de
+  Estimación](https://metasurveyr.github.io/metasurvey/articles/workflows-and-estimation.md)**
+  – Calcular estimaciones ponderadas de encuestas con
+  [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
