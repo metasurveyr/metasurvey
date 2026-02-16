@@ -52,10 +52,12 @@ infrastructure.
 
 ## Installation
 
-```{r install, eval = FALSE}
+```r
 # Install from GitHub
-# devtools::install_github("metaSurveyR/metasurvey")
+devtools::install_github("metaSurveyR/metasurvey")
+```
 
+```{r install}
 library(metasurvey)
 library(data.table)
 ```
@@ -257,7 +259,7 @@ cat("Comment:", steps[[1]]$comment, "\n")
 
 You can visualize the transformation pipeline as a directed graph:
 
-```{r view-graph, eval = FALSE}
+```{r view-graph, eval = requireNamespace("visNetwork", quietly = TRUE)}
 view_graph(svy, init_step = "Load ECH 2023")
 ```
 
@@ -397,7 +399,7 @@ labor_recipe$name
 
 Or you can define a recipe from scratch:
 
-```{r recipe-define, eval=FALSE}
+```r
 minimal_recipe <- recipe(
   name = "Basic Demographics - ECH",
   user = "analyst",
@@ -425,8 +427,8 @@ minimal_recipe <- recipe(
 
 Once published, anyone can retrieve a recipe by ID and apply it to their data:
 
-```{r recipe-apply, eval = FALSE}
-# Get a recipe by ID from the API
+```r
+# Get a recipe by ID from the API (requires server)
 r <- api_get_recipe("ech_labor_001")
 
 # Apply to a new survey
@@ -466,7 +468,7 @@ show_engines() # "data.table", "dplyr", etc.
 
 You can modify settings for the current session:
 
-```{r config-set, eval = FALSE}
+```{r config-set}
 # Disable lazy evaluation (execute steps immediately)
 set_lazy_processing(FALSE)
 
@@ -486,8 +488,8 @@ processing pipeline, you can publish it so that others can find and reuse
 it. The package connects to a public API where recipes and workflows are
 stored:
 
-```{r ecosystem, eval = FALSE}
-# Browse existing recipes (no login required)
+```r
+# Browse existing recipes (requires API server)
 ech_recipes <- api_list_recipes(survey_type = "ech")
 length(ech_recipes)
 

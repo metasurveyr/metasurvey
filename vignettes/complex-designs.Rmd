@@ -65,6 +65,52 @@ svy_simple <- Survey$new(
 cat_design(svy_simple)
 ```
 
+### Stratified Cluster Design
+
+Many national surveys use stratified multi-stage sampling. Pass `strata`
+and `psu` to `Survey$new()`:
+
+```{r stratified}
+dt_clus <- data.table(apiclus1)
+
+svy_strat_clus <- Survey$new(
+  data    = dt_strat,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  strata  = "stype",
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw")
+)
+
+cat_design(svy_strat_clus)
+```
+
+Cross-validate with the `survey` package:
+
+```{r stratified-validate}
+design_strat <- svydesign(id = ~1, strata = ~stype, weights = ~pw,
+                          data = dt_strat)
+direct_strat <- svymean(~api00, design_strat)
+
+wf_strat <- workflow(
+  list(svy_strat_clus),
+  survey::svymean(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+cat("Direct estimate:", round(coef(direct_strat), 2), "\n")
+cat("Workflow estimate:", round(wf_strat$value, 2), "\n")
+cat("Match:", all.equal(
+  as.numeric(coef(direct_strat)),
+  wf_strat$value,
+  tolerance = 1e-6
+), "\n")
+```
+
+For real-world examples of stratified cluster designs with CASEN, PNADc,
+ENIGH, and DHS data, see `vignette("international-surveys")`.
+
 ### Design Inspection
 
 ```{r inspect-design}
@@ -117,8 +163,8 @@ cat("Monthly estimate:", round(monthly_est$value, 1), "\n")
 For surveys that provide bootstrap replicates (such as Uruguay's ECH),
 use `add_replicate()` inside `add_weight()`:
 
-```{r bootstrap, eval = FALSE}
-# This example requires external files
+```r
+# Requires external bootstrap replicate CSV files
 svy_boot <- load_survey(
   path = "data/main_survey.csv",
   svy_type = "ech",
@@ -271,7 +317,7 @@ cat("Match:", all.equal(
 You can use `view_graph()` to visualize the dependency graph between
 steps:
 
-```{r view-graph, eval = FALSE}
+```{r view-graph, eval = requireNamespace("visNetwork", quietly = TRUE)}
 # Requires the visNetwork package
 svy_viz <- step_compute(svy_simple,
   api_diff = api00 - api99,

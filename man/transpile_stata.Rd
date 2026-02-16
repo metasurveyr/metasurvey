@@ -30,3 +30,12 @@ commands found)
 Parses a STATA .do file and translates its commands into
 metasurvey step call strings suitable for use in Recipe objects.
 }
+\examples{
+\donttest{
+tf <- tempfile(fileext = ".do")
+writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
+result <- transpile_stata(tf)
+result$steps
+result$stats
+}
+}

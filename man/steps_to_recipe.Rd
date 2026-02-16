@@ -36,14 +36,20 @@ A Recipe object
 Convert a list of steps to a recipe
 }
 \examples{
-\dontrun{
-svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
-svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
+\donttest{
+library(data.table)
+dt <- data.table(id = 1:20, age = sample(18:65, 20, TRUE),
+                 w = runif(20, 0.5, 2))
+svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+                  psu = NULL, engine = "data.table",
+                  weight = add_weight(annual = "w"))
+svy <- step_compute(svy, age2 = age^2)
 my_recipe <- steps_to_recipe(
-  name = "employment", user = "analyst",
-  svy = svy, description = "Employment indicators",
+  name = "age_vars", user = "analyst",
+  svy = svy, description = "Age-derived variables",
   steps = get_steps(svy)
 )
+my_recipe
 }
 }
 \seealso{

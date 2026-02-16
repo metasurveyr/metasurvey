@@ -175,30 +175,24 @@ recode <- function(svy, new_var, ...,
 #'   with new computed variables and the step added to the history
 #'
 #' @details
-#' **CORE ENGINE FEATURES**:
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called. This allows building
+#' a full pipeline before materializing any changes. Set
+#' `options(metasurvey.lazy_processing = FALSE)` to apply steps immediately.
 #'
-#' \strong{1. Automatic Expression Processing:}
-#' - All expressions are evaluated using R's native evaluation
-#' - Dependency detection using variable name analysis
-#' - Runtime validation prevents errors
+#' **Expression processing:**
+#' Expressions are evaluated using data.table's `:=` operator.
+#' Variable dependencies are detected automatically via `all.vars()`.
+#' Missing variables are caught before execution.
 #'
-#' \strong{2. Enhanced Error Prevention:}
-#' - Missing variables detected before execution
-#' - Type checking when possible
-#' - Precise error locations with context
+#' **Grouped computations:** Use `.by` to compute aggregated values
+#' (e.g., group means) that are automatically joined back to the data.
 #'
-#' \strong{3. Performance Benefits:}
-#' - Direct evaluation for minimal overhead
-#' - Efficient data.table operations
-#' - Optimized for large survey datasets
-#'
-#' For RotativePanelSurvey objects, validation ensures computations
-#' are compatible with the specified hierarchical level:
-#' - "implantation": Household/dwelling level computations
-#' - "follow_up": Individual/person level computations
-#' - "quarter": Quarterly aggregated computations
-#' - "month": Monthly aggregated computations
-#' - "auto": Automatically detects appropriate level
+#' For RotativePanelSurvey objects, `.level` controls where computations
+#' are applied:
+#' - `"auto"` (default): applies to both implantation and follow-ups
+#' - `"implantation"`: household/dwelling level only
+#' - `"follow_up"`: individual/person level only
 #'
 #' @examples
 #' # Basic computation
@@ -288,7 +282,13 @@ step_compute <- function(
       if (validate_step(svy, step)) {
         .svy_after$add_step(step)
       } else {
-        stop("Error in step")
+        stop(
+          sprintf(
+            "Step validation failed for compute step creating: %s",
+            paste(.new_vars, collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
       return(.svy_after)
     } else {
@@ -415,9 +415,10 @@ step_compute_rotative <- function(
 #'   Format: `condition ~ value`
 #' @param .default Default value assigned when no
 #'   condition is met. Defaults to `NA_character_`
-#' @param .name_step Custom name for the step to
-#'   identify it in the history. If not provided,
-#'   generated automatically with "Recode" prefix
+#' @param .name_step `r lifecycle::badge("deprecated")`
+#'   Custom name for the step in the history. Now
+#'   auto-generated from the variable name. Use `comment`
+#'   for user-facing documentation instead.
 #' @param ordered Logical indicating whether the new
 #'   variable should be an ordered factor.
 #'   Defaults to FALSE
@@ -440,32 +441,19 @@ step_compute_rotative <- function(
 #'   with the new recoded variable and the step added to the history
 #'
 #' @details
-#' **CORE ENGINE FOR RECODING**:
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called. This allows building
+#' a full pipeline before materializing any changes.
 #'
-#' \strong{1. Automatic Condition Processing:}
-#' - All LHS conditions are automatically analyzed
-#' - Static analysis of logical expressions
-#' - Dependency detection for all referenced variables
-#' - Optimization of conditional logic
-#'
-#' \strong{2. Enhanced Condition Evaluation:}
-#' - Conditions evaluated in order
-#' - First matching condition determines assignment
-#' - Optimized short-circuit evaluation
-#' - Better error reporting with expression context
-#'
-#' \strong{3. Performance Features:}
-#' - Direct evaluation using R's native conditional logic
-#' - Efficient execution for all condition types
-#' - Dependency validation prevents runtime errors
+#' **Condition evaluation:** Conditions are two-sided formulas evaluated
+#' in order. The first matching condition determines the assigned value.
+#' If no condition matches, `.default` is used.
 #'
 #' Condition examples:
-#' - Simple: `variable == 1`
-#' - Complex: `age >= 18 & income > 12000`
-#' - Vectorized: `variable %in% c(1,2,3)`
-#' - Vectorized: `variable %in% c(1,2,3)` (validates `variable` exists)
-#' - Logical: `!is.na(education) &
-#'   education > mean(education, na.rm = TRUE)`
+#' - Simple: `variable == 1 ~ "Yes"`
+#' - Complex: `age >= 18 & income > 12000 ~ "High"`
+#' - Vectorized: `variable %in% c(1,2,3) ~ "Group A"`
+#' - Logical: `!is.na(education) ~ "Has education"`
 #'
 #' @examples
 #' # Basic recode: categorize ages
@@ -789,12 +777,15 @@ get_comments <- function(steps) {
 #'
 #' Creates a step that joins additional data into a
 #' Survey or RotativePanelSurvey.
-#' Works with a data.frame/data.table or another Survey as the right-hand side.
 #'
-#' - Supports left, inner, right, and full joins
-#' - Allows named `by` mapping (e.g., c("id" = "code")) or simple vector
-#' - Avoids extra dependencies; resolves name
-#'   conflicts by suffixing RHS columns
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Supports left, inner, right, and full joins. Allows named `by`
+#' mapping (e.g., `c("id" = "code")`) or a simple character vector.
+#' Conflicting column names are resolved by appending `suffixes`
+#' to the right-hand side columns.
 #'
 #' @param svy A Survey or RotativePanelSurvey object.
 #'   If NULL, returns a step call
@@ -933,7 +924,6 @@ step_join <- function(
     setdiff(names(rhs_data), by.y)
   )
   if (length(overlap) > 0 && (suffixes[2] %in% c("", NA))) {
-    # Ensure RHS conflicts are suffixed to avoid overwriting LHS
     suffixes[2] <- ".y"
   }
   if (length(overlap) > 0) {
@@ -1023,12 +1013,25 @@ step_join <- function(
 #'
 #' @param svy A Survey or RotativePanelSurvey object
 #' @param ... Unquoted variable names to remove, or a character vector
-#' @param .copy Whether to operate on a copy (default: use_copy_default())
-#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
-#' @param comment Optional description for the step
 #' @param vars Character vector of variable names to remove.
+#'   Alternative to `...` for programmatic use.
+#' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
+#' @param comment Descriptive text for the step for
+#'   documentation and traceability. Defaults to "Remove variables"
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @return Survey object with the specified variables
 #'   removed (or queued for removal).
+#'
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Variables can be specified in two ways:
+#' - **Unquoted names:** `step_remove(svy, age, income)`
+#' - **Character vector:** `step_remove(svy, vars = c("age", "income"))`
+#'
+#' Variables that don't exist in the data produce a warning
+#' (not an error), allowing pipelines to be robust to missing columns.
 #' @examples
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
@@ -1068,18 +1071,6 @@ step_remove <- function(
     }
   } else {
     dots_list <- as.list(substitute(list(...)))[-1]
-    # Drop injected 'lazy' and 'record' arguments if present
-    if (length(dots_list) > 0) {
-      is_arg <- vapply(
-        dots_list,
-        function(x) {
-          !is.null(names(x)) &&
-            names(x) %in% c("lazy", "record")
-        },
-        logical(1)
-      )
-      dots_list <- dots_list[!is_arg]
-    }
     # Allow character vector passed via ...
     if (length(dots_list) == 1) {
       evald <- try(
@@ -1176,14 +1167,27 @@ step_remove <- function(
 #' Creates a step that renames variables in the survey data when baked.
 #'
 #' @param svy A Survey or RotativePanelSurvey object
-#' @param ... Pairs in the form new_name = old_name (unquoted or character)
-#' @param .copy Whether to operate on a copy (default: use_copy_default())
-#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
-#' @param comment Optional description for the step
+#' @param ... Pairs in the form `new_name = old_name` (unquoted).
 #' @param mapping A named character vector of the form
-#'   `c(new_name = "old_name")`.
+#'   `c(new_name = "old_name")`. Alternative to `...` for
+#'   programmatic use.
+#' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
+#' @param comment Descriptive text for the step for
+#'   documentation and traceability. Defaults to "Rename variables"
+#' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
 #' @return Survey object with the specified variables
 #'   renamed (or queued for renaming).
+#'
+#' @details
+#' **Lazy evaluation (default):** By default, steps are recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' Variables can be renamed in two ways:
+#' - **Unquoted pairs:** `step_rename(svy, new_name = old_name)`
+#' - **Named character vector:** `step_rename(svy, mapping = c(new_name = "old_name"))`
+#'
+#' Variables that don't exist in the data cause an error, unlike
+#' [step_remove()] which issues a warning.
 #' @examples
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
@@ -1223,18 +1227,6 @@ step_rename <- function(
     pairs <- as.list(substitute(list(...)))[-1]
     if (length(pairs) == 0) {
       return(svy)
-    }
-    # Drop injected 'lazy' and 'record' arguments if present
-    if (length(pairs) > 0) {
-      is_arg <- vapply(
-        pairs,
-        function(x) {
-          !is.null(names(x)) &&
-            names(x) %in% c("lazy", "record")
-        },
-        logical(1)
-      )
-      pairs <- pairs[!is_arg]
     }
     new_names <- names(pairs)
     old_names <- vapply(

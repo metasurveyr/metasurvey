@@ -1,3 +1,27 @@
+# metasurvey 0.0.15
+
+## New features
+* Added `strata` parameter to `Survey$new()`, `survey_empty()`,
+  `load_survey()`, and `load_panel_survey()` for stratified sampling
+  designs. Passed to `survey::svydesign(strata = ...)`.
+* New vignette: "International Survey Compatibility" (EN + ES) with
+  reproducible examples for ECH, EPH, CASEN, PNADc, CPS, ENIGH, and DHS.
+
+## Documentation
+* Eliminated `eval=FALSE` from all vignettes — chunks now use conditional
+  eval or markdown code blocks for non-runnable examples.
+* Improved man page examples: replaced `\dontrun{}` with `\donttest{}` and
+  runnable local-data examples for `cat_design`, `bake_recipes`, `recipe`,
+  `steps_to_recipe`, `transpile_stata`, `parse_do_file`, and others.
+* Added stratified cluster design section to complex-designs vignette.
+* Rewrote README with live service links (Shiny explorer, REST API),
+  CRAN status badge, and GitHub star call-to-action.
+
+## Internal
+* Expanded test suite to 2810 tests covering strata support, edge cases
+  in STATA transpiler, API client, panel surveys, and recipe system.
+* Added `pak` and survey-related packages to Suggests for vignette builds.
+
 # metasurvey 0.0.14
 
 ## Breaking changes
@@ -5,6 +29,8 @@
   as a legacy alias but will be removed in a future version.
 * `workflow()` first parameter renamed from `survey` to `svy` for consistency.
   Positional usage is unchanged.
+* `Survey$set_weight()` no longer emits `message("Setting weight")`.
+* `step_recode()` `.name_step` parameter is deprecated; use `comment` instead.
 
 ## New features
 * `use_copy` parameter in all step functions (`step_compute`, `step_recode`,
@@ -28,8 +54,25 @@
   the `stat` column (e.g. `svyby: x [sexo=1]`).
 * Mixed estimation types (`svymean` + `svyby`) no longer fail on
   `rbindlist` due to mismatched columns.
+* Fixed `set_engine()` logic bug where `identical(.engine, show_engines())`
+  compared string vs vector, silently failing.
+* Fixed vague `stop("Error in step")` in `step_compute()` validation —
+  now reports which variables failed.
+* Removed dead dots-filtering code in `step_remove()` and `step_rename()`.
+
+## Dependencies
+* Removed unused `bit64` import (CRAN compliance).
+* Replaced `jose` dependency with `jsonlite::base64url_dec()` for JWT
+  decoding — one less hard dependency.
+* `design_active` active binding now delegates to `ensure_design()`,
+  removing duplicated design-building logic.
 
 ## Documentation
+* All `step_*` functions now document lazy evaluation behavior in `@details`.
+* Improved `step_remove()` and `step_rename()` roxygen with full `@details`
+  sections matching `step_compute()` depth.
+* `workflow()` `@param svy` now prominently documents the `list()` requirement.
+* Cleaned up Survey class roxygen: removed duplicate Methods sections.
 * Updated vignettes to use `Step$comment` instead of `Step$comments`.
 * Vignettes now use real ECH 2023 sample data instead of simulated data.
 * Fixed ECH variable names for 2023 edition (`e31` → `e30`).

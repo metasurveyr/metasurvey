@@ -51,10 +51,12 @@ se enfoca en el analisis sustantivo; metasurvey se encarga de la infraestructura
 
 ## Instalacion
 
-```{r install, eval = FALSE}
+```r
 # Install from GitHub
-# devtools::install_github("metaSurveyR/metasurvey")
+devtools::install_github("metaSurveyR/metasurvey")
+```
 
+```{r install}
 library(metasurvey)
 library(data.table)
 ```
@@ -257,7 +259,7 @@ cat("Comment:", steps[[1]]$comment, "\n")
 
 Es posible visualizar el pipeline de transformacion como un grafo dirigido:
 
-```{r view-graph, eval = FALSE}
+```{r view-graph, eval = requireNamespace("visNetwork", quietly = TRUE)}
 view_graph(svy, init_step = "Load ECH 2023")
 ```
 
@@ -397,7 +399,7 @@ labor_recipe$name
 
 O se puede definir una receta desde cero:
 
-```{r recipe-define, eval=FALSE}
+```r
 minimal_recipe <- recipe(
   name = "Basic Demographics - ECH",
   user = "analyst",
@@ -425,8 +427,8 @@ minimal_recipe <- recipe(
 
 Una vez publicada, cualquier persona puede recuperar una receta por ID y aplicarla a sus datos:
 
-```{r recipe-apply, eval = FALSE}
-# Obtener una receta por ID desde la API
+```r
+# Obtener una receta por ID desde la API (requiere servidor)
 r <- api_get_recipe("ech_labor_001")
 
 # Aplicar a una nueva encuesta
@@ -466,7 +468,7 @@ show_engines() # "data.table", "dplyr", etc.
 
 Se pueden modificar las configuraciones para la sesion actual:
 
-```{r config-set, eval = FALSE}
+```{r config-set}
 # Disable lazy evaluation (execute steps immediately)
 set_lazy_processing(FALSE)
 
@@ -486,18 +488,18 @@ pipeline de procesamiento util, es posible publicarlo para que otros lo encuentr
 y reutilicen. El paquete se conecta a una API publica donde se almacenan recipes
 y workflows:
 
-```{r ecosystem, eval = FALSE}
-# Browse existing recipes (no login required)
+```r
+# Buscar recipes existentes (requiere servidor API)
 ech_recipes <- api_list_recipes(survey_type = "ech")
 length(ech_recipes)
 
-# Search for something specific
+# Buscar algo especifico
 labor <- api_list_recipes(search = "labor")
 
-# To publish your own, create an account first
+# Para publicar, crear una cuenta primero
 api_register("Your Name", "you@example.com", "password")
 
-# Then publish
+# Luego publicar
 api_publish_recipe(labor_recipe)
 ```
 

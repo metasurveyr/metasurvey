@@ -348,8 +348,8 @@ The power of recipes lies in applying them unchanged to new data.
 In a real workflow, you would load a different edition of the ECH
 and apply the same recipe:
 
-```{r reproduce, eval = FALSE}
-# Load ECH 2024 microdata (when available)
+```r
+# Load ECH 2024 microdata (requires external data file)
 svy_2024 <- load_survey(
   path = "ECH_2024.csv",
   type = "ech", edition = "2024",

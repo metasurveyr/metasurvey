@@ -116,3 +116,50 @@ test_that("description can be empty string", {
   cat <- RecipeCategory$new(name = "test", description = "")
   expect_equal(cat$description, "")
 })
+
+# ── Batch 10: RecipeCategory print with description, from_list edges ──────────
+
+test_that("RecipeCategory print shows description when non-empty", {
+  cat <- RecipeCategory$new(name = "labor", description = "Labor indicators")
+  expect_output(print(cat), "Labor indicators")
+})
+
+test_that("RecipeCategory print shows path when parent exists", {
+  parent <- RecipeCategory$new(name = "economics", description = "Econ")
+  child <- RecipeCategory$new(name = "labor", description = "Labor", parent = parent)
+  expect_output(print(child), "economics/labor")
+})
+
+test_that("from_list handles empty data.frame (JSON edge case)", {
+  result <- RecipeCategory$from_list(data.frame())
+  expect_null(result)
+})
+
+test_that("from_list handles empty list (JSON edge case)", {
+  result <- RecipeCategory$from_list(list())
+  expect_null(result)
+})
+
+test_that("from_list with deeply nested parent chain", {
+  lst <- list(
+    name = "employment",
+    description = "Employment",
+    parent = list(
+      name = "labor",
+      description = "Labor",
+      parent = list(
+        name = "economics",
+        description = "Economics",
+        parent = NULL
+      )
+    )
+  )
+  cat <- RecipeCategory$from_list(lst)
+  expect_equal(cat$get_path(), "economics/labor/employment")
+})
+
+test_that("equals returns FALSE for non-RecipeCategory", {
+  cat <- RecipeCategory$new(name = "test", description = "test")
+  expect_false(cat$equals("not_a_category"))
+  expect_false(cat$equals(list(name = "test")))
+})

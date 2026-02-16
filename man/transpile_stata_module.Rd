@@ -22,3 +22,10 @@ A named list of Recipe objects, one per thematic module
 Processes all do-files in a year directory and groups them
 into thematic Recipe objects (demographics, income, etc.).
 }
+\examples{
+\dontrun{
+# Requires a directory of .do files organized by year
+recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
+names(recipes)
+}
+}

@@ -348,7 +348,7 @@ El poder de los recipes radica en aplicarlos sin modificaciones a datos nuevos.
 En un flujo de trabajo real, se cargarían los datos de otra edicion y se
 aplicaría el mismo recipe:
 
-```{r reproduce, eval = FALSE}
+```r
 # Cargar microdatos de la ECH 2024 (cuando esten disponibles)
 svy_2024 <- load_survey(
   path = "ECH_2024.csv",

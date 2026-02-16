@@ -65,7 +65,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
         return(TRUE)
       }
       payload <- jsonlite::fromJSON(
-        rawToChar(jose::base64url_decode(parts[2]))
+        rawToChar(jsonlite::base64url_dec(parts[2]))
       )
       exp <- as.numeric(payload$exp)
       if (is.na(exp)) {
@@ -89,7 +89,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #' @return Invisibly, the previous URL (for restoring).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api(url = "https://metasurvey-api.example.com")
 #' }
 #' @family api-auth
@@ -312,7 +312,7 @@ api_refresh_token <- function() {
 #' @return Invisibly, NULL.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_logout()
 #' }
 #' @family api-auth

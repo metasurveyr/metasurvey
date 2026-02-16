@@ -49,7 +49,7 @@ Las **Recipes** son la respuesta de metasurvey a este problema. Una recipe es un
 
 El punto de partida típico es cargar una encuesta con `load_survey()`. Se pueden cargar datos de ejemplo o apuntar a archivos propios:
 
-```{r load-survey, eval = FALSE}
+```r
 library(metasurvey)
 
 # Cargar ECH 2022 con datos de ejemplo
@@ -205,7 +205,7 @@ La misma recipe aplicada a una edición diferente produce resultados consistente
 
 En la práctica, se puede cargar una encuesta y aplicar recipes publicadas en una sola llamada:
 
-```{r load-with-recipes, eval = FALSE}
+```r
 # Cargar ECH 2023 y aplicar la recipe laboral del registry
 ech_2023 <- load_survey(
   load_survey_example("ech", "ech_2023"),
@@ -254,7 +254,7 @@ El verdadero poder de las recipes radica en compartirlas. Cada recipe que crees 
 
 El flujo recomendado es publicar las recipes en la API pública. Cualquier persona puede explorar recipes sin cuenta; para publicar se necesita registro:
 
-```{r api-sharing, eval = FALSE}
+```r
 # Una sola vez: registrarse y autenticarse
 api_register("Tu Nombre", "tu@email.com", "password")
 api_login("tu@email.com", "password")
@@ -269,7 +269,7 @@ Al estar autenticado, `api_publish_recipe()` adjunta automáticamente tu perfil 
 
 No se necesita autenticación para explorar y descargar recipes:
 
-```{r api-browse, eval = FALSE}
+```r
 # Explorar todas las recipes de la ECH
 ech_recipes <- api_list_recipes(survey_type = "ech")
 
@@ -281,7 +281,7 @@ r <- api_get_recipe(id = "recipe_id_aqui")
 
 La app Shiny provee una interfaz visual para explorar recipes y workflows:
 
-```{r shiny-app, eval = FALSE}
+```r
 explore_recipes()
 ```
 
@@ -291,7 +291,7 @@ El explorador muestra tarjetas de recipes con badges de certificacion, conteo de
 
 Las instituciones que trabajan con **encuestas confidenciales o de acceso restringido** pueden necesitar un registry privado. metasurvey soporta esto mediante un backend propio con MongoDB:
 
-```{r private-registry, eval = FALSE}
+```r
 # Apuntar a la API privada de tu institución
 configure_api("https://tu-institucion.example.com/api")
 

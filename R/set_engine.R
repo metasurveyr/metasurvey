@@ -23,27 +23,19 @@ set_engine <- function(.engine = show_engines()) {
   .support_engine <- show_engines()
   old <- getOption("metasurvey.engine")
 
-  if (
-    identical(
-      .engine,
-      .support_engine
-    )
-  ) {
+  # When called with no argument, .engine is the full vector — use default
+  if (identical(.engine, .support_engine)) {
     default_engine()
+  } else if (.engine %in% .support_engine) {
+    options(metasurvey.engine = .engine)
   } else {
-    if (
-      .engine %in% .support_engine
-    ) {
-      options(metasurvey.engine = .engine)
-    } else {
-      stop(
-        paste0(
-          "Engine '", .engine, "' is not supported. Available: ",
-          paste(show_engines(), collapse = ", ")
-        ),
-        call. = FALSE
-      )
-    }
+    stop(
+      paste0(
+        "Engine '", .engine, "' is not supported. Available: ",
+        paste(.support_engine, collapse = ", ")
+      ),
+      call. = FALSE
+    )
   }
 
   message(
