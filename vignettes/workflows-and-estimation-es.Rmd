@@ -232,7 +232,7 @@ if (length(related) > 0) cat("Found:", related[[1]]$name, "\n")
 
 Para una difusion mas amplia, es posible publicar workflows en la API de metasurvey:
 
-```{r api-wf, eval = FALSE}
+```r
 # Requires authentication
 api_login("you@example.com", "password")
 

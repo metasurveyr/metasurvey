@@ -39,7 +39,7 @@ aggregation, loops, missing-value encoding, and label extraction.
 
 ## Quick start
 
-```{r eval=FALSE}
+```r
 library(metasurvey)
 
 # Transpile a single .do file
@@ -91,7 +91,7 @@ It handles:
 - **Prefix handling**: `capture`, `bysort group:`, and command abbreviations
   (`g` for `gen`, `cap` for `capture`)
 
-```{r eval=FALSE}
+```r
 commands <- parse_do_file("demographics.do")
 commands[[1]]
 #> $cmd
@@ -326,7 +326,7 @@ lab def sex_lbl 1 "Male" 2 "Female"
 lab val sex sex_lbl
 ```
 
-```{r eval=FALSE}
+```r
 result$labels
 #> $var_labels
 #> $var_labels$sex
@@ -485,7 +485,7 @@ str(result$labels$val_labels)
 
 ### Building a Recipe from transpiled steps
 
-```{r eval=FALSE}
+```r
 rec <- Recipe$new(
   id = "example_demographics",
   name = "Demographics (transpiled)",
@@ -515,7 +515,7 @@ For projects that organize `.do` files by year and thematic module,
 `transpile_stata_module()` processes an entire year directory and groups
 the results into separate Recipe objects:
 
-```{r eval=FALSE}
+```r
 recipes <- transpile_stata_module(
   year_dir = "do_files/2022",
   year = 2022,
@@ -537,7 +537,7 @@ recipes$income_detail$depends_on_recipes
 `transpile_coverage()` reports how many commands in a `.do` file (or
 directory) can be automatically transpiled:
 
-```{r eval=FALSE}
+```r
 transpile_coverage("do_files/")
 #>                               file total translated skipped manual coverage
 #> 1   2022/2_correc_datos.do             82        60      22      0   100.00
