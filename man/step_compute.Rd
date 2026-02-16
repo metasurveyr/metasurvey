@@ -75,28 +75,20 @@ are compatible with the specified hierarchical level:
 }
 }
 \examples{
-\dontrun{
 # Basic computation
+dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
+svy <- Survey$new(data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
+svy <- bake_steps(svy)
+get_data(svy)
+
+\dontrun{
+# ECH example: labor indicator
 ech <- ech |>
   step_compute(
     unemployed = ifelse(POBPCOAC \%in\% 3:5, 1, 0),
     comment = "Unemployment indicator"
-  )
-
-# Grouped calculation
-ech <- ech |>
-  step_compute(
-    mean_household_income = mean(ht11, na.rm = TRUE),
-    .by = "numero",
-    comment = "Mean income by household"
-  )
-
-# Rotative panel specifying level
-panel <- panel |>
-  step_compute(
-    activity_rate = active_population / total_population * 100,
-    .level = "quarter",
-    comment = "Quarterly activity rate"
   )
 }
 }

@@ -2,12 +2,12 @@
 #' @description Local JSON-backed catalog for recipe discovery, ranking, and filtering.
 #'
 #' @examples
-#' reg <- RecipeRegistry$new()
-#' # reg$register(my_recipe)
-#' # reg$search("labor")
-#' # reg$rank_by_downloads(10)
+#' # Use the tidy API instead:
+#' # set_backend("local", path = "recipes.json")
+#' # publish_recipe(my_recipe)
+#' # search_recipes("labor")
 #'
-#' @export
+#' @keywords internal
 RecipeRegistry <- R6::R6Class(
   "RecipeRegistry",
   public = list(
@@ -179,7 +179,7 @@ RecipeRegistry <- R6::R6Class(
           depends_on = item$depends_on %||% list(),
           description = item$description %||% "",
           steps = steps,
-          id = item$id %||% stats::runif(1),
+          id = item$id %||% generate_id("r"),
           doi = item$doi,
           topic = item$topic,
           categories = categories,

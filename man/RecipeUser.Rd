@@ -8,17 +8,10 @@ User identity for the recipe ecosystem. Supports three account types:
 individual, institutional_member, and institution.
 }
 \examples{
-# Individual user
-user <- RecipeUser$new(name = "Juan Perez", user_type = "individual", email = "juan@example.com")
-user$trust_level()
-
-# Institution
-inst <- RecipeUser$new(name = "Instituto de Economia", user_type = "institution")
-inst$can_certify("official")
-
-# Institutional member
-member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
-member$trust_level()
+# Use recipe_user() for the public API:
+user <- recipe_user("Juan Perez", email = "juan@example.com")
+inst <- recipe_user("IECON", type = "institution")
+member <- recipe_user("Maria", type = "institutional_member", institution = inst)
 
 }
 \section{Public fields}{

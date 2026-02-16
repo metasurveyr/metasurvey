@@ -44,4 +44,3 @@ cat_design(ech_survey)
 \seealso{
 \code{\link{cat_design_type}} for design type classification
 }
-\keyword{Surveymethods}

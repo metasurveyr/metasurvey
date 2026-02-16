@@ -43,44 +43,29 @@ Las recetas se pueden guardar con \code{save_recipe()}, cargar con
 \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
 }
 \examples{
+# Basic recipe without steps
+r <- recipe(
+  name = "Basic ECH Indicators",
+  user = "Analyst",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Basic labor indicators for ECH 2023"
+)
+r
+
 \dontrun{
-# Receta básica sin steps
-receta_base <- recipe(
-  name = "Indicadores ECH Básicos",
-  user = "Analista INE",
+# Recipe with steps
+r2 <- recipe(
+  name = "Labor Market ECH",
+  user = "Labor Team",
   svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Crea indicadores laborales básicos para ECH 2023"
-)
-
-# Receta con steps incluidos
-receta_completa <- recipe(
-  name = "Mercado Laboral ECH",
-  user = "Equipo Laboral",
-  svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Análisis completo del mercado laboral uruguayo",
-
-  # Steps de transformación
+  description = "Full labor market analysis",
   step_recode(
-    condicion_actividad,
-    POBPCOAC == 2 ~ "Ocupado",
-    POBPCOAC \%in\% 3:5 ~ "Desocupado",
-    POBPCOAC \%in\% 6:8 ~ "Inactivo",
-    .default = "Sin dato"
+    labor_status,
+    POBPCOAC == 2 ~ "Employed",
+    POBPCOAC \%in\% 3:5 ~ "Unemployed",
+    .default = "Other"
   ),
-  step_compute(
-    tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
-    tasa_empleo = ocupados / poblacion_14_mas * 100,
-    tasa_desempleo = desocupados / (ocupados + desocupados) * 100
-  )
-)
-
-# Aplicar receta a datos
-ech_procesada <- load_survey(
-  path = "ech_2023.dta",
-  svy_type = "ech",
-  svy_edition = "2023",
-  recipes = receta_completa,
-  bake = TRUE
+  step_compute(activity_rate = active / total * 100)
 )
 }
 

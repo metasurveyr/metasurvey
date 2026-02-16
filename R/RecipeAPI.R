@@ -16,7 +16,7 @@
 #' backend <- RecipeBackend$new("api")
 #' }
 #'
-#' @export
+#' @keywords internal
 RecipeBackend <- R6::R6Class(
   "RecipeBackend",
   public = list(
@@ -158,10 +158,7 @@ RecipeBackend <- R6::R6Class(
 #' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
 #' @param path Character. File path for local backend.
 #' @examples
-#' \dontrun{
-#' set_backend("local", path = "my_recipes.json")
-#' set_backend("api")
-#' }
+#' set_backend("local", path = tempfile(fileext = ".json"))
 #' @export
 set_backend <- function(type, path = NULL) {
   backend <- RecipeBackend$new(type, path = path)
@@ -173,10 +170,9 @@ set_backend <- function(type, path = NULL) {
 #' Defaults to "api" if not configured.
 #' @return RecipeBackend object
 #' @examples
-#' \dontrun{
+#' set_backend("local", path = tempfile(fileext = ".json"))
 #' backend <- get_backend()
-#' backend$search("labor")
-#' }
+#' backend
 #' @export
 get_backend <- function() {
   backend <- getOption("metasurvey.backend")

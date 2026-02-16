@@ -18,11 +18,14 @@ The modified Recipe object.
 Pipe-friendly function to remove a category from a Recipe by name.
 }
 \examples{
-\dontrun{
-my_recipe |>
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
+r <- r |>
   add_category("labor_market") |>
   remove_category("labor_market")
-}
 
 }
 \seealso{

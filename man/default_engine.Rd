@@ -12,4 +12,4 @@ default_engine(.engine = "data.table")
 \description{
 This function sets a default engine for loading surveys. If an engine is already configured, it keeps it; otherwise, it sets "data.table" as the default engine.
 }
-\keyword{engine}
+\keyword{internal}

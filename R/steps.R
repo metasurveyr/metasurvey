@@ -182,28 +182,20 @@ recode <- function(svy, new_var, ..., .default = NA_character_, ordered = FALSE,
 #' - "auto": Automatically detects appropriate level
 #'
 #' @examples
-#' \dontrun{
 #' # Basic computation
+#' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
+#' svy <- Survey$new(data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
+#' svy <- bake_steps(svy)
+#' get_data(svy)
+#'
+#' \dontrun{
+#' # ECH example: labor indicator
 #' ech <- ech |>
 #'   step_compute(
 #'     unemployed = ifelse(POBPCOAC %in% 3:5, 1, 0),
 #'     comment = "Unemployment indicator"
-#'   )
-#'
-#' # Grouped calculation
-#' ech <- ech |>
-#'   step_compute(
-#'     mean_household_income = mean(ht11, na.rm = TRUE),
-#'     .by = "numero",
-#'     comment = "Mean income by household"
-#'   )
-#'
-#' # Rotative panel specifying level
-#' panel <- panel |>
-#'   step_compute(
-#'     activity_rate = active_population / total_population * 100,
-#'     .level = "quarter",
-#'     comment = "Quarterly activity rate"
 #'   )
 #' }
 #' @seealso
@@ -726,7 +718,6 @@ get_comments <- function(steps) {
 #'   implantation and every follow_up survey.
 #'
 #' @examples
-#' \dontrun{
 #' # With data.frame
 #' s <- Survey$new(
 #'   data = data.table::data.table(id = 1:3, w = 1, a = c("x", "y", "z")),
@@ -745,7 +736,6 @@ get_comments <- function(steps) {
 #' )
 #' s3 <- step_join(s, s_right, by = c("id" = "id"), type = "inner")
 #' s3 <- bake_steps(s3)
-#' }
 #'
 #' @param lazy Logical, whether to delay execution.
 #' @param record Logical, whether to record the step.

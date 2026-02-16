@@ -22,3 +22,4 @@ cat_recipes(svy)
 }
 }
 \keyword{Surveymethods}
+\keyword{internal}

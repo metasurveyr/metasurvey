@@ -7,12 +7,13 @@
 Local JSON-backed catalog for workflow discovery, ranking, and filtering.
 }
 \examples{
-reg <- WorkflowRegistry$new()
-# reg$register(my_workflow)
-# reg$search("labor")
-# reg$find_by_recipe("recipe_001")
+# Use the tidy API instead:
+# set_workflow_backend("local", path = "workflows.json")
+# publish_workflow(my_workflow)
+# search_workflows("labor")
 
 }
+\keyword{internal}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -20,10 +20,13 @@ The modified Recipe object.
 Pipe-friendly function to certify a Recipe at a given quality level.
 }
 \examples{
-\dontrun{
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
 inst <- recipe_user("IECON", type = "institution")
-my_recipe |> certify_recipe(inst, "official")
-}
+r <- r |> certify_recipe(inst, "official")
 
 }
 \seealso{

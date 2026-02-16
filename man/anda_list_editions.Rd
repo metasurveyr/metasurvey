@@ -12,3 +12,4 @@ A data.frame with columns: edition, catalog_id
 \description{
 Returns the known ECH editions available in INE Uruguay's ANDA5 catalog.
 }
+\keyword{internal}

@@ -30,4 +30,3 @@ print(current_setting)
 \seealso{
 \code{\link{set_use_copy}} to change the setting
 }
-\keyword{utils}

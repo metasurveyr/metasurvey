@@ -7,12 +7,13 @@
 Local JSON-backed catalog for recipe discovery, ranking, and filtering.
 }
 \examples{
-reg <- RecipeRegistry$new()
-# reg$register(my_recipe)
-# reg$search("labor")
-# reg$rank_by_downloads(10)
+# Use the tidy API instead:
+# set_backend("local", path = "recipes.json")
+# publish_recipe(my_recipe)
+# search_recipes("labor")
 
 }
+\keyword{internal}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -15,4 +15,3 @@ A RecipeWorkflow object
 \description{
 Construct a RecipeWorkflow from a plain list
 }
-\keyword{Workflows}

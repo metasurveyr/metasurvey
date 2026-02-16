@@ -18,10 +18,13 @@ The modified Recipe object.
 Pipe-friendly function to assign a \code{\link{RecipeUser}} to a Recipe.
 }
 \examples{
-\dontrun{
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
 user <- recipe_user("Juan Perez", email = "juan@example.com")
-my_recipe |> set_user_info(user)
-}
+r <- r |> set_user_info(user)
 
 }
 \seealso{
