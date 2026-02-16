@@ -167,7 +167,8 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
         version = self$version,
         doi = self$doi,
         created_at = self$created_at,
-        weight_spec = self$weight_spec
+        weight_spec = self$weight_spec,
+        metasurvey_version = as.character(utils::packageVersion("metasurvey"))
       )
     },
 
