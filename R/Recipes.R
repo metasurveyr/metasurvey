@@ -175,7 +175,8 @@ Recipe <- R6Class("Recipe",
         ),
         steps = unname(lapply(self$steps, function(s) {
           if (is.character(s)) paste(s, collapse = " ") else paste(deparse(s), collapse = " ")
-        }))
+        })),
+        metasurvey_version = as.character(utils::packageVersion("metasurvey"))
       )
     },
 
@@ -412,7 +413,7 @@ recipe <- function(...) {
   dots <- list(...)
 
 
-  class_dots <- sapply(dots, class)
+  class_dots <- vapply(dots, function(x) class(x)[1], character(1))
 
   metadata_recipes_names <- metadata_recipe()
 
@@ -438,12 +439,12 @@ recipe <- function(...) {
         edition = dots$svy$edition,
         survey_type = dots$svy$type,
         default_engine = default_engine(),
-        depends_on = unique(sapply(
+        depends_on = unique(unlist(lapply(
           X = dots$steps,
           FUN = function(step) {
             step$depends_on
           }
-        )),
+        ))),
         description = dots$description,
         steps = dots$steps_call,
         doi = dots$doi %||% NULL,
@@ -493,7 +494,7 @@ encoding_recipe <- function(recipe) {
 
 decode_step <- function(steps) {
   steps <- as.call(
-    sapply(
+    lapply(
       steps,
       function(step_string) as.call(parse(text = step_string))[[1]]
     )
@@ -601,7 +602,8 @@ read_recipe <- function(file) {
   steps <- tryCatch(
     decode_step(json_data$steps),
     error = function(e) {
-      # Fallback: store raw step strings as a list
+      warning("Failed to parse recipe steps: ", e$message,
+        ". Using raw strings as fallback.", call. = FALSE)
       as.list(json_data$steps)
     }
   )
@@ -902,7 +904,7 @@ steps_to_recipe <- function(
 # that may call get_distinct_recipes() directly
 get_distinct_recipes <- function(recipe) {
   tryCatch(
-    length(unique(sapply(seq_along(recipe), function(x) recipe[[x]]$id))),
+    length(unique(vapply(seq_along(recipe), function(x) recipe[[x]]$id, character(1)))),
     error = function(e) 0
   )
 }
@@ -1041,7 +1043,7 @@ print.Recipe <- function(x, ...) {
 
     if (!is.null(output_details) && nrow(output_details) > 0) {
       vars_by_type <- split(output_details$var, output_details$type)
-      output_parts <- sapply(names(vars_by_type), function(type) {
+      output_parts <- lapply(names(vars_by_type), function(type) {
         vars <- vars_by_type[[type]]
         paste0(vars, " [", type, "]")
       })

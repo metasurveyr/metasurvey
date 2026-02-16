@@ -20,7 +20,7 @@ metadata_args <- function() {
     metasurvey.lazy_processing = lazy_default()
   )
 
-  sapply(
+  invisible(vapply(
     X = seq_along(opts_default),
     FUN = function(x) {
       hidden_opts <- names(opts_default)[x] %in% c("metasurvey.api.key")
@@ -30,8 +30,10 @@ metadata_args <- function() {
       }
 
       packageStartupMessage(glue_col("{red {names(opts_default)[x]}}: {opts_default[[x]]}"))
-    }
-  )
+      ""
+    },
+    FUN.VALUE = character(1)
+  ))
 }
 
 #' @importFrom glue glue glue_col

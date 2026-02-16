@@ -450,7 +450,7 @@ extract_time_pattern <- function(svy_edition) {
 
   # Devolver los resultados
   result <- list(type = type, year = year, month = month, year_start = year_start, year_end = year_end, periodicity = periodicity)
-  clean_result <- result[!sapply(result, is.na)]
+  clean_result <- result[!vapply(result, is.na, logical(1))]
 
   return(clean_result)
 }
@@ -650,7 +650,7 @@ add_weight <- function(
     biannual = biannual
   )
 
-  weight_list_clean <- weight_list[!sapply(weight_list, is.null)]
+  weight_list_clean <- weight_list[!vapply(weight_list, is.null, logical(1))]
 
   return(weight_list_clean)
 }
@@ -761,7 +761,7 @@ add_replicate <- function(
     replicate_type = replicate_type
   )
 
-  replicate_list_clean <- replicate_list[!sapply(replicate_list, is.null)]
+  replicate_list_clean <- replicate_list[!vapply(replicate_list, is.null, logical(1))]
 
   return(replicate_list_clean)
 }

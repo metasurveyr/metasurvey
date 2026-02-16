@@ -264,7 +264,7 @@ load_panel_survey <- function(
     }
 
 
-    names_year_month <- sapply(
+    names_year_month <- vapply(
       X = basename(path_file_final),
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
@@ -280,6 +280,7 @@ load_panel_survey <- function(
           )
         }
       },
+      FUN.VALUE = numeric(1),
       USE.NAMES = FALSE
     )
 
@@ -307,7 +308,7 @@ load_panel_survey <- function(
 
     names(svy_weight_follow_up) <- names_year_month
 
-    names_path_survey_year_month <- sapply(
+    names_path_survey_year_month <- vapply(
       X = names(path_survey),
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
@@ -323,6 +324,7 @@ load_panel_survey <- function(
           )
         }
       },
+      FUN.VALUE = numeric(1),
       USE.NAMES = FALSE
     )
 
@@ -481,7 +483,7 @@ load_survey.data.table <- function(...) {
 
   if (!is.null(.args$recipes)) {
     if (get_distinct_recipes(.args$recipes) > 1) {
-      index_valid_recipes <- sapply(
+      index_valid_recipes <- vapply(
         X = 1:get_distinct_recipes(.args$recipes),
         FUN = function(x) {
           validate_recipe(
@@ -490,7 +492,8 @@ load_survey.data.table <- function(...) {
             recipe_svy_edition = .args$recipes[[x]]$edition,
             recipe_svy_type = .args$recipes[[x]]$survey_type
           )
-        }
+        },
+        FUN.VALUE = logical(1)
       )
     } else {
       # Single recipe: could be an R6 object directly or list(R6_object)
