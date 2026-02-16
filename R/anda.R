@@ -264,7 +264,7 @@ anda_list_editions <- function() {
 #' @family anda
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' path <- anda_download_microdata("2023", resource = "implantation")
 #' svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
 #' }
@@ -634,7 +634,7 @@ anda_download_microdata <- function(edition,
 #' @family anda
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 anda_variables <- function(survey_type = "ech", var_names = NULL) {

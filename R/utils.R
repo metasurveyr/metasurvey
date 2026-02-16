@@ -163,7 +163,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' https://github.com/metasurveyr/metasurvey_data
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Load ECH 2023 example data
 #' ech_path <- load_survey_example("ech", "2023")
 #'
@@ -666,30 +666,17 @@ group_dates <- function(dates, type = c("monthly", "quarterly", "biannual")) {
 #'   annual = "pesoano"
 #' )
 #'
-#' \donttest{
 #' # With bootstrap replicates for variance estimation
 #' weights_with_replicates <- add_weight(
 #'   monthly = add_replicate(
 #'     weight = "pesomes",
-#'     replicate_pattern = "wr\\\\d+",
+#'     replicate_pattern = "wr\\d+",
 #'     replicate_path = "monthly_replicate_weights.xlsx",
 #'     replicate_id = c("ID_HOGAR" = "ID"),
 #'     replicate_type = "bootstrap"
 #'   ),
 #'   annual = "pesoano"
 #' )
-#'
-#' # Usage in load_survey
-#' ech <- load_survey(
-#'   path = "ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   svy_weight = add_weight(
-#'     monthly = "pesomes",
-#'     annual = "pesoano"
-#'   )
-#' )
-#' }
 #'
 #' @seealso
 #' \code{\link{add_replicate}} to configure bootstrap/jackknife replicates
@@ -755,11 +742,10 @@ add_weight <- function(
 #' complex weight configurations.
 #'
 #' @examples
-#' \donttest{
 #' # Basic configuration with external file
 #' annual_replicates <- add_replicate(
 #'   weight = "pesoano",
-#'   replicate_pattern = "wr\\\\d+",
+#'   replicate_pattern = "wr\\d+",
 #'   replicate_path = "bootstrap_weights_2023.xlsx",
 #'   replicate_id = c("ID_HOGAR" = "ID"),
 #'   replicate_type = "bootstrap"
@@ -768,7 +754,7 @@ add_weight <- function(
 #' # With replicates in same dataset
 #' integrated_replicates <- add_replicate(
 #'   weight = "main_weight",
-#'   replicate_pattern = "rep_\\\\d{3}",
+#'   replicate_pattern = "rep_\\d{3}",
 #'   replicate_type = "jackknife"
 #' )
 #'
@@ -776,30 +762,13 @@ add_weight <- function(
 #' weight_config <- add_weight(
 #'   annual = add_replicate(
 #'     weight = "pesoano",
-#'     replicate_pattern = "wr\\\\d+",
+#'     replicate_pattern = "wr\\d+",
 #'     replicate_path = "bootstrap_annual.xlsx",
 #'     replicate_id = c("numero" = "ID_HOGAR"),
 #'     replicate_type = "bootstrap"
 #'   ),
-#'   monthly = "pesomes" # No replicates for monthly
+#'   monthly = "pesomes"
 #' )
-#'
-#' # In load_survey
-#' ech <- load_survey(
-#'   path = "ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   svy_weight = add_weight(
-#'     annual = add_replicate(
-#'       weight = "pesoano",
-#'       replicate_pattern = "wr\\\\d+",
-#'       replicate_path = "bootstrap_weights.xlsx",
-#'       replicate_id = c("numero" = "ID"),
-#'       replicate_type = "bootstrap"
-#'     )
-#'   )
-#' )
-#' }
 #'
 #' @seealso
 #' \code{\link{add_weight}} for complete weight configuration
@@ -938,7 +907,7 @@ add_replicate <- function(
 #' @return Named list compatible with add_weight() output
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' wf <- api_get_workflow("w_123")
 #' weight <- resolve_weight_spec(wf$weight_spec)
 #' }
@@ -1004,7 +973,7 @@ resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
 #' @return Survey object with recipes applied and weight configuration set
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' wf <- api_get_workflow("w_123")
 #' svy <- reproduce_workflow(wf)
 #' }

@@ -52,30 +52,17 @@ ech_weights <- add_weight(
   annual = "pesoano"
 )
 
-\donttest{
 # With bootstrap replicates for variance estimation
 weights_with_replicates <- add_weight(
   monthly = add_replicate(
     weight = "pesomes",
-    replicate_pattern = "wr\\\\\\\\d+",
+    replicate_pattern = "wr\\\\d+",
     replicate_path = "monthly_replicate_weights.xlsx",
     replicate_id = c("ID_HOGAR" = "ID"),
     replicate_type = "bootstrap"
   ),
   annual = "pesoano"
 )
-
-# Usage in load_survey
-ech <- load_survey(
-  path = "ech_2023.dta",
-  svy_type = "ech",
-  svy_edition = "2023",
-  svy_weight = add_weight(
-    monthly = "pesomes",
-    annual = "pesoano"
-  )
-)
-}
 
 }
 \seealso{

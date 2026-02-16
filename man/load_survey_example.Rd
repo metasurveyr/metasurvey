@@ -34,7 +34,7 @@ Available survey types and editions can be found at:
 https://github.com/metasurveyr/metasurvey_data
 }
 \examples{
-\donttest{
+\dontrun{
 # Load ECH 2023 example data
 ech_path <- load_survey_example("ech", "2023")
 

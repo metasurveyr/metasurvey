@@ -20,7 +20,7 @@ The URL can also be set via the
 the token via \code{METASURVEY_TOKEN}.
 }
 \examples{
-\donttest{
+\dontrun{
 configure_api(url = "https://metasurvey-api.example.com")
 }
 }

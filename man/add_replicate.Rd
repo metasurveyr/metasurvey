@@ -55,11 +55,10 @@ This function is typically used within \code{add_weight()} for more
 complex weight configurations.
 }
 \examples{
-\donttest{
 # Basic configuration with external file
 annual_replicates <- add_replicate(
   weight = "pesoano",
-  replicate_pattern = "wr\\\\\\\\d+",
+  replicate_pattern = "wr\\\\d+",
   replicate_path = "bootstrap_weights_2023.xlsx",
   replicate_id = c("ID_HOGAR" = "ID"),
   replicate_type = "bootstrap"
@@ -68,7 +67,7 @@ annual_replicates <- add_replicate(
 # With replicates in same dataset
 integrated_replicates <- add_replicate(
   weight = "main_weight",
-  replicate_pattern = "rep_\\\\\\\\d{3}",
+  replicate_pattern = "rep_\\\\d{3}",
   replicate_type = "jackknife"
 )
 
@@ -76,30 +75,13 @@ integrated_replicates <- add_replicate(
 weight_config <- add_weight(
   annual = add_replicate(
     weight = "pesoano",
-    replicate_pattern = "wr\\\\\\\\d+",
+    replicate_pattern = "wr\\\\d+",
     replicate_path = "bootstrap_annual.xlsx",
     replicate_id = c("numero" = "ID_HOGAR"),
     replicate_type = "bootstrap"
   ),
-  monthly = "pesomes" # No replicates for monthly
+  monthly = "pesomes"
 )
-
-# In load_survey
-ech <- load_survey(
-  path = "ech_2023.dta",
-  svy_type = "ech",
-  svy_edition = "2023",
-  svy_weight = add_weight(
-    annual = add_replicate(
-      weight = "pesoano",
-      replicate_pattern = "wr\\\\\\\\d+",
-      replicate_path = "bootstrap_weights.xlsx",
-      replicate_id = c("numero" = "ID"),
-      replicate_type = "bootstrap"
-    )
-  )
-)
-}
 
 }
 \seealso{

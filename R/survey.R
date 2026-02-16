@@ -844,7 +844,7 @@ get_metadata <- function(self) {
 #' Output is color-coded for better readability in supporting terminals.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Display design for survey with multiple estimation types
 #' ech_survey <- load_survey("ech_2023.dta",
 #'   svy_type = "ech",
@@ -920,7 +920,7 @@ cat_design <- function(self) {
 #' @param design_name Name of design
 #' @return Character string describing the design type, or "None".
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' cat_design_type(svy, "annual")
 #' }
@@ -976,7 +976,7 @@ cat_design_type <- function(self, design_name) {
 #' @param self Object of class Survey
 #' @return Character string listing recipe names, or "None".
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' cat_recipes(svy)
 #' }
@@ -1075,7 +1075,7 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' @param svy Survey object
 #' @keywords survey
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' svy <- load_survey("data.csv",
 #'   svy_type = "ech", svy_edition = "2023",
 #'   recipes = my_recipe

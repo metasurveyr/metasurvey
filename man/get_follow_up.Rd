@@ -50,7 +50,7 @@ In rotating panels like ECH:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 # Load rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",

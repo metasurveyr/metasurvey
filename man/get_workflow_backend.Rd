@@ -14,9 +14,7 @@ Returns the currently configured workflow backend.
 Defaults to "local" if not configured.
 }
 \examples{
-\donttest{
 backend <- get_workflow_backend()
-}
 }
 \seealso{
 Other backends: 

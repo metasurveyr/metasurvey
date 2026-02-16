@@ -7,8 +7,8 @@
 #' @field type Character backend type ("local" or "api").
 #'
 #' @examples
-#' \donttest{
-#' # Local backend
+#' \dontrun{
+#' # Local backend (internal class, use set_workflow_backend() instead)
 #' backend <- WorkflowBackend$new("local", path = tempfile(fileext = ".json"))
 #' backend$search("labor")
 #' }
@@ -190,12 +190,7 @@ WorkflowBackend <- R6::R6Class(
 #' @param path Character. File path for local backend.
 #' @return Invisibly, the WorkflowBackend object created.
 #' @examples
-#' \donttest{
 #' set_workflow_backend("local", path = tempfile(fileext = ".json"))
-#' }
-#' \donttest{
-#' set_workflow_backend("api")
-#' }
 #' @family backends
 #' @export
 set_workflow_backend <- function(type, path = NULL) {
@@ -210,9 +205,7 @@ set_workflow_backend <- function(type, path = NULL) {
 #' Defaults to "local" if not configured.
 #' @return WorkflowBackend object
 #' @examples
-#' \donttest{
 #' backend <- get_workflow_backend()
-#' }
 #' @family backends
 #' @export
 get_workflow_backend <- function() {
