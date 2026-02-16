@@ -4,8 +4,10 @@
 #' objects, applying functions from the R survey package with appropriate
 #' metadata. Automatically handles different survey types and periodicities.
 #'
-#' @param svy Survey object, list of Survey objects, or PoolSurvey. Must
-#'   contain properly configured sample design
+#' @param svy A **list** of Survey objects, or a PoolSurvey.
+#'   Even for a single survey, wrap it in `list()`:
+#'   `workflow(svy = list(my_survey), ...)`.
+#'   Must contain properly configured sample design.
 #' @param ... Calls to survey package functions (such as \code{svymean},
 #'   \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially
 #' @param estimation_type Type of estimation that
