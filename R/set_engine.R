@@ -28,8 +28,10 @@ set_engine <- function(.engine = show_engines()) {
       options(metasurvey.engine = .engine)
     } else {
       stop(
-        paste0("Engine '", .engine, "' is not supported. Available: ",
-          paste(show_engines(), collapse = ", ")),
+        paste0(
+          "Engine '", .engine, "' is not supported. Available: ",
+          paste(show_engines(), collapse = ", ")
+        ),
         call. = FALSE
       )
     }
@@ -60,7 +62,6 @@ set_engine <- function(.engine = show_engines()) {
 #' @return Character vector with the names of the available engines.
 #' @examples
 #' show_engines()
-
 show_engines <- function() {
   c(
     "data.table",
@@ -76,7 +77,6 @@ show_engines <- function() {
 #' @keywords engine
 #' @examples
 #' get_engine()
-
 get_engine <- function() {
   Sys.getenv("metasurvey.engine") %@% getOption("metasurvey.engine")
 }

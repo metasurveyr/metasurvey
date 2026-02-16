@@ -207,8 +207,10 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
 #' @return A RecipeWorkflow object
 #' @export
 #' @examples
-#' lst <- list(name = "example", user = "test", survey_type = "ech",
-#'             edition = "2023", estimation_type = "svymean")
+#' lst <- list(
+#'   name = "example", user = "test", survey_type = "ech",
+#'   edition = "2023", estimation_type = "svymean"
+#' )
 #' wf <- workflow_from_list(lst)
 workflow_from_list <- function(lst) {
   # Reconstruct categories
