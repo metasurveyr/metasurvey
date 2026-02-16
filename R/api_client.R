@@ -289,7 +289,8 @@ api_logout <- function() {
 validate_api_id <- function(id) {
   if (!is.character(id) || length(id) != 1L || !grepl("^[a-zA-Z0-9_.-]+$", id)) {
     stop("Invalid API ID: must be a single alphanumeric string (a-z, 0-9, _, ., -)",
-      call. = FALSE)
+      call. = FALSE
+    )
   }
   invisible(id)
 }
@@ -348,11 +349,15 @@ api_get_recipe <- function(id) {
     result <- tryCatch(
       api_request(paste0("recipes/", single_id), method = "GET"),
       error = function(e) {
-        if (grepl("404", e$message)) return(NULL)
+        if (grepl("404", e$message)) {
+          return(NULL)
+        }
         stop(e)
       }
     )
-    if (is.null(result) || is.null(result$recipe)) return(NULL)
+    if (is.null(result) || is.null(result$recipe)) {
+      return(NULL)
+    }
     tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
       warning("Failed to parse recipe '", single_id, "': ", e$message, call. = FALSE)
       NULL

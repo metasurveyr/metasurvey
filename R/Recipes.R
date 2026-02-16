@@ -421,8 +421,10 @@ recipe <- function(...) {
 
   if (!(check_args == length(metadata_recipes_names))) {
     stop(
-      paste0("The recipe must have the following metadata: ",
-        paste(metadata_recipe(), collapse = ", ")),
+      paste0(
+        "The recipe must have the following metadata: ",
+        paste(metadata_recipe(), collapse = ", ")
+      ),
       call. = FALSE
     )
   }
@@ -602,7 +604,9 @@ read_recipe <- function(file) {
     decode_step(json_data$steps),
     error = function(e) {
       warning("Failed to parse recipe steps: ", e$message,
-        ". Using raw strings as fallback.", call. = FALSE)
+        ". Using raw strings as fallback.",
+        call. = FALSE
+      )
       as.list(json_data$steps)
     }
   )
