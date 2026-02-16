@@ -1,3 +1,23 @@
+# metasurvey 0.0.11
+
+## Documentation
+* Fixed examples across 12 R files for strict CRAN compliance: functions
+  requiring an API server, external files, or interactive sessions now use
+  `\dontrun{}` instead of `\donttest{}`.
+* Fixed `RecipeWorkflow` examples: corrected `recipe_ids` parameter name,
+  removed non-existent `variables` parameter.
+* Fixed `add_weight`/`add_replicate` examples: removed double-escaped regex
+  patterns, removed `load_survey()` calls that depend on external files.
+* Made `set_workflow_backend`/`get_workflow_backend` examples runnable
+  without `\dontrun{}` wrapper.
+
+## Internal
+* Fixed GitHub Actions: added `main` to R-CMD-check PR triggers, replaced
+  `master` with `main` in test-coverage and pkgdown, removed broken
+  `setup-r-test.yml`.
+* Fixed deploy workflow: secrets passed via env vars instead of inline
+  shell interpolation, Railway CLI installed via npm with pinned version.
+
 # metasurvey 0.0.10
 
 ## New features
