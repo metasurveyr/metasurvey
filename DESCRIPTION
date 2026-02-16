@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
-Version: 0.0.4
+Version: 0.0.5
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
