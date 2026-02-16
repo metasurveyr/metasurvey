@@ -4,23 +4,6 @@
 #' periodicity), sampling design (simple/replicate), steps/recipes/workflows,
 #' and utilities to manage them.
 #'
-#' @format An R6 class with public fields: `data`, `edition`, `type`,
-#' `periodicity`, `default_engine`, `weight`, `steps`, `recipes`, `workflows`,
-#' `design`; and methods such as `initialize()`, `get_data()`, `set_data()`,
-#' `add_step()`, `add_recipe()`, `bake()`, `head()`, `str()`, `update_design()`.
-#'
-#' @section Methods:
-#' \describe{
-#'   \item{initialize(data, edition, type, psu, engine,
-#'     weight, design, steps, recipes)}{Create a Survey
-#'     object}
-#'   \item{get_data(), get_edition(), get_type()}{Basic accessors}
-#'   \item{set_data(), set_edition(), set_type(), set_weight()}{Mutators}
-#'   \item{add_step(step), add_recipe(recipe),
-#'     add_workflow(wf)}{Pipeline management}
-#'   \item{bake()}{Bake associated recipes}
-#' }
-#'
 #' @seealso \code{\link{survey_empty}}, \code{\link{bake_recipes}},
 #'   \code{\link{cat_design}}, \code{\link{cat_recipes}}
 #' @keywords survey
@@ -41,36 +24,24 @@
 #' @field design List of survey design objects (survey/surveyrep).
 #' @field psu Primary Sampling Unit specification (formula or character).
 #' @field design_initialized Logical flag for lazy design initialization.
-#' @field design_active Active binding that recomputes
-#' design on-demand from current data and weights.
-#'
-#' @section Active bindings:
-#' \describe{
-#'   \item{design_active}{Recompute design on-demand
-#'     from current data and weights.}
-#' }
 #'
 #' @section Main methods:
 #' \describe{
 #'   \item{$new(data, edition, type, psu, engine,
 #'     weight, design = NULL, steps = NULL,
 #'     recipes = list())}{Constructor.}
-#'   \item{$get_data()}{Return data.}
-#'   \item{$get_edition()}{Return edition.}
-#'   \item{$get_type()}{Return type.}
 #'   \item{$set_data(data)}{Set data.}
 #'   \item{$set_edition(edition)}{Set edition.}
 #'   \item{$set_type(type)}{Set type.}
 #'   \item{$set_weight(weight)}{Set weight specification.}
 #'   \item{$print()}{Print summarized metadata.}
-#'   \item{$add_step(step)}{Add a step and update design.}
-#'   \item{$add_recipe(recipe, bake = lazy_default())}{Add a recipe.}
+#'   \item{$add_step(step)}{Add a step and invalidate design.}
+#'   \item{$add_recipe(recipe)}{Add a recipe (validates type and dependencies).}
 #'   \item{$add_workflow(workflow)}{Add a workflow.}
 #'   \item{$bake()}{Apply recipes and return updated Survey.}
-#'   \item{$head()}{Return data head.}
-#'   \item{$str()}{Structure of data.}
-#'   \item{$set_design(design)}{Set design.}
+#'   \item{$ensure_design()}{Lazily initialize the sampling design.}
 #'   \item{$update_design()}{Update design variables with current data.}
+#'   \item{$shallow_clone()}{Efficient copy (shares design, copies data).}
 #' }
 #'
 #' @param data Survey data.
@@ -189,7 +160,6 @@ Survey <- R6Class(
     #' @description Set weight specification(s) per estimation type
     #' @param weight Weight specification list or character
     set_weight = function(weight) {
-      message("Setting weight")
       data <- self$data
       weight_list <- validate_weight_time_pattern(data, weight)
       self$weight <- weight_list
@@ -382,36 +352,10 @@ Survey <- R6Class(
     }
   ),
   active = list(
+    #' @field design_active Deprecated. Use \code{ensure_design()} instead.
     design_active = function() {
-      weight_list <- self$weight
-      design_list <- lapply(
-        weight_list,
-        function(x) {
-          if (is.character(x)) {
-            survey::svydesign(
-              id = ~1,
-              weights = as.formula(paste("~", x)),
-              data = self$data,
-              calibrate.formula = ~1
-            )
-          } else {
-            survey::svrepdesign(
-              weights = as.formula(paste("~", x$weight)),
-              data = merge(
-                self$data, x$replicate_file,
-                by.x = names(x$replicate_id),
-                by.y = x$replicate_id
-              ),
-              repweights = x$replicate_pattern,
-              type = x$replicate_type
-            )
-          }
-        }
-      )
-
-      names(design_list) <- names(weight_list)
-
-      return(design_list)
+      self$ensure_design()
+      self$design
     }
   )
 )
@@ -553,7 +497,8 @@ get_type <- function(svy) {
 }
 
 get_design <- function(self) {
-  self$active$design_active()
+  self$ensure_design()
+  self$design
 }
 
 set_edition <- function(svy, new_edition, .copy = use_copy_default()) {
