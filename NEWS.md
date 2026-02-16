@@ -1,4 +1,4 @@
-# metasurvey 0.0.13
+# metasurvey 0.0.14
 
 ## Breaking changes
 * `Step$comments` field renamed to `Step$comment`. The old name still works
@@ -14,9 +14,25 @@
   `has_design()`.
 * `step_recode()`, `step_join()`, `step_remove()`, `step_rename()` no longer
   default `svy` to `survey_empty()`; the survey argument is now required.
+* `extract_time_pattern()` now recognises quarter/trimester editions
+  (`"2023-T3"`, `"2023-Q1"`), parsed as `Quarterly` periodicity.
+
+## Bug fixes
+* Fixed `validate_time_pattern()` crash when `svy_edition` is `NA`.
+* Fixed `shallow_clone()` re-running `validate_time_pattern()` on
+  already-parsed editions, causing cascading NULL → NA → crash.
+* Fixed `get_metadata()` crash when edition is NULL or NA.
+* Fixed `cat_estimation.svyby()` producing wrong output: margins index was
+  integer (not column name), SE column `"se"` was missed by grep, and
+  `cv()` data.frame was not handled.  Output now shows group labels in
+  the `stat` column (e.g. `svyby: x [sexo=1]`).
+* Mixed estimation types (`svymean` + `svyby`) no longer fail on
+  `rbindlist` due to mismatched columns.
 
 ## Documentation
 * Updated vignettes to use `Step$comment` instead of `Step$comments`.
+* Vignettes now use real ECH 2023 sample data instead of simulated data.
+* Fixed ECH variable names for 2023 edition (`e31` → `e30`).
 
 # metasurvey 0.0.12
 
