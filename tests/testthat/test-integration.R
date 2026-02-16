@@ -63,32 +63,26 @@ test_that("Recipe creation and application end-to-end", {
   expect_true(file.exists(tmp))
 })
 
-test_that("Full pipeline with example-data/ ECH", {
-  ech_path <- file.path("../../example-data/ech/ech_2023/ECH_implantacion_2023.csv")
-  
-  result <- tryCatch({
-    if (!file.exists(ech_path)) {
-      return(NULL)
-    }
-    
-    # Read data to discover the actual weight column name
-    dt <- data.table::fread(ech_path, nrows = 5)
-    weight_col <- intersect(c("pesoano", "PESOANO", "W", "w"), names(dt))
-    
-    if (length(weight_col) == 0) {
-      return(NULL)
-    }
-    
-    s <- load_survey(
-      path = ech_path,
-      svy_type = "ech",
-      svy_edition = "2023",
-      svy_weight = add_weight(annual = weight_col[1])
-    )
-    
-    s
-  }, error = function(e) NULL)
-  
-  # Test passes whether data exists or not
-  expect_true(is.null(result) || inherits(result, "Survey"))
+test_that("Full pipeline with simulated survey data", {
+  svy <- make_test_survey()
+
+  svy <- step_compute(svy, z = x + y, comment = "sum")
+  svy <- bake_steps(svy)
+  expect_true("z" %in% names(get_data(svy)))
+
+  r <- recipe(
+    name = "integration",
+    user = "tester",
+    svy = svy,
+    description = "Integration test"
+  )
+  expect_s3_class(r, "Recipe")
+
+  result <- workflow(
+    list(svy),
+    survey::svymean(~x, na.rm = TRUE),
+    estimation_type = "annual"
+  )
+  expect_true(nrow(result) > 0)
+  expect_true("value" %in% names(result))
 })

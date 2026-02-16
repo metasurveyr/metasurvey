@@ -304,15 +304,26 @@ test_that("Survey workflows initialize as empty list", {
   expect_equal(length(s$workflows), 0)
 })
 
-test_that("Survey with replicate weights", {
-  skip("Replicate weights require complex setup")
+test_that("Survey with replicate weights configuration", {
+  # Test that add_replicate creates proper weight spec
+  w <- add_weight(annual = add_replicate(
+    weight = "w",
+    replicate_pattern = "wr\\d+",
+    replicate_type = "bootstrap"
+  ))
+  expect_true(is.list(w))
+  expect_true(!is.null(w$annual$replicate_pattern))
+  expect_equal(w$annual$replicate_type, "bootstrap")
 })
 
 # --- Standalone helper functions ---
 
-test_that("set_data standalone with use_copy=TRUE clones", {
+test_that("set_data replaces survey data", {
   s <- make_test_survey()
-  # Tests for standalone functions removed - functions don't exist
+  new_dt <- data.table::data.table(id = 1:5, x = 10:14, w = 1)
+  set_data(s, new_dt)
+  expect_equal(nrow(get_data(s)), 5)
+  expect_true("x" %in% names(get_data(s)))
 })
 
 
@@ -658,4 +669,225 @@ test_that("Survey$new with PSU creates proper design", {
   # Trigger design initialization
   s <- s %>% step_compute(y = id * 2) %>% bake_steps()
   expect_true(inherits(s$design[[1]], "survey.design"))
+})
+
+# --- add_recipe with depends_on warning ---
+
+test_that("add_recipe warns when depends_on variables missing from data", {
+  s <- make_test_survey()
+  r <- Recipe$new(
+    name = "missing deps",
+    edition = "2023",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list("nonexistent_var", "another_missing"),
+    user = "tester",
+    description = "Test warning",
+    steps = list(),
+    id = "warn_001"
+  )
+
+  expect_warning(s$add_recipe(r), "not present in survey")
+  expect_length(s$recipes, 1)
+})
+
+test_that("add_recipe with empty depends_on does not warn", {
+  s <- make_test_survey()
+  r <- Recipe$new(
+    name = "no deps",
+    edition = "2023",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list(),
+    user = "tester",
+    description = "Test",
+    steps = list(),
+    id = "no_warn_001"
+  )
+
+  expect_no_warning(s$add_recipe(r))
+})
+
+test_that("add_recipe with satisfied depends_on does not warn", {
+  s <- make_test_survey()
+  r <- Recipe$new(
+    name = "satisfied deps",
+    edition = "2023",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list("age", "x"),
+    user = "tester",
+    description = "Test",
+    steps = list(),
+    id = "sat_001"
+  )
+
+  expect_no_warning(s$add_recipe(r))
+})
+
+test_that("add_recipe with case-different depends_on does not warn", {
+  # Simulate ECH data with uppercase column names
+  df <- data.table::data.table(POBPCOAC = c(1, 2), W_ANO = c(1, 1))
+  s <- Survey$new(
+    data = df, edition = "2024", type = "ech",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "W_ANO")
+  )
+
+  r <- Recipe$new(
+    name = "case diff deps",
+    edition = "2024",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list("pobpcoac"),
+    user = "tester",
+    description = "Test case insensitive",
+    steps = list(),
+    id = "ci_add_001"
+  )
+
+  # Should NOT warn because POBPCOAC matches pobpcoac case-insensitively
+  expect_no_warning(s$add_recipe(r))
+})
+
+test_that("bake_recipes normalizes column names to match recipe case", {
+  # Simulate ECH data with uppercase names (like real INE data)
+  df <- data.table::data.table(
+    POBPCOAC = c(2, 3, 10, 2, 5),
+    W_ANO = c(1, 1, 1, 1, 1)
+  )
+  s <- Survey$new(
+    data = df, edition = "2024", type = "ech",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "W_ANO")
+  )
+
+  # Recipe uses lowercase variable names (as stored in API)
+  r <- Recipe$new(
+    name = "case normalize test",
+    edition = "2024",
+    survey_type = "ech",
+    default_engine = "data.table",
+    depends_on = list("pobpcoac"),
+    user = "tester",
+    description = "Test case normalization",
+    steps = list(quote(step_compute(., pea = as.integer(pobpcoac == 2)))),
+    id = "cn_001"
+  )
+
+  s$add_recipe(r)
+  s2 <- bake_recipes(s)
+
+  # The step should have executed successfully
+  expect_true("pea" %in% names(get_data(s2)))
+  # Column should now be lowercase (renamed by normalization)
+  expect_true("pobpcoac" %in% names(get_data(s2)))
+  # Original uppercase should NOT be there
+  expect_false("POBPCOAC" %in% names(get_data(s2)))
+})
+
+# --- shallow_clone ---
+
+test_that("shallow_clone creates independent data copy", {
+  s <- make_test_survey()
+  s2 <- s$shallow_clone()
+
+  expect_s3_class(s2, "Survey")
+  expect_equal(nrow(s2$data), nrow(s$data))
+  expect_equal(s2$edition, s$edition)
+  expect_equal(s2$type, s$type)
+
+  # Modifying cloned data should not affect original
+  s2$data[1, age := 999]
+  expect_false(s$data[1, age] == 999)
+})
+
+test_that("shallow_clone copies design when initialized", {
+  s <- make_test_survey()
+  # Trigger design initialization
+  s$ensure_design()
+  expect_true(s$design_initialized)
+
+  s2 <- s$shallow_clone()
+  expect_true(s2$design_initialized)
+  expect_true(!is.null(s2$design))
+})
+
+test_that("shallow_clone copies metadata", {
+  s <- make_test_survey()
+  step <- Step$new(
+    name = "test", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list()
+  )
+  s$steps <- list(step1 = step)
+  s$periodicity <- "annual"
+
+  s2 <- s$shallow_clone()
+  expect_equal(length(s2$steps), 1)
+  expect_equal(s2$periodicity, "annual")
+})
+
+# --- ensure_design ---
+
+test_that("ensure_design initializes design from weight", {
+  s <- make_test_survey()
+  expect_false(s$design_initialized)
+
+  s$ensure_design()
+  expect_true(s$design_initialized)
+  expect_true(is.list(s$design))
+  expect_true(inherits(s$design[[1]], "survey.design"))
+})
+
+test_that("ensure_design with PSU creates design with PSU formula", {
+  df <- data.table::data.table(
+    id = 1:20, psu_var = rep(1:4, each = 5), w = 1
+  )
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = "psu_var", engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+
+  s$ensure_design()
+  expect_true(s$design_initialized)
+  expect_true(inherits(s$design[[1]], "survey.design"))
+})
+
+test_that("ensure_design is idempotent", {
+  s <- make_test_survey()
+  s$ensure_design()
+  design1 <- s$design
+
+  s$ensure_design()
+  expect_identical(s$design, design1)
+})
+
+# --- get_info_weight with simple weight ---
+
+test_that("get_info_weight returns formatted weight info", {
+  s <- make_test_survey()
+  info <- metasurvey:::get_info_weight(s)
+  expect_true(nchar(info) > 0)
+  expect_true(grepl("Simple design", info))
+})
+
+# --- set_weight standalone with actual different weight ---
+
+test_that("set_weight standalone .copy=FALSE with different weight works", {
+  df <- data.table::data.table(id = 1:10, w1 = 1, w2 = 2)
+  s <- Survey$new(
+    data = df, edition = "2023", type = "ech",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w1")
+  )
+
+  # Changing to a different weight column should work
+  expect_message(
+    s2 <- metasurvey:::set_weight(s, add_weight(annual = "w2"), .copy = TRUE),
+    "Setting weight"
+  )
+  expect_equal(s2$weight$annual, "w2")
 })
