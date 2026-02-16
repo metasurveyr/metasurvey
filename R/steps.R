@@ -138,7 +138,7 @@ recode <- function(svy, new_var, ...,
     if (!use_copy) {
       return(svy)
     } else {
-      return(svy$clone())
+      return(svy$shallow_clone())
     }
   }
 }
@@ -254,19 +254,6 @@ step_compute <- function(
   depends_on <- if (length(dependencies) > 0) dependencies else NULL
 
   if (use_copy) {
-    tryCatch(
-      {
-        .svy_before <- svy$shallow_clone()
-      },
-      error = function(e) {
-        stop(paste0(
-          "Error in shallow_clone. Please run ",
-          "set_use_copy(TRUE) and instance a new ",
-          "survey object and try again"
-        ))
-      }
-    )
-
     # Direct evaluation with compute function
     # (force lazy=FALSE to execute immediately)
     .svy_after <- compute(
@@ -286,7 +273,7 @@ step_compute <- function(
         new_var = paste(.new_vars, collapse = ", "),
         exprs = substitute(list(...)),
         call = .call,
-        svy_before = svy,
+        svy_before = NULL,
         default_engine = get_engine(),
         depends_on = depends_on,
         comment = comment
@@ -303,7 +290,7 @@ step_compute <- function(
       return(svy)
     }
   } else {
-    names_vars <- names(copy(get_data(svy)))
+    names_vars <- names(get_data(svy))
     compute(svy, ..., .by = .by, use_copy = use_copy, lazy = FALSE)
     .new_vars <- names(substitute(list(...)))[-1]
     not_in_data <- !(.new_vars %in% names_vars)
@@ -623,7 +610,7 @@ step_recode_survey <- function(
       new_var = new_var,
       exprs = list(...),
       call = .call,
-      svy_before = svy,
+      svy_before = NULL,
       default_engine = get_engine(),
       depends_on = depends_on,
       comments = comment

@@ -200,14 +200,17 @@ Survey <- R6Class(
       get_metadata(self)
     },
 
-    #' @description Add a step and update design
+    #' @description Add a step and invalidate design
     #' @param step Step object
     add_step = function(step) {
       name_index <- length(self$steps) + 1
       name_index <- paste0("step_", name_index, " ", step$name)
       step$name <- name_index
       self$steps[[name_index]] <- step
-      self$update_design()
+      # Invalidate design so it rebuilds lazily on next access
+      # via ensure_design() or update_design(). Avoids expensive
+      # svydesign rebuild on every step addition.
+      self$design_initialized <- FALSE
     },
 
     #' @description Add a recipe
