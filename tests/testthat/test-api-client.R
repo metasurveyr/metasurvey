@@ -3,17 +3,12 @@
 
 # ── Token helpers ──────────────────────────────────────────────────────────────
 
-test_that("store_token sets option and env var", {
+test_that("store_token sets option only (not env var)", {
   old_opt <- getOption("metasurvey.api_token")
-  old_env <- Sys.getenv("METASURVEY_TOKEN", "")
-  on.exit({
-    options(metasurvey.api_token = old_opt)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_TOKEN = old_env) else Sys.unsetenv("METASURVEY_TOKEN")
-  })
+  on.exit(options(metasurvey.api_token = old_opt))
 
   store_token("test_token_abc")
   expect_equal(getOption("metasurvey.api_token"), "test_token_abc")
-  expect_equal(Sys.getenv("METASURVEY_TOKEN"), "test_token_abc")
 })
 
 test_that("api_token returns stored token", {
@@ -41,13 +36,13 @@ test_that("api_token falls back to env var", {
   expect_equal(api_token(), "from_env")
 })
 
-test_that("token_expires_soon returns FALSE for NULL", {
-  expect_false(token_expires_soon(NULL))
+test_that("token_expires_soon returns TRUE for NULL (force refresh)", {
+  expect_true(token_expires_soon(NULL))
 })
 
-test_that("token_expires_soon returns FALSE for malformed token", {
-  expect_false(token_expires_soon("not.a.jwt"))
-  expect_false(token_expires_soon("single_part"))
+test_that("token_expires_soon returns TRUE for malformed token (force refresh)", {
+  expect_true(token_expires_soon("not.a.jwt"))
+  expect_true(token_expires_soon("single_part"))
 })
 
 test_that("token_expires_soon handles valid JWT with future exp", {
@@ -101,7 +96,7 @@ test_that("api_register stores token on success", {
   )
 
   configure_api("http://test.local")
-  expect_message(api_register("Test User", "test@example.com", "pass123"), "Registered")
+  expect_message(api_register("Test User", "test@example.com", "pass1234"), "Registered")
   expect_equal(getOption("metasurvey.api_token"), "register_token_123")
 })
 
@@ -306,7 +301,7 @@ test_that("api_publish_recipe sends recipe to API", {
   expect_message(api_publish_recipe(rec), "published")
 })
 
-test_that("api_download_recipe is silent on error", {
+test_that("api_download_recipe warns on error", {
   old_url <- getOption("metasurvey.api_url")
   on.exit(options(metasurvey.api_url = old_url))
 
@@ -317,7 +312,7 @@ test_that("api_download_recipe is silent on error", {
   )
 
   configure_api("http://test.local")
-  expect_silent(api_download_recipe("r_123"))
+  expect_warning(api_download_recipe("r_123"), "Failed to track recipe download")
 })
 
 # ── Workflows API ──────────────────────────────────────────────────────────────
@@ -393,7 +388,7 @@ test_that("api_publish_workflow sends workflow to API", {
   expect_message(api_publish_workflow(wf), "published")
 })
 
-test_that("api_download_workflow is silent on error", {
+test_that("api_download_workflow warns on error", {
   old_url <- getOption("metasurvey.api_url")
   on.exit(options(metasurvey.api_url = old_url))
 
@@ -404,7 +399,7 @@ test_that("api_download_workflow is silent on error", {
   )
 
   configure_api("http://test.local")
-  expect_silent(api_download_workflow("w_123"))
+  expect_warning(api_download_workflow("w_123"), "Failed to track workflow download")
 })
 
 test_that("api_get_anda_variables returns variables list", {
@@ -527,7 +522,7 @@ test_that("api_register includes institution for institutional_member", {
 
   configure_api("http://test.local")
   expect_message(
-    api_register("Prof", "prof@udelar.edu", "pass",
+    api_register("Prof", "prof@udelar.edu", "password1",
       user_type = "institutional_member", institution = "UDELAR"
     ),
     "Registered"

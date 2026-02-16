@@ -48,29 +48,28 @@ api_token <- function() {
 #' @keywords internal
 store_token <- function(token) {
   options(metasurvey.api_token = token)
-  Sys.setenv(METASURVEY_TOKEN = token)
   invisible(token)
 }
 
 #' @keywords internal
 token_expires_soon <- function(token, margin_secs = 300) {
   if (is.null(token)) {
-    return(FALSE)
+    return(TRUE)
   }
   tryCatch(
     {
       parts <- strsplit(token, "\\.")[[1]]
       if (length(parts) < 2) {
-        return(FALSE)
+        return(TRUE)
       }
       payload <- jsonlite::fromJSON(rawToChar(jose::base64url_decode(parts[2])))
       exp <- as.numeric(payload$exp)
       if (is.na(exp)) {
-        return(FALSE)
+        return(TRUE)
       }
       (exp - as.numeric(Sys.time())) < margin_secs
     },
-    error = function(e) FALSE
+    error = function(e) TRUE
   )
 }
 
@@ -113,11 +112,11 @@ api_request <- function(endpoint, method = "GET", body = NULL, params = NULL) {
 
   # Query parameters
   if (!is.null(params)) {
-    params <- params[!sapply(params, is.null)]
+    params <- params[!vapply(params, is.null, logical(1))]
     if (length(params) > 0) {
       query_string <- paste(
         names(params),
-        sapply(params, function(v) utils::URLencode(as.character(v), reserved = TRUE)),
+        vapply(params, function(v) utils::URLencode(as.character(v), reserved = TRUE), character(1)),
         sep = "=",
         collapse = "&"
       )
@@ -159,7 +158,11 @@ api_request <- function(endpoint, method = "GET", body = NULL, params = NULL) {
 
   if (httr::status_code(resp) >= 400) {
     parsed <- tryCatch(jsonlite::fromJSON(txt, simplifyVector = FALSE), error = function(e) NULL)
-    msg <- if (!is.null(parsed$error)) parsed$error else txt
+    msg <- if (!is.null(parsed$error) && is.character(parsed$error)) {
+      substr(parsed$error, 1, 200)
+    } else {
+      paste("HTTP", httr::status_code(resp))
+    }
     stop("API error (", httr::status_code(resp), "): ", msg, call. = FALSE)
   }
 
@@ -187,6 +190,9 @@ api_request <- function(endpoint, method = "GET", body = NULL, params = NULL) {
 #' }
 api_register <- function(name, email, password,
                          user_type = "individual", institution = NULL) {
+  if (!is.character(password) || nchar(password) < 8 || nchar(password) > 128) {
+    stop("Password must be between 8 and 128 characters.", call. = FALSE)
+  }
   body <- list(
     name = name, email = email, password = password,
     user_type = user_type
@@ -277,6 +283,17 @@ api_logout <- function() {
   invisible(NULL)
 }
 
+# ── ID validation ──────────────────────────────────────────────────────────
+
+#' @keywords internal
+validate_api_id <- function(id) {
+  if (!is.character(id) || length(id) != 1L || !grepl("^[a-zA-Z0-9_.-]+$", id)) {
+    stop("Invalid API ID: must be a single alphanumeric string (a-z, 0-9, _, ., -)",
+      call. = FALSE)
+  }
+  invisible(id)
+}
+
 # ══════════════════════════════════════════════════════════════════════════════
 # RECIPES — GET /recipes, GET /recipes/:id, POST /recipes, POST /recipes/:id/download
 # ══════════════════════════════════════════════════════════════════════════════
@@ -327,6 +344,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 #' }
 api_get_recipe <- function(id) {
   fetch_one <- function(single_id) {
+    validate_api_id(single_id)
     result <- tryCatch(
       api_request(paste0("recipes/", single_id), method = "GET"),
       error = function(e) {
@@ -374,9 +392,13 @@ api_publish_recipe <- function(recipe) {
 #' @param id Recipe ID
 #' @keywords internal
 api_download_recipe <- function(id) {
+  validate_api_id(id)
   tryCatch(
     api_request(paste0("recipes/", id, "/download"), method = "POST"),
-    error = function(e) invisible(NULL)
+    error = function(e) {
+      warning("Failed to track recipe download for '", id, "': ", e$message, call. = FALSE)
+      invisible(NULL)
+    }
   )
 }
 
@@ -426,6 +448,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 #' api_get_workflow("w_1739654400_123")
 #' }
 api_get_workflow <- function(id) {
+  validate_api_id(id)
   result <- tryCatch(
     api_request(paste0("workflows/", id), method = "GET"),
     error = function(e) {
@@ -470,9 +493,13 @@ api_publish_workflow <- function(workflow) {
 #' @param id Workflow ID
 #' @keywords internal
 api_download_workflow <- function(id) {
+  validate_api_id(id)
   tryCatch(
     api_request(paste0("workflows/", id, "/download"), method = "POST"),
-    error = function(e) invisible(NULL)
+    error = function(e) {
+      warning("Failed to track workflow download for '", id, "': ", e$message, call. = FALSE)
+      invisible(NULL)
+    }
   )
 }
 
