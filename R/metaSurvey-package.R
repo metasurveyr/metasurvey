@@ -135,7 +135,6 @@
 #' @importFrom R6 R6Class
 #' @importFrom httr POST
 #' @importFrom httr GET
-#' @importFrom bit64 integer64
 ## usethis namespace: end
 NULL
 

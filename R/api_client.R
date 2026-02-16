@@ -65,7 +65,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
         return(TRUE)
       }
       payload <- jsonlite::fromJSON(
-        rawToChar(jose::base64url_decode(parts[2]))
+        rawToChar(jsonlite::base64url_dec(parts[2]))
       )
       exp <- as.numeric(payload$exp)
       if (is.na(exp)) {

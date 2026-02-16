@@ -48,14 +48,14 @@ test_that("token_expires_soon returns TRUE for malformed token (force refresh)",
 test_that("token_expires_soon handles valid JWT with future exp", {
   # Create a fake JWT with exp far in the future
   payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 3600), auto_unbox = TRUE)
-  encoded_payload <- jose::base64url_encode(charToRaw(payload))
+  encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_false(token_expires_soon(fake_jwt, margin_secs = 300))
 })
 
 test_that("token_expires_soon returns TRUE when near expiry", {
   payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 60), auto_unbox = TRUE)
-  encoded_payload <- jose::base64url_encode(charToRaw(payload))
+  encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_true(token_expires_soon(fake_jwt, margin_secs = 300))
 })
