@@ -34,7 +34,6 @@ use and document the estimation calls made.
 \code{\link{save_workflow}}, \code{\link{read_workflow}},
 \code{\link{workflow}}
 }
-\keyword{Workflows}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -71,6 +70,8 @@ use and document the estimation calls made.
 \item{\code{doi}}{DOI or external identifier (character|NULL).}
 
 \item{\code{created_at}}{Creation timestamp (character).}
+
+\item{\code{weight_spec}}{Named list with weight configuration per periodicity (list|NULL).}
 }
 \if{html}{\out{</div>}}
 }
@@ -110,7 +111,8 @@ Create a RecipeWorkflow object
   certification = NULL,
   version = "1.0.0",
   doi = NULL,
-  created_at = NULL
+  created_at = NULL,
+  weight_spec = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -150,6 +152,8 @@ Create a RecipeWorkflow object
 \item{\code{doi}}{DOI or NULL}
 
 \item{\code{created_at}}{Timestamp string or NULL (auto-generated)}
+
+\item{\code{weight_spec}}{Named list with weight configuration per periodicity}
 }
 \if{html}{\out{</div>}}
 }

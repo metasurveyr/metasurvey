@@ -16,10 +16,15 @@ List of matching Recipe objects.
 Search for recipes by name or description in the active backend.
 }
 \examples{
-\dontrun{
-set_backend("local", path = "recipes.json")
-results <- search_recipes("labor market")
-}
+set_backend("local", path = tempfile(fileext = ".json"))
+r <- recipe(
+  name = "Labor Market", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Labor market indicators"
+)
+publish_recipe(r)
+results <- search_recipes("labor")
+length(results)
 
 }
 \seealso{

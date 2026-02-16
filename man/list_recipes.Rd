@@ -13,9 +13,9 @@ List of all Recipe objects.
 List all recipes from the active backend.
 }
 \examples{
-\dontrun{
+set_backend("local", path = tempfile(fileext = ".json"))
 all <- list_recipes()
-}
+length(all)
 
 }
 \seealso{

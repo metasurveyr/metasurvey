@@ -116,11 +116,14 @@ recipe_certification <- function(level = "community", certified_by = NULL, notes
 #' @return The modified Recipe object (invisibly for piping).
 #'
 #' @examples
-#' \dontrun{
-#' my_recipe |>
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' r <- r |>
 #'   add_category("labor_market", "Labor market indicators") |>
 #'   add_category("income")
-#' }
 #'
 #' @seealso \code{\link{remove_category}}, \code{\link{recipe_category}},
 #'   \code{\link{default_categories}}
@@ -143,11 +146,14 @@ add_category <- function(recipe, category, description = "") {
 #' @return The modified Recipe object.
 #'
 #' @examples
-#' \dontrun{
-#' my_recipe |>
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' r <- r |>
 #'   add_category("labor_market") |>
 #'   remove_category("labor_market")
-#' }
 #'
 #' @seealso \code{\link{add_category}}
 #' @export
@@ -167,10 +173,13 @@ remove_category <- function(recipe, name) {
 #' @return The modified Recipe object.
 #'
 #' @examples
-#' \dontrun{
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
 #' inst <- recipe_user("IECON", type = "institution")
-#' my_recipe |> certify_recipe(inst, "official")
-#' }
+#' r <- r |> certify_recipe(inst, "official")
 #'
 #' @seealso \code{\link{recipe_certification}}, \code{\link{recipe_user}}
 #' @export
@@ -189,10 +198,13 @@ certify_recipe <- function(recipe, user, level) {
 #' @return The modified Recipe object.
 #'
 #' @examples
-#' \dontrun{
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
 #' user <- recipe_user("Juan Perez", email = "juan@example.com")
-#' my_recipe |> set_user_info(user)
-#' }
+#' r <- r |> set_user_info(user)
 #'
 #' @seealso \code{\link{recipe_user}}
 #' @export
@@ -211,9 +223,12 @@ set_user_info <- function(recipe, user) {
 #' @return The modified Recipe object.
 #'
 #' @examples
-#' \dontrun{
-#' my_recipe |> set_version("2.0.0")
-#' }
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' r <- r |> set_version("2.0.0")
 #'
 #' @export
 set_version <- function(recipe, version) {
@@ -232,10 +247,15 @@ set_version <- function(recipe, version) {
 #' @return List of matching Recipe objects.
 #'
 #' @examples
-#' \dontrun{
-#' set_backend("local", path = "recipes.json")
-#' results <- search_recipes("labor market")
-#' }
+#' set_backend("local", path = tempfile(fileext = ".json"))
+#' r <- recipe(
+#'   name = "Labor Market", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Labor market indicators"
+#' )
+#' publish_recipe(r)
+#' results <- search_recipes("labor")
+#' length(results)
 #'
 #' @seealso \code{\link{filter_recipes}}, \code{\link{rank_recipes}},
 #'   \code{\link{set_backend}}
@@ -253,9 +273,8 @@ search_recipes <- function(query) {
 #' @return List of Recipe objects sorted by downloads (descending).
 #'
 #' @examples
-#' \dontrun{
+#' set_backend("local", path = tempfile(fileext = ".json"))
 #' top10 <- rank_recipes(n = 10)
-#' }
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{filter_recipes}}
 #' @export
@@ -276,10 +295,9 @@ rank_recipes <- function(n = NULL) {
 #' @return List of matching Recipe objects.
 #'
 #' @examples
-#' \dontrun{
-#' ech_recipes <- filter_recipes(survey_type = "ech", category = "labor_market")
-#' official <- filter_recipes(certification_level = "official")
-#' }
+#' set_backend("local", path = tempfile(fileext = ".json"))
+#' ech_recipes <- filter_recipes(survey_type = "ech")
+#' length(ech_recipes)
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{rank_recipes}}
 #' @export
@@ -298,9 +316,9 @@ filter_recipes <- function(survey_type = NULL, edition = NULL,
 #' @return List of all Recipe objects.
 #'
 #' @examples
-#' \dontrun{
+#' set_backend("local", path = tempfile(fileext = ".json"))
 #' all <- list_recipes()
-#' }
+#' length(all)
 #'
 #' @seealso \code{\link{search_recipes}}, \code{\link{filter_recipes}}
 #' @export

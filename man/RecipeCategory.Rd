@@ -21,10 +21,9 @@ Supports hierarchical categories with parent-child relationships.
 }
 
 \examples{
-economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
-labor$get_path()
-labor$is_subcategory_of("economics")
+# Use recipe_category() for the public API:
+cat <- recipe_category("economics", "Economic indicators")
+sub <- recipe_category("labor_market", "Labor market", parent = "economics")
 
 }
 \section{Public fields}{

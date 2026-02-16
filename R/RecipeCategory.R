@@ -18,10 +18,9 @@
 #' }
 #'
 #' @examples
-#' economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-#' labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
-#' labor$get_path()
-#' labor$is_subcategory_of("economics")
+#' # Use recipe_category() for the public API:
+#' cat <- recipe_category("economics", "Economic indicators")
+#' sub <- recipe_category("labor_market", "Labor market", parent = "economics")
 #'
 #' @export
 RecipeCategory <- R6::R6Class(
@@ -117,6 +116,7 @@ RecipeCategory <- R6::R6Class(
 #' @description Class method to reconstruct a RecipeCategory from its list representation.
 #' @param lst List with name, description, parent fields, or NULL.
 #' @return RecipeCategory object or NULL
+#' @keywords internal
 RecipeCategory$set("public", "from_list", function(lst) {
   if (is.null(lst)) return(NULL)
   parent <- if (!is.null(lst$parent)) RecipeCategory$new(

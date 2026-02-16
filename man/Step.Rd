@@ -11,25 +11,17 @@ The \code{Step} class is used to define and manage individual steps in a survey 
 The \code{Step} class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
 }
 \examples{
-step <- Step$new(
-  name = "example_step",
-  edition = "2023",
-  survey_type = "example_survey",
-  type = "compute",
-  new_var = "example_var",
-  exprs = list(a = 1, b = 2),
-  call = NULL,
-  svy_before = NULL,
-  default_engine = NULL,
-  depends_on = list("var1", "var2"),
-  comments = "Example step",
-  bake = FALSE
-)
-print(step)
+# Step objects are created internally by step_compute(), step_recode(), etc.
+# Use the tidy API:
+dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
+svy <- Survey$new(data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- step_compute(svy, age2 = age * 2)
+get_steps(svy)
 }
 \keyword{Steps}
 \keyword{Surveymethods}
-\keyword{Workflow}
+\keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

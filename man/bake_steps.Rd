@@ -27,13 +27,10 @@ For RotativePanelSurvey objects, steps are applied to both the
 implantation and all follow-up surveys.
 }
 \examples{
-\dontrun{
-svy <- survey_empty("ech", "2023") \%>\%
-  set_data(my_data) \%>\%
-  step_compute(employed = ifelse(pobpcoac == 2, 1, 0)) \%>\%
-  step_recode(age_group, e27 < 18 ~ "Minor", e27 >= 65 ~ "Senior",
-              .default = "Adult")
-
+dt <- data.table::data.table(id = 1:5, age = c(15, 30, 45, 50, 70), w = 1)
+svy <- Survey$new(data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- step_compute(svy, age2 = age * 2)
 svy <- bake_steps(svy)
-}
+get_data(svy)
 }

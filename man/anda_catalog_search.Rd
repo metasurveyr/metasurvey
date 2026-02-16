@@ -23,3 +23,4 @@ A data.frame with columns: id, title, year_start, year_end
 \description{
 Queries the ANDA5 REST API to list available survey datasets.
 }
+\keyword{internal}

@@ -9,14 +9,10 @@
 #' @field notes Character or NULL. Additional notes.
 #'
 #' @examples
-#' # Community level (default)
-#' cert <- RecipeCertification$new(level = "community")
-#' cert$is_at_least("community")
-#'
-#' # Official certification by institution
-#' inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-#' official <- RecipeCertification$new(level = "official", certified_by = inst)
-#' official$numeric_level()
+#' # Use recipe_certification() for the public API:
+#' cert <- recipe_certification()
+#' inst <- recipe_user("IECON", type = "institution")
+#' official <- recipe_certification("official", certified_by = inst)
 #'
 #' @export
 RecipeCertification <- R6::R6Class(

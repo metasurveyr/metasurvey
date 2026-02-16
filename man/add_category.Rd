@@ -22,11 +22,14 @@ Pipe-friendly function to add a category to a Recipe object.
 Accepts either a category name (string) or a \code{\link{RecipeCategory}} object.
 }
 \examples{
-\dontrun{
-my_recipe |>
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
+r <- r |>
   add_category("labor_market", "Labor market indicators") |>
   add_category("income")
-}
 
 }
 \seealso{

@@ -6,6 +6,7 @@
 \usage{
 anda_download_microdata(
   edition,
+  resource = "implantation",
   dest_dir = tempdir(),
   base_url = "https://www4.ine.gub.uy/Anda5"
 )
@@ -13,16 +14,35 @@ anda_download_microdata(
 \arguments{
 \item{edition}{Character year (e.g., "2023")}
 
-\item{dest_dir}{Character directory where to save the file. Defaults to
+\item{resource}{Character type of resource to download. One of:
+\describe{
+\item{"implantation"}{(default) Main implantation file. For editions
+< 2022, downloads the main microdata file.}
+\item{"monthly"}{Monthly follow-up files (editions >= 2022 only).
+Returns a character vector of paths, one per month.}
+\item{"bootstrap_annual"}{Annual bootstrap replicate weights.}
+\item{"bootstrap_monthly"}{Monthly bootstrap replicate weights.}
+\item{"bootstrap_quarterly"}{Quarterly bootstrap replicate weights.}
+\item{"bootstrap_semestral"}{Semestral bootstrap replicate weights.}
+\item{"poverty"}{Poverty line microdata (Microdatos_LP).}
+}}
+
+\item{dest_dir}{Character directory where to save files. Defaults to
 a temporary directory.}
 
 \item{base_url}{Character base URL of the ANDA5 instance}
 }
 \value{
-Character path to the downloaded CSV file
+Character path (or vector of paths for monthly) to the downloaded
+file(s), ready to pass to \code{load_survey()} or \code{data.table::fread()}.
 }
 \description{
-Downloads the main CSV microdata file for a given ECH edition from
-INE Uruguay's ANDA5 catalog. Automatically accepts the terms of use
-and downloads the first available CSV resource.
+Downloads microdata files for a given ECH edition from INE Uruguay's
+ANDA5 catalog. Automatically accepts the terms of use, parses available
+resources, and downloads the appropriate file.
+}
+\details{
+For editions >= 2022, ANDA provides separate files for implantation,
+monthly follow-ups, and bootstrap replicate weights. Use the \code{resource}
+parameter to select which file to download.
 }
