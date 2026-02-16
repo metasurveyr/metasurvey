@@ -218,7 +218,7 @@ For static output we can inspect the step list:
 
 ```{r}
 for (s in get_steps(svy)) {
-  cat(sprintf("[%s] %s\n", s$type, s$comments %||% ""))
+  cat(sprintf("[%s] %s\n", s$type, s$comment %||% ""))
 }
 ```
 
