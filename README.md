@@ -28,7 +28,7 @@ for **complex sampling designs** and **recurring estimations** over time
 - **Recipe registry**: publish, search and discover recipes and workflows
   through a REST API or a local JSON registry.
 - **Shiny app**: interactive recipe and workflow explorer with
-  `run_metasurvey_app()`.
+  `explore_recipes()`.
 
 ---
 

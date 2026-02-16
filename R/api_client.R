@@ -302,29 +302,33 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
   }) |> Filter(f = Negate(is.null))
 }
 
-#' @title Get a single recipe by ID
-#' @param id Recipe ID
-#' @return Recipe object or NULL
+#' @title Get recipe(s) by ID
+#' @param id Character vector of recipe ID(s). If length > 1, returns a list.
+#' @return A single Recipe object (or NULL) when \code{length(id) == 1}.
+#'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 #' @export
 api_get_recipe <- function(id) {
-  result <- tryCatch(
-    api_request(paste0("recipes/", id), method = "GET"),
-    error = function(e) {
-      if (grepl("404", e$message)) {
-        return(NULL)
+  fetch_one <- function(single_id) {
+    result <- tryCatch(
+      api_request(paste0("recipes/", single_id), method = "GET"),
+      error = function(e) {
+        if (grepl("404", e$message)) return(NULL)
+        stop(e)
       }
-      stop(e)
-    }
-  )
-
-  if (is.null(result) || is.null(result$recipe)) {
-    return(NULL)
+    )
+    if (is.null(result) || is.null(result$recipe)) return(NULL)
+    tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
+      warning("Failed to parse recipe '", single_id, "': ", e$message, call. = FALSE)
+      NULL
+    })
   }
 
-  tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
-    warning("Failed to parse recipe: ", e$message, call. = FALSE)
-    NULL
-  })
+  if (length(id) == 1L) {
+    return(fetch_one(id))
+  }
+
+  results <- lapply(id, fetch_one)
+  Filter(Negate(is.null), results)
 }
 
 #' @title Publish a recipe
