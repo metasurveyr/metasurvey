@@ -8,9 +8,10 @@ step_compute(
   svy = NULL,
   ...,
   .by = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Compute step",
-  .level = "auto"
+  .level = "auto",
+  use_copy = deprecated()
 )
 }
 \arguments{
@@ -26,7 +27,7 @@ optimization. Names are assigned using
 by. The system automatically validates these
 variables exist before execution}
 
-\item{use_copy}{Logical indicating whether to create
+\item{.copy}{Logical indicating whether to create
 a copy of the object before applying
 transformations. Defaults to \code{use_copy_default()}}
 
@@ -38,6 +39,8 @@ Markdown syntax. Defaults to "Compute step"}
 specifies the level where computations are
 applied: "implantation", "follow_up", "quarter",
 "month", or "auto"}
+
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})

@@ -5,16 +5,17 @@
 \title{Create recoding steps for categorical variables}
 \usage{
 step_recode(
-  svy = survey_empty(),
+  svy,
   new_var,
   ...,
   .default = NA_character_,
   .name_step = NULL,
   ordered = FALSE,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Recode step",
   .to_factor = FALSE,
-  .level = "auto"
+  .level = "auto",
+  use_copy = deprecated()
 )
 }
 \arguments{
@@ -42,7 +43,7 @@ generated automatically with "Recode" prefix}
 variable should be an ordered factor.
 Defaults to FALSE}
 
-\item{use_copy}{Logical indicating whether to
+\item{.copy}{Logical indicating whether to
 create a copy of the object before applying
 transformations. Defaults to \code{use_copy_default()}}
 
@@ -58,6 +59,8 @@ Defaults to FALSE}
 specifies the level where recoding is applied:
 "implantation", "follow_up", "quarter",
 "month", or "auto"}
+
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
