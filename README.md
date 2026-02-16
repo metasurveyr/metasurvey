@@ -1,6 +1,7 @@
 # metasurvey
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/metasurvey)](https://CRAN.R-project.org/package=metasurvey)
 [![R-CMD-check](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml)
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
 [![Codecov test coverage](https://codecov.io/gh/metasurveyr/metasurvey/branch/main/graph/badge.svg)](https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main)
@@ -12,7 +13,26 @@ data using metaprogramming and reproducible pipelines. It integrates with the
 for **complex sampling designs** and **recurring estimations** over time
 (rotating panels, repeated cross-sections).
 
-### Key features
+> If you find this useful, please consider giving us a
+> :star: [star on GitHub](https://github.com/metasurveyr/metasurvey) — it
+> helps others discover the project!
+
+---
+
+## Live services
+
+The full stack is deployed and publicly available:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Recipe Explorer** | [metasurvey-shiny-production.up.railway.app](https://metasurvey-shiny-production.up.railway.app) | Interactive Shiny app to browse, search and inspect community recipes and workflows |
+| **REST API** | [metasurvey-api-production.up.railway.app](https://metasurvey-api-production.up.railway.app) | Plumber API backed by MongoDB Atlas for publishing and discovering recipes |
+| **API Docs** | [metasurvey-api-production.up.railway.app/\_\_docs\_\_/](https://metasurvey-api-production.up.railway.app/__docs__/) | Swagger/OpenAPI interactive documentation |
+| **pkgdown site** | [metasurveyr.github.io/metasurvey](https://metasurveyr.github.io/metasurvey/) | Full package documentation and vignettes |
+
+---
+
+## Key features
 
 - **Steps**: lazy transformation pipeline (`step_compute`, `step_recode`,
   `step_rename`, `step_remove`, `step_join`) executed via `bake_steps()`.
@@ -27,9 +47,10 @@ for **complex sampling designs** and **recurring estimations** over time
 - **Replicate weights**: bootstrap replicate configuration via
   `add_replicate()` for robust variance with `survey::svrepdesign`.
 - **Recipe registry**: publish, search and discover recipes and workflows
-  through a REST API or a local JSON registry.
-- **Shiny app**: interactive recipe and workflow explorer with
+  through the [REST API](https://metasurvey-api-production.up.railway.app/__docs__/) or a local JSON registry.
+- **Shiny app**: [interactive recipe and workflow explorer](https://metasurvey-shiny-production.up.railway.app) with
   `explore_recipes()`.
+- **STATA transpiler**: convert `.do` files into reproducible Recipe objects.
 
 ---
 
@@ -43,6 +64,7 @@ US CPS, Mexico's ENIGH, or DHS data from 90+ countries.
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | Steps (compute / recode / rename / remove / join) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | Weights (`add_weight`) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Stratified + cluster designs | :white_check_mark: | :white_check_mark: | :white_check_mark: | -- | :white_check_mark: | :white_check_mark: |
 | Replicate weights (`add_replicate`) | -- | -- | :white_check_mark: | :white_check_mark: | -- | -- |
 | Rotating panels (`RotativePanelSurvey`) | :white_check_mark: | -- | :white_check_mark: | :white_check_mark: | -- | -- |
 | Recipes & workflows | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
@@ -73,8 +95,8 @@ process <- function(svy) {
 }
 ```
 
-See [issue #190](https://github.com/metasurveyr/metasurvey/issues/190)
-for the full compatibility analysis across six national surveys.
+See `vignette("international-surveys")` for reproducible examples with
+all seven surveys.
 
 ---
 
@@ -260,6 +282,7 @@ See `vignette("stata-transpiler")` for the full reference.
 ## Documentation
 
 - [Getting started](https://metasurveyr.github.io/metasurvey/articles/getting-started.html)
+- [International survey compatibility](https://metasurveyr.github.io/metasurvey/articles/international-surveys.html)
 - [Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.html)
 - [Workflows and estimation](https://metasurveyr.github.io/metasurvey/articles/workflows-and-estimation.html)
 - [Complex designs](https://metasurveyr.github.io/metasurvey/articles/complex-designs.html)
