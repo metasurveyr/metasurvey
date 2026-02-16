@@ -18,23 +18,23 @@ knitr::opts_chunk$set(
 
 ## What is a Workflow?
 
-After transforming your survey data with steps and recipes, the next task is
+After transforming survey data with steps and recipes, the next task is
 **estimation**: computing means, totals, ratios, and their standard errors
 while accounting for the complex survey design.
 
-The `workflow()` function wraps the `survey` package estimators
-(`svymean`, `svytotal`, `svyratio`, `svyby`) and returns tidy `data.table`
-results with:
+The `workflow()` function wraps the estimators from the `survey` package
+(`svymean`, `svytotal`, `svyratio`, `svyby`) and returns tidy results as a `data.table`
+that include:
 
 - Point estimates and standard errors
 - Coefficients of variation (CV)
 - Confidence intervals
 - Metadata for reproducibility
 
-## Setup
+## Initial Setup
 
-We use the Academic Performance Index (API) dataset from the `survey`
-package---real stratified school data from California.
+We use the Academic Performance Index (API) dataset from the `survey` package,
+which contains real data from stratified schools in California.
 
 ```{r setup}
 library(metasurvey)
@@ -58,7 +58,7 @@ svy <- Survey$new(
 
 ### Mean
 
-Estimate the population mean of the API score in 2000:
+We estimate the population mean of the API score in the year 2000:
 
 ```{r mean}
 result <- workflow(
@@ -72,7 +72,7 @@ result
 
 ### Total
 
-Estimate the total enrollment across all schools:
+We estimate total enrollment across all schools:
 
 ```{r total}
 result_total <- workflow(
@@ -86,8 +86,8 @@ result_total
 
 ### Multiple Estimates at Once
 
-Pass several estimation calls to `workflow()` to compute them in a single
-step:
+You can pass multiple estimation calls to `workflow()` to compute them in a
+single step:
 
 ```{r multiple}
 results <- workflow(
@@ -102,7 +102,7 @@ results
 
 ## Domain Estimation
 
-Use `survey::svyby()` to compute estimates for subpopulations (domains):
+We use `survey::svyby()` to compute estimates by subpopulations (domains):
 
 ```{r domain}
 # Mean API score by school type
@@ -128,7 +128,7 @@ enroll_by_award
 
 ## Quality Assessment
 
-The **coefficient of variation (CV)** measures estimation precision. Use
+The **coefficient of variation (CV)** measures the precision of an estimate. You can use
 `evaluate_cv()` to classify quality following standard guidelines:
 
 | CV Range | Quality | Recommendation |
@@ -137,7 +137,7 @@ The **coefficient of variation (CV)** measures estimation precision. Use
 | 5-10%    | Very good | Use with confidence |
 | 10-15%   | Good | Use for most purposes |
 | 15-25%   | Acceptable | Use with caution |
-| 25-35%   | Poor | General trends only |
+| 25-35%   | Poor | Only for general trends |
 | >= 35%   | Unreliable | Do not publish |
 
 ```{r cv}
@@ -149,14 +149,14 @@ cat("CV:", round(cv_pct, 2), "%\n")
 cat("Quality:", quality, "\n")
 ```
 
-## RecipeWorkflow: Publishable Estimations
+## RecipeWorkflow: Publishable Estimates
 
 A `RecipeWorkflow` bundles estimation calls with metadata, making the
 analysis reproducible and shareable. It records:
 
 - Which recipes were used for data preparation
-- What estimation calls were made
-- Author and versioning information
+- Which estimation calls were performed
+- Authorship and versioning information
 
 ### Creating a RecipeWorkflow
 
@@ -180,7 +180,7 @@ wf
 
 ### Publishing to the Registry
 
-Publish the workflow so others can discover and reuse it:
+We publish the workflow so that others can discover and reuse it:
 
 ```{r wf-registry}
 # Configure a local backend
@@ -203,10 +203,10 @@ ech_wf <- filter_workflows(survey_type = "ech")
 length(ech_wf)
 ```
 
-### Finding Workflows for a Recipe
+### Finding Workflows Associated with a Recipe
 
-If you have a recipe and want to know what estimations have been published
-for it, use `find_workflows_for_recipe()`:
+If you have a recipe and want to know which estimates have been published
+for it, you can use `find_workflows_for_recipe()`:
 
 ```{r find-for-recipe}
 # Create a workflow that references a recipe
@@ -230,7 +230,7 @@ if (length(related) > 0) cat("Found:", related[[1]]$name, "\n")
 
 ## Sharing via the Remote API
 
-For broader sharing, publish workflows to the metasurvey API:
+For broader dissemination, you can publish workflows to the metasurvey API:
 
 ```{r api-wf, eval = FALSE}
 # Requires authentication
@@ -244,10 +244,10 @@ all <- api_list_workflows(survey_type = "ech")
 specific <- api_get_workflow("workflow_id_here")
 ```
 
-## Complete Pipeline
+## Full Pipeline
 
-Here is a full pipeline from raw data to publishable estimation using the
-API dataset:
+Below is a complete pipeline from raw data to publishable estimation,
+using the API dataset:
 
 ```{r full-pipeline}
 # 1. Create survey from real data
@@ -313,6 +313,6 @@ for (i in seq_len(nrow(estimates))) {
 
 ## Next Steps
 
-- **[Creating and Sharing Recipes](recipes.html)** -- Build reproducible transformation pipelines
+- **[Creating and Publishing Recipes](recipes.html)** -- Build reproducible transformation pipelines
 - **[Survey Designs and Validation](complex-designs.html)** -- Stratification, clustering, replicate weights
-- **[ECH Case Study](ech-case-study.html)** -- Complete labor market analysis with estimation
+- **[Case Study: ECH](ech-case-study.html)** -- Complete labor market analysis with estimation
