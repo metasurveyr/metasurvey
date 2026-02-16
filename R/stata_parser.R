@@ -11,6 +11,14 @@
 #' @param encoding File encoding (default "latin1" for legacy STATA files)
 #' @return A list of StataCommand lists, each with fields:
 #'   cmd, args, if_clause, options, raw_line, line_num, capture
+#' @examples
+#' \donttest{
+#' tf <- tempfile(fileext = ".do")
+#' writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
+#' cmds <- parse_do_file(tf)
+#' length(cmds)
+#' cmds[[1]]$cmd
+#' }
 #' @export
 parse_do_file <- function(do_file, encoding = "latin1") {
   if (!file.exists(do_file)) {
@@ -474,6 +482,17 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
 #'    (already comment-stripped)
 #' @return A list with var_labels (named list) and val_labels
 #'    (named list of named lists)
+#' @examples
+#' \donttest{
+#' lines <- c(
+#'   'label variable edad "Age in years"',
+#'   'label define sexo_lbl 1 "Male" 2 "Female"',
+#'   'label values sexo sexo_lbl'
+#' )
+#' labels <- parse_stata_labels(lines)
+#' labels$var_labels
+#' labels$val_labels
+#' }
 #' @export
 parse_stata_labels <- function(lines) {
   var_labels <- list()

@@ -114,7 +114,6 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
             function(i) {
               survey <- survey[[i]]
 
-              # Ensure design is initialized before using it
               survey$ensure_design()
 
               partial_result <- rbindlist(
@@ -200,7 +199,6 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
             function(i) {
               survey_item <- survey[[x]][[i]]
 
-              # Ensure design is initialized before using it
               survey_item$ensure_design()
 
               result <- rbindlist(

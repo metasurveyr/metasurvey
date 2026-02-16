@@ -20,3 +20,12 @@ Reads a .do file and returns a list of parsed command objects.
 Handles comment stripping, line continuation, loop expansion,
 and command tokenization.
 }
+\examples{
+\donttest{
+tf <- tempfile(fileext = ".do")
+writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
+cmds <- parse_do_file(tf)
+length(cmds)
+cmds[[1]]$cmd
+}
+}

@@ -35,6 +35,14 @@ SKIP_COMMANDS <- c(
 #'     \item warnings: character vector of MANUAL_REVIEW items
 #'     \item stats: list with command counts
 #'   }
+#' @examples
+#' \donttest{
+#' tf <- tempfile(fileext = ".do")
+#' writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
+#' result <- transpile_stata(tf)
+#' result$steps
+#' result$stats
+#' }
 #' @export
 transpile_stata <- function(do_file, survey_type = "ech",
                             user = "iecon", strict = FALSE) {
@@ -67,6 +75,12 @@ transpile_stata <- function(do_file, survey_type = "ech",
 #' @param user Author name
 #' @param output_dir Directory to write JSON recipes (NULL = no file output)
 #' @return A named list of Recipe objects, one per thematic module
+#' @examples
+#' \dontrun{
+#' # Requires a directory of .do files organized by year
+#' recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
+#' names(recipes)
+#' }
 #' @export
 transpile_stata_module <- function(year_dir, year, user = "iecon",
                                    output_dir = NULL) {
@@ -1019,6 +1033,12 @@ filter_labels <- function(labels, vars) {
 #' @param recursive If TRUE and path is a directory, search subdirectories
 #' @return A data.frame with columns: file, total_commands, translated,
 #'   skipped, manual_review, coverage_pct
+#' @examples
+#' \donttest{
+#' tf <- tempfile(fileext = ".do")
+#' writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
+#' transpile_coverage(tf)
+#' }
 #' @export
 transpile_coverage <- function(path, recursive = TRUE) {
   if (dir.exists(path)) {

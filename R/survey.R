@@ -23,11 +23,12 @@
 #' @field workflows List of workflows.
 #' @field design List of survey design objects (survey/surveyrep).
 #' @field psu Primary Sampling Unit specification (formula or character).
+#' @field strata Stratification variable name (character or NULL).
 #' @field design_initialized Logical flag for lazy design initialization.
 #'
 #' @section Main methods:
 #' \describe{
-#'   \item{$new(data, edition, type, psu, engine,
+#'   \item{$new(data, edition, type, psu, strata, engine,
 #'     weight, design = NULL, steps = NULL,
 #'     recipes = list())}{Constructor.}
 #'   \item{$set_data(data)}{Set data.}
@@ -48,6 +49,8 @@
 #' @param edition Edition or period.
 #' @param type Survey type (character).
 #' @param psu PSU variable or formula (optional).
+#' @param strata Stratification variable name (optional). Passed to
+#'   [survey::svydesign()] as the `strata` argument.
 #' @param engine Default engine.
 #' @param weight Weight specification(s) per estimation type.
 #' @param design Pre-built design (optional).
@@ -78,6 +81,7 @@ Survey <- R6Class(
     workflows = list(),
     design = NULL,
     psu = NULL,
+    strata = NULL,
     design_initialized = FALSE,
 
     #' @description Create a Survey object
@@ -85,13 +89,15 @@ Survey <- R6Class(
     #' @param edition Edition or period
     #' @param type Survey type (character)
     #' @param psu PSU variable or formula (optional)
+    #' @param strata Stratification variable name (optional)
     #' @param engine Default engine
     #' @param weight Weight specification(s) per estimation type
     #' @param design Pre-built design (optional)
     #' @param steps Initial steps list (optional)
     #' @param recipes List of Recipe (optional)
     initialize = function(data, edition, type,
-                          psu = NULL, engine, weight,
+                          psu = NULL, strata = NULL,
+                          engine, weight,
                           design = NULL, steps = NULL,
                           recipes = list()) {
       self$data <- data
@@ -105,6 +111,7 @@ Survey <- R6Class(
 
       # LAZY DESIGN: Store PSU for later, don't create design yet
       self$psu <- psu
+      self$strata <- strata
       self$edition <- time_pattern$svy_edition
       self$type <- time_pattern$svy_type
       self$default_engine <- engine
@@ -177,9 +184,6 @@ Survey <- R6Class(
       name_index <- paste0("step_", name_index, " ", step$name)
       step$name <- name_index
       self$steps[[name_index]] <- step
-      # Invalidate design so it rebuilds lazily on next access
-      # via ensure_design() or update_design(). Avoids expensive
-      # svydesign rebuild on every step addition.
       self$design_initialized <- FALSE
     },
 
@@ -253,7 +257,18 @@ Survey <- R6Class(
       if (!self$design_initialized) {
         weight_list <- self$weight
         psu <- self$psu
+        strata_var <- self$strata
         data <- self$data
+
+        if (!is.null(strata_var) && !is.null(data)) {
+          if (!strata_var %in% names(data)) {
+            stop(
+              "Strata variable '", strata_var,
+              "' not found in survey data",
+              call. = FALSE
+            )
+          }
+        }
 
         design_list <- lapply(
           weight_list,
@@ -265,8 +280,15 @@ Survey <- R6Class(
                 psu <- as.formula(paste("~", psu))
               }
 
+              strata_fml <- if (!is.null(strata_var)) {
+                as.formula(paste("~", strata_var))
+              } else {
+                NULL
+              }
+
               survey::svydesign(
                 id = psu,
+                strata = strata_fml,
                 weights = as.formula(paste("~", x)),
                 data = data,
                 calibrate.formula = ~1
@@ -313,13 +335,11 @@ Survey <- R6Class(
 
     #' @description Update design variables using current data and weight
     update_design = function() {
-      # Ensure design exists before updating
       self$ensure_design()
 
       weight_list <- self$weight
       data_now <- self$get_data()
 
-      # Defensive check: ensure design matches weight_list length
       if (length(self$design) != length(weight_list)) {
         warning("Design length mismatch, reinitializing design")
         self$design_initialized <- FALSE
@@ -832,13 +852,13 @@ get_metadata <- function(self) {
 #' Output is color-coded for better readability in supporting terminals.
 #'
 #' @examples
-#' \dontrun{
-#' # Display design for survey with multiple estimation types
-#' ech_survey <- load_survey("ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023"
-#' )
-#' cat_design(ech_survey)
+#' \donttest{
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' cat_design(svy)
 #' }
 #'
 #' @seealso \code{\link{cat_design_type}} for design type classification
@@ -848,7 +868,6 @@ get_metadata <- function(self) {
 #'
 
 cat_design <- function(self) {
-  # Ensure design is initialized before displaying
   if (!self$design_initialized) {
     return(paste0(
       "\n  Design: Not initialized",
@@ -908,8 +927,13 @@ cat_design <- function(self) {
 #' @param design_name Name of design
 #' @return Character string describing the design type, or "None".
 #' @examples
-#' \dontrun{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' \donttest{
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' svy$ensure_design()
 #' cat_design_type(svy, "annual")
 #' }
 #' @family survey-objects
@@ -965,7 +989,7 @@ cat_design_type <- function(self, design_name) {
 #' @return Character string listing recipe names, or "None".
 #' @examples
 #' \dontrun{
-#' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+#' svy <- survey_empty(type = "demo", edition = "2023")
 #' cat_recipes(svy)
 #' }
 #' @keywords internal
@@ -1038,6 +1062,7 @@ get_steps <- function(svy) {
 #' @param weight Weight of survey
 #' @param engine Engine of survey
 #' @param psu PSU variable or formula (optional)
+#' @param strata Stratification variable name (optional)
 #' @examples
 #' empty <- survey_empty(edition = "2023", type = "test")
 #' empty_typed <- survey_empty(edition = "2023", type = "ech")
@@ -1047,12 +1072,13 @@ get_steps <- function(svy) {
 
 survey_empty <- function(edition = NULL, type = NULL,
                          weight = NULL, engine = NULL,
-                         psu = NULL) {
+                         psu = NULL, strata = NULL) {
   Survey$new(
     data = NULL,
     edition = edition,
     type = type,
     psu = psu,
+    strata = strata,
     weight = weight,
     engine = engine
   )
@@ -1063,11 +1089,15 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' @param svy Survey object
 #' @keywords survey
 #' @examples
-#' \dontrun{
-#' svy <- load_survey("data.csv",
-#'   svy_type = "ech", svy_edition = "2023",
-#'   recipes = my_recipe
-#' )
+#' \donttest{
+#' library(data.table)
+#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
+#'                   psu = NULL, engine = "data.table",
+#'                   weight = add_weight(annual = "w"))
+#' r <- recipe(name = "Demo", user = "test", svy = svy,
+#'             description = "Demo recipe")
+#' svy <- add_recipe(svy, r)
 #' processed <- bake_recipes(svy)
 #' }
 #' @family recipes
@@ -1121,7 +1151,6 @@ bake_recipes <- function(svy) {
       }
     }
 
-    # Disable lazy processing so all recipe steps execute immediately
     old_lazy <- getOption("metasurvey.lazy_processing")
     options(metasurvey.lazy_processing = FALSE)
     on.exit(options(metasurvey.lazy_processing = old_lazy), add = TRUE)

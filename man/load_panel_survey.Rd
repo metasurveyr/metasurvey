@@ -11,6 +11,7 @@ load_panel_survey(
   svy_type,
   svy_weight_implantation,
   svy_weight_follow_up,
+  svy_strata = NULL,
   ...
 )
 }
@@ -37,6 +38,9 @@ the helper function add_weight().}
 weights information specifing periodicity and the name
 of the weight variable. Recomended to use the helper
 function add_weight().}
+
+\item{svy_strata}{Stratification variable name (character or NULL).
+Passed to Survey$new(strata = ...).}
 
 \item{...}{Further arguments to be passed to
 load_panel_survey}

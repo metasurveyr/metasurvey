@@ -924,7 +924,6 @@ step_join <- function(
     setdiff(names(rhs_data), by.y)
   )
   if (length(overlap) > 0 && (suffixes[2] %in% c("", NA))) {
-    # Ensure RHS conflicts are suffixed to avoid overwriting LHS
     suffixes[2] <- ".y"
   }
   if (length(overlap) > 0) {
