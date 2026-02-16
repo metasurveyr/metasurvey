@@ -12,3 +12,4 @@ RecipeCategory object or NULL
 \description{
 Class method to reconstruct a RecipeCategory from its list representation.
 }
+\keyword{internal}

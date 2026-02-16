@@ -15,6 +15,4 @@ A JSON object
 \description{
 recipe to json
 }
-\keyword{Recipes}
-\keyword{Survey}
-\keyword{methods}
+\keyword{internal}

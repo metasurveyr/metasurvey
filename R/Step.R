@@ -15,25 +15,16 @@
 #' @field bake A logical value indicating whether the step has been executed.
 #' @details The `Step` class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
 #' @examples
-#' step <- Step$new(
-#'   name = "example_step",
-#'   edition = "2023",
-#'   survey_type = "example_survey",
-#'   type = "compute",
-#'   new_var = "example_var",
-#'   exprs = list(a = 1, b = 2),
-#'   call = NULL,
-#'   svy_before = NULL,
-#'   default_engine = NULL,
-#'   depends_on = list("var1", "var2"),
-#'   comments = "Example step",
-#'   bake = FALSE
-#' )
-#' print(step)
+#' # Step objects are created internally by step_compute(), step_recode(), etc.
+#' # Use the tidy API:
+#' dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
+#' svy <- Survey$new(data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- step_compute(svy, age2 = age * 2)
+#' get_steps(svy)
 #' @keywords Surveymethods
 #' @keywords Steps
-#' @keywords Workflow
-#' @export
+#' @keywords internal
 #' @param name The name of the step.
 #' @param edition The edition of the survey associated with the step.
 #' @param survey_type The type of survey associated with the step.
@@ -207,15 +198,12 @@ bake_step <- function(svy, step) {
 #' implantation and all follow-up surveys.
 #'
 #' @examples
-#' \dontrun{
-#' svy <- survey_empty("ech", "2023") %>%
-#'   set_data(my_data) %>%
-#'   step_compute(employed = ifelse(pobpcoac == 2, 1, 0)) %>%
-#'   step_recode(age_group, e27 < 18 ~ "Minor", e27 >= 65 ~ "Senior",
-#'               .default = "Adult")
-#'
+#' dt <- data.table::data.table(id = 1:5, age = c(15, 30, 45, 50, 70), w = 1)
+#' svy <- Survey$new(data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+#' svy <- step_compute(svy, age2 = age * 2)
 #' svy <- bake_steps(svy)
-#' }
+#' get_data(svy)
 #' @export
 bake_steps <- function(svy) {
   if (is(svy, "Survey")) {

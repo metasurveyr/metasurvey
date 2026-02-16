@@ -10,18 +10,20 @@ publish_recipe(recipe)
 \item{recipe}{A Recipe object.}
 }
 \value{
-A JSON object containing the API response.
+The Recipe object (invisibly).
 }
 \description{
-Publishes a Recipe object to the API.
-}
-\details{
-This function sends a Recipe object to the API for publication.
+Publishes a Recipe object to the active backend
+(local JSON registry or remote API).
 }
 \examples{
-\dontrun{
-# Example of publishing a Recipe object to the API
-publish_recipe(recipe_obj)
-}
+set_backend("local", path = tempfile(fileext = ".json"))
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
+publish_recipe(r)
+length(list_recipes())
 }
 \keyword{utils}

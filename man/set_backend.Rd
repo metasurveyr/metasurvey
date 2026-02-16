@@ -15,8 +15,5 @@ set_backend(type, path = NULL)
 Configure the active recipe backend via options.
 }
 \examples{
-\dontrun{
-set_backend("local", path = "my_recipes.json")
-set_backend("api")
-}
+set_backend("local", path = tempfile(fileext = ".json"))
 }

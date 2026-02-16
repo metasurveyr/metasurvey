@@ -55,7 +55,6 @@ Works with a data.frame/data.table or another Survey as the right-hand side.
 }
 }
 \examples{
-\dontrun{
 # With data.frame
 s <- Survey$new(
   data = data.table::data.table(id = 1:3, w = 1, a = c("x", "y", "z")),
@@ -74,7 +73,6 @@ s_right <- Survey$new(
 )
 s3 <- step_join(s, s_right, by = c("id" = "id"), type = "inner")
 s3 <- bake_steps(s3)
-}
 
 }
 \keyword{Steps}

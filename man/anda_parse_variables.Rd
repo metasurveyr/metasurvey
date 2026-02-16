@@ -17,3 +17,4 @@ value_labels (named list or NULL), description
 Reads a DDI Codebook XML file and extracts variable-level metadata:
 name, label, type (discrete/continuous), and value labels.
 }
+\keyword{internal}

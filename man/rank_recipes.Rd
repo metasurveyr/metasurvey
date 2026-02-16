@@ -16,9 +16,8 @@ List of Recipe objects sorted by downloads (descending).
 Get the top recipes ranked by download count from the active backend.
 }
 \examples{
-\dontrun{
+set_backend("local", path = tempfile(fileext = ".json"))
 top10 <- rank_recipes(n = 10)
-}
 
 }
 \seealso{

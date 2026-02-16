@@ -18,3 +18,4 @@ NULL if not found.
 \description{
 Get detailed metadata for a single ANDA variable
 }
+\keyword{internal}

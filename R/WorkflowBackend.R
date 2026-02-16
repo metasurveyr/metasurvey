@@ -16,7 +16,7 @@
 #' backend <- WorkflowBackend$new("api")
 #' }
 #'
-#' @export
+#' @keywords internal
 WorkflowBackend <- R6::R6Class(
   "WorkflowBackend",
   public = list(

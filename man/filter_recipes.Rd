@@ -28,10 +28,9 @@ Filter recipes in the active backend by survey type, edition, category,
 or certification level.
 }
 \examples{
-\dontrun{
-ech_recipes <- filter_recipes(survey_type = "ech", category = "labor_market")
-official <- filter_recipes(certification_level = "official")
-}
+set_backend("local", path = tempfile(fileext = ".json"))
+ech_recipes <- filter_recipes(survey_type = "ech")
+length(ech_recipes)
 
 }
 \seealso{

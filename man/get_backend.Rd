@@ -14,8 +14,7 @@ Returns the currently configured recipe backend.
 Defaults to "api" if not configured.
 }
 \examples{
-\dontrun{
+set_backend("local", path = tempfile(fileext = ".json"))
 backend <- get_backend()
-backend$search("labor")
-}
+backend
 }

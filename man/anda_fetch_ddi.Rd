@@ -25,3 +25,4 @@ Character path to the downloaded DDI XML file
 Downloads the DDI (Data Documentation Initiative) XML file for a given
 catalog entry from INE Uruguay's ANDA5 catalog.
 }
+\keyword{internal}

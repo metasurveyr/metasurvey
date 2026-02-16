@@ -54,7 +54,6 @@ set_engine <- function(.engine = show_engines()) {
 #' @description This function returns a list of available engines that can be used for loading surveys. The available engines are "data.table", "tidyverse", and "dplyr".
 #' @importFrom glue glue glue_col
 #' @export
-#' @keywords engine
 #' @return Character vector with the names of the available engines.
 
 show_engines <- function() {
@@ -78,8 +77,7 @@ get_engine <- function() {
 #' @title default_engine
 #' @description This function sets a default engine for loading surveys. If an engine is already configured, it keeps it; otherwise, it sets "data.table" as the default engine.
 #' @param .engine Character vector with the name of the default engine. By default, "data.table" is used.
-#' @export
-#' @keywords engine
+#' @keywords internal
 
 default_engine <- function(.engine = "data.table") {
   engine_env <- get_engine()

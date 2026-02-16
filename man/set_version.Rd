@@ -18,8 +18,11 @@ The modified Recipe object.
 Pipe-friendly function to set the version string on a Recipe.
 }
 \examples{
-\dontrun{
-my_recipe |> set_version("2.0.0")
-}
+r <- recipe(
+  name = "Example", user = "Test",
+  svy = survey_empty(type = "ech", edition = "2023"),
+  description = "Example recipe"
+)
+r <- r |> set_version("2.0.0")
 
 }
