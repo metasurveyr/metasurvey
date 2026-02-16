@@ -300,7 +300,7 @@ Recipe <- R6Class("Recipe",
             outputs = step_outputs,
             inputs = step_inputs,
             inferred_type = inferred_type,
-            comment = step$comments
+            comment = step$comment
           )
         }
 

@@ -218,7 +218,7 @@ Para salida estatica podemos inspeccionar la lista de steps:
 
 ```{r}
 for (s in get_steps(svy)) {
-  cat(sprintf("[%s] %s\n", s$type, s$comments %||% ""))
+  cat(sprintf("[%s] %s\n", s$type, s$comment %||% ""))
 }
 ```
 

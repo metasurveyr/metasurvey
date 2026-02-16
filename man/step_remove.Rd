@@ -5,11 +5,12 @@
 \title{Remove variables from survey data (step)}
 \usage{
 step_remove(
-  svy = survey_empty(),
+  svy,
   ...,
   vars = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Remove variables",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -21,13 +22,15 @@ step_remove(
 
 \item{vars}{Character vector of variable names to remove.}
 
-\item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
+\item{.copy}{Whether to operate on a copy (default: use_copy_default())}
 
 \item{comment}{Optional description for the step}
 
-\item{lazy}{Logical, whether to delay execution.}
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
-\item{record}{Logical, whether to record the step.}
+\item{lazy}{Internal. Whether to delay execution.}
+
+\item{record}{Internal. Whether to record the step.}
 }
 \value{
 Survey object with the specified variables

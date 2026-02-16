@@ -63,52 +63,38 @@ library(data.table)
 ## Creating a Survey object
 
 A `Survey` object groups the microdata together with metadata about weights,
-edition, and survey type. We will start with a simple example using simulated
-data that mimics the structure of Uruguay's Encuesta Continua de Hogares
-(ECH, Continuous Household Survey).
+edition, and survey type. We use a sample of real microdata from Uruguay's
+*Encuesta Continua de Hogares* (ECH, Continuous Household Survey) 2023,
+published by the Instituto Nacional de Estadistica (INE).
 
-The ECH is a rotating-panel household survey conducted by Uruguay's Instituto
-Nacional de Estadistica (INE). Key variables include:
+The ECH is a rotating-panel household survey. Key variables include:
 
 - **e27**: Age in years
 - **e26**: Sex (1 = Male, 2 = Female)
-- **e51**: Education level (coded scale 1-14)
+- **e30**: Relationship to head of household (1-14)
 - **POBPCOAC**: Activity status
+  - 1 = Under 14
   - 2 = Employed
   - 3-5 = Unemployed
-  - 6-8 = Inactive
-- **ht11**: Household income
-- **pesoano**: Annual expansion factor (weight)
+  - 6-10 = Inactive
+  - 11 = Not applicable
+- **HT11**: Household income (Uruguayan pesos)
+- **W_ANO**: Annual expansion factor (weight)
 
 ```{r create-survey}
 library(metasurvey)
 library(data.table)
 
-set.seed(42)
-n <- 200
-
-# Simulate ECH-like microdata
-dt <- data.table(
-  numero = 1:n, # Household ID
-  e27 = sample(18:80, n, replace = TRUE), # Age
-  e26 = sample(c(1, 2), n, replace = TRUE), # Sex
-  ht11 = round(runif(n, 5000, 80000)), # Household income (Uruguayan pesos)
-  POBPCOAC = sample(c(2, 3, 4, 5, 6), n,
-    replace = TRUE,
-    prob = c(0.55, 0.03, 0.02, 0.03, 0.37)
-  ), # Labor status
-  dpto = sample(1:19, n, replace = TRUE), # Department
-  pesoano = round(runif(n, 0.5, 3.0), 4) # Annual weight
-)
+# Load a sample of real ECH 2023 microdata (200 households, ~500 persons)
+dt <- fread(system.file("extdata", "ech_2023_sample.csv", package = "metasurvey"))
 
 # Create Survey object
 svy <- Survey$new(
   data    = dt,
   edition = "2023",
   type    = "ech",
-  psu     = NULL, # No PSU for simple random sample
-  engine  = "data.table", # Fast data manipulation
-  weight  = add_weight(annual = "pesoano")
+  engine  = "data.table",
+  weight  = add_weight(annual = "W_ANO")
 )
 ```
 
@@ -143,7 +129,7 @@ Use `step_compute()` to create derived variables. The package automatically:
 ```{r step-compute}
 svy <- step_compute(svy,
   # Convert income to thousands for readability
-  ht11_thousands = ht11 / 1000,
+  ht11_thousands = HT11 / 1000,
 
   # Create employment indicator following ILO definitions
   employed = ifelse(POBPCOAC == 2, 1, 0),
@@ -159,7 +145,7 @@ You can group computations using the `.by` parameter (similar to `data.table`):
 ```{r step-compute-grouped}
 # Calculate mean household income per department
 svy <- step_compute(svy,
-  mean_income_dept = mean(ht11, na.rm = TRUE),
+  mean_income_dept = mean(HT11, na.rm = TRUE),
   .by = "dpto",
   comment = "Department-level income averages"
 )
@@ -173,9 +159,9 @@ Conditions are evaluated **top to bottom**, and the first match applies.
 ```{r step-recode}
 # Recode labor force status (POBPCOAC) into meaningful categories
 svy <- step_recode(svy, labor_status,
-  POBPCOAC == 2 ~ "Employed", # Ocupado
-  POBPCOAC %in% 3:5 ~ "Unemployed", # Desocupado
-  POBPCOAC %in% 6:8 ~ "Inactive", # Inactivo
+  POBPCOAC == 2 ~ "Employed",
+  POBPCOAC %in% 3:5 ~ "Unemployed",
+  POBPCOAC %in% 6:10 ~ "Inactive",
   .default = "Not classified",
   comment = "Labor force status - ILO standard"
 )
@@ -226,24 +212,22 @@ Use `step_join()` to merge in external reference data. This is useful for adding
 - Exchange rates or deflators
 - External benchmarks or targets
 
+Note that real ECH microdata already includes `nom_dpto` and `region`.
+Here we demonstrate a join with a poverty-line lookup as an example:
+
 ```{r step-join}
-# Department names and regions
-department_info <- data.table(
-  dpto = 1:19,
-  dpto_name = c(
-    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
-    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-    "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
-    "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
-  ),
-  region = c("Montevideo", rep("Interior", 18))
+# Poverty lines by region (illustrative values in UYU, 2023)
+poverty_lines <- data.table(
+  region = 1:3,
+  poverty_line = c(19000, 12500, 11000),
+  region_name = c("Montevideo", "Interior loc. >= 5000", "Interior loc. < 5000")
 )
 
 svy <- step_join(svy,
-  department_info,
-  by = "dpto",
+  poverty_lines,
+  by = "region",
   type = "left",
-  comment = "Add department names and regions"
+  comment = "Add poverty lines by region"
 )
 ```
 
@@ -266,7 +250,7 @@ length(steps) # Number of transformation steps
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
-cat("Comment:", steps[[1]]$comments, "\n")
+cat("Comment:", steps[[1]]$comment, "\n")
 ```
 
 ### Visualizing the pipeline
@@ -298,7 +282,7 @@ and returns tidy results with standard errors and coefficients of variation.
 # Estimate mean household income
 result <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~HT11, na.rm = TRUE),
   estimation_type = "annual"
 )
 
@@ -320,9 +304,9 @@ You can compute several statistics in a single call:
 ```{r workflow-multi}
 results <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE), # Mean income
-  survey::svytotal(~employed, na.rm = TRUE), # Total employed
-  survey::svymean(~labor_status, na.rm = TRUE), # Employment distribution
+  survey::svymean(~HT11, na.rm = TRUE),
+  survey::svytotal(~employed, na.rm = TRUE),
+  survey::svymean(~labor_status, na.rm = TRUE),
   estimation_type = "annual"
 )
 
@@ -337,7 +321,7 @@ Compute estimates for subpopulations using `survey::svyby()`:
 # Mean income by gender
 income_by_gender <- workflow(
   list(svy),
-  survey::svyby(~ht11, ~gender, survey::svymean, na.rm = TRUE),
+  survey::svyby(~HT11, ~gender, survey::svymean, na.rm = TRUE),
   estimation_type = "annual"
 )
 
@@ -415,10 +399,10 @@ Or you can define a recipe from scratch:
 
 ```{r recipe-define, eval=FALSE}
 minimal_recipe <- recipe(
-  name = "Basic Demographics",
+  name = "Basic Demographics - ECH",
   user = "analyst",
   svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Basic demographic recoding",
+  description = "Basic demographic recoding for ECH microdata",
   topic = "demographics",
 
   # Define steps inline
@@ -430,7 +414,7 @@ minimal_recipe <- recipe(
   ),
   step_recode(
     age_group,
-    e27 < 18 ~ "Minor",
+    e27 < 14 ~ "Child",
     e27 < 65 ~ "Adult",
     .default = "Senior"
   )
@@ -524,14 +508,28 @@ ensuring that certifications carry real backing.
 
 For more details, see [Creating and Sharing Recipes](recipes.html).
 
+## Data and acknowledgments
+
+The sample data used in this vignette comes from the *Encuesta Continua de
+Hogares* (ECH) 2023, published by Uruguay's Instituto Nacional de Estadistica
+(INE). The full microdata is available at
+[www.ine.gub.uy](https://www.ine.gub.uy).
+
+The **[ech](https://calcita.github.io/ech/)** package by Gabriela Mathieu
+and Richard Detomasi was an important inspiration for metasurvey. While `ech`
+provides ready-to-use functions for computing socioeconomic indicators,
+metasurvey takes a different approach: it provides a metaprogramming layer
+that lets users define, share, and reproduce their own processing pipelines.
+
 ## Related packages
 
 metasurvey is part of a growing ecosystem of R packages for household
 survey analysis in Latin America:
 
 - **[ech](https://calcita.github.io/ech/)** -- Functions for computing
-  socioeconomic indicators with Uruguay's ECH. Provides ready-to-use
-  functions for poverty, income, education, and employment indicators.
+  socioeconomic indicators with Uruguay's ECH (Mathieu & Detomasi).
+  Provides ready-to-use functions for poverty, income, education, and
+  employment indicators.
 - **[eph](https://docs.ropensci.org/eph/)** -- Tools for working with
   Argentina's Encuesta Permanente de Hogares. Published on rOpenSci.
   Covers data download, panel construction, and poverty calculation.

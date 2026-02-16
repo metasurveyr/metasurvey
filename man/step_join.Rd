@@ -5,13 +5,14 @@
 \title{Join external data into survey (step)}
 \usage{
 step_join(
-  svy = survey_empty(),
+  svy,
   x,
   by = NULL,
   type = c("left", "inner", "right", "full"),
   suffixes = c("", ".y"),
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Join step",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -33,13 +34,15 @@ If NULL, tries to infer common column names}
 for conflicting columns
 from \code{svy} and \code{x} respectively. Defaults to c("", ".y")}
 
-\item{use_copy}{Whether to operate on a copy (default: use_copy_default())}
+\item{.copy}{Whether to operate on a copy (default: use_copy_default())}
 
 \item{comment}{Optional description for the step}
 
-\item{lazy}{Logical, whether to delay execution.}
+\item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
-\item{record}{Logical, whether to record the step.}
+\item{lazy}{Internal. Whether to delay execution.}
+
+\item{record}{Internal. Whether to record the step.}
 }
 \value{
 Modified survey object with the join
