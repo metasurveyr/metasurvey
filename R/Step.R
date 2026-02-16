@@ -87,23 +87,6 @@ Step <- R6Class("Step",
   )
 )
 
-#' Step to environment
-#' @param step A Step object
-#' @return An environment
-#' @keywords Surveymethods
-#' @noRd
-#' @keywords internal
-
-step_to_env <- function(step) {
-  args_function_step <- names(formals(step$type))
-  env <- list()
-  for (i in seq_along(args_function_step)) {
-    env[[args_function_step[i]]] <- step[[args_function_step[i]]]
-  }
-  env <- substitute(step$exprs)
-  return(env)
-}
-
 #' Validate step
 #' @param svy A Survey object
 #' @param step A Step object
@@ -150,10 +133,7 @@ bake_step <- function(svy, step) {
     return(svy)
   }
 
-  if (!validate_step(svy, step)) {
-    warning(paste("Validation failed for step:", step$name))
-    return(svy)
-  }
+  validate_step(svy, step)
 
   # Prepare the list of arguments for do.call
   args <- list()
@@ -161,17 +141,28 @@ bake_step <- function(svy, step) {
   # Add mandatory arguments for baking
   args$svy <- svy
   args$lazy <- FALSE
-  args$record <- FALSE # We are executing, not recording
-  args$use_copy <- use_copy_default() # Baking process already handles copying
+  args$use_copy <- use_copy_default()
 
   # Add step-specific arguments from exprs
-  if (is.list(step$exprs)) {
+  # step$exprs may be a call (e.g., list(var = expr)) from substitute(list(...))
+  # or a regular list — handle both cases
+  if (is.call(step$exprs) && identical(step$exprs[[1]], as.name("list"))) {
+    args <- c(args, as.list(step$exprs)[-1])
+  } else if (is.list(step$exprs)) {
     args <- c(args, step$exprs)
   }
 
   # Special case for step_recode, which has `new_var` as a separate argument
   if (step$type == "recode") {
     args$new_var <- step$new_var
+  }
+
+  # Validate step type before dispatch
+
+  valid_types <- c("compute", "recode", "step_join", "step_remove", "step_rename")
+  if (!step$type %in% valid_types) {
+    stop("Invalid step type: '", step$type, "'. Must be one of: ",
+      paste(valid_types, collapse = ", "), call. = FALSE)
   }
 
   # Execute the step function
@@ -262,9 +253,8 @@ bake_steps_rotative <- function(svy) {
 bake_steps_survey <- function(svy) {
   if (use_copy_default()) {
     svy_copy <- svy$clone(deep = TRUE)
-    for (i in seq_along(svy$steps)) {
-      svy_copy <- bake_step(svy_copy, svy$steps[[i]])
-      svy_copy$steps[[i]] <- svy_copy$steps[[i]]$clone(deep = TRUE)
+    for (i in seq_along(svy_copy$steps)) {
+      svy_copy <- bake_step(svy_copy, svy_copy$steps[[i]])
       svy_copy$steps[[i]]$bake <- TRUE
     }
     svy_copy$update_design()
