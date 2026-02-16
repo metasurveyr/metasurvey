@@ -191,11 +191,10 @@ shiny_fetch_recipes <- function(filter = list()) {
   if (isTRUE(result$ok)) {
     docs <- result$recipes %||% list()
     recipes <- lapply(docs, parse_recipe_doc)
-    recipes <- Filter(Negate(is.null), recipes)
-    if (length(recipes) > 0) return(recipes)
+    return(Filter(Negate(is.null), recipes))
   }
 
-  # Fallback: example recipes for local/demo mode
+  # Fallback: example recipes only when API is unreachable
   example_recipes()
 }
 
@@ -280,11 +279,10 @@ shiny_fetch_workflows <- function(filter = list()) {
     workflows <- lapply(docs, function(doc) {
       tryCatch(metasurvey::workflow_from_list(doc), error = function(e) NULL)
     })
-    workflows <- Filter(Negate(is.null), workflows)
-    if (length(workflows) > 0) return(workflows)
+    return(Filter(Negate(is.null), workflows))
   }
 
-  # Fallback: example workflows for local/demo mode
+  # Fallback: example workflows only when API is unreachable
   example_workflows()
 }
 
