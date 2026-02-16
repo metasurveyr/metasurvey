@@ -3,6 +3,9 @@
 \name{RecipeCertification}
 \alias{RecipeCertification}
 \title{RecipeCertification}
+\value{
+An object of class \code{RecipeCertification}.
+}
 \description{
 Quality certification for recipes with three tiers:
 community (default), reviewed (peer-reviewed by institutional member),

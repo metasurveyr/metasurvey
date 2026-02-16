@@ -19,3 +19,8 @@ The Survey object (invisibly), modified in place
 \description{
 Tidy wrapper for \code{svy$add_recipe(recipe)}.
 }
+\examples{
+\dontrun{
+svy <- add_recipe(svy, my_recipe)
+}
+}

@@ -11,6 +11,9 @@ set_workflow_backend(type, path = NULL)
 
 \item{path}{Character. File path for local backend.}
 }
+\value{
+Invisibly, the WorkflowBackend object created.
+}
 \description{
 Configure the active workflow backend via options.
 }

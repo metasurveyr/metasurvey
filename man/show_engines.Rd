@@ -12,3 +12,6 @@ Character vector with the names of the available engines.
 \description{
 This function returns a list of available engines that can be used for loading surveys. The available engines are "data.table", "tidyverse", and "dplyr".
 }
+\examples{
+show_engines()
+}

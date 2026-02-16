@@ -12,3 +12,8 @@ List with user fields (name, email, user_type, etc.)
 \description{
 Returns profile info for the currently authenticated user.
 }
+\examples{
+\dontrun{
+api_me()
+}
+}

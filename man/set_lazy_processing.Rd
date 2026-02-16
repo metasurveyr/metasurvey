@@ -9,6 +9,9 @@ set_lazy_processing(lazy)
 \arguments{
 \item{lazy}{Logical. If TRUE, steps are deferred until bake_steps() is called.}
 }
+\value{
+Invisibly, the previous value.
+}
 \description{
 Set lazy processing
 }

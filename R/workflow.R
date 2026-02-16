@@ -79,7 +79,6 @@
 #'
 #' @keywords Surveymethods
 #' @export
-#' @return Data
 
 workflow <- function(survey, ..., estimation_type = "monthly") {
   if (is(survey, "PoolSurvey")) {

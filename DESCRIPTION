@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Survey Processing with Meta-Programming
-Version: 0.0.5
+Version: 0.0.6
 URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
@@ -46,6 +46,9 @@ Imports:
     survey (>= 4.2.1),
     methods
 Suggests:
+    archive,
+    haven,
+    openxlsx,
     visNetwork (>= 2.0.9),
     roxygen2 (>= 7.1.2),
     testthat (>= 3.0.0),

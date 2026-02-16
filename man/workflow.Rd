@@ -27,8 +27,6 @@ Options: "monthly", "quarterly", "annual", or vector with multiple types}
 \item \code{survey_edition}: Survey edition
 \item Other columns depending on estimation type
 }
-
-Data
 }
 \description{
 This function executes a sequence of statistical estimations on Survey

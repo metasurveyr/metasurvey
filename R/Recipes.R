@@ -37,6 +37,16 @@
 #'   \item{$validate(svy)}{Validate that a survey object has all required input variables.}
 #' }
 #'
+#' @return An object of class \code{Recipe}.
+#'
+#' @examples
+#' # Use the recipe() constructor:
+#' svy <- survey_empty(type = "ech", edition = "2023")
+#' r <- recipe(
+#'   name = "Example", user = "Test", svy = svy,
+#'   description = "Example recipe"
+#' )
+#'
 #' @seealso \code{\link{recipe}}, \code{\link{save_recipe}},
 #'   \code{\link{read_recipe}}, \code{\link{bake_recipes}}
 #' @keywords Recipes

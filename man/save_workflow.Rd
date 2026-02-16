@@ -17,4 +17,9 @@ NULL (called for side-effect)
 \description{
 Save a RecipeWorkflow to a JSON file
 }
+\examples{
+\dontrun{
+save_workflow(wf, "my_workflow.json")
+}
+}
 \keyword{Workflows}

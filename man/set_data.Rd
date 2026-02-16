@@ -19,3 +19,12 @@ The Survey object (invisibly). If \code{.copy=TRUE}, returns a new clone.
 \description{
 Tidy wrapper for \code{svy$set_data(data)}.
 }
+\examples{
+dt <- data.table::data.table(id = 1:5, x = rnorm(5), w = rep(1, 5))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
+new_dt <- data.table::data.table(id = 1:3, x = rnorm(3), w = rep(1, 3))
+svy <- set_data(svy, new_dt)
+}

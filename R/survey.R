@@ -82,6 +82,13 @@
 #' @param recipes List of \link{Recipe} (optional).
 #'
 #' @return R6 class generator for Survey.
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, x = rnorm(5), w = rep(1, 5))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' svy
 #' @export
 Survey <- R6Class(
   "Survey",
@@ -585,6 +592,7 @@ set_weight <- function(svy, new_weight, .copy = use_copy_default()) {
 #' @keywords Surveymethods
 #' @importFrom glue glue glue_col
 #' @param self Object of class Survey
+#' @return NULL (called for side effect: prints metadata to console).
 #' @examples
 #' dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
 #' svy <- Survey$new(
@@ -1097,6 +1105,14 @@ bake_recipes <- function(svy) {
 #' @param .copy Logical; if TRUE, clone the Survey before modifying (default FALSE)
 #' @return The Survey object (invisibly). If \code{.copy=TRUE}, returns a new clone.
 #' @export
+#' @examples
+#' dt <- data.table::data.table(id = 1:5, x = rnorm(5), w = rep(1, 5))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' new_dt <- data.table::data.table(id = 1:3, x = rnorm(3), w = rep(1, 3))
+#' svy <- set_data(svy, new_dt)
 set_data <- function(svy, data, .copy = FALSE) {
   if (isTRUE(.copy)) {
     svy <- svy$clone(deep = TRUE)
@@ -1114,6 +1130,10 @@ set_data <- function(svy, data, .copy = FALSE) {
 #' @param bake Logical; whether to bake immediately (default: lazy_default())
 #' @return The Survey object (invisibly), modified in place
 #' @export
+#' @examples
+#' \dontrun{
+#' svy <- add_recipe(svy, my_recipe)
+#' }
 add_recipe <- function(svy, recipe, bake = lazy_default()) {
   svy$add_recipe(recipe, bake = bake)
   invisible(svy)

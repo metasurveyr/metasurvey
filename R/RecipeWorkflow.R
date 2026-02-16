@@ -38,6 +38,18 @@
 #'   \item{$certify(user, level)}{Certify the workflow.}
 #' }
 #'
+#' @return An object of class \code{RecipeWorkflow}.
+#'
+#' @examples
+#' \dontrun{
+#' wf <- RecipeWorkflow$new(
+#'   name = "Labor workflow", description = "Unemployment rate",
+#'   user = "test", survey_type = "ech", edition = "2023",
+#'   estimation_type = "annual", recipe_ids = "r_001",
+#'   calls = list("svymean(~desocupado, na.rm = TRUE)")
+#' )
+#' }
+#'
 #' @seealso \code{\link{save_workflow}}, \code{\link{read_workflow}},
 #'   \code{\link{workflow}}
 #' @export
@@ -193,6 +205,10 @@ RecipeWorkflow <- R6Class("RecipeWorkflow",
 #' @param lst A list (typically from JSON) with workflow fields
 #' @return A RecipeWorkflow object
 #' @export
+#' @examples
+#' lst <- list(name = "example", user = "test", survey_type = "ech",
+#'             edition = "2023", estimation_type = "svymean")
+#' wf <- workflow_from_list(lst)
 workflow_from_list <- function(lst) {
   # Reconstruct categories
   categories <- list()
@@ -264,6 +280,10 @@ workflow_from_list <- function(lst) {
 #' @return NULL (called for side-effect)
 #' @keywords Workflows
 #' @export
+#' @examples
+#' \dontrun{
+#' save_workflow(wf, "my_workflow.json")
+#' }
 save_workflow <- function(wf, file) {
   if (!inherits(wf, "RecipeWorkflow")) {
     stop("Can only save RecipeWorkflow objects")
@@ -279,6 +299,10 @@ save_workflow <- function(wf, file) {
 #' @return A RecipeWorkflow object
 #' @keywords Workflows
 #' @export
+#' @examples
+#' \dontrun{
+#' wf <- read_workflow("my_workflow.json")
+#' }
 read_workflow <- function(file) {
   json_data <- jsonlite::read_json(file, simplifyVector = TRUE)
   workflow_from_list(json_data)

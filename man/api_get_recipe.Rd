@@ -2,16 +2,22 @@
 % Please edit documentation in R/api_client.R
 \name{api_get_recipe}
 \alias{api_get_recipe}
-\title{Get a single recipe by ID}
+\title{Get recipe(s) by ID}
 \usage{
 api_get_recipe(id)
 }
 \arguments{
-\item{id}{Recipe ID}
+\item{id}{Character vector of recipe ID(s). If length > 1, returns a list.}
 }
 \value{
-Recipe object or NULL
+A single Recipe object (or NULL) when \code{length(id) == 1}.
+A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 }
 \description{
-Get a single recipe by ID
+Get recipe(s) by ID
+}
+\examples{
+\dontrun{
+api_get_recipe("r_1739654400_742")
+}
 }

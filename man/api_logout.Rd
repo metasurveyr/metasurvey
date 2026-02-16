@@ -6,6 +6,14 @@
 \usage{
 api_logout()
 }
+\value{
+Invisibly, NULL.
+}
 \description{
 Clear the stored API token from memory and the environment.
+}
+\examples{
+\dontrun{
+api_logout()
+}
 }

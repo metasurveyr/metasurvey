@@ -255,6 +255,7 @@ use_copy_default <- function() {
 #' # Reset to default
 #' set_use_copy(TRUE)
 #'
+#' @return Invisibly, the value set.
 #' @seealso \code{\link{use_copy_default}} to check current setting
 #' @export
 #' @keywords utils
@@ -305,6 +306,7 @@ lazy_default <- function() {
 
 #' Set lazy processing
 #' @param lazy Logical. If TRUE, steps are deferred until bake_steps() is called.
+#' @return Invisibly, the previous value.
 #' @keywords utils
 #' @examples
 #' old <- lazy_default()
@@ -858,6 +860,11 @@ add_replicate <- function(
 #' @param dest_dir Character directory for downloaded files (default: tempdir())
 #' @return Named list compatible with add_weight() output
 #' @export
+#' @examples
+#' \dontrun{
+#' wf <- api_get_workflow("w_123")
+#' weight <- resolve_weight_spec(wf$weight_spec)
+#' }
 resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
   if (is.null(weight_spec)) {
     return(NULL)
@@ -915,6 +922,11 @@ resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
 #' @param dest_dir Character directory for downloaded files
 #' @return Survey object with recipes applied and weight configuration set
 #' @export
+#' @examples
+#' \dontrun{
+#' wf <- api_get_workflow("w_123")
+#' svy <- reproduce_workflow(wf)
+#' }
 reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
   if (!inherits(wf, "RecipeWorkflow")) {
     stop("wf must be a RecipeWorkflow object", call. = FALSE)

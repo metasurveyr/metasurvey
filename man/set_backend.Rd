@@ -11,6 +11,9 @@ set_backend(type, path = NULL)
 
 \item{path}{Character. File path for local backend.}
 }
+\value{
+Invisibly, the RecipeBackend object created.
+}
 \description{
 Configure the active recipe backend via options.
 }

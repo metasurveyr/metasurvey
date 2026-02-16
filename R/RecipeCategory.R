@@ -17,6 +17,8 @@
 #'   \item{$from_list(lst)}{Class method to reconstruct from list (see details)}
 #' }
 #'
+#' @return An object of class \code{RecipeCategory}.
+#'
 #' @examples
 #' # Use recipe_category() for the public API:
 #' cat <- recipe_category("economics", "Economic indicators")

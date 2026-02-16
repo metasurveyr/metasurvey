@@ -8,6 +8,8 @@
 #' @field certified_at POSIXct. Timestamp of certification.
 #' @field notes Character or NULL. Additional notes.
 #'
+#' @return An object of class \code{RecipeCertification}.
+#'
 #' @examples
 #' # Use recipe_certification() for the public API:
 #' cert <- recipe_certification()

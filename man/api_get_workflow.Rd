@@ -15,3 +15,8 @@ RecipeWorkflow object or NULL
 \description{
 Get a single workflow by ID
 }
+\examples{
+\dontrun{
+api_get_workflow("w_1739654400_123")
+}
+}

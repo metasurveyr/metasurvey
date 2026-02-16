@@ -3,6 +3,9 @@
 \name{RecipeUser}
 \alias{RecipeUser}
 \title{RecipeUser}
+\value{
+An object of class \code{RecipeUser}.
+}
 \description{
 User identity for the recipe ecosystem. Supports three account types:
 individual, institutional_member, and institution.

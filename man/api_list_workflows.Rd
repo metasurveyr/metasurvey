@@ -32,3 +32,8 @@ List of RecipeWorkflow objects
 \description{
 Fetch workflows with optional search and filters.
 }
+\examples{
+\dontrun{
+api_list_workflows(survey_type = "ech")
+}
+}

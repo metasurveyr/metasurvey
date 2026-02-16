@@ -3,9 +3,22 @@
 \name{RotativePanelSurvey}
 \alias{RotativePanelSurvey}
 \title{RotativePanelSurvey Class}
+\value{
+An object of class \code{RotativePanelSurvey}.
+}
 \description{
 This class represents a rotative panel survey, which includes implantation and follow-up surveys.
 It provides methods to access and manipulate survey data, steps, recipes, workflows, and designs.
+}
+\examples{
+\dontrun{
+panel <- RotativePanelSurvey$new(
+  implantation = impl_survey, follow_up = list(fu1, fu2),
+  type = "ech", default_engine = "data.table",
+  steps = list(), recipes = list(), workflows = list(), design = NULL
+)
+}
+
 }
 \keyword{RotativePanelSurvey}
 \keyword{Surveymethods,}
