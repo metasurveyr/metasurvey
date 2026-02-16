@@ -20,7 +20,7 @@
 #'   processing the step.
 #' @field depends_on A list of variables that the step
 #'   depends on.
-#' @field comments Comments or notes about the step.
+#' @field comment Comments or notes about the step.
 #' @field bake A logical value indicating whether the step
 #'   has been executed.
 #' @details The `Step` class is part of the survey workflow
@@ -57,9 +57,8 @@
 #'   processing the step.
 #' @param depends_on A list of variables that the step
 #'   depends on.
-#' @param comments Comments or notes about the step.
-#' @param comment Optional alias of `comments` for
-#'   backwards compatibility.
+#' @param comment Comments or notes about the step.
+#' @param comments `r lifecycle::badge("deprecated")` Use `comment` instead.
 #' @param bake A logical value indicating whether the step
 #'   has been executed.
 Step <- R6Class("Step",
@@ -74,7 +73,7 @@ Step <- R6Class("Step",
     svy_before = NULL,
     default_engine = NULL,
     depends_on = list(),
-    comments = NULL,
+    comment = NULL,
     bake = NULL,
     #' @description Create a new Step object
     #' @param name The name of the step.
@@ -94,18 +93,17 @@ Step <- R6Class("Step",
     #'   processing the step.
     #' @param depends_on A list of variables that the step
     #'   depends on.
-    #' @param comments Comments or notes about the step.
-    #' @param comment Optional alias of `comments` for
-    #'   backwards compatibility.
+    #' @param comment Comments or notes about the step.
+    #' @param comments `r lifecycle::badge("deprecated")` Use `comment` instead.
     #' @param bake A logical value indicating whether the
     #'   step has been executed.
 
     initialize = function(name, edition, survey_type,
                           type, new_var, exprs, call,
                           svy_before, default_engine,
-                          depends_on, comments = NULL,
+                          depends_on, comment = NULL,
                           bake = !lazy_default(),
-                          comment = NULL) {
+                          comments = NULL) {
       self$name <- name
       self$edition <- edition
       self$survey_type <- survey_type
@@ -119,8 +117,8 @@ Step <- R6Class("Step",
       self$svy_before <- NULL
       self$default_engine <- default_engine
       self$depends_on <- depends_on
-      # accept both 'comments' and legacy 'comment'
-      self$comments <- comments %||% comment
+      # accept both 'comment' and legacy 'comments'
+      self$comment <- comment %||% comments
       self$bake <- bake
     }
   )
@@ -167,7 +165,7 @@ validate_step <- function(svy, step) {
 #' @noRd
 #' @keywords internal
 
-bake_step <- function(svy, step, use_copy = use_copy_default()) {
+bake_step <- function(svy, step, .copy = use_copy_default()) {
   if (step$bake) {
     return(svy)
   }
@@ -180,7 +178,7 @@ bake_step <- function(svy, step, use_copy = use_copy_default()) {
   # Add mandatory arguments for baking
   args$svy <- svy
   args$lazy <- FALSE
-  args$use_copy <- use_copy
+  args$.copy <- .copy
 
   # Add step-specific arguments from exprs
   # step$exprs may be a call (e.g., list(var = expr)) from substitute(list(...))
@@ -306,21 +304,21 @@ bake_steps_survey <- function(svy) {
   if (use_copy_default()) {
     # Use shallow_clone (data copy only) instead of clone(deep=TRUE)
     # to avoid duplicating the entire step chain and svy_before references.
-    # Since we already have a data copy, pass use_copy=FALSE to bake_step
+    # Since we already have a data copy, pass .copy=FALSE to bake_step
     # to prevent creating yet another copy inside each step function.
     svy_copy <- svy$shallow_clone()
     # Copy step objects (shallow) so we can mark them as baked
     svy_copy$steps <- lapply(svy$steps, function(s) s$clone())
     for (i in seq_along(svy_copy$steps)) {
       svy_copy <- bake_step(svy_copy, svy_copy$steps[[i]],
-                            use_copy = FALSE)
+                            .copy = FALSE)
       svy_copy$steps[[i]]$bake <- TRUE
     }
     svy_copy$update_design()
     return(svy_copy)
   } else {
     for (i in seq_along(svy$steps)) {
-      bake_step(svy, svy$steps[[i]], use_copy = FALSE)
+      bake_step(svy, svy$steps[[i]], .copy = FALSE)
       svy$steps[[i]]$bake <- TRUE
     }
     svy$update_design()

@@ -20,7 +20,7 @@ test_that("compute handles non-lazy evaluation", {
     svy,
     new_var = x + y,
     lazy = FALSE,
-    use_copy = TRUE
+    .copy = TRUE
   )
 
   expect_s3_class(result, "Survey")
@@ -35,7 +35,7 @@ test_that("compute handles grouped computations", {
     mean_income = mean(income),
     .by = "region",
     lazy = FALSE,
-    use_copy = TRUE
+    .copy = TRUE
   )
 
   expect_s3_class(result, "Survey")
@@ -65,7 +65,7 @@ test_that("recode handles factor conversion", {
     age >= 30 ~ "Old",
     .to_factor = TRUE,
     lazy = FALSE,
-    use_copy = TRUE
+    .copy = TRUE
   )
 
   expect_s3_class(result, "Survey")
@@ -85,7 +85,7 @@ test_that("recode handles ordered factors", {
     .to_factor = TRUE,
     ordered = TRUE,
     lazy = FALSE,
-    use_copy = TRUE
+    .copy = TRUE
   )
 
   expect_s3_class(result, "Survey")
@@ -101,7 +101,7 @@ test_that("recode handles default values", {
     age < 25 ~ "Young",
     .default = "Other",
     lazy = FALSE,
-    use_copy = TRUE
+    .copy = TRUE
   )
 
   expect_s3_class(result, "Survey")

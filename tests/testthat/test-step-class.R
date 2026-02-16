@@ -210,14 +210,24 @@ test_that("bake_steps_survey bakes all pending steps", {
 
 # --- Step with comment parameter ---
 
-test_that("Step accepts comment as alias for comments", {
+test_that("Step accepts comment parameter", {
   step <- Step$new(
     name = "comment_test", edition = "2023", survey_type = "ech",
     type = "compute", new_var = "z", exprs = list(),
     call = NULL, svy_before = NULL, default_engine = "data.table",
-    depends_on = list(), comment = "Legacy comment"
+    depends_on = list(), comment = "My comment"
   )
-  expect_equal(step$comments, "Legacy comment")
+  expect_equal(step$comment, "My comment")
+})
+
+test_that("Step accepts comments as legacy alias for comment", {
+  step <- Step$new(
+    name = "comment_test", edition = "2023", survey_type = "ech",
+    type = "compute", new_var = "z", exprs = list(),
+    call = NULL, svy_before = NULL, default_engine = "data.table",
+    depends_on = list(), comments = "Legacy comment"
+  )
+  expect_equal(step$comment, "Legacy comment")
 })
 
 # --- bake_step for step_remove ---
