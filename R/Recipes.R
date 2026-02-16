@@ -421,10 +421,9 @@ recipe <- function(...) {
 
   if (!(check_args == length(metadata_recipes_names))) {
     stop(
-      message(
-        "The recipe must have the following metadata: ",
-        paste(metadata_recipe(), collapse = ", ")
-      )
+      paste0("The recipe must have the following metadata: ",
+        paste(metadata_recipe(), collapse = ", ")),
+      call. = FALSE
     )
   }
 

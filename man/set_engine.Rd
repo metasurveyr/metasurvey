@@ -10,7 +10,7 @@ set_engine(.engine = show_engines())
 \item{.engine}{Character vector with the name of the engine to configure. By default, the engine returned by the \code{show_engines()} function is used.}
 }
 \value{
-Invisibly, the configured engine name.
+Invisibly, the previous engine name (for restoring).
 }
 \description{
 This function configures the engine to be used for loading surveys. It checks if the provided engine is supported, sets the default engine if none is specified, and generates a message indicating the configured engine. If the engine is not supported, it throws an error.
