@@ -205,7 +205,7 @@ test_that("stress: bake_steps memory peak is bounded (not N * data_size)", {
 
   # Force GC before measuring
   gc(verbose = FALSE)
-  mem_before <- gc(verbose = FALSE)[2, 2] * 1024 * 1024  # bytes
+  mem_before <- gc(verbose = FALSE)[2, 2] * 1024 * 1024 # bytes
 
   baked <- bake_steps(svy)
 

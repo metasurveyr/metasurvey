@@ -598,7 +598,9 @@ has_recipes <- function(svy) {
 #' @export
 is_baked <- function(svy) {
   steps <- svy$steps
-  if (length(steps) == 0) return(TRUE)
+  if (length(steps) == 0) {
+    return(TRUE)
+  }
   all(vapply(steps, function(s) isTRUE(s$bake), logical(1)))
 }
 
@@ -855,9 +857,11 @@ get_metadata <- function(self) {
 #' \donttest{
 #' library(data.table)
 #' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-#'                   psu = NULL, engine = "data.table",
-#'                   weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "demo",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
 #' cat_design(svy)
 #' }
 #'
@@ -930,9 +934,11 @@ cat_design <- function(self) {
 #' \donttest{
 #' library(data.table)
 #' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-#'                   psu = NULL, engine = "data.table",
-#'                   weight = add_weight(annual = "w"))
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "demo",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
 #' svy$ensure_design()
 #' cat_design_type(svy, "annual")
 #' }
@@ -1092,11 +1098,15 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' \donttest{
 #' library(data.table)
 #' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-#'                   psu = NULL, engine = "data.table",
-#'                   weight = add_weight(annual = "w"))
-#' r <- recipe(name = "Demo", user = "test", svy = svy,
-#'             description = "Demo recipe")
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "demo",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
+#' r <- recipe(
+#'   name = "Demo", user = "test", svy = svy,
+#'   description = "Demo recipe"
+#' )
 #' svy <- add_recipe(svy, r)
 #' processed <- bake_recipes(svy)
 #' }

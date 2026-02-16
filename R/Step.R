@@ -173,7 +173,7 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
   args$.copy <- .copy
 
   if (is.call(step$exprs) &&
-      identical(step$exprs[[1]], as.name("list"))) {
+    identical(step$exprs[[1]], as.name("list"))) {
     args <- c(args, as.list(step$exprs)[-1])
   } else if (is.list(step$exprs)) {
     args <- c(args, step$exprs)
@@ -287,7 +287,8 @@ bake_steps_survey <- function(svy) {
     svy_copy$steps <- lapply(svy$steps, function(s) s$clone())
     for (i in seq_along(svy_copy$steps)) {
       svy_copy <- bake_step(svy_copy, svy_copy$steps[[i]],
-                            .copy = FALSE)
+        .copy = FALSE
+      )
       svy_copy$steps[[i]]$bake <- TRUE
     }
     svy_copy$update_design()
