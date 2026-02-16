@@ -1,0 +1,47 @@
+# metasurvey — local development stack
+# Usage:
+#   cp .env.example .env   # fill in your secrets
+#   docker compose up --build
+#
+# Services:
+#   api   → http://localhost:8787  (Plumber REST API)
+#   shiny → http://localhost:3838  (Recipe Explorer)
+
+services:
+  api:
+    build:
+      context: ./inst/api
+      dockerfile: Dockerfile
+    container_name: metasurvey-api
+    ports:
+      - "${API_PORT:-8787}:8787"
+    environment:
+      - METASURVEY_MONGO_URI=${METASURVEY_MONGO_URI}
+      - METASURVEY_DB=${METASURVEY_DB:-metasurvey}
+      - METASURVEY_JWT_SECRET=${METASURVEY_JWT_SECRET:-metasurvey-dev-secret-change-me}
+      - METASURVEY_ADMIN_EMAIL=${METASURVEY_ADMIN_EMAIL:-}
+      - PORT=8787
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8787/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  shiny:
+    build:
+      context: ./inst/shiny
+      dockerfile: Dockerfile
+      args:
+        METASURVEY_REF: ${METASURVEY_REF:-main}
+    container_name: metasurvey-shiny
+    ports:
+      - "${SHINY_PORT:-3838}:3838"
+    environment:
+      - METASURVEY_API_URL=http://api:8787
+      - PORT=3838
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

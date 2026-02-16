@@ -1,0 +1,302 @@
+# Deployment workflow for metasurvey Plumber API and Shiny App
+#
+# Builds Docker images and deploys to Railway:
+#   - Push to main → production deploy (both services)
+#   - Push to develop → staging build (images only, no deploy)
+#   - Manual dispatch → flexible deploy to staging/production
+#
+# Status badges:
+#   [![Deploy](https://github.com/metaSurveyR/metasurvey/actions/workflows/deploy.yml/badge.svg)](https://github.com/metaSurveyR/metasurvey/actions/workflows/deploy.yml)
+#
+# Container images:
+#   - ghcr.io/metasurveyr/metasurvey-api:latest
+#   - ghcr.io/metasurveyr/metasurvey-shiny:latest
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'inst/api/**'
+      - 'inst/shiny/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy'
+        required: true
+        type: choice
+        options:
+          - both
+          - api
+          - shiny
+        default: 'both'
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+        default: 'production'
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-${{ github.ref }}-${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  API_IMAGE_NAME: ghcr.io/metasurveyr/metasurvey-api
+  SHINY_IMAGE_NAME: ghcr.io/metasurveyr/metasurvey-shiny
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      shiny: ${{ steps.filter.outputs.shiny }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'inst/api/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/deploy.yml'
+            shiny:
+              - 'inst/shiny/**'
+              - 'docker-compose.yml'
+              - '.github/workflows/deploy.yml'
+
+  build-api:
+    name: Build API image
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      (needs.changes.outputs.api == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'api' || github.event.inputs.service == 'both'))
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from DESCRIPTION
+        id: version
+        run: |
+          VERSION=$(grep '^Version:' DESCRIPTION | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=semver,pattern={{version}},value=v${{ steps.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.version.outputs.version }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          labels: |
+            org.opencontainers.image.title=metasurvey Plumber API
+            org.opencontainers.image.description=REST API for metasurvey recipe and workflow registry
+            org.opencontainers.image.vendor=metaSurveyR
+
+      - name: Build and push API image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./inst/api
+          file: ./inst/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+          platforms: linux/amd64
+
+      - name: Image summary
+        run: |
+          echo "### API Image Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.build.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+
+  build-shiny:
+    name: Build Shiny image
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      (needs.changes.outputs.shiny == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.service == 'shiny' || github.event.inputs.service == 'both'))
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from DESCRIPTION
+        id: version
+        run: |
+          VERSION=$(grep '^Version:' DESCRIPTION | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.SHINY_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=semver,pattern={{version}},value=v${{ steps.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ steps.version.outputs.version }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          labels: |
+            org.opencontainers.image.title=metasurvey Shiny App
+            org.opencontainers.image.description=Recipe Explorer for metasurvey
+            org.opencontainers.image.vendor=metaSurveyR
+
+      - name: Build and push Shiny image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./inst/shiny
+          file: ./inst/shiny/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            METASURVEY_REF=${{ github.sha }}
+          cache-from: type=gha,scope=shiny
+          cache-to: type=gha,mode=max,scope=shiny
+          platforms: linux/amd64
+
+      - name: Image summary
+        run: |
+          echo "### Shiny Image Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.build.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+
+  deploy-railway:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: [changes, build-api, build-shiny]
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      (
+        (needs.build-api.result == 'success') ||
+        (needs.build-shiny.result == 'success')
+      )
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Deploy API to Railway
+        if: needs.build-api.result == 'success'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "Deploying API service to Railway..."
+          railway up --service metasurvey-api --detach || {
+            echo "Railway CLI deployment failed, trying webhook fallback..."
+            if [ -n "${{ secrets.RAILWAY_API_WEBHOOK }}" ]; then
+              curl -X POST "${{ secrets.RAILWAY_API_WEBHOOK }}" \
+                -H "Content-Type: application/json" \
+                -d '{"image":"${{ env.API_IMAGE_NAME }}:latest"}'
+            else
+              echo "No webhook configured, deployment may have failed"
+              exit 1
+            fi
+          }
+
+      - name: Deploy Shiny to Railway
+        if: needs.build-shiny.result == 'success'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "Deploying Shiny service to Railway..."
+          railway up --service metasurvey-shiny --detach || {
+            echo "Railway CLI deployment failed, trying webhook fallback..."
+            if [ -n "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" ]; then
+              curl -X POST "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" \
+                -H "Content-Type: application/json" \
+                -d '{"image":"${{ env.SHINY_IMAGE_NAME }}:latest"}'
+            else
+              echo "No webhook configured, deployment may have failed"
+              exit 1
+            fi
+          }
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.build-api.result }}" == "success" ]; then
+            echo "- API: Deployed to Railway" >> $GITHUB_STEP_SUMMARY
+            echo "  - URL: https://metasurvey-api-production.up.railway.app" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.build-shiny.result }}" == "success" ]; then
+            echo "- Shiny: Deployed to Railway" >> $GITHUB_STEP_SUMMARY
+          fi
