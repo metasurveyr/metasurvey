@@ -212,11 +212,11 @@ Survey <- R6Class(
         )
       }
 
-      # Validate depends_on: check that required variables exist in the data
+      # Validate depends_on: check that required variables exist in the data (case-insensitive)
       if (length(recipe$depends_on) > 0 && !is.null(self$data)) {
         deps <- unlist(recipe$depends_on)
         survey_vars <- names(self$data)
-        missing_vars <- setdiff(deps, survey_vars)
+        missing_vars <- deps[!tolower(deps) %in% tolower(survey_vars)]
         if (length(missing_vars) > 0) {
           warning(
             "Recipe '", recipe$name, "' depends on variables not present in survey: ",
@@ -784,7 +784,6 @@ get_metadata <- function(self) {
 #' }
 #'
 #' @seealso \code{\link{cat_design_type}} for design type classification
-#' @keywords Surveymethods
 #' @export
 #'
 #'
@@ -908,7 +907,7 @@ cat_design_type <- function(self, design_name) {
 #' svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 #' cat_recipes(svy)
 #' }
-#' @export
+#' @keywords internal
 
 cat_recipes <- function(self) {
   if (is.null(self$recipes) || length(self$recipes) == 0) {
@@ -1017,11 +1016,11 @@ bake_recipes <- function(svy) {
   for (i in seq_along(recipes)) {
     recipe <- recipes[[i]]
 
-    # Validate depends_on before baking each recipe
+    # Validate depends_on before baking each recipe (case-insensitive)
     if (length(recipe$depends_on) > 0 && !is.null(svy$data)) {
       deps <- unlist(recipe$depends_on)
       survey_vars <- names(svy$data)
-      missing_vars <- setdiff(deps, survey_vars)
+      missing_vars <- deps[!tolower(deps) %in% tolower(survey_vars)]
       if (length(missing_vars) > 0) {
         stop(
           "Cannot bake recipe '", recipe$name,
@@ -1029,6 +1028,20 @@ bake_recipes <- function(svy) {
           paste(missing_vars, collapse = ", "),
           call. = FALSE
         )
+      }
+
+      # Normalize column names: rename data columns to match recipe case
+      # (handles INE inconsistencies like POBPCOAC vs pobpcoac)
+      survey_vars_lower <- tolower(survey_vars)
+      for (dep in deps) {
+        if (!dep %in% survey_vars) {
+          match_idx <- which(survey_vars_lower == tolower(dep))
+          if (length(match_idx) > 0) {
+            data.table::setnames(svy$data, survey_vars[match_idx[1]], dep)
+            survey_vars <- names(svy$data)
+            survey_vars_lower <- tolower(survey_vars)
+          }
+        }
       }
     }
 
