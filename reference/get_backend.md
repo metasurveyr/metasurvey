@@ -34,6 +34,6 @@ backend
 #>     search: function (query) 
 #>     type: local
 #>   Private:
-#>     .path: /tmp/RtmpQvbJFd/file1a8425b23335.json
+#>     .path: /tmp/RtmpVK6G0j/file1a6e1c8f04cc.json
 #>     .registry: RecipeRegistry, R6
 ```
