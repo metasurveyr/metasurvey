@@ -111,9 +111,8 @@ load_survey <- function(
     path_null && svy_args_null
   ) {
     stop(
-      message(
-        "Se debe indicar la ruta del archivo o una encuesta con su respectiva edicion"
-      )
+      "Must provide either a file path or a survey type with edition",
+      call. = FALSE
     )
   }
 
@@ -269,11 +268,7 @@ load_panel_survey <- function(
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
         if (time_pattern$periodicity != "Monthly") {
-          stop(
-            message(
-              "The periodicity of the file is not monthly"
-            )
-          )
+          stop("The periodicity of the file is not monthly", call. = FALSE)
         } else {
           return(
             time_pattern$year * 100 + time_pattern$month
@@ -313,11 +308,7 @@ load_panel_survey <- function(
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
         if (time_pattern$periodicity != "Monthly") {
-          stop(
-            message(
-              "The periodicity of the file is not monthly"
-            )
-          )
+          stop("The periodicity of the file is not monthly", call. = FALSE)
         } else {
           return(
             time_pattern$year * 100 + time_pattern$month
@@ -398,7 +389,9 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
 
   if (convert) {
     if (.extension != ".csv" && !file.exists(.output_file)) {
-      requireNamespace("rio", quietly = TRUE)
+      if (!requireNamespace("rio", quietly = TRUE)) {
+        stop("Package 'rio' is required to convert file formats. Install with: install.packages('rio')", call. = FALSE)
+      }
       rio::convert(
         in_file = file,
         out_file = .output_file
@@ -484,7 +477,7 @@ load_survey.data.table <- function(...) {
   if (!is.null(.args$recipes)) {
     if (get_distinct_recipes(.args$recipes) > 1) {
       index_valid_recipes <- vapply(
-        X = 1:get_distinct_recipes(.args$recipes),
+        X = seq_len(get_distinct_recipes(.args$recipes)),
         FUN = function(x) {
           validate_recipe(
             svy_type = .args$svy_type,
