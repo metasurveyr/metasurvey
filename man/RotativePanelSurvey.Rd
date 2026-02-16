@@ -13,7 +13,7 @@ It provides methods to access and manipulate survey data,
 steps, recipes, workflows, and designs.
 }
 \examples{
-\dontrun{
+\donttest{
 panel <- RotativePanelSurvey$new(
   implantation = impl_survey, follow_up = list(fu1, fu2),
   type = "ech", default_engine = "data.table",

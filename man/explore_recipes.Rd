@@ -25,7 +25,7 @@ metasurvey recipes with visual documentation cards. Supports user
 registration and login via MongoDB Atlas.
 }
 \examples{
-\dontrun{
+\donttest{
 # Local / RStudio viewer
 explore_recipes()
 

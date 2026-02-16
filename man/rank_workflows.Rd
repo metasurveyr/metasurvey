@@ -16,9 +16,9 @@ List of RecipeWorkflow objects sorted by downloads.
 Get the top workflows ranked by download count.
 }
 \examples{
-\dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 top5 <- rank_workflows(n = 5)
-}
+length(top5)
 
 }
 \seealso{

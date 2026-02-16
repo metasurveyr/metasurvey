@@ -16,7 +16,6 @@ tibble
 Convert survey to tibble
 }
 \examples{
-\dontrun{
 dt <- data.table::data.table(
   id = 1:5, age = c(25, 30, 45, 50, 60),
   w = rep(1, 5)
@@ -27,7 +26,6 @@ svy <- Survey$new(
 )
 tbl <- survey_to_tibble(svy)
 class(tbl)
-}
 }
 \seealso{
 Other survey-objects: 

@@ -123,8 +123,9 @@ anda_catalog_search <- function(keyword = "ECH",
 anda_parse_variables <- function(ddi_xml_path) {
   if (!requireNamespace("xml2", quietly = TRUE)) {
     stop(
-      "Package 'xml2' is required for DDI parsing. ",
-      "Install with: install.packages('xml2')"
+      "Package 'xml2' is required. ",
+      "Install it with: install.packages('xml2')",
+      call. = FALSE
     )
   }
 
@@ -263,7 +264,7 @@ anda_list_editions <- function() {
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' path <- anda_download_microdata("2023", resource = "implantation")
 #' svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
 #' }
@@ -543,8 +544,8 @@ anda_download_microdata <- function(edition,
   } else if (is_rar) {
     if (!requireNamespace("archive", quietly = TRUE)) {
       stop(
-        "The downloaded file is a RAR archive. Install the 'archive' package ",
-        "to extract it:\n  install.packages('archive')",
+        "Package 'archive' is required. ",
+        "Install it with: install.packages('archive')",
         call. = FALSE
       )
     }
@@ -633,7 +634,7 @@ anda_download_microdata <- function(edition,
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 anda_variables <- function(survey_type = "ech", var_names = NULL) {

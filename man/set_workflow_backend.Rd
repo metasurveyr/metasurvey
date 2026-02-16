@@ -23,7 +23,7 @@ options.
 \donttest{
 set_workflow_backend("local", path = tempfile(fileext = ".json"))
 }
-\dontrun{
+\donttest{
 set_workflow_backend("api")
 }
 }

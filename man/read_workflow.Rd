@@ -16,9 +16,15 @@ A RecipeWorkflow object
 Read a RecipeWorkflow from a JSON file
 }
 \examples{
-\dontrun{
-wf <- read_workflow("my_workflow.json")
-}
+wf <- RecipeWorkflow$new(
+  name = "Example", description = "Test",
+  survey_type = "ech", edition = "2023",
+  recipe_id = "r_001", estimation_type = "svymean",
+  variables = "income"
+)
+f <- tempfile(fileext = ".json")
+save_workflow(wf, f)
+wf2 <- read_workflow(f)
 }
 \seealso{
 Other workflows: 

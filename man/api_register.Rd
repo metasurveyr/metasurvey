@@ -34,7 +34,7 @@ Create an account on the metasurvey API. On success the JWT
 token is stored automatically via \code{options(metasurvey.api_token)}.
 }
 \examples{
-\dontrun{
+\donttest{
 configure_api("https://metasurvey-api.example.com")
 api_register("Ana Garcia", "ana@example.com", "s3cret")
 }

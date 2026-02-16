@@ -67,3 +67,7 @@
 ^vignettes/api-database\.Rmd$
 ^vignettes/shiny-explorer-es\.Rmd$
 ^vignettes/shiny-explorer\.Rmd$
+^summary_iecon\.md$
+^ropensci-presubmission-plan\.md$
+^\.env\.example$
+^docker-compose\.yml$

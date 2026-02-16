@@ -36,7 +36,7 @@ A Recipe object
 Convert a list of steps to a recipe
 }
 \examples{
-\dontrun{
+\donttest{
 svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 svy <- step_compute(svy, employed = ifelse(status == 1, 1, 0))
 my_recipe <- steps_to_recipe(

@@ -18,7 +18,7 @@ Requires authentication (call \code{api_login()}
 first).
 }
 \examples{
-\dontrun{
+\donttest{
 api_publish_recipe(my_recipe)
 }
 }

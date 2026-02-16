@@ -32,7 +32,7 @@ This function displays design information including:
 Output is color-coded for better readability in supporting terminals.
 }
 \examples{
-\dontrun{
+\donttest{
 # Display design for survey with multiple estimation types
 ech_survey <- load_survey("ech_2023.dta",
   svy_type = "ech",

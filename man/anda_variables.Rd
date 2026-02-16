@@ -20,7 +20,7 @@ Fetches variable metadata (labels, types, value labels) from the
 metasurvey API's ANDA endpoint.
 }
 \examples{
-\dontrun{
+\donttest{
 anda_variables("ech", c("pobpcoac", "e27"))
 }
 }

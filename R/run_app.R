@@ -13,7 +13,7 @@
 #'
 #' @return NULL (called for side effect of launching the app).
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Local / RStudio viewer
 #' explore_recipes()
 #'
@@ -29,13 +29,15 @@ explore_recipes <- function(port = NULL,
   if (!requireNamespace("shiny", quietly = TRUE)) {
     stop(
       "Package 'shiny' is required. ",
-      "Install it with: install.packages('shiny')"
+      "Install it with: install.packages('shiny')",
+      call. = FALSE
     )
   }
   if (!requireNamespace("bslib", quietly = TRUE)) {
     stop(
       "Package 'bslib' is required. ",
-      "Install it with: install.packages('bslib')"
+      "Install it with: install.packages('bslib')",
+      call. = FALSE
     )
   }
   app_dir <- system.file("shiny", package = "metasurvey")
