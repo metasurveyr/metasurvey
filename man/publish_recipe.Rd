@@ -26,4 +26,18 @@ r <- recipe(
 publish_recipe(r)
 length(list_recipes())
 }
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}
 \keyword{utils}

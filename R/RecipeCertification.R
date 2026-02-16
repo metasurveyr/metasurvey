@@ -16,6 +16,7 @@
 #' inst <- recipe_user("IECON", type = "institution")
 #' official <- recipe_certification("official", certified_by = inst)
 #'
+#' @family tidy-api
 #' @export
 RecipeCertification <- R6::R6Class(
   "RecipeCertification",
@@ -30,23 +31,38 @@ RecipeCertification <- R6::R6Class(
     #' @param certified_by RecipeUser or NULL. Required for reviewed/official.
     #' @param notes Character or NULL. Additional notes.
     #' @param certified_at POSIXct or NULL. Auto-set if NULL.
-    initialize = function(level, certified_by = NULL, notes = NULL, certified_at = NULL) {
+    initialize = function(level, certified_by = NULL,
+                          notes = NULL,
+                          certified_at = NULL) {
       valid_levels <- c("community", "reviewed", "official")
-      if (is.null(level) || !is.character(level) || !(level %in% valid_levels)) {
-        stop("level must be one of: ", paste(valid_levels, collapse = ", "))
+      if (is.null(level) ||
+          !is.character(level) ||
+          !(level %in% valid_levels)) {
+        stop(
+          "level must be one of: ",
+          paste(valid_levels, collapse = ", ")
+        )
       }
 
       if (level == "official") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
           certified_by$user_type != "institution") {
-          stop("official certification requires a RecipeUser of type 'institution'")
+          stop(
+            "official certification requires a ",
+            "RecipeUser of type 'institution'"
+          )
         }
       }
 
       if (level == "reviewed") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
-          !certified_by$user_type %in% c("institutional_member", "institution")) {
-          stop("reviewed certification requires a RecipeUser of type 'institutional_member' or 'institution'")
+          !certified_by$user_type %in%
+          c("institutional_member", "institution")) {
+          stop(
+            "reviewed certification requires a ",
+            "RecipeUser of type 'institutional_member' ",
+            "or 'institution'"
+          )
         }
       }
 
@@ -56,7 +72,8 @@ RecipeCertification <- R6::R6Class(
       self$certified_at <- certified_at %||% Sys.time()
     },
 
-    #' @description Get numeric level for ordering (1=community, 2=reviewed, 3=official)
+    #' @description Get numeric level for ordering
+    #'   (1=community, 2=reviewed, 3=official)
     #' @return Integer
     numeric_level = function() {
       switch(self$level,
@@ -106,7 +123,10 @@ RecipeCertification <- R6::R6Class(
       if (!is.null(self$certified_by)) {
         cat("  Certified by:", self$certified_by$name, "\n")
       }
-      cat("  Date:", format(self$certified_at, "%Y-%m-%d"), "\n")
+      cat(
+        "  Date:",
+        format(self$certified_at, "%Y-%m-%d"), "\n"
+      )
       if (!is.null(self$notes)) {
         cat("  Notes:", self$notes, "\n")
       }

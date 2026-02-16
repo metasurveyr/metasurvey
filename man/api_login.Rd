@@ -23,3 +23,12 @@ token is stored automatically.
 api_login("ana@example.com", "s3cret")
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_logout}()},
+\code{\link{api_me}()},
+\code{\link{api_refresh_token}()},
+\code{\link{api_register}()},
+\code{\link{configure_api}()}
+}
+\concept{api-auth}

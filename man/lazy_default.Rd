@@ -16,4 +16,14 @@ Lazy processing
 # Check current lazy processing default
 lazy_default()
 }
+\seealso{
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{set_engine}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{set_use_copy}()},
+\code{\link{show_engines}()},
+\code{\link{use_copy_default}()}
+}
+\concept{options}
 \keyword{utils}

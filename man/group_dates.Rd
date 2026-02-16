@@ -12,14 +12,27 @@ group_dates(dates, type = c("monthly", "quarterly", "biannual"))
 \item{type}{Grouping type: "monthly", "quarterly", or "biannual".}
 }
 \value{
-Integer vector of group indices (e.g. 1-12 for monthly, 1-4 for quarterly).
+Integer vector of group indices (e.g. 1-12 for
+monthly, 1-4 for quarterly).
 }
 \description{
 Group dates
 }
 \examples{
-dates <- as.Date(c("2023-01-15", "2023-04-20", "2023-07-10", "2023-11-05"))
+dates <- as.Date(c(
+  "2023-01-15", "2023-04-20",
+  "2023-07-10", "2023-11-05"
+))
 group_dates(dates, "quarterly")
 group_dates(dates, "biannual")
 }
+\seealso{
+Other survey-loading: 
+\code{\link{extract_time_pattern}()},
+\code{\link{load_panel_survey}()},
+\code{\link{load_survey}()},
+\code{\link{load_survey_example}()},
+\code{\link{validate_time_pattern}()}
+}
+\concept{survey-loading}
 \keyword{utils}

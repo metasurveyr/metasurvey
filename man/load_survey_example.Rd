@@ -7,23 +7,28 @@
 load_survey_example(svy_type, svy_edition)
 }
 \arguments{
-\item{svy_type}{Character string specifying the survey type (e.g., "ech")}
+\item{svy_type}{Character string specifying the survey
+type (e.g., "ech")}
 
-\item{svy_edition}{Character string specifying the survey edition/year (e.g., "2023")}
+\item{svy_edition}{Character string specifying the survey
+edition/year (e.g., "2023")}
 }
 \value{
-Character string with the path to the downloaded CSV file containing
-the example survey data
+Character string with the path to the downloaded
+CSV file containing the example survey data
 }
 \description{
-Downloads and loads example survey data from the metasurvey data repository.
-This function provides access to sample datasets for testing and demonstration
-purposes, including ECH (Continuous Household Survey) and other survey types.
+Downloads and loads example survey data from the
+metasurvey data repository. This function provides access
+to sample datasets for testing and demonstration purposes,
+including ECH (Continuous Household Survey) and other
+survey types.
 }
 \details{
-This function downloads example data from the official metasurvey data
-repository on GitHub. The data is cached locally in a temporary file to
-avoid repeated downloads in the same session.
+This function downloads example data from the official
+metasurvey data repository on GitHub. The data is cached
+locally in a temporary file to avoid repeated downloads
+in the same session.
 
 Available survey types and editions can be found at:
 https://github.com/metasurveyr/metasurvey_data
@@ -44,5 +49,13 @@ ech_data <- load_survey(
 }
 \seealso{
 \code{\link{load_survey}} for loading the downloaded data
+
+Other survey-loading: 
+\code{\link{extract_time_pattern}()},
+\code{\link{group_dates}()},
+\code{\link{load_panel_survey}()},
+\code{\link{load_survey}()},
+\code{\link{validate_time_pattern}()}
 }
+\concept{survey-loading}
 \keyword{utils}

@@ -23,4 +23,17 @@ svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
 cat_design_type(svy, "annual")
 }
 }
-\keyword{Surveymethods}
+\seealso{
+Other survey-objects: 
+\code{\link{Survey}},
+\code{\link{cat_design}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{set_data}()},
+\code{\link{survey_empty}()},
+\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
+}
+\concept{survey-objects}
+\keyword{survey}

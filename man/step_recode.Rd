@@ -18,43 +18,56 @@ step_recode(
 )
 }
 \arguments{
-\item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object. If NULL, creates a step
-that can be applied later using the pipe operator (\%>\%)}
+\item{svy}{A \code{Survey} or \code{RotativePanelSurvey}
+object. If NULL, creates a step that can be
+applied later using the pipe operator (\%>\%)}
 
-\item{new_var}{Name of the new variable to create (unquoted)}
+\item{new_var}{Name of the new variable to create
+(unquoted)}
 
-\item{...}{Sequence of two-sided formulas defining recoding rules.
-Left-hand side (LHS) is a conditional expression, right-hand side (RHS)
-defines the replacement value. Format: \code{condition ~ value}}
+\item{...}{Sequence of two-sided formulas defining
+recoding rules. Left-hand side (LHS) is a
+conditional expression, right-hand side (RHS)
+defines the replacement value.
+Format: \code{condition ~ value}}
 
-\item{.default}{Default value assigned when no condition is met.
-Defaults to \code{NA_character_}}
+\item{.default}{Default value assigned when no
+condition is met. Defaults to \code{NA_character_}}
 
-\item{.name_step}{Custom name for the step to identify it in the history.
-If not provided, generated automatically with "Recode" prefix}
+\item{.name_step}{Custom name for the step to
+identify it in the history. If not provided,
+generated automatically with "Recode" prefix}
 
-\item{ordered}{Logical indicating whether the new variable should be an
-ordered factor. Defaults to FALSE}
+\item{ordered}{Logical indicating whether the new
+variable should be an ordered factor.
+Defaults to FALSE}
 
-\item{use_copy}{Logical indicating whether to create a copy of the object before
-applying transformations. Defaults to \code{use_copy_default()}}
+\item{use_copy}{Logical indicating whether to
+create a copy of the object before applying
+transformations. Defaults to \code{use_copy_default()}}
 
-\item{comment}{Descriptive text for the step for documentation and traceability.
-Compatible with Markdown syntax. Defaults to "Recode step"}
+\item{comment}{Descriptive text for the step for
+documentation and traceability. Compatible with
+Markdown syntax. Defaults to "Recode step"}
 
-\item{.to_factor}{Logical indicating whether the new variable should be
-converted to a factor. Defaults to FALSE}
+\item{.to_factor}{Logical indicating whether the
+new variable should be converted to a factor.
+Defaults to FALSE}
 
-\item{.level}{For RotativePanelSurvey objects, specifies the level where
-recoding is applied: "implantation", "follow_up", "quarter", "month", or "auto"}
+\item{.level}{For RotativePanelSurvey objects,
+specifies the level where recoding is applied:
+"implantation", "follow_up", "quarter",
+"month", or "auto"}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
 with the new recoded variable and the step added to the history
 }
 \description{
-This function uses optimized expression evaluation for all recoding conditions.
-All conditional expressions are validated and optimized for efficient execution.
+This function uses optimized expression evaluation
+for all recoding conditions. All conditional
+expressions are validated and optimized for
+efficient execution.
 }
 \details{
 \strong{CORE ENGINE FOR RECODING}:
@@ -92,49 +105,33 @@ Condition examples:
 }
 }
 \examples{
-\dontrun{
-# Create labor force status variable
-ech <- ech |>
-  step_recode(
-    labor_status,
-    POBPCOAC == 2 ~ "Employed",
-    POBPCOAC \%in\% 3:5 ~ "Unemployed",
-    POBPCOAC \%in\% 6:8 ~ "Inactive",
-    .default = "Missing",
-    comment = "Labor force status from ECH"
-  )
-
-# Create age groups
-ech <- ech |>
+# Basic recode: categorize ages
+dt <- data.table::data.table(
+  id = 1:6, age = c(10, 25, 45, 60, 70, 80), w = 1
+)
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
+svy <- svy |>
   step_recode(
     age_group,
-    e27 < 18 ~ "Under 18",
-    e27 >= 18 & e27 < 65 ~ "Working age",
-    e27 >= 65 ~ "Senior",
-    .default = "Missing",
-    .to_factor = TRUE,
-    ordered = TRUE,
-    comment = "Standard age groups"
+    age < 18 ~ "Under 18",
+    age >= 18 & age < 65 ~ "Working age",
+    age >= 65 ~ "Senior",
+    .default = "Unknown"
   )
+svy <- bake_steps(svy)
+get_data(svy)
 
-# Dummy variable
-ech <- ech |>
-  step_recode(
-    household_head,
-    e30 == 1 ~ 1,
-    .default = 0,
-    comment = "Household head indicator"
-  )
-
-# For rotative panel
-panel <- panel |>
-  step_recode(
-    region_simple,
-    REGION_4 == 1 ~ "Montevideo",
-    REGION_4 != 1 ~ "Interior",
-    .level = "implantation",
-    comment = "Simplified region"
-  )
+\donttest{
+# ECH example: labor force status
+# ech <- ech |>
+#   step_recode(labor_status,
+#     POBPCOAC == 2 ~ "Employed",
+#     POBPCOAC \%in\% 3:5 ~ "Unemployed",
+#     .default = "Missing")
 }
 
 }
@@ -142,5 +139,15 @@ panel <- panel |>
 \code{\link{step_compute}} for more complex calculations
 \code{\link{bake_steps}} to execute all pending steps
 \code{\link{get_steps}} to view step history
+
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
 }
-\keyword{Steps}
+\concept{steps}
+\keyword{step}

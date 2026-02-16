@@ -2,7 +2,7 @@
 % Please edit documentation in R/set_engine.R
 \name{show_engines}
 \alias{show_engines}
-\title{show_engines}
+\title{List available survey data engines}
 \usage{
 show_engines()
 }
@@ -10,8 +10,19 @@ show_engines()
 Character vector with the names of the available engines.
 }
 \description{
-This function returns a list of available engines that can be used for loading surveys. The available engines are "data.table", "tidyverse", and "dplyr".
+Returns a character vector of available
+engines that can be used for loading surveys.
 }
 \examples{
 show_engines()
 }
+\seealso{
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{lazy_default}()},
+\code{\link{set_engine}()},
+\code{\link{set_lazy_processing}()},
+\code{\link{set_use_copy}()},
+\code{\link{use_copy_default}()}
+}
+\concept{options}

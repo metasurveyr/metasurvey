@@ -11,10 +11,12 @@ set_data(svy, data, .copy = FALSE)
 
 \item{data}{A data.frame or data.table with survey microdata}
 
-\item{.copy}{Logical; if TRUE, clone the Survey before modifying (default FALSE)}
+\item{.copy}{Logical; if TRUE, clone the Survey before
+modifying (default FALSE)}
 }
 \value{
-The Survey object (invisibly). If \code{.copy=TRUE}, returns a new clone.
+The Survey object (invisibly). If
+\code{.copy=TRUE}, returns a new clone.
 }
 \description{
 Tidy wrapper for \code{svy$set_data(data)}.
@@ -28,3 +30,16 @@ svy <- Survey$new(
 new_dt <- data.table::data.table(id = 1:3, x = rnorm(3), w = rep(1, 3))
 svy <- set_data(svy, new_dt)
 }
+\seealso{
+Other survey-objects: 
+\code{\link{Survey}},
+\code{\link{cat_design}()},
+\code{\link{cat_design_type}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{survey_empty}()},
+\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
+}
+\concept{survey-objects}

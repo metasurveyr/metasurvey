@@ -5,10 +5,17 @@
 \title{Step Class
 Represents a step in a survey workflow.}
 \description{
-The \code{Step} class is used to define and manage individual steps in a survey workflow. Each step can include operations such as recoding variables, computing new variables, or validating dependencies.
+The \code{Step} class is used to define and manage
+individual steps in a survey workflow. Each step can
+include operations such as recoding variables, computing
+new variables, or validating dependencies.
 }
 \details{
-The \code{Step} class is part of the survey workflow system and is designed to encapsulate all the information and operations required for a single step in the workflow. Steps can be chained together to form a complete workflow.
+The \code{Step} class is part of the survey workflow
+system and is designed to encapsulate all the information
+and operations required for a single step in the
+workflow. Steps can be chained together to form a
+complete workflow.
 }
 \examples{
 # Step objects are created internally by step_compute(), step_recode(), etc.
@@ -21,9 +28,9 @@ svy <- Survey$new(
 svy <- step_compute(svy, age2 = age * 2)
 get_steps(svy)
 }
-\keyword{Steps}
-\keyword{Surveymethods}
 \keyword{internal}
+\keyword{step}
+\keyword{survey}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -33,23 +40,30 @@ get_steps(svy)
 
 \item{\code{survey_type}}{The type of survey associated with the step.}
 
-\item{\code{type}}{The type of operation performed by the step (e.g., "compute", "recode").}
+\item{\code{type}}{The type of operation performed by the step
+(e.g., "compute", "recode").}
 
-\item{\code{new_var}}{The name of the new variable created by the step, if applicable.}
+\item{\code{new_var}}{The name of the new variable created by
+the step, if applicable.}
 
-\item{\code{exprs}}{A list of expressions defining the step's operations.}
+\item{\code{exprs}}{A list of expressions defining the step's
+operations.}
 
 \item{\code{call}}{The function call associated with the step.}
 
-\item{\code{svy_before}}{The survey object before the step is applied.}
+\item{\code{svy_before}}{The survey object before the step is
+applied.}
 
-\item{\code{default_engine}}{The default engine used for processing the step.}
+\item{\code{default_engine}}{The default engine used for
+processing the step.}
 
-\item{\code{depends_on}}{A list of variables that the step depends on.}
+\item{\code{depends_on}}{A list of variables that the step
+depends on.}
 
 \item{\code{comments}}{Comments or notes about the step.}
 
-\item{\code{bake}}{A logical value indicating whether the step has been executed.}
+\item{\code{bake}}{A logical value indicating whether the step
+has been executed.}
 }
 \if{html}{\out{</div>}}
 }
@@ -92,25 +106,34 @@ Create a new Step object
 
 \item{\code{survey_type}}{The type of survey associated with the step.}
 
-\item{\code{type}}{The type of operation performed by the step (e.g., "compute" or "recode").}
+\item{\code{type}}{The type of operation performed by the
+step (e.g., "compute" or "recode").}
 
-\item{\code{new_var}}{The name of the new variable created by the step, if applicable.}
+\item{\code{new_var}}{The name of the new variable created
+by the step, if applicable.}
 
-\item{\code{exprs}}{A list of expressions defining the step's operations.}
+\item{\code{exprs}}{A list of expressions defining the
+step's operations.}
 
-\item{\code{call}}{The function call associated with the step.}
+\item{\code{call}}{The function call associated with the
+step.}
 
-\item{\code{svy_before}}{The survey object before the step is applied.}
+\item{\code{svy_before}}{The survey object before the step
+is applied.}
 
-\item{\code{default_engine}}{The default engine used for processing the step.}
+\item{\code{default_engine}}{The default engine used for
+processing the step.}
 
-\item{\code{depends_on}}{A list of variables that the step depends on.}
+\item{\code{depends_on}}{A list of variables that the step
+depends on.}
 
 \item{\code{comments}}{Comments or notes about the step.}
 
-\item{\code{bake}}{A logical value indicating whether the step has been executed.}
+\item{\code{bake}}{A logical value indicating whether the
+step has been executed.}
 
-\item{\code{comment}}{Optional alias of \code{comments} for backwards compatibility.}
+\item{\code{comment}}{Optional alias of \code{comments} for
+backwards compatibility.}
 }
 \if{html}{\out{</div>}}
 }

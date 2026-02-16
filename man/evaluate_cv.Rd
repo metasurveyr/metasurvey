@@ -10,7 +10,8 @@ evaluate_cv(cv)
 \item{cv}{Numeric coefficient of variation value.}
 }
 \value{
-Character string with the quality category (e.g. "Excellent", "Good").
+Character string with the quality category
+(e.g. "Excellent", "Good").
 }
 \description{
 Evaluate estimation with Coefficient of Variation
@@ -20,4 +21,16 @@ evaluate_cv(3) # "Excellent"
 evaluate_cv(12) # "Good"
 evaluate_cv(30) # "Use with caution"
 }
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
+}
+\concept{workflows}
 \keyword{utils}

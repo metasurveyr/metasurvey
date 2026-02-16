@@ -18,4 +18,27 @@ Invisibly returns the Recipe object
 Displays a formatted recipe card showing metadata, required variables,
 pipeline steps, and produced variables.
 }
-\keyword{Recipes}
+\examples{
+rec <- Recipe$new(
+  id = "r1", name = "Example", user = "tester",
+  edition = "2023", survey_type = "test",
+  default_engine = "data.table", depends_on = list(),
+  description = "Demo recipe", steps = list()
+)
+print(rec)
+}
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}
+\keyword{recipe}

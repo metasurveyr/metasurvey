@@ -18,3 +18,10 @@ set_backend("local", path = tempfile(fileext = ".json"))
 backend <- get_backend()
 backend
 }
+\seealso{
+Other backends: 
+\code{\link{get_workflow_backend}()},
+\code{\link{set_backend}()},
+\code{\link{set_workflow_backend}()}
+}
+\concept{backends}

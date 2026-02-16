@@ -1,5 +1,6 @@
 #' @title WorkflowRegistry
-#' @description Local JSON-backed catalog for workflow discovery, ranking, and filtering.
+#' @description Local JSON-backed catalog for workflow
+#'   discovery, ranking, and filtering.
 #'
 #' @examples
 #' # Use the tidy API instead:
@@ -39,17 +40,22 @@ WorkflowRegistry <- R6::R6Class(
     search = function(query) {
       pattern <- tolower(query)
       Filter(function(w) {
-        grepl(pattern, tolower(w$name)) || grepl(pattern, tolower(w$description))
+        grepl(pattern, tolower(w$name)) ||
+          grepl(pattern, tolower(w$description))
       }, private$.workflows)
     },
 
     #' @description Filter workflows by criteria
     #' @param survey_type Character survey type or NULL
     #' @param edition Character edition or NULL
-    #' @param recipe_id Character recipe ID or NULL (find workflows using this recipe)
+    #' @param recipe_id Character recipe ID or NULL
+    #'   (find workflows using this recipe)
     #' @param certification_level Character certification level or NULL
     #' @return List of matching RecipeWorkflow objects
-    filter = function(survey_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL,
+                      edition = NULL,
+                      recipe_id = NULL,
+                      certification_level = NULL) {
       results <- private$.workflows
       if (!is.null(survey_type)) {
         results <- Filter(function(w) w$survey_type == survey_type, results)
@@ -61,7 +67,12 @@ WorkflowRegistry <- R6::R6Class(
         results <- Filter(function(w) recipe_id %in% w$recipe_ids, results)
       }
       if (!is.null(certification_level)) {
-        results <- Filter(function(w) w$certification$level == certification_level, results)
+        results <- Filter(
+          function(w) {
+            w$certification$level == certification_level
+          },
+          results
+        )
       }
       results
     },
@@ -81,7 +92,9 @@ WorkflowRegistry <- R6::R6Class(
       if (length(workflows) == 0) {
         return(list())
       }
-      downloads <- vapply(workflows, function(w) w$downloads, integer(1))
+      downloads <- vapply(
+        workflows, function(w) w$downloads, integer(1)
+      )
       ordered <- workflows[order(downloads, decreasing = TRUE)]
       if (!is.null(n)) {
         ordered <- ordered[seq_len(min(n, length(ordered)))]
@@ -107,7 +120,10 @@ WorkflowRegistry <- R6::R6Class(
     #' @param path Character file path
     save = function(path) {
       wf_data <- lapply(private$.workflows, function(w) w$to_list())
-      jsonlite::write_json(wf_data, path, auto_unbox = TRUE, pretty = TRUE)
+      jsonlite::write_json(
+        wf_data, path,
+        auto_unbox = TRUE, pretty = TRUE
+      )
     },
 
     #' @description Load a registry catalog from a JSON file
@@ -150,13 +166,26 @@ WorkflowRegistry <- R6::R6Class(
     #' @param ... Additional arguments (not used)
     print = function(...) {
       s <- self$stats()
-      cat(crayon::bold("WorkflowRegistry"), paste0("(", s$total, " workflows)\n"))
+      cat(
+        crayon::bold("WorkflowRegistry"),
+        paste0("(", s$total, " workflows)\n")
+      )
       if (length(s$by_survey_type) > 0) {
-        cat("  Survey types:", paste(names(s$by_survey_type), collapse = ", "), "\n")
+        cat(
+          "  Survey types:",
+          paste(names(s$by_survey_type), collapse = ", "),
+          "\n"
+        )
       }
       if (length(s$by_certification) > 0) {
         cat("  Certification:", paste(
-          vapply(names(s$by_certification), function(k) paste0(k, ": ", s$by_certification[[k]]), character(1)),
+          vapply(
+            names(s$by_certification),
+            function(k) {
+              paste0(k, ": ", s$by_certification[[k]])
+            },
+            character(1)
+          ),
           collapse = ", "
         ), "\n")
       }

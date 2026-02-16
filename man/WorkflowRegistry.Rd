@@ -4,7 +4,8 @@
 \alias{WorkflowRegistry}
 \title{WorkflowRegistry}
 \description{
-Local JSON-backed catalog for workflow discovery, ranking, and filtering.
+Local JSON-backed catalog for workflow
+discovery, ranking, and filtering.
 }
 \examples{
 # Use the tidy API instead:
@@ -118,7 +119,8 @@ Filter workflows by criteria
 
 \item{\code{edition}}{Character edition or NULL}
 
-\item{\code{recipe_id}}{Character recipe ID or NULL (find workflows using this recipe)}
+\item{\code{recipe_id}}{Character recipe ID or NULL
+(find workflows using this recipe)}
 
 \item{\code{certification_level}}{Character certification level or NULL}
 }

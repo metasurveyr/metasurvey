@@ -2,7 +2,8 @@
 % Please edit documentation in R/load_survey.R
 \name{load_panel_survey}
 \alias{load_panel_survey}
-\title{Read panel survey files from different formats and create a RotativePanelSurvey object}
+\title{Read panel survey files from different formats
+and create a RotativePanelSurvey object}
 \usage{
 load_panel_survey(
   path_implantation,
@@ -14,23 +15,38 @@ load_panel_survey(
 )
 }
 \arguments{
-\item{path_implantation}{Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds}
+\item{path_implantation}{Survey implantation path, file
+can be in different formats, csv, xtsx, dta, sav and
+rds}
 
-\item{path_follow_up}{Path with all the needed files with only survey valid files but also can be character vector with path files.}
+\item{path_follow_up}{Path with all the needed files
+with only survey valid files but also can be character
+vector with path files.}
 
-\item{svy_type}{String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)}
+\item{svy_type}{String with the survey type, supported
+types; "ech" (Encuensta Continua de Hogares, Uruguay),
+"eph" (Encuesta Permanente de Hogares, Argentina),
+"eai" (Encuesta de Actividades de Innovacion, Uruguay)}
 
-\item{svy_weight_implantation}{List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
+\item{svy_weight_implantation}{List with survey
+implantation weights information specifing periodicity
+and the name of the weight variable. Recomended to use
+the helper function add_weight().}
 
-\item{svy_weight_follow_up}{List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().}
+\item{svy_weight_follow_up}{List with survey follow_up
+weights information specifing periodicity and the name
+of the weight variable. Recomended to use the helper
+function add_weight().}
 
-\item{...}{Further arguments to be passed to  load_panel_survey}
+\item{...}{Further arguments to be passed to
+load_panel_survey}
 }
 \value{
 RotativePanelSurvey object
 }
 \description{
-Read panel survey files from different formats and create a RotativePanelSurvey object
+Read panel survey files from different formats
+and create a RotativePanelSurvey object
 }
 \examples{
 \dontrun{
@@ -82,4 +98,13 @@ panel_survey <- load_panel_survey(
 print(panel_survey)
 }
 }
+\seealso{
+Other survey-loading: 
+\code{\link{extract_time_pattern}()},
+\code{\link{group_dates}()},
+\code{\link{load_survey}()},
+\code{\link{load_survey_example}()},
+\code{\link{validate_time_pattern}()}
+}
+\concept{survey-loading}
 \keyword{preprocessing}

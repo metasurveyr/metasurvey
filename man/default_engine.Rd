@@ -2,14 +2,17 @@
 % Please edit documentation in R/set_engine.R
 \name{default_engine}
 \alias{default_engine}
-\title{default_engine}
+\title{Set default engine}
 \usage{
 default_engine(.engine = "data.table")
 }
 \arguments{
-\item{.engine}{Character vector with the name of the default engine. By default, "data.table" is used.}
+\item{.engine}{Character vector with the name of the
+default engine. By default, "data.table" is used.}
 }
 \description{
-This function sets a default engine for loading surveys. If an engine is already configured, it keeps it; otherwise, it sets "data.table" as the default engine.
+Sets a default engine for loading surveys.
+If an engine is already configured, it keeps it;
+otherwise, it sets "data.table" as the default engine.
 }
 \keyword{internal}

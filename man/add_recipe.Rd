@@ -24,3 +24,17 @@ Tidy wrapper for \code{svy$add_recipe(recipe)}.
 svy <- add_recipe(svy, my_recipe)
 }
 }
+\seealso{
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{get_recipe}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
+}
+\concept{recipes}

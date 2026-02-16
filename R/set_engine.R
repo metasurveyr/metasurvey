@@ -1,13 +1,22 @@
-#' @title set_engine
+#' Configure the survey data engine
 #' @keywords engine
-#' @description This function configures the engine to be used for loading surveys. It checks if the provided engine is supported, sets the default engine if none is specified, and generates a message indicating the configured engine. If the engine is not supported, it throws an error.
-#' @param .engine Character vector with the name of the engine to configure. By default, the engine returned by the `show_engines()` function is used.
+#' @description Configures the engine to be used for
+#' loading surveys. Checks if the provided engine is
+#' supported, sets the default engine if none is specified,
+#' and generates a message indicating the configured
+#' engine. If the engine is not supported, it throws an
+#' error.
+#' @param .engine Character vector with the name of the
+#'   engine to configure. By default, the engine returned
+#'   by the `show_engines()` function is used.
 #' @return Invisibly, the previous engine name (for restoring).
 #' @examples
-#' \dontrun{
-#' set_engine("data.table")
+#' \donttest{
+#' old <- set_engine("data.table")
+#' get_engine()
 #' }
 #' @importFrom glue glue glue_col identity_transformer
+#' @family options
 #' @export
 
 set_engine <- function(.engine = show_engines()) {
@@ -47,7 +56,11 @@ set_engine <- function(.engine = show_engines()) {
   engine_name <- get_engine()
   if (!requireNamespace(engine_name, quietly = TRUE)) {
     warning(
-      paste0("Package '", engine_name, "' is not installed. Install with: install.packages('", engine_name, "')"),
+      paste0(
+        "Package '", engine_name,
+        "' is not installed. Install with: ",
+        "install.packages('", engine_name, "')"
+      ),
       call. = FALSE
     )
   }
@@ -55,13 +68,15 @@ set_engine <- function(.engine = show_engines()) {
   invisible(old)
 }
 
-#' @title show_engines
-#' @description This function returns a list of available engines that can be used for loading surveys. The available engines are "data.table", "tidyverse", and "dplyr".
+#' List available survey data engines
+#' @description Returns a character vector of available
+#' engines that can be used for loading surveys.
 #' @importFrom glue glue glue_col
 #' @export
 #' @return Character vector with the names of the available engines.
 #' @examples
 #' show_engines()
+#' @family options
 show_engines <- function() {
   c(
     "data.table",
@@ -70,20 +85,27 @@ show_engines <- function() {
   )
 }
 
-#' @title get_engine
-#' @description This function retrieves the currently configured engine for loading surveys. It returns the engine configured in the system options or environment variables.
+#' Get the current survey data engine
+#' @description Retrieves the currently configured engine
+#' for loading surveys from system options or environment
+#' variables.
 #' @export
 #' @return Character vector with the name of the configured engine.
 #' @keywords engine
 #' @examples
 #' get_engine()
+#' @family options
 get_engine <- function() {
-  Sys.getenv("metasurvey.engine") %@% getOption("metasurvey.engine")
+  Sys.getenv("metasurvey.engine") %@%
+    getOption("metasurvey.engine")
 }
 
-#' @title default_engine
-#' @description This function sets a default engine for loading surveys. If an engine is already configured, it keeps it; otherwise, it sets "data.table" as the default engine.
-#' @param .engine Character vector with the name of the default engine. By default, "data.table" is used.
+#' Set default engine
+#' @description Sets a default engine for loading surveys.
+#' If an engine is already configured, it keeps it;
+#' otherwise, it sets "data.table" as the default engine.
+#' @param .engine Character vector with the name of the
+#'   default engine. By default, "data.table" is used.
 #' @keywords internal
 
 default_engine <- function(.engine = "data.table") {

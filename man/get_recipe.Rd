@@ -21,7 +21,8 @@ Supported formats: "YYYY", "YYYYMM", "YYYY-YYYY"}
 \item{topic}{String specifying the recipe topic. Examples:
 "labor_market", "poverty", "income", "demographics"}
 
-\item{allowMultiple}{Logical indicating whether multiple recipes are allowed.
+\item{allowMultiple}{Logical indicating whether
+multiple recipes are allowed.
 If FALSE and multiple matches exist, returns the most recent one}
 }
 \value{
@@ -53,7 +54,8 @@ offline:
 \strong{Working Offline:}
 \itemize{
 \item Don't call \code{get_recipe()} - work directly with steps
-\item Set \code{options(metasurvey.skip_recipes = TRUE)} to disable API calls
+\item Set \code{options(metasurvey.skip_recipes = TRUE)}
+to disable API calls
 \item Load recipes from local files using \code{read_recipe()}
 \item Create custom recipes with \code{recipe()}
 }
@@ -118,5 +120,18 @@ panel_recipe <- get_recipe(
 \code{\link{read_recipe}} to read recipes from file
 \code{\link{publish_recipe}} to publish recipes to the repository
 \code{\link{load_survey}} where recipes are used
+
+Other recipes: 
+\code{\link{Recipe-class}},
+\code{\link{add_recipe}()},
+\code{\link{bake_recipes}()},
+\code{\link{explore_recipes}()},
+\code{\link{print.Recipe}()},
+\code{\link{publish_recipe}()},
+\code{\link{read_recipe}()},
+\code{\link{recipe}()},
+\code{\link{save_recipe}()},
+\code{\link{steps_to_recipe}()}
 }
+\concept{recipes}
 \keyword{utils}

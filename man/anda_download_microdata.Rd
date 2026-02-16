@@ -33,8 +33,10 @@ a temporary directory.}
 \item{base_url}{Character base URL of the ANDA5 instance}
 }
 \value{
-Character path (or vector of paths for monthly) to the downloaded
-file(s), ready to pass to \code{load_survey()} or \code{data.table::fread()}.
+Character path (or vector of paths for
+monthly) to the downloaded file(s), ready to pass
+to \code{load_survey()} or
+\code{data.table::fread()}.
 }
 \description{
 Downloads microdata files for a given ECH edition from INE Uruguay's
@@ -52,3 +54,9 @@ path <- anda_download_microdata("2023", resource = "implantation")
 svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
 }
 }
+\seealso{
+Other anda: 
+\code{\link{anda_variables}()},
+\code{\link{api_get_anda_variables}()}
+}
+\concept{anda}

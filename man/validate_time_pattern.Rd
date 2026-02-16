@@ -9,16 +9,29 @@ validate_time_pattern(svy_type = NULL, svy_edition = NULL)
 \arguments{
 \item{svy_type}{Survey type (e.g. "ech").}
 
-\item{svy_edition}{Survey edition string (e.g. "2023", "2023-06").}
+\item{svy_edition}{Survey edition string
+(e.g. "2023", "2023-06").}
 }
 \value{
-List with components: svy_type, svy_edition (parsed), svy_periodicity.
+List with components: svy_type, svy_edition
+(parsed), svy_periodicity.
 }
 \description{
 Validate time pattern
 }
 \examples{
 validate_time_pattern(svy_type = "ech", svy_edition = "2023")
-validate_time_pattern(svy_type = "ech", svy_edition = "2023-06")
+validate_time_pattern(
+  svy_type = "ech", svy_edition = "2023-06"
+)
 }
+\seealso{
+Other survey-loading: 
+\code{\link{extract_time_pattern}()},
+\code{\link{group_dates}()},
+\code{\link{load_panel_survey}()},
+\code{\link{load_survey}()},
+\code{\link{load_survey_example}()}
+}
+\concept{survey-loading}
 \keyword{utils}

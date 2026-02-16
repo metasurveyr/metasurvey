@@ -7,10 +7,12 @@
 extract_time_pattern(svy_edition)
 }
 \arguments{
-\item{svy_edition}{Survey edition string (e.g. "2023", "2023-06", "2023_Q1").}
+\item{svy_edition}{Survey edition string
+(e.g. "2023", "2023-06", "2023_Q1").}
 }
 \value{
-List with components: periodicity, year, month (when applicable).
+List with components: periodicity, year,
+month (when applicable).
 }
 \description{
 Extract time pattern
@@ -22,4 +24,13 @@ extract_time_pattern("2023")
 # Monthly edition
 extract_time_pattern("2023-06")
 }
+\seealso{
+Other survey-loading: 
+\code{\link{group_dates}()},
+\code{\link{load_panel_survey}()},
+\code{\link{load_survey}()},
+\code{\link{load_survey_example}()},
+\code{\link{validate_time_pattern}()}
+}
+\concept{survey-loading}
 \keyword{utils}

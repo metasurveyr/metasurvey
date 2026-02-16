@@ -14,31 +14,40 @@ step_compute(
 )
 }
 \arguments{
-\item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object. If NULL, creates a step
-that can be applied later using the pipe operator (\%>\%)}
+\item{svy}{A \code{Survey} or \code{RotativePanelSurvey} object.
+If NULL, creates a step that can be applied later
+using the pipe operator (\%>\%)}
 
-\item{...}{Computation expressions with automatic optimization.
-Names are assigned using \code{new_var = expression}}
+\item{...}{Computation expressions with automatic
+optimization. Names are assigned using
+\code{new_var = expression}}
 
-\item{.by}{Vector of variables to group computations by. The system automatically
-validates these variables exist before execution}
+\item{.by}{Vector of variables to group computations
+by. The system automatically validates these
+variables exist before execution}
 
-\item{use_copy}{Logical indicating whether to create a copy of the object before
-applying transformations. Defaults to \code{use_copy_default()}}
+\item{use_copy}{Logical indicating whether to create
+a copy of the object before applying
+transformations. Defaults to \code{use_copy_default()}}
 
-\item{comment}{Descriptive text for the step for documentation and traceability.
-Compatible with Markdown syntax. Defaults to "Compute step"}
+\item{comment}{Descriptive text for the step for
+documentation and traceability. Compatible with
+Markdown syntax. Defaults to "Compute step"}
 
-\item{.level}{For RotativePanelSurvey objects, specifies the level where
-computations are applied: "implantation", "follow_up", "quarter", "month", or "auto"}
+\item{.level}{For RotativePanelSurvey objects,
+specifies the level where computations are
+applied: "implantation", "follow_up", "quarter",
+"month", or "auto"}
 }
 \value{
 Same type of input object (\code{Survey} or \code{RotativePanelSurvey})
 with new computed variables and the step added to the history
 }
 \description{
-This function uses optimized expression evaluation with automatic dependency
-detection and error prevention. All computations are validated before execution.
+This function uses optimized expression evaluation
+with automatic dependency detection and error
+prevention. All computations are validated before
+execution.
 }
 \details{
 \strong{CORE ENGINE FEATURES}:
@@ -76,7 +85,9 @@ are compatible with the specified hierarchical level:
 }
 \examples{
 # Basic computation
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60), w = 1
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "test",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -85,17 +96,26 @@ svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
 svy <- bake_steps(svy)
 get_data(svy)
 
-\dontrun{
+\donttest{
 # ECH example: labor indicator
-ech <- ech |>
-  step_compute(
-    unemployed = ifelse(POBPCOAC \%in\% 3:5, 1, 0),
-    comment = "Unemployment indicator"
-  )
+# ech <- ech |>
+#   step_compute(
+#     unemployed = ifelse(POBPCOAC \%in\% 3:5, 1, 0),
+#     comment = "Unemployment indicator")
 }
 }
 \seealso{
 \code{\link{step_recode}} for categorical recodings
 \code{\link{bake_steps}} to execute all pending steps
+
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
 }
-\keyword{Steps}
+\concept{steps}
+\keyword{step}

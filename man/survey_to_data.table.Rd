@@ -16,7 +16,10 @@ data.table
 Convert survey to data.table
 }
 \examples{
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -24,4 +27,17 @@ svy <- Survey$new(
 result <- survey_to_data.table(svy)
 data.table::is.data.table(result) # TRUE
 }
-\keyword{Surveymethods}
+\seealso{
+Other survey-objects: 
+\code{\link{Survey}},
+\code{\link{cat_design}()},
+\code{\link{cat_design_type}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{set_data}()},
+\code{\link{survey_empty}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
+}
+\concept{survey-objects}
+\keyword{survey}

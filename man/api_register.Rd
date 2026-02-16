@@ -19,12 +19,15 @@ api_register(
 
 \item{password}{Password}
 
-\item{user_type}{One of \code{"individual"}, \code{"institutional_member"}, \code{"institution"}}
+\item{user_type}{One of \code{"individual"},
+\code{"institutional_member"}, \code{"institution"}}
 
-\item{institution}{Institution name (required for \code{"institutional_member"})}
+\item{institution}{Institution name
+(required for \code{"institutional_member"})}
 }
 \value{
-Invisibly, the API response (list with \code{ok}, \code{token}, \code{user}).
+Invisibly, the API response (list with \code{ok},
+\code{token}, \code{user}).
 }
 \description{
 Create an account on the metasurvey API. On success the JWT
@@ -36,3 +39,12 @@ configure_api("https://metasurvey-api.example.com")
 api_register("Ana Garcia", "ana@example.com", "s3cret")
 }
 }
+\seealso{
+Other api-auth: 
+\code{\link{api_login}()},
+\code{\link{api_logout}()},
+\code{\link{api_me}()},
+\code{\link{api_refresh_token}()},
+\code{\link{configure_api}()}
+}
+\concept{api-auth}

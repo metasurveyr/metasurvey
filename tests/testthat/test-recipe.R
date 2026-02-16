@@ -337,7 +337,7 @@ test_that("encoding_recipe converts steps to strings", {
     )
   )
   encoded <- metasurvey:::encoding_recipe(r)
-  expect_true(all(sapply(encoded$steps, is.character)))
+  expect_true(all(vapply(encoded$steps, is.character, logical(1))))
 })
 
 # --- decode_step tests ---

@@ -1,6 +1,8 @@
 #' @title WorkflowBackend
-#' @description Backend-agnostic factory for workflow storage and retrieval.
-#' Supports "local" (JSON-backed WorkflowRegistry) and "api" (remote plumber API) backends.
+#' @description Backend-agnostic factory for workflow
+#' storage and retrieval. Supports "local" (JSON-backed
+#' WorkflowRegistry) and "api" (remote plumber API)
+#' backends.
 #'
 #' @field type Character backend type ("local" or "api").
 #'
@@ -30,7 +32,10 @@ WorkflowBackend <- R6::R6Class(
       if (type == "mongo") type <- "api"
       valid_types <- c("local", "api")
       if (!(type %in% valid_types)) {
-        stop("Backend type must be one of: ", paste(valid_types, collapse = ", "))
+        stop(
+          "Backend type must be one of: ",
+          paste(valid_types, collapse = ", ")
+        )
       }
       self$type <- type
       if (type == "local") {
@@ -62,7 +67,10 @@ WorkflowBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$search(query)
       } else if (self$type == "api") {
-        tryCatch(api_list_workflows(search = query), error = function(e) list())
+        tryCatch(
+          api_list_workflows(search = query),
+          error = function(e) list()
+        )
       }
     },
 
@@ -100,7 +108,10 @@ WorkflowBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$find_by_recipe(recipe_id)
       } else if (self$type == "api") {
-        tryCatch(api_list_workflows(recipe_id = recipe_id), error = function(e) list())
+        tryCatch(
+          api_list_workflows(recipe_id = recipe_id),
+          error = function(e) list()
+        )
       }
     },
 
@@ -111,7 +122,10 @@ WorkflowBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$rank_by_downloads(n)
       } else if (self$type == "api") {
-        tryCatch(api_list_workflows(limit = n %||% 50), error = function(e) list())
+        tryCatch(
+          api_list_workflows(limit = n %||% 50),
+          error = function(e) list()
+        )
       }
     },
 
@@ -121,7 +135,10 @@ WorkflowBackend <- R6::R6Class(
     #' @param recipe_id Character or NULL
     #' @param certification_level Character or NULL
     #' @return List of matching RecipeWorkflow objects
-    filter = function(survey_type = NULL, edition = NULL, recipe_id = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL,
+                      edition = NULL,
+                      recipe_id = NULL,
+                      certification_level = NULL) {
       if (self$type == "local") {
         private$.registry$filter(
           survey_type = survey_type, edition = edition,
@@ -129,7 +146,10 @@ WorkflowBackend <- R6::R6Class(
         )
       } else if (self$type == "api") {
         tryCatch(
-          api_list_workflows(survey_type = survey_type, recipe_id = recipe_id),
+          api_list_workflows(
+            survey_type = survey_type,
+            recipe_id = recipe_id
+          ),
           error = function(e) list()
         )
       }
@@ -154,7 +174,9 @@ WorkflowBackend <- R6::R6Class(
 
     #' @description Load local backend from disk
     load = function() {
-      if (self$type == "local" && !is.null(private$.path) && file.exists(private$.path)) {
+      if (self$type == "local" &&
+        !is.null(private$.path) &&
+        file.exists(private$.path)) {
         private$.registry$load(private$.path)
       }
     }
@@ -166,19 +188,26 @@ WorkflowBackend <- R6::R6Class(
 )
 
 #' @title Set workflow backend
-#' @description Configure the active workflow backend via options.
-#' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
+#' @description Configure the active workflow backend via
+#'   options.
+#' @param type Character. "local" or "api" (also accepts
+#'   "mongo" for backward compat).
 #' @param path Character. File path for local backend.
 #' @return Invisibly, the WorkflowBackend object created.
 #' @examples
+#' \donttest{
+#' set_workflow_backend("local", path = tempfile(fileext = ".json"))
+#' }
 #' \dontrun{
-#' set_workflow_backend("local", path = "my_workflows.json")
 #' set_workflow_backend("api")
 #' }
+#' @family backends
 #' @export
 set_workflow_backend <- function(type, path = NULL) {
+  old <- getOption("metasurvey.workflow_backend")
   backend <- WorkflowBackend$new(type, path = path)
   options(metasurvey.workflow_backend = backend)
+  invisible(old)
 }
 
 #' @title Get workflow backend
@@ -186,10 +215,10 @@ set_workflow_backend <- function(type, path = NULL) {
 #' Defaults to "local" if not configured.
 #' @return WorkflowBackend object
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' backend <- get_workflow_backend()
-#' backend$search("labor")
 #' }
+#' @family backends
 #' @export
 get_workflow_backend <- function() {
   backend <- getOption("metasurvey.workflow_backend")

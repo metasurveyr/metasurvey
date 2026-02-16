@@ -13,22 +13,54 @@ Supports hierarchical categories with parent-child relationships.
 \section{Methods}{
 
 \describe{
-\item{$new(name, description, parent)}{Constructor for creating a new category}
-\item{$is_subcategory_of(ancestor_name)}{Check if this category is a subcategory of another}
+\item{$new(name, description, parent)}{Constructor
+for creating a new category}
+\item{$is_subcategory_of(ancestor_name)}{Check if
+this category is a subcategory of another}
 \item{$get_path()}{Get full hierarchical path}
 \item{$equals(other)}{Check equality by name}
 \item{$to_list()}{Serialize to list for JSON}
 \item{$print(...)}{Print category information}
-\item{$from_list(lst)}{Class method to reconstruct from list (see details)}
+\item{$from_list(lst)}{Class method to reconstruct
+from list (see details)}
 }
 }
 
 \examples{
 # Use recipe_category() for the public API:
-cat <- recipe_category("economics", "Economic indicators")
-sub <- recipe_category("labor_market", "Labor market", parent = "economics")
+cat <- recipe_category(
+  "economics", "Economic indicators"
+)
+sub <- recipe_category(
+  "labor_market", "Labor market",
+  parent = "economics"
+)
 
 }
+\seealso{
+Other tidy-api: 
+\code{\link{RecipeCertification}},
+\code{\link{RecipeUser}},
+\code{\link{add_category}()},
+\code{\link{certify_recipe}()},
+\code{\link{default_categories}()},
+\code{\link{filter_recipes}()},
+\code{\link{filter_workflows}()},
+\code{\link{find_workflows_for_recipe}()},
+\code{\link{list_recipes}()},
+\code{\link{list_workflows}()},
+\code{\link{rank_recipes}()},
+\code{\link{rank_workflows}()},
+\code{\link{recipe_category}()},
+\code{\link{recipe_certification}()},
+\code{\link{recipe_user}()},
+\code{\link{remove_category}()},
+\code{\link{search_recipes}()},
+\code{\link{search_workflows}()},
+\code{\link{set_user_info}()},
+\code{\link{set_version}()}
+}
+\concept{tidy-api}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -86,7 +118,8 @@ Check if this category is a subcategory of another
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{ancestor_name}}{Character. Name of the potential ancestor category.}
+\item{\code{ancestor_name}}{Character. Name of the potential
+ancestor category.}
 }
 \if{html}{\out{</div>}}
 }

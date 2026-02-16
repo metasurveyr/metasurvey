@@ -14,8 +14,14 @@ Returns the currently configured workflow backend.
 Defaults to "local" if not configured.
 }
 \examples{
-\dontrun{
+\donttest{
 backend <- get_workflow_backend()
-backend$search("labor")
 }
 }
+\seealso{
+Other backends: 
+\code{\link{get_backend}()},
+\code{\link{set_backend}()},
+\code{\link{set_workflow_backend}()}
+}
+\concept{backends}

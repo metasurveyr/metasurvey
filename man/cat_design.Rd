@@ -10,7 +10,8 @@ cat_design(self)
 \item{self}{Survey object containing design information}
 }
 \value{
-Invisibly returns NULL; called for side effect of printing design info
+Invisibly returns NULL; called for side
+effect of printing design info
 }
 \description{
 Pretty-prints the sampling design configuration for each estimation type
@@ -43,4 +44,16 @@ cat_design(ech_survey)
 }
 \seealso{
 \code{\link{cat_design_type}} for design type classification
+
+Other survey-objects: 
+\code{\link{Survey}},
+\code{\link{cat_design_type}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{set_data}()},
+\code{\link{survey_empty}()},
+\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
 }
+\concept{survey-objects}

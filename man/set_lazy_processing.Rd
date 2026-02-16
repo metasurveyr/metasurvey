@@ -7,7 +7,8 @@
 set_lazy_processing(lazy)
 }
 \arguments{
-\item{lazy}{Logical. If TRUE, steps are deferred until bake_steps() is called.}
+\item{lazy}{Logical. If TRUE, steps are deferred until
+bake_steps() is called.}
 }
 \value{
 Invisibly, the previous value.
@@ -21,4 +22,14 @@ set_lazy_processing(FALSE)
 lazy_default() # now FALSE
 set_lazy_processing(old) # restore
 }
+\seealso{
+Other options: 
+\code{\link{get_engine}()},
+\code{\link{lazy_default}()},
+\code{\link{set_engine}()},
+\code{\link{set_use_copy}()},
+\code{\link{show_engines}()},
+\code{\link{use_copy_default}()}
+}
+\concept{options}
 \keyword{utils}

@@ -1,6 +1,7 @@
 #' @title RecipeBackend
-#' @description Backend-agnostic factory for recipe storage and retrieval.
-#' Supports "local" (JSON-backed RecipeRegistry) and "api" (remote plumber API) backends.
+#' @description Backend-agnostic factory for recipe storage
+#' and retrieval. Supports "local" (JSON-backed
+#' RecipeRegistry) and "api" (remote plumber API) backends.
 #'
 #' @field type Character backend type ("local" or "api").
 #'
@@ -30,7 +31,10 @@ RecipeBackend <- R6::R6Class(
       if (type == "mongo") type <- "api"
       valid_types <- c("local", "api")
       if (!(type %in% valid_types)) {
-        stop("Backend type must be one of: ", paste(valid_types, collapse = ", "))
+        stop(
+          "Backend type must be one of: ",
+          paste(valid_types, collapse = ", ")
+        )
       }
       self$type <- type
       if (type == "local") {
@@ -62,7 +66,10 @@ RecipeBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$search(query)
       } else if (self$type == "api") {
-        tryCatch(api_list_recipes(search = query), error = function(e) list())
+        tryCatch(
+          api_list_recipes(search = query),
+          error = function(e) list()
+        )
       }
     },
 
@@ -100,7 +107,10 @@ RecipeBackend <- R6::R6Class(
       if (self$type == "local") {
         private$.registry$rank_by_downloads(n)
       } else if (self$type == "api") {
-        tryCatch(api_list_recipes(limit = n %||% 50), error = function(e) list())
+        tryCatch(
+          api_list_recipes(limit = n %||% 50),
+          error = function(e) list()
+        )
       }
     },
 
@@ -110,7 +120,10 @@ RecipeBackend <- R6::R6Class(
     #' @param category Character or NULL
     #' @param certification_level Character or NULL
     #' @return List of matching Recipe objects
-    filter = function(survey_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL,
+                      edition = NULL,
+                      category = NULL,
+                      certification_level = NULL) {
       if (self$type == "local") {
         private$.registry$filter(
           survey_type = survey_type, edition = edition,
@@ -146,7 +159,9 @@ RecipeBackend <- R6::R6Class(
 
     #' @description Load local backend from disk
     load = function() {
-      if (self$type == "local" && !is.null(private$.path) && file.exists(private$.path)) {
+      if (self$type == "local" &&
+        !is.null(private$.path) &&
+        file.exists(private$.path)) {
         private$.registry$load(private$.path)
       }
     }
@@ -159,15 +174,19 @@ RecipeBackend <- R6::R6Class(
 
 #' @title Set recipe backend
 #' @description Configure the active recipe backend via options.
-#' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
+#' @param type Character. "local" or "api" (also accepts
+#'   "mongo" for backward compat).
 #' @param path Character. File path for local backend.
 #' @return Invisibly, the RecipeBackend object created.
 #' @examples
 #' set_backend("local", path = tempfile(fileext = ".json"))
+#' @family backends
 #' @export
 set_backend <- function(type, path = NULL) {
+  old <- getOption("metasurvey.backend")
   backend <- RecipeBackend$new(type, path = path)
   options(metasurvey.backend = backend)
+  invisible(old)
 }
 
 #' @title Get recipe backend
@@ -178,6 +197,7 @@ set_backend <- function(type, path = NULL) {
 #' set_backend("local", path = tempfile(fileext = ".json"))
 #' backend <- get_backend()
 #' backend
+#' @family backends
 #' @export
 get_backend <- function() {
   backend <- getOption("metasurvey.backend")

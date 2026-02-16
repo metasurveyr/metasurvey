@@ -104,7 +104,7 @@ pipeline <- load_survey(
 
 # With included example data
 ech_example <- load_survey(
-  metasurvey::load_survey_example("ech", "ech_2022"),
+  path = load_survey_example("ech", "ech_2022"),
   svy_type = "ech",
   svy_edition = "2022",
   svy_weight = add_weight(annual = "pesoano")
@@ -117,5 +117,13 @@ ech_example <- load_survey(
 \code{\link{get_recipe}} to get available recipes
 \code{\link{load_survey_example}} to load example data
 \code{\link{load_panel_survey}} for panel surveys
+
+Other survey-loading: 
+\code{\link{extract_time_pattern}()},
+\code{\link{group_dates}()},
+\code{\link{load_panel_survey}()},
+\code{\link{load_survey_example}()},
+\code{\link{validate_time_pattern}()}
 }
+\concept{survey-loading}
 \keyword{preprocessing}
