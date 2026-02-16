@@ -244,21 +244,23 @@ jobs:
 
       - name: Install Railway CLI
         run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+          npm install -g @railway/cli@3
+          railway version
 
       - name: Deploy API to Railway
         if: needs.build-api.result == 'success'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_WEBHOOK: ${{ secrets.RAILWAY_API_WEBHOOK }}
+          API_IMAGE: ${{ env.API_IMAGE_NAME }}:latest
         run: |
           echo "Deploying API service to Railway..."
           railway up --service metasurvey-api --detach || {
             echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "${{ secrets.RAILWAY_API_WEBHOOK }}" ]; then
-              curl -X POST "${{ secrets.RAILWAY_API_WEBHOOK }}" \
+            if [ -n "$RAILWAY_API_WEBHOOK" ]; then
+              curl -X POST "$RAILWAY_API_WEBHOOK" \
                 -H "Content-Type: application/json" \
-                -d '{"image":"${{ env.API_IMAGE_NAME }}:latest"}'
+                -d "{\"image\":\"$API_IMAGE\"}"
             else
               echo "No webhook configured, deployment may have failed"
               exit 1
@@ -269,14 +271,16 @@ jobs:
         if: needs.build-shiny.result == 'success'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SHINY_WEBHOOK: ${{ secrets.RAILWAY_SHINY_WEBHOOK }}
+          SHINY_IMAGE: ${{ env.SHINY_IMAGE_NAME }}:latest
         run: |
           echo "Deploying Shiny service to Railway..."
           railway up --service metasurvey-shiny --detach || {
             echo "Railway CLI deployment failed, trying webhook fallback..."
-            if [ -n "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" ]; then
-              curl -X POST "${{ secrets.RAILWAY_SHINY_WEBHOOK }}" \
+            if [ -n "$RAILWAY_SHINY_WEBHOOK" ]; then
+              curl -X POST "$RAILWAY_SHINY_WEBHOOK" \
                 -H "Content-Type: application/json" \
-                -d '{"image":"${{ env.SHINY_IMAGE_NAME }}:latest"}'
+                -d "{\"image\":\"$SHINY_IMAGE\"}"
             else
               echo "No webhook configured, deployment may have failed"
               exit 1
