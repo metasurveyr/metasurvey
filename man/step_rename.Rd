@@ -18,14 +18,16 @@ step_rename(
 \arguments{
 \item{svy}{A Survey or RotativePanelSurvey object}
 
-\item{...}{Pairs in the form new_name = old_name (unquoted or character)}
+\item{...}{Pairs in the form \code{new_name = old_name} (unquoted).}
 
 \item{mapping}{A named character vector of the form
-\code{c(new_name = "old_name")}.}
+\code{c(new_name = "old_name")}. Alternative to \code{...} for
+programmatic use.}
 
-\item{.copy}{Whether to operate on a copy (default: use_copy_default())}
+\item{.copy}{Whether to operate on a copy (default: \code{use_copy_default()})}
 
-\item{comment}{Optional description for the step}
+\item{comment}{Descriptive text for the step for
+documentation and traceability. Defaults to "Rename variables"}
 
 \item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
@@ -39,6 +41,19 @@ renamed (or queued for renaming).
 }
 \description{
 Creates a step that renames variables in the survey data when baked.
+}
+\details{
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called.
+
+Variables can be renamed in two ways:
+\itemize{
+\item \strong{Unquoted pairs:} \code{step_rename(svy, new_name = old_name)}
+\item \strong{Named character vector:} \code{step_rename(svy, mapping = c(new_name = "old_name"))}
+}
+
+Variables that don't exist in the data cause an error, unlike
+\code{\link[=step_remove]{step_remove()}} which issues a warning.
 }
 \examples{
 dt <- data.table::data.table(

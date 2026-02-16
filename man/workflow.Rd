@@ -7,8 +7,10 @@
 workflow(svy, ..., estimation_type = "monthly")
 }
 \arguments{
-\item{svy}{Survey object, list of Survey objects, or PoolSurvey. Must
-contain properly configured sample design}
+\item{svy}{A \strong{list} of Survey objects, or a PoolSurvey.
+Even for a single survey, wrap it in \code{list()}:
+\code{workflow(svy = list(my_survey), ...)}.
+Must contain properly configured sample design.}
 
 \item{...}{Calls to survey package functions (such as \code{svymean},
 \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially}

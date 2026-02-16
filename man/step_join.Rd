@@ -53,15 +53,15 @@ implantation and every follow_up survey.
 \description{
 Creates a step that joins additional data into a
 Survey or RotativePanelSurvey.
-Works with a data.frame/data.table or another Survey as the right-hand side.
 }
 \details{
-\itemize{
-\item Supports left, inner, right, and full joins
-\item Allows named \code{by} mapping (e.g., c("id" = "code")) or simple vector
-\item Avoids extra dependencies; resolves name
-conflicts by suffixing RHS columns
-}
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called.
+
+Supports left, inner, right, and full joins. Allows named \code{by}
+mapping (e.g., \code{c("id" = "code")}) or a simple character vector.
+Conflicting column names are resolved by appending \code{suffixes}
+to the right-hand side columns.
 }
 \examples{
 # With data.frame

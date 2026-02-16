@@ -53,37 +53,25 @@ prevention. All computations are validated before
 execution.
 }
 \details{
-\strong{CORE ENGINE FEATURES}:
+\strong{Lazy evaluation (default):} By default, steps are recorded but
+\strong{not executed} until \code{\link[=bake_steps]{bake_steps()}} is called. This allows building
+a full pipeline before materializing any changes. Set
+\code{options(metasurvey.lazy_processing = FALSE)} to apply steps immediately.
 
-\strong{1. Automatic Expression Processing:}
-\itemize{
-\item All expressions are evaluated using R's native evaluation
-\item Dependency detection using variable name analysis
-\item Runtime validation prevents errors
-}
+\strong{Expression processing:}
+Expressions are evaluated using data.table's \verb{:=} operator.
+Variable dependencies are detected automatically via \code{all.vars()}.
+Missing variables are caught before execution.
 
-\strong{2. Enhanced Error Prevention:}
-\itemize{
-\item Missing variables detected before execution
-\item Type checking when possible
-\item Precise error locations with context
-}
+\strong{Grouped computations:} Use \code{.by} to compute aggregated values
+(e.g., group means) that are automatically joined back to the data.
 
-\strong{3. Performance Benefits:}
+For RotativePanelSurvey objects, \code{.level} controls where computations
+are applied:
 \itemize{
-\item Direct evaluation for minimal overhead
-\item Efficient data.table operations
-\item Optimized for large survey datasets
-}
-
-For RotativePanelSurvey objects, validation ensures computations
-are compatible with the specified hierarchical level:
-\itemize{
-\item "implantation": Household/dwelling level computations
-\item "follow_up": Individual/person level computations
-\item "quarter": Quarterly aggregated computations
-\item "month": Monthly aggregated computations
-\item "auto": Automatically detects appropriate level
+\item \code{"auto"} (default): applies to both implantation and follow-ups
+\item \code{"implantation"}: household/dwelling level only
+\item \code{"follow_up"}: individual/person level only
 }
 }
 \examples{
