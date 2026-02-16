@@ -77,7 +77,11 @@ explore_ui <- function(id) {
   )
 }
 
-explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_recipe_id = NULL) {
+explore_server <- function(
+    id,
+    auth_state,
+    navigate_to_workflow = NULL,
+    pending_recipe_id = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -172,10 +176,19 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
       n_official <- sum(vapply(recipes, function(r) {
         (r$certification$level %||% "community") == "official"
       }, logical(1)))
-      total_downloads <- sum(vapply(recipes, function(r) r$downloads %||% 0L, integer(1)))
+      total_downloads <- sum(vapply(
+        recipes,
+        function(r) r$downloads %||% 0L,
+        integer(1)
+      ))
 
       htmltools::tags$div(
-        style = "display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;",
+        style = paste0(
+          "display: grid; ",
+          "grid-template-columns: repeat(3, 1fr); ",
+          "gap: 1rem; ",
+          "margin-bottom: 1rem;"
+        ),
         htmltools::tags$div(
           class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_total),
@@ -188,7 +201,10 @@ explore_server <- function(id, auth_state, navigate_to_workflow = NULL, pending_
         ),
         htmltools::tags$div(
           class = "stat-box",
-          htmltools::tags$div(class = "stat-number", format_downloads(total_downloads)),
+          htmltools::tags$div(
+            class = "stat-number",
+            format_downloads(total_downloads)
+          ),
           htmltools::tags$div(class = "stat-label", "Total Downloads")
         )
       )

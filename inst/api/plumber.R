@@ -60,7 +60,10 @@ function(pr) {
       type = "http",
       scheme = "bearer",
       bearerFormat = "JWT",
-      description = "JWT token from /auth/login (24h) or /auth/generate-token (90 days)"
+      description = paste0(
+        "JWT token from /auth/login (24h)",
+        " or /auth/generate-token (90 days)"
+      )
     )
   )
   pr$setApiSpec(spec)
@@ -70,27 +73,54 @@ function(pr) {
 
 MONGO_URI <- Sys.getenv("METASURVEY_MONGO_URI", "")
 DATABASE <- Sys.getenv("METASURVEY_DB", "metasurvey")
-JWT_SECRET <- Sys.getenv("METASURVEY_JWT_SECRET", "metasurvey-dev-secret-change-me")
+JWT_SECRET <- Sys.getenv(
+  "METASURVEY_JWT_SECRET",
+  "metasurvey-dev-secret-change-me"
+)
 ADMIN_EMAIL <- Sys.getenv("METASURVEY_ADMIN_EMAIL", "")
 
 if (!nzchar(MONGO_URI)) {
   stop(
     "METASURVEY_MONGO_URI environment variable is required. ",
     "Set it to your MongoDB connection string, e.g.:\n",
-    "  export METASURVEY_MONGO_URI='mongodb+srv://user:pass@cluster.mongodb.net'"
+    paste0(
+      "  export METASURVEY_MONGO_URI=",
+      "'mongodb+srv://user:pass",
+      "@cluster.mongodb.net'"
+    )
   )
 }
 
 # -- mongolite connections (one per collection, reused) -----------------------
 
-db_users <- mongolite::mongo(collection = "users", db = DATABASE, url = MONGO_URI)
-db_recipes <- mongolite::mongo(collection = "recipes", db = DATABASE, url = MONGO_URI)
-db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
-db_anda <- mongolite::mongo(collection = "anda_variables", db = DATABASE, url = MONGO_URI)
+db_users <- mongolite::mongo(
+  collection = "users",
+  db = DATABASE, url = MONGO_URI
+)
+db_recipes <- mongolite::mongo(
+  collection = "recipes",
+  db = DATABASE, url = MONGO_URI
+)
+db_workflows <- mongolite::mongo(
+  collection = "workflows",
+  db = DATABASE, url = MONGO_URI
+)
+db_anda <- mongolite::mongo(
+  collection = "anda_variables",
+  db = DATABASE, url = MONGO_URI
+)
 
-message(sprintf("[metasurvey-api] Connected to MongoDB: %s (db: %s)", sub("://.*@", "://***@", MONGO_URI), DATABASE))
 message(sprintf(
-  "[metasurvey-api] Collections — users: %d, recipes: %d, workflows: %d, anda: %d",
+  "[metasurvey-api] Connected to MongoDB: %s (db: %s)",
+  sub("://.*@", "://***@", MONGO_URI),
+  DATABASE
+))
+message(sprintf(
+  paste0(
+    "[metasurvey-api] Collections",
+    " — users: %d, recipes: %d,",
+    " workflows: %d, anda: %d"
+  ),
   db_users$count(), db_recipes$count(), db_workflows$count(), db_anda$count()
 ))
 
@@ -139,7 +169,13 @@ require_auth <- function(req, res) {
   user <- get_user_from_request(req)
   if (is.null(user)) {
     res$status <- 401L
-    return(list(error = "Authentication required. Send Authorization: Bearer <token>"))
+    return(list(
+      error = paste0(
+        "Authentication required.",
+        " Send Authorization:",
+        " Bearer <token>"
+      )
+    ))
   }
   user
 }
@@ -174,18 +210,27 @@ function(req, res) {
 # AUTH
 # ==============================================================================
 
-#* Register a new user. Individual accounts are auto-approved. Institutional accounts require admin review.
+#* Register a new user. Individual accounts
+#* are auto-approved. Institutional accounts
+#* require admin review.
 #* @tag Auth
 #* @post /auth/register
 #* @param name:str User display name
 #* @param email:str Email address (must be unique)
 #* @param password:str Password (hashed with SHA-256 before storage)
-#* @param user_type:str Account type: individual, institutional_member, or institution
+#* @param user_type:str Account type:
+#*   individual, institutional_member,
+#*   or institution
 #* @param institution:str Institution name (required for institutional_member)
-#* @response 201 Account created. Returns {ok, token, user} for individual; {ok, pending, message, user} for institutional.
+#* @response 201 Account created.
+#*   Returns {ok, token, user} for individual;
+#*   {ok, pending, message, user} for
+#*   institutional.
 #* @response 400 Missing required fields or invalid user_type.
 #* @response 409 Email already registered.
-function(req, res, name, email, password, user_type = "individual", institution = NULL) {
+function(req, res, name, email, password,
+         user_type = "individual",
+         institution = NULL) {
   if (missing(name) || missing(email) || missing(password)) {
     res$status <- 400L
     return(list(error = "name, email, and password are required"))
@@ -194,10 +239,15 @@ function(req, res, name, email, password, user_type = "individual", institution 
   valid_types <- c("individual", "institutional_member", "institution")
   if (!user_type %in% valid_types) {
     res$status <- 400L
-    return(list(error = paste("user_type must be one of:", paste(valid_types, collapse = ", "))))
+    return(list(error = paste(
+      "user_type must be one of:",
+      paste(valid_types, collapse = ", ")
+    )))
   }
 
-  if (user_type == "institutional_member" && (is.null(institution) || !nzchar(institution))) {
+  if (user_type == "institutional_member" &&
+      (is.null(institution) ||
+       !nzchar(institution))) {
     res$status <- 400L
     return(list(error = "institution is required for institutional_member"))
   }
@@ -237,18 +287,37 @@ function(req, res, name, email, password, user_type = "individual", institution 
           ok = TRUE,
           pending = TRUE,
           message = paste0(
-            "Account created. Institutional accounts require admin review before activation. ",
+            paste0(
+              "Account created.",
+              " Institutional accounts",
+              " require admin review",
+              " before activation. "
+            ),
             "You will be able to login once your account is approved."
           ),
-          user = list(name = name, email = email, user_type = user_type, review_status = "pending")
+          user = list(
+            name = name,
+            email = email,
+            user_type = user_type,
+            review_status = "pending"
+          )
         )
       } else {
-        token <- jwt_encode(list(email = email, name = name, user_type = user_type))
+        token <- jwt_encode(list(
+          email = email,
+          name = name,
+          user_type = user_type
+        ))
         res$status <- 201L
         list(
           ok = TRUE,
           token = token,
-          user = list(name = name, email = email, user_type = user_type, review_status = "approved")
+          user = list(
+            name = name,
+            email = email,
+            user_type = user_type,
+            review_status = "approved"
+          )
         )
       }
     },
@@ -259,7 +328,9 @@ function(req, res, name, email, password, user_type = "individual", institution 
   )
 }
 
-#* Login and receive a JWT token (24h expiry). Use the token in Authorization: Bearer <token> header.
+#* Login and receive a JWT token (24h expiry).
+#* Use the token in Authorization:
+#* Bearer <token> header.
 #* @tag Auth
 #* @post /auth/login
 #* @param email:str Registered email address
@@ -273,7 +344,13 @@ function(req, res, email, password) {
     return(list(error = "email and password are required"))
   }
 
-  query <- toJSON(list(email = email, password_hash = hash_password(password)), auto_unbox = TRUE)
+  query <- toJSON(
+    list(
+      email = email,
+      password_hash = hash_password(password)
+    ),
+    auto_unbox = TRUE
+  )
   result <- db_users$find(query = query, limit = 1)
 
   if (nrow(result) == 0) {
@@ -290,7 +367,12 @@ function(req, res, email, password) {
     return(list(
       error = "Account pending review",
       review_status = "pending",
-      message = "Your institutional account is awaiting admin approval. You will be notified once reviewed."
+      message = paste0(
+        "Your institutional account is",
+        " awaiting admin approval.",
+        " You will be notified once",
+        " reviewed."
+      )
     ))
   }
   if (rs == "rejected") {
@@ -298,7 +380,11 @@ function(req, res, email, password) {
     return(list(
       error = "Account not approved",
       review_status = "rejected",
-      message = "Your institutional account request was not approved. Contact the admin for details."
+      message = paste0(
+        "Your institutional account",
+        " request was not approved.",
+        " Contact the admin for details."
+      )
     ))
   }
 
@@ -324,7 +410,9 @@ function(req, res, email, password) {
 #* Get current user profile. Requires JWT authentication.
 #* @tag Auth
 #* @get /auth/me
-#* @response 200 Returns {name, email, user_type, institution, verified, created_at}.
+#* @response 200 Returns {name, email,
+#*   user_type, institution, verified,
+#*   created_at}.
 #* @response 401 Authentication required.
 function(req, res) {
   user <- require_auth(req, res)
@@ -372,7 +460,8 @@ function(req, res) {
   list(ok = TRUE, token = token)
 }
 
-#* Generate a long-lived API token (90 days) for R scripting. Requires JWT authentication.
+#* Generate a long-lived API token (90 days)
+#* for R scripting. Requires JWT authentication.
 #* @tag Auth
 #* @post /auth/generate-token
 #* @response 200 Returns {ok, token, expires_in, expires_at}.
@@ -442,7 +531,9 @@ function(req, res) {
   )
 }
 
-#* Approve an institutional account. Sets review_status to "approved". Requires admin JWT.
+#* Approve an institutional account.
+#* Sets review_status to "approved".
+#* Requires admin JWT.
 #* @tag Admin
 #* @post /admin/approve/<email>
 #* @response 200 Returns {ok, message}.
@@ -471,7 +562,9 @@ function(req, res, email) {
   )
 }
 
-#* Reject an institutional account. Sets review_status to "rejected". Requires admin JWT.
+#* Reject an institutional account.
+#* Sets review_status to "rejected".
+#* Requires admin JWT.
 #* @tag Admin
 #* @post /admin/reject/<email>
 #* @response 200 Returns {ok, message}.
@@ -504,17 +597,28 @@ function(req, res, email) {
 # RECIPES
 # ==============================================================================
 
-#* List recipes with optional search, filtering, and pagination. Sorted by downloads descending.
+#* List recipes with optional search,
+#* filtering, and pagination.
+#* Sorted by downloads descending.
 #* @tag Recipes
 #* @get /recipes
 #* @param search:str Regex search on recipe name
 #* @param survey_type:str Filter by survey type: ech, eaii, eph, eai
-#* @param topic:str Filter by topic: labor_market, income, education, health, demographics, housing
-#* @param certification:str Filter by certification level: community, reviewed, official
+#* @param topic:str Filter by topic:
+#*   labor_market, income, education,
+#*   health, demographics, housing
+#* @param certification:str Filter by
+#*   certification level: community,
+#*   reviewed, official
 #* @param user:str Filter by author email
 #* @param limit:int Max results (default 50)
 #* @param offset:int Skip N results for pagination (default 0)
-#* @response 200 Returns {ok, count, recipes: [{id, name, user, survey_type, edition, description, topic, version, downloads, steps, depends_on, certification, user_info, doc, ...}]}.
+#* @response 200 Returns {ok, count,
+#*   recipes: [{id, name, user,
+#*   survey_type, edition, description,
+#*   topic, version, downloads, steps,
+#*   depends_on, certification,
+#*   user_info, doc, ...}]}.
 function(req, res, search = NULL, survey_type = NULL, topic = NULL,
          certification = NULL, user = NULL, limit = 50, offset = 0) {
   filter <- list()
@@ -535,11 +639,16 @@ function(req, res, search = NULL, survey_type = NULL, topic = NULL,
     filter$name <- list(`$regex` = search, `$options` = "i")
   }
 
-  query_json <- if (length(filter) == 0) "{}" else toJSON(filter, auto_unbox = TRUE)
+  query_json <- if (length(filter) == 0) {
+    "{}"
+  } else {
+    toJSON(filter, auto_unbox = TRUE)
+  }
 
   tryCatch(
     {
-      # mongolite $find returns a data.frame; use $iterate for list-of-lists
+      # mongolite $find returns a data.frame;
+      # use $iterate for list-of-lists
       iter <- db_recipes$iterate(
         query = query_json,
         sort = '{"downloads": -1}',
@@ -591,7 +700,12 @@ function(req, res, id) {
   )
 }
 
-#* Publish a new recipe. Requires JWT authentication. Send the recipe as JSON body with required fields: name, survey_type, edition. Optional: description, topic, steps, depends_on, categories, version, doc.
+#* Publish a new recipe. Requires JWT
+#* authentication. Send the recipe as
+#* JSON body with required fields: name,
+#* survey_type, edition. Optional:
+#* description, topic, steps, depends_on,
+#* categories, version, doc.
 #* @tag Recipes
 #* @post /recipes
 #* @response 201 Returns {ok, id}.
@@ -614,14 +728,24 @@ function(req, res) {
   missing_fields <- required[!required %in% names(body)]
   if (length(missing_fields) > 0) {
     res$status <- 400L
-    return(list(error = paste("Missing required fields:", paste(missing_fields, collapse = ", "))))
+    return(list(error = paste(
+      "Missing required fields:",
+      paste(missing_fields, collapse = ", ")
+    )))
   }
 
   # Set metadata
   body$user <- user$sub # email from JWT
   body$downloads <- 0L
-  body$created_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
-  if (is.null(body$id)) body$id <- paste0("r_", as.integer(Sys.time()), "_", sample.int(999, 1))
+  body$created_at <- format(
+    Sys.time(), "%Y-%m-%dT%H:%M:%SZ"
+  )
+  if (is.null(body$id)) {
+    body$id <- paste0(
+      "r_", as.integer(Sys.time()),
+      "_", sample.int(999, 1)
+    )
+  }
   if (is.null(body$version)) body$version <- "1.0.0"
   if (is.null(body$certification)) {
     body$certification <- list(
@@ -674,7 +798,9 @@ function(req, res, id) {
 # WORKFLOWS
 # ==============================================================================
 
-#* List workflows with optional search, filtering, and pagination. Sorted by downloads descending.
+#* List workflows with optional search,
+#* filtering, and pagination.
+#* Sorted by downloads descending.
 #* @tag Workflows
 #* @get /workflows
 #* @param search:str Regex search on workflow name
@@ -683,7 +809,11 @@ function(req, res, id) {
 #* @param user:str Filter by author email
 #* @param limit:int Max results (default 50)
 #* @param offset:int Skip N results for pagination (default 0)
-#* @response 200 Returns {ok, count, workflows: [{id, name, user, survey_type, edition, estimation_type, recipe_ids, calls, ...}]}.
+#* @response 200 Returns {ok, count,
+#*   workflows: [{id, name, user,
+#*   survey_type, edition,
+#*   estimation_type, recipe_ids,
+#*   calls, ...}]}.
 function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
          user = NULL, limit = 50, offset = 0) {
   filter <- list()
@@ -700,7 +830,11 @@ function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
     filter$name <- list(`$regex` = search, `$options` = "i")
   }
 
-  query_json <- if (length(filter) == 0) "{}" else toJSON(filter, auto_unbox = TRUE)
+  query_json <- if (length(filter) == 0) {
+    "{}"
+  } else {
+    toJSON(filter, auto_unbox = TRUE)
+  }
 
   tryCatch(
     {
@@ -755,7 +889,13 @@ function(req, res, id) {
   )
 }
 
-#* Publish a new workflow. Requires JWT authentication. Send the workflow as JSON body with required fields: name, survey_type, edition. Optional: description, estimation_type, recipe_ids, calls, call_metadata, categories, version.
+#* Publish a new workflow. Requires JWT
+#* authentication. Send the workflow as
+#* JSON body with required fields: name,
+#* survey_type, edition. Optional:
+#* description, estimation_type,
+#* recipe_ids, calls, call_metadata,
+#* categories, version.
 #* @tag Workflows
 #* @post /workflows
 #* @response 201 Returns {ok, id}.
@@ -777,13 +917,23 @@ function(req, res) {
   missing_fields <- required[!required %in% names(body)]
   if (length(missing_fields) > 0) {
     res$status <- 400L
-    return(list(error = paste("Missing required fields:", paste(missing_fields, collapse = ", "))))
+    return(list(error = paste(
+      "Missing required fields:",
+      paste(missing_fields, collapse = ", ")
+    )))
   }
 
   body$user <- user$sub
   body$downloads <- 0L
-  body$created_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
-  if (is.null(body$id)) body$id <- paste0("wf_", as.integer(Sys.time()), "_", sample.int(999, 1))
+  body$created_at <- format(
+    Sys.time(), "%Y-%m-%dT%H:%M:%SZ"
+  )
+  if (is.null(body$id)) {
+    body$id <- paste0(
+      "wf_", as.integer(Sys.time()),
+      "_", sample.int(999, 1)
+    )
+  }
   if (is.null(body$version)) body$version <- "1.0.0"
   if (is.null(body$certification)) {
     body$certification <- list(
@@ -836,12 +986,18 @@ function(req, res, id) {
 # ANDA METADATA
 # ==============================================================================
 
-#* Get ANDA variable metadata from INE Uruguay's data catalog. Returns variable labels, types, and value categories.
+#* Get ANDA variable metadata from INE
+#* Uruguay's data catalog. Returns variable
+#* labels, types, and value categories.
 #* @tag ANDA
 #* @param survey_type:str Survey type (default "ech")
 #* @param names:str Comma-separated variable names (returns all if empty)
 #* @get /anda/variables
-#* @response 200 Returns {ok, count, variables: [{survey_type, name, label, type, value_labels, description, source_edition, source_catalog_id}]}.
+#* @response 200 Returns {ok, count,
+#*   variables: [{survey_type, name,
+#*   label, type, value_labels,
+#*   description, source_edition,
+#*   source_catalog_id}]}.
 function(survey_type = "ech", names = "") {
   query <- list(survey_type = survey_type)
 
@@ -861,10 +1017,13 @@ function(survey_type = "ech", names = "") {
 # HEALTH
 # ==============================================================================
 
-#* API health check. Returns service status and MongoDB connection state. No authentication required.
+#* API health check. Returns service status
+#* and MongoDB connection state.
+#* No authentication required.
 #* @tag System
 #* @get /health
-#* @response 200 Returns {status, service, version, database, mongodb, timestamp}.
+#* @response 200 Returns {status, service,
+#*   version, database, mongodb, timestamp}.
 function() {
   # Quick connectivity check
   ok <- tryCatch(

@@ -30,13 +30,18 @@ step_remove(
 \item{record}{Logical, whether to record the step.}
 }
 \value{
-Survey object with the specified variables removed (or queued for removal).
+Survey object with the specified variables
+removed (or queued for removal).
 }
 \description{
-Creates a step that removes one or more variables from the survey data when baked.
+Creates a step that removes one or more variables
+from the survey data when baked.
 }
 \examples{
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -45,3 +50,14 @@ svy2 <- step_remove(svy, age)
 svy2 <- bake_steps(svy2)
 "age" \%in\% names(get_data(svy2)) # FALSE
 }
+\seealso{
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{get_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
+}
+\concept{steps}

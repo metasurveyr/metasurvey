@@ -17,4 +17,25 @@ Invisibly returns the object
 \description{
 Print method for RecipeWorkflow objects
 }
-\keyword{Workflows}
+\examples{
+wf <- RecipeWorkflow$new(
+  id = "w1", name = "Example Workflow", user = "tester",
+  edition = "2023", survey_type = "test",
+  recipe_ids = "r1",
+  calls = list(), description = "Demo"
+)
+print(wf)
+}
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
+}
+\concept{workflows}
+\keyword{workflow}

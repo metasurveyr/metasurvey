@@ -1,17 +1,21 @@
 #' @title RotativePanelSurvey Class
-#' @description This class represents a rotative panel survey, which includes implantation and follow-up surveys.
-#' It provides methods to access and manipulate survey data, steps, recipes, workflows, and designs.
+#' @description This class represents a rotative panel survey,
+#' which includes implantation and follow-up surveys.
+#' It provides methods to access and manipulate survey data,
+#' steps, recipes, workflows, and designs.
 #' @field implantation A survey object representing the implantation survey.
 #' @field follow_up A list of survey objects representing the follow-up surveys.
 #' @field type A string indicating the type of the survey.
-#' @field default_engine A string specifying the default engine used for processing.
+#' @field default_engine A string specifying the default
+#' engine used for processing.
 #' @field steps A list of steps applied to the survey.
 #' @field recipes A list of recipes associated with the survey.
 #' @field workflows A list of workflows associated with the survey.
 #' @field design A design object for the survey.
-#' @field periodicity A list containing the periodicity of the implantation and follow-up surveys.
+#' @field periodicity A list containing the periodicity of
+#' the implantation and follow-up surveys.
 #' @return An object of class \code{RotativePanelSurvey}.
-#' @keywords Surveymethods, RotativePanelSurvey
+#' @keywords panel-survey
 #'
 #' @examples
 #' \dontrun{
@@ -22,6 +26,7 @@
 #' )
 #' }
 #'
+#' @family panel-surveys
 #' @export
 RotativePanelSurvey <- R6Class(
   "RotativePanelSurvey",
@@ -36,16 +41,21 @@ RotativePanelSurvey <- R6Class(
     design = NULL,
     periodicity = NULL,
 
-    #' @description Initializes a new instance of the RotativePanelSurvey class.
+    #' @description Initializes a new instance of the
+    #' RotativePanelSurvey class.
     #' @param implantation A survey object representing the implantation survey.
-    #' @param follow_up A list of survey objects representing the follow-up surveys.
+    #' @param follow_up A list of survey objects representing
+    #' the follow-up surveys.
     #' @param type A string indicating the type of the survey.
-    #' @param default_engine A string specifying the default engine used for processing.
+    #' @param default_engine A string specifying the default
+    #' engine used for processing.
     #' @param steps A list of steps applied to the survey.
     #' @param recipes A list of recipes associated with the survey.
     #' @param workflows A list of workflows associated with the survey.
     #' @param design A design object for the survey.
-    initialize = function(implantation, follow_up, type, default_engine, steps, recipes, workflows, design) {
+    initialize = function(implantation, follow_up, type,
+                          default_engine, steps, recipes,
+                          workflows, design) {
       self$implantation <- implantation
       self$follow_up <- follow_up
       self$type <- type
@@ -55,7 +65,11 @@ RotativePanelSurvey <- R6Class(
       self$workflows <- workflows
       self$design <- design
 
-      follow_up_types <- vapply(self$follow_up, function(f) f$periodicity, character(1))
+      follow_up_types <- vapply(
+        self$follow_up,
+        function(f) f$periodicity,
+        character(1)
+      )
 
       if (length(unique(follow_up_types)) > 1) {
         stop("All follow-up surveys must have the same type")
@@ -74,13 +88,18 @@ RotativePanelSurvey <- R6Class(
     },
 
     #' @description Retrieves the follow-up surveys.
-    #' @param index An integer specifying the index of the follow-up survey to retrieve.
+    #' @param index An integer specifying the index of the
+    #' follow-up survey to retrieve.
     #' @param monthly A vector of integers specifying monthly intervals.
     #' @param quarterly A vector of integers specifying quarterly intervals.
     #' @param semiannual A vector of integers specifying semiannual intervals.
     #' @param annual A vector of integers specifying annual intervals.
     #' @return A list of follow-up surveys matching the specified criteria.
-    get_follow_up = function(index = length(self$follow_up), monthly = NULL, quarterly = NULL, semiannual = NULL, annual = NULL) {
+    get_follow_up = function(index = length(self$follow_up),
+                             monthly = NULL,
+                             quarterly = NULL,
+                             semiannual = NULL,
+                             annual = NULL) {
       return(self$follow_up[index])
     },
 
@@ -97,7 +116,8 @@ RotativePanelSurvey <- R6Class(
     },
 
     #' @description Retrieves the steps applied to the survey.
-    #' @return A list containing the steps for the implantation and follow-up surveys.
+    #' @return A list containing the steps for the
+    #' implantation and follow-up surveys.
     get_steps = function() {
       steps_implantation <- self$implantation$steps
       steps_follow_up <- lapply(self$follow_up, function(f) f$steps)
@@ -133,116 +153,132 @@ RotativePanelSurvey <- R6Class(
   )
 )
 
-#' Extraer encuestas por periodicidad de panel rotativo
+#' Extract surveys by periodicity from a rotating panel
 #'
-#' Esta función extrae subconjuntos de encuestas de un objeto RotativePanelSurvey
-#' basándose en criterios temporales específicos. Permite obtener encuestas para
-#' diferentes tipos de análisis (mensual, trimestral, anual) respetando la
-#' estructura temporal del panel rotativo.
+#' Extracts subsets of surveys from a RotativePanelSurvey object based on
+#' temporal criteria. Allows obtaining surveys for different types of analysis
+#' (monthly, quarterly, annual) respecting the rotating panel's temporal
+#' structure.
 #'
-#' @param RotativePanelSurvey Objeto `RotativePanelSurvey` que contiene las
-#'   encuestas del panel rotativo organizadas temporalmente
-#' @param index Vector de enteros que especifica índices específicos de
-#'   encuestas a extraer. Si es un solo valor, devuelve esa encuesta;
-#'   si es un vector, devuelve una lista
-#' @param monthly Vector de enteros que especifica qué meses extraer para
-#'   análisis mensual (1-12)
-#' @param annual Vector de enteros que especifica qué años extraer para
-#'   análisis anual
-#' @param quarterly Vector de enteros que especifica qué trimestres extraer
-#'   para análisis trimestral (1-4)
-#' @param biannual Vector de enteros que especifica qué semestres extraer
-#'   para análisis semestral (1-2)
-#' @param use.parallel Lógico que indica si usar procesamiento en paralelo
-#'   para operaciones intensivas. Por defecto FALSE
+#' @param RotativePanelSurvey A \code{RotativePanelSurvey} object containing
+#'   the rotating panel surveys organized temporally
+#' @param index Integer vector specifying survey indices to extract. If a single
+#'   value, returns that survey; if a vector, returns a list
+#' @param monthly Integer vector specifying which months to extract for
+#'   monthly analysis (1-12)
+#' @param annual Integer vector specifying which years to extract for
+#'   annual analysis
+#' @param quarterly Integer vector specifying which quarters to extract
+#'   for quarterly analysis (1-4)
+#' @param biannual Integer vector specifying which semesters to extract
+#'   for biannual analysis (1-2)
+#' @param use.parallel Logical indicating whether to use parallel processing
+#'   for intensive operations. Default FALSE
 #'
-#' @return Lista de objetos `Survey` que corresponden a los criterios
-#'   especificados, o un solo objeto `Survey` si se especifica un índice único
+#' @return A list of \code{Survey} objects matching the specified criteria,
+#'   or a single \code{Survey} object if a single index is specified
 #'
 #' @details
-#' Esta función es esencial para trabajar con paneles rotativos porque:
+#' This function is essential for working with rotating panels because:
 #' \itemize{
-#'   \item Facilita análisis por periodicidad: Permite extraer datos para
-#'     diferentes tipos de estimaciones temporales
-#'   \item Mantiene estructura temporal: Respeta las relaciones temporales
-#'     entre las diferentes ondas del panel
-#'   \item Optimiza memoria: Solo carga las encuestas necesarias para el análisis
-#'   \item Facilita comparaciones: Permite extraer períodos específicos para
-#'     análisis comparativos
-#'   \item Soporta paralelización: Para operaciones con grandes volúmenes de datos
+#'   \item Enables periodicity-based analysis: Extract data for different
+#'     types of temporal estimations
+#'   \item Preserves temporal structure: Respects temporal relationships
+#'     between different panel waves
+#'   \item Optimizes memory: Only loads surveys needed for the analysis
+#'   \item Facilitates comparisons: Extract specific periods for
+#'     comparative analysis
+#'   \item Supports parallelization: For operations with large data volumes
 #' }
 #'
-#' Los criterios de extracción se interpretan según la frecuencia de la encuesta:
-#' - Para ECH mensual: monthly=c(1,3,6) extrae enero, marzo y junio
-#' - Para análisis anual: annual=1 típicamente extrae el primer año disponible
-#' - Para análisis trimestral: quarterly=c(1,4) extrae Q1 y Q4
+#' Extraction criteria are interpreted according to survey frequency:
+#' - For monthly ECH: monthly=c(1,3,6) extracts January, March and June
+#' - For annual analysis: annual=1 typically extracts the first available year
+#' - For quarterly analysis: quarterly=c(1,4) extracts Q1 and Q4
 #'
-#' Si no se especifica ningún criterio, la función devuelve la encuesta de
-#' implantación con una advertencia.
+#' If no criteria are specified, the function returns the implantation survey
+#' with a warning.
 #'
 #' @examples
 #' \dontrun{
-#' # Cargar panel rotativo
+#' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
 #'   svy_type = "ech_panel",
 #'   svy_edition = "2023"
 #' )
 #'
-#' # Extraer encuestas mensuales específicas
-#' ech_trimestre1 <- extract_surveys(
+#' # Extract specific monthly surveys
+#' ech_q1 <- extract_surveys(
 #'   panel_ech,
-#'   monthly = c(1, 2, 3) # Enero, febrero, marzo
+#'   monthly = c(1, 2, 3) # January, February, March
 #' )
 #'
-#' # Extraer por índice
-#' ech_primera <- extract_surveys(panel_ech, index = 1)
-#' ech_varias <- extract_surveys(panel_ech, index = c(1, 3, 6))
+#' # Extract by index
+#' ech_first <- extract_surveys(panel_ech, index = 1)
+#' ech_several <- extract_surveys(panel_ech, index = c(1, 3, 6))
 #'
-#' # Análisis trimestral
+#' # Quarterly analysis
 #' ech_Q1_Q4 <- extract_surveys(
 #'   panel_ech,
 #'   quarterly = c(1, 4)
 #' )
 #'
-#' # Para análisis anual (típicamente todas las encuestas del año)
-#' ech_anual <- extract_surveys(
+#' # Annual analysis (typically all surveys for the year)
+#' ech_annual <- extract_surveys(
 #'   panel_ech,
 #'   annual = 1
 #' )
 #'
-#' # Con procesamiento paralelo para grandes volúmenes
-#' ech_completo <- extract_surveys(
+#' # With parallel processing for large volumes
+#' ech_full <- extract_surveys(
 #'   panel_ech,
 #'   monthly = 1:12,
 #'   use.parallel = TRUE
 #' )
 #'
-#' # Usar en workflow
-#' resultados <- workflow(
+#' # Use in workflow
+#' results <- workflow(
 #'   survey = extract_surveys(panel_ech, quarterly = c(1, 2)),
-#'   svymean(~desocupado, na.rm = TRUE),
+#'   svymean(~unemployed, na.rm = TRUE),
 #'   estimation_type = "quarterly"
 #' )
 #' }
 #'
 #' @seealso
-#' \code{\link{load_panel_survey}} para cargar paneles rotativos
-#' \code{\link{get_implantation}} para obtener datos de implantación
-#' \code{\link{get_follow_up}} para obtener datos de seguimiento
-#' \code{\link{workflow}} para usar las encuestas extraídas en análisis
+#' \code{\link{load_panel_survey}} for loading rotating panels
+#' \code{\link{get_implantation}} for obtaining implantation data
+#' \code{\link{get_follow_up}} for obtaining follow-up data
+#' \code{\link{workflow}} for using extracted surveys in analysis
 #'
-#' @keywords Surveymethods RotativePanelSurvey
+#' @keywords panel-survey
+#' @family panel-surveys
 #' @export
 
-extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, annual = NULL, quarterly = NULL, biannual = NULL, use.parallel = FALSE) {
-  if (is.null(monthly) && is.null(annual) && is.null(quarterly) && is.null(biannual) && is.null(index)) {
-    warning("At least one interval argument must be different from NULL. Returning the implantation survey.")
+extract_surveys <- function(RotativePanelSurvey,
+                            index = NULL,
+                            monthly = NULL,
+                            annual = NULL,
+                            quarterly = NULL,
+                            biannual = NULL,
+                            use.parallel = FALSE) {
+  if (is.null(monthly) && is.null(annual) &&
+      is.null(quarterly) && is.null(biannual) &&
+      is.null(index)) {
+    warning(paste0(
+      "At least one interval argument must be ",
+      "different from NULL. ",
+      "Returning the implantation survey."
+    ))
     annual <- 1
   }
 
-  if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
-    stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
+  if (!inherits(RotativePanelSurvey,
+                "RotativePanelSurvey")) {
+    stop(paste0(
+      "The `RotativeSurvey` argument must be an ",
+      "object of class `RotativePanelSurvey`"
+    ))
   }
 
   follow_up <- RotativePanelSurvey$follow_up
@@ -254,17 +290,37 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
     return(follow_up[[index]])
   }
 
-  dates <- as.Date(vapply(unname(follow_up), function(x) as.character(x$edition), character(1)))
+  dates <- as.Date(vapply(
+    unname(follow_up),
+    function(x) as.character(x$edition),
+    character(1)
+  ))
 
-  ts_series <- stats::ts(seq_along(follow_up), start = c(as.numeric(format(min(dates), "%Y")), as.numeric(format(min(dates), "%m"))), frequency = 12)
+  ts_series <- stats::ts(
+    seq_along(follow_up),
+    start = c(
+      as.numeric(format(min(dates), "%Y")),
+      as.numeric(format(min(dates), "%m"))
+    ),
+    frequency = 12
+  )
 
-  apply_interval <- function(ts_series, start_year, start_month, end_year, end_month) {
-    as.vector(stats::window(ts_series, start = c(start_year, start_month), end = c(end_year, end_month)))
+  apply_interval <- function(ts_series, start_year,
+                             start_month, end_year,
+                             end_month) {
+    as.vector(stats::window(
+      ts_series,
+      start = c(start_year, start_month),
+      end = c(end_year, end_month)
+    ))
   }
 
   apply_func <- if (use.parallel) {
     if (!requireNamespace("parallel", quietly = TRUE)) {
-      stop("Package 'parallel' is required for parallel processing", call. = FALSE)
+      stop(paste0(
+        "Package 'parallel' is required ",
+        "for parallel processing"
+      ), call. = FALSE)
     }
     parallel::mclapply
   } else {
@@ -273,13 +329,25 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
 
   results <- list()
 
-  # Crear solo los intervalos especificados y no dejar listas vacías
-  month_names <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+  # Create only the specified intervals and avoid empty lists
+  month_names <- c(
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November",
+    "December"
+  )
   if (!is.null(monthly)) {
     results$monthly <- list()
     for (month in monthly) {
-      indices <- apply_interval(ts_series, as.numeric(format(min(dates), "%Y")), month, as.numeric(format(max(dates), "%Y")), month)
-      results$monthly[[month_names[month]]] <- follow_up[indices]
+      indices <- apply_interval(
+        ts_series,
+        as.numeric(format(min(dates), "%Y")),
+        month,
+        as.numeric(format(max(dates), "%Y")),
+        month
+      )
+      results$monthly[[month_names[month]]] <-
+        follow_up[indices]
     }
   }
 
@@ -297,8 +365,15 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
     for (quarter in quarterly) {
       start_month <- (quarter - 1) * 3 + 1
       end_month <- start_month + 2
-      indices <- apply_interval(ts_series, as.numeric(format(min(dates), "%Y")), start_month, as.numeric(format(max(dates), "%Y")), end_month)
-      results$quarterly[[quarter_names[quarter]]] <- follow_up[indices]
+      indices <- apply_interval(
+        ts_series,
+        as.numeric(format(min(dates), "%Y")),
+        start_month,
+        as.numeric(format(max(dates), "%Y")),
+        end_month
+      )
+      results$quarterly[[quarter_names[quarter]]] <-
+        follow_up[indices]
     }
   }
 
@@ -308,8 +383,15 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
     for (semester in biannual) {
       start_month <- ifelse(semester == 1, 1, 7)
       end_month <- ifelse(semester == 1, 6, 12)
-      indices <- apply_interval(ts_series, as.numeric(format(min(dates), "%Y")), start_month, as.numeric(format(max(dates), "%Y")), end_month)
-      results$biannual[[biannual_names[semester]]] <- follow_up[indices]
+      indices <- apply_interval(
+        ts_series,
+        as.numeric(format(min(dates), "%Y")),
+        start_month,
+        as.numeric(format(max(dates), "%Y")),
+        end_month
+      )
+      results$biannual[[biannual_names[semester]]] <-
+        follow_up[indices]
     }
   }
 
@@ -317,17 +399,20 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
 }
 
 #' @title PoolSurvey Class
-#' @description This class represents a collection of surveys grouped by specific periods (e.g., monthly, quarterly, annual).
+#' @description This class represents a collection of
+#' surveys grouped by specific periods
+#' (e.g., monthly, quarterly, annual).
 #' It provides methods to access and manipulate the grouped surveys.
 #' @field surveys A list containing the grouped surveys.
 #' @return An object of class \code{PoolSurvey}.
-#' @keywords Surveymethods, PoolSurvey
+#' @keywords panel-survey
 #'
 #' @examples
 #' \dontrun{
 #' pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
 #' }
 #'
+#' @family panel-surveys
 #' @export
 PoolSurvey <- R6Class(
   "PoolSurvey",
@@ -341,7 +426,8 @@ PoolSurvey <- R6Class(
     },
 
     #' @description Retrieves surveys for a specific period.
-    #' @param period A string specifying the period to retrieve (e.g., "monthly", "quarterly").
+    #' @param period A string specifying the period to
+    #' retrieve (e.g., "monthly", "quarterly").
     #' @return A list of surveys for the specified period.
     get_surveys = function(period = NULL) {
       if (!is.null(period)) {
@@ -358,188 +444,187 @@ PoolSurvey <- R6Class(
   )
 )
 
-#' Obtener encuesta de implantación de panel rotativo
+#' Get implantation survey from a rotating panel
 #'
-#' Esta función extrae la encuesta de implantación (primera onda) de un objeto
-#' RotativePanelSurvey. La encuesta de implantación representa la primera
-#' recolección de datos del panel y es fundamental para establecer la línea base
-#' y las características estructurales del panel.
+#' Extracts the implantation (baseline) survey from a RotativePanelSurvey
+#' object. The implantation survey represents the first data collection wave
+#' and is essential for establishing the baseline and structural
+#' characteristics of the panel.
 #'
-#' @param RotativePanelSurvey Objeto `RotativePanelSurvey` del cual extraer
-#'   la encuesta de implantación
+#' @param RotativePanelSurvey A \code{RotativePanelSurvey} object from which
+#'   to extract the implantation survey
 #'
-#' @return Objeto `Survey` que contiene la encuesta de implantación con todos
-#'   sus metadatos, datos y configuración de diseño
+#' @return A \code{Survey} object containing the implantation survey with all
+#'   its metadata, data, and design configuration
 #'
 #' @details
-#' La encuesta de implantación es especial en un panel rotativo porque:
+#' The implantation survey is special in a rotating panel because:
 #' \itemize{
-#'   \item Establece la línea base: Define las características iniciales de
-#'     todas las unidades del panel
-#'   \item Contiene toda la muestra: Incluye todas las unidades que participarán
-#'     en las diferentes ondas del panel
-#'   \item Define estructura temporal: Establece los patrones de rotación y
-#'     seguimiento del panel
-#'   \item Configura metadatos: Contiene información sobre periodicidad,
-#'     variables clave y estratificación
-#'   \item Base para seguimiento: Sirve como referencia para tracking de
-#'     unidades en ondas posteriores
+#'   \item Establishes the baseline: Defines initial characteristics of all
+#'     panel units
+#'   \item Contains the full sample: Includes all units that will participate
+#'     in the different panel waves
+#'   \item Defines temporal structure: Establishes rotation and follow-up
+#'     patterns
+#'   \item Configures metadata: Contains information about periodicity,
+#'     key variables, and stratification
+#'   \item Serves as tracking reference: Basis for unit tracking in
+#'     subsequent waves
 #' }
 #'
-#' Esta función es esencial para análisis que requieren:
-#' - Comparaciones temporales desde la línea base
-#' - Análisis de la estructura completa del panel
-#' - Configuración de modelos longitudinales
-#' - Evaluación de la calidad del diseño muestral
+#' This function is essential for analysis requiring:
+#' - Temporal comparisons from the baseline
+#' - Analysis of the complete panel structure
+#' - Configuration of longitudinal models
+#' - Evaluation of sampling design quality
 #'
 #' @examples
 #' \dontrun{
-#' # Cargar panel rotativo de ECH
+#' # Load ECH rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
 #'   svy_type = "ech_panel",
 #'   svy_edition = "2023"
 #' )
 #'
-#' # Obtener encuesta de implantación
-#' ech_implantacion <- get_implantation(panel_ech)
+#' # Get implantation survey
+#' ech_baseline <- get_implantation(panel_ech)
 #'
-#' # Verificar características de la implantación
-#' cat("Tamaño muestra implantación:", nrow(ech_implantacion$data))
-#' cat("Variables disponibles:", ncol(ech_implantacion$data))
+#' # Check implantation characteristics
+#' cat("Implantation sample size:", nrow(ech_baseline$data))
+#' cat("Available variables:", ncol(ech_baseline$data))
 #'
-#' # Usar en análisis de línea base
+#' # Use in baseline analysis
 #' baseline_stats <- workflow(
-#'   survey = ech_implantacion,
-#'   svymean(~tasa_actividad, na.rm = TRUE),
+#'   survey = ech_baseline,
+#'   svymean(~activity_rate, na.rm = TRUE),
 #'   estimation_type = "baseline"
 #' )
 #'
-#' # Comparar con follow-up
+#' # Compare with follow-up
 #' followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-#'
-#' # Análisis de cambios desde implantación
-#' panel_comparison <- list(
-#'   implantacion = ech_implantacion,
-#'   seguimiento = followup_1
-#' )
 #' }
 #'
 #' @seealso
-#' \code{\link{get_follow_up}} para obtener encuestas de seguimiento
-#' \code{\link{extract_surveys}} para extraer múltiples encuestas por criterios
-#' \code{\link{load_panel_survey}} para cargar paneles rotativos
-#' \code{\link{workflow}} para análisis con la encuesta de implantación
+#' \code{\link{get_follow_up}} for obtaining follow-up surveys
+#' \code{\link{extract_surveys}} for extracting multiple surveys by criteria
+#' \code{\link{load_panel_survey}} for loading rotating panels
+#' \code{\link{workflow}} for analysis with the implantation survey
 #'
-#' @keywords Surveymethods
-#' @keywords RotativePanelSurvey
+#' @keywords panel-survey
+#' @family panel-surveys
 #' @export
 
 get_implantation <- function(RotativePanelSurvey) {
-  if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
-    stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
+  if (!inherits(RotativePanelSurvey,
+                "RotativePanelSurvey")) {
+    stop(paste0(
+      "The `RotativeSurvey` argument must be ",
+      "an object of class ",
+      "`RotativePanelSurvey`"
+    ))
   }
 
   return(RotativePanelSurvey$implantation)
 }
 
-#' Obtener encuestas de seguimiento de panel rotativo
+#' Get follow-up surveys from a rotating panel
 #'
-#' Esta función extrae una o múltiples encuestas de seguimiento (ondas posteriores
-#' a la implantación) de un objeto RotativePanelSurvey. Las encuestas de seguimiento
-#' representan las recolecciones posteriores del panel y son esenciales para
-#' análisis longitudinales y de cambio temporal.
+#' Extracts one or more follow-up surveys (waves after the implantation) from
+#' a RotativePanelSurvey object. Follow-up surveys represent subsequent data
+#' collections and are essential for longitudinal and temporal change analysis.
 #'
-#' @param RotativePanelSurvey Objeto `RotativePanelSurvey` del cual extraer
-#'   las encuestas de seguimiento
-#' @param index Vector de enteros que especifica cuáles encuestas de seguimiento
-#'   extraer. Por defecto extrae todas las disponibles (1:length(follow_up)).
-#'   Puede ser un solo índice o un vector de índices
+#' @param RotativePanelSurvey A \code{RotativePanelSurvey} object from which
+#'   to extract the follow-up surveys
+#' @param index Integer vector specifying which follow-up surveys to extract.
+#'   Defaults to all available (1:length(follow_up)). Can be a single index
+#'   or a vector of indices
 #'
-#' @return Lista de objetos `Survey` correspondientes a las encuestas de
-#'   seguimiento especificadas. Si se especifica un solo índice, devuelve
-#'   una lista con un elemento
+#' @return A list of \code{Survey} objects corresponding to the specified
+#'   follow-up surveys. If a single index is specified, returns a list with
+#'   one element
 #'
 #' @details
-#' Las encuestas de seguimiento son fundamentales en paneles rotativos porque:
+#' Follow-up surveys are fundamental in rotating panels because:
 #' \itemize{
-#'   \item Permiten análisis longitudinal: Seguimiento de las mismas unidades
-#'     a través del tiempo
-#'   \item Capturan cambios temporales: Evolución de variables económicas,
-#'     sociales y demográficas
-#'   \item Mantienen representatividad: Cada onda mantiene representatividad
-#'     poblacional mediante rotación controlada
-#'   \item Optimizan recursos: Reutilizan información de ondas anteriores
-#'     para reducir costos de recolección
-#'   \item Facilitan comparaciones: Estructura temporal consistente para
-#'     análisis de tendencias
+#'   \item Enable longitudinal analysis: Track the same units over time
+#'   \item Capture temporal changes: Evolution of economic, social, and
+#'     demographic variables
+#'   \item Maintain representativeness: Each wave preserves population
+#'     representativeness through controlled rotation
+#'   \item Optimize resources: Reuse information from previous waves to
+#'     reduce collection costs
+#'   \item Facilitate comparisons: Consistent temporal structure for
+#'     trend analysis
 #' }
 #'
-#' En paneles rotativos como ECH:
-#' - Cada onda de seguimiento cubre un período específico (mensual/trimestral)
-#' - Las unidades rotan gradualmente manteniendo overlap temporal
-#' - Los índices corresponden al orden cronológico de recolección
-#' - Cada seguimiento mantiene consistencia metodológica con implantación
+#' In rotating panels like ECH:
+#' - Each follow-up wave covers a specific period (monthly/quarterly)
+#' - Units rotate gradually maintaining temporal overlap
+#' - Indices correspond to the chronological collection order
+#' - Each follow-up maintains methodological consistency with implantation
 #'
 #' @examples
 #' \dontrun{
-#' # Cargar panel rotativo
+#' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",
 #'   svy_type = "ech_panel",
 #'   svy_edition = "2023"
 #' )
 #'
-#' # Obtener primera encuesta de seguimiento
-#' seguimiento_1 <- get_follow_up(panel_ech, index = 1)[[1]]
+#' # Get first follow-up survey
+#' followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
 #'
-#' # Obtener múltiples seguimientos
-#' seguimientos_trim1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
+#' # Get multiple follow-ups
+#' followups_q1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
 #'
-#' # Obtener todos los seguimientos disponibles
-#' todos_seguimientos <- get_follow_up(panel_ech)
+#' # Get all available follow-ups
+#' all_followups <- get_follow_up(panel_ech)
 #'
-#' # Verificar número de seguimientos disponibles
-#' n_seguimientos <- length(get_follow_up(panel_ech))
-#' cat("Seguimientos disponibles:", n_seguimientos)
+#' # Check number of available follow-ups
+#' n_followups <- length(get_follow_up(panel_ech))
+#' cat("Available follow-ups:", n_followups)
 #'
-#' # Análisis longitudinal con seguimientos
-#' implantacion <- get_implantation(panel_ech)
-#' seguimiento_final <- get_follow_up(panel_ech, index = n_seguimientos)[[1]]
+#' # Longitudinal analysis with follow-ups
+#' baseline <- get_implantation(panel_ech)
+#' final_followup <- get_follow_up(panel_ech, index = n_followups)[[1]]
 #'
-#' # Comparar tasas entre implantación y seguimiento final
-#' tasa_inicial <- workflow(
-#'   survey = implantacion,
-#'   svymean(~tasa_desempleo, na.rm = TRUE)
+#' # Compare rates between implantation and final follow-up
+#' initial_rate <- workflow(
+#'   survey = baseline,
+#'   svymean(~unemployment_rate, na.rm = TRUE)
 #' )
 #'
-#' tasa_final <- workflow(
-#'   survey = seguimiento_final,
-#'   svymean(~tasa_desempleo, na.rm = TRUE)
-#' )
-#'
-#' # Análisis trimestral con seguimientos específicos
-#' trimestre_actual <- workflow(
-#'   survey = seguimientos_trim1,
-#'   svymean(~ingreso_laboral, na.rm = TRUE),
-#'   estimation_type = "quarterly"
+#' final_rate <- workflow(
+#'   survey = final_followup,
+#'   svymean(~unemployment_rate, na.rm = TRUE)
 #' )
 #' }
 #'
 #' @seealso
-#' \code{\link{get_implantation}} para obtener la encuesta de implantación
-#' \code{\link{extract_surveys}} para extraer encuestas por criterios temporales
-#' \code{\link{load_panel_survey}} para cargar paneles rotativos
-#' \code{\link{workflow}} para análisis con encuestas de seguimiento
+#' \code{\link{get_implantation}} for obtaining the implantation survey
+#' \code{\link{extract_surveys}} for extracting surveys by temporal criteria
+#' \code{\link{load_panel_survey}} for loading rotating panels
+#' \code{\link{workflow}} for analysis with follow-up surveys
 #'
-#' @keywords Surveymethods
-#' @keywords RotativePanelSurvey
+#' @keywords panel-survey
+#' @family panel-surveys
 #' @export
 
 
-get_follow_up <- function(RotativePanelSurvey, index = seq_along(RotativePanelSurvey$follow_up)) {
-  if (!inherits(RotativePanelSurvey, "RotativePanelSurvey")) {
-    stop("The `RotativeSurvey` argument must be an object of class `RotativePanelSurvey`")
+get_follow_up <- function(
+    RotativePanelSurvey,
+    index = seq_along(
+      RotativePanelSurvey$follow_up
+    )) {
+  if (!inherits(RotativePanelSurvey,
+                "RotativePanelSurvey")) {
+    stop(paste0(
+      "The `RotativeSurvey` argument must be ",
+      "an object of class ",
+      "`RotativePanelSurvey`"
+    ))
   }
 
   return(RotativePanelSurvey$follow_up[index])

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PanelSurvey.R
 \name{get_follow_up}
 \alias{get_follow_up}
-\title{Obtener encuestas de seguimiento de panel rotativo}
+\title{Get follow-up surveys from a rotating panel}
 \usage{
 get_follow_up(
   RotativePanelSurvey,
@@ -10,98 +10,95 @@ get_follow_up(
 )
 }
 \arguments{
-\item{RotativePanelSurvey}{Objeto \code{RotativePanelSurvey} del cual extraer
-las encuestas de seguimiento}
+\item{RotativePanelSurvey}{A \code{RotativePanelSurvey} object from which
+to extract the follow-up surveys}
 
-\item{index}{Vector de enteros que especifica cuáles encuestas de seguimiento
-extraer. Por defecto extrae todas las disponibles (1:length(follow_up)).
-Puede ser un solo índice o un vector de índices}
+\item{index}{Integer vector specifying which follow-up surveys to extract.
+Defaults to all available (1:length(follow_up)). Can be a single index
+or a vector of indices}
 }
 \value{
-Lista de objetos \code{Survey} correspondientes a las encuestas de
-seguimiento especificadas. Si se especifica un solo índice, devuelve
-una lista con un elemento
+A list of \code{Survey} objects corresponding to the specified
+follow-up surveys. If a single index is specified, returns a list with
+one element
 }
 \description{
-Esta función extrae una o múltiples encuestas de seguimiento (ondas posteriores
-a la implantación) de un objeto RotativePanelSurvey. Las encuestas de seguimiento
-representan las recolecciones posteriores del panel y son esenciales para
-análisis longitudinales y de cambio temporal.
+Extracts one or more follow-up surveys (waves after the implantation) from
+a RotativePanelSurvey object. Follow-up surveys represent subsequent data
+collections and are essential for longitudinal and temporal change analysis.
 }
 \details{
-Las encuestas de seguimiento son fundamentales en paneles rotativos porque:
+Follow-up surveys are fundamental in rotating panels because:
 \itemize{
-\item Permiten análisis longitudinal: Seguimiento de las mismas unidades
-a través del tiempo
-\item Capturan cambios temporales: Evolución de variables económicas,
-sociales y demográficas
-\item Mantienen representatividad: Cada onda mantiene representatividad
-poblacional mediante rotación controlada
-\item Optimizan recursos: Reutilizan información de ondas anteriores
-para reducir costos de recolección
-\item Facilitan comparaciones: Estructura temporal consistente para
-análisis de tendencias
+\item Enable longitudinal analysis: Track the same units over time
+\item Capture temporal changes: Evolution of economic, social, and
+demographic variables
+\item Maintain representativeness: Each wave preserves population
+representativeness through controlled rotation
+\item Optimize resources: Reuse information from previous waves to
+reduce collection costs
+\item Facilitate comparisons: Consistent temporal structure for
+trend analysis
 }
 
-En paneles rotativos como ECH:
+In rotating panels like ECH:
 \itemize{
-\item Cada onda de seguimiento cubre un período específico (mensual/trimestral)
-\item Las unidades rotan gradualmente manteniendo overlap temporal
-\item Los índices corresponden al orden cronológico de recolección
-\item Cada seguimiento mantiene consistencia metodológica con implantación
+\item Each follow-up wave covers a specific period (monthly/quarterly)
+\item Units rotate gradually maintaining temporal overlap
+\item Indices correspond to the chronological collection order
+\item Each follow-up maintains methodological consistency with implantation
 }
 }
 \examples{
 \dontrun{
-# Cargar panel rotativo
+# Load rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
-# Obtener primera encuesta de seguimiento
-seguimiento_1 <- get_follow_up(panel_ech, index = 1)[[1]]
+# Get first follow-up survey
+followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
 
-# Obtener múltiples seguimientos
-seguimientos_trim1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
+# Get multiple follow-ups
+followups_q1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
 
-# Obtener todos los seguimientos disponibles
-todos_seguimientos <- get_follow_up(panel_ech)
+# Get all available follow-ups
+all_followups <- get_follow_up(panel_ech)
 
-# Verificar número de seguimientos disponibles
-n_seguimientos <- length(get_follow_up(panel_ech))
-cat("Seguimientos disponibles:", n_seguimientos)
+# Check number of available follow-ups
+n_followups <- length(get_follow_up(panel_ech))
+cat("Available follow-ups:", n_followups)
 
-# Análisis longitudinal con seguimientos
-implantacion <- get_implantation(panel_ech)
-seguimiento_final <- get_follow_up(panel_ech, index = n_seguimientos)[[1]]
+# Longitudinal analysis with follow-ups
+baseline <- get_implantation(panel_ech)
+final_followup <- get_follow_up(panel_ech, index = n_followups)[[1]]
 
-# Comparar tasas entre implantación y seguimiento final
-tasa_inicial <- workflow(
-  survey = implantacion,
-  svymean(~tasa_desempleo, na.rm = TRUE)
+# Compare rates between implantation and final follow-up
+initial_rate <- workflow(
+  survey = baseline,
+  svymean(~unemployment_rate, na.rm = TRUE)
 )
 
-tasa_final <- workflow(
-  survey = seguimiento_final,
-  svymean(~tasa_desempleo, na.rm = TRUE)
-)
-
-# Análisis trimestral con seguimientos específicos
-trimestre_actual <- workflow(
-  survey = seguimientos_trim1,
-  svymean(~ingreso_laboral, na.rm = TRUE),
-  estimation_type = "quarterly"
+final_rate <- workflow(
+  survey = final_followup,
+  svymean(~unemployment_rate, na.rm = TRUE)
 )
 }
 
 }
 \seealso{
-\code{\link{get_implantation}} para obtener la encuesta de implantación
-\code{\link{extract_surveys}} para extraer encuestas por criterios temporales
-\code{\link{load_panel_survey}} para cargar paneles rotativos
-\code{\link{workflow}} para análisis con encuestas de seguimiento
+\code{\link{get_implantation}} for obtaining the implantation survey
+\code{\link{extract_surveys}} for extracting surveys by temporal criteria
+\code{\link{load_panel_survey}} for loading rotating panels
+\code{\link{workflow}} for analysis with follow-up surveys
+
+Other panel-surveys: 
+\code{\link{PoolSurvey}},
+\code{\link{RotativePanelSurvey}},
+\code{\link{extract_surveys}()},
+\code{\link{get_implantation}()}
 }
-\keyword{RotativePanelSurvey}
-\keyword{Surveymethods}
+\concept{panel-surveys}
+\keyword{panel-survey}

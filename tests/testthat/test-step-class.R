@@ -205,7 +205,7 @@ test_that("bake_steps_survey bakes all pending steps", {
   s3 <- metasurvey:::bake_steps_survey(s2)
   expect_true("age_plus_one" %in% names(s3$data))
   # Steps should be marked as baked
-  expect_true(all(sapply(s3$steps, function(st) st$bake)))
+  expect_true(all(vapply(s3$steps, function(st) st$bake, logical(1))))
 })
 
 # --- Step with comment parameter ---

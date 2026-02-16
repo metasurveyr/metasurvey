@@ -1,3 +1,81 @@
+# metasurvey 0.0.9
+
+## CRAN compliance
+
+* Namespaced all global options: `use_copy` → `metasurvey.use_copy`,
+  `lazy_processing` → `metasurvey.lazy_processing`.
+* `set_use_copy()` and `set_lazy_processing()` return the previous value
+  invisibly, matching `set_engine()` behavior.
+* `set_backend()` and `set_workflow_backend()` return the previous value
+  invisibly.
+* Replaced all `\dontrun{}` examples with runnable or `\donttest{}` where
+  appropriate (`set_engine()`, `view_graph()`, `survey_empty()`,
+  `set_workflow_backend()`, `get_workflow_backend()`).
+* Fixed `print.RecipeWorkflow` example: removed non-existent `recipe_name`
+  and `results` arguments.
+* Fixed `extract_time_pattern()` roxygen block: was accidentally attached to
+  internal `validate_monthly()`, causing the export to be dropped.
+* Fixed malformed `@keywords` tags: removed comma-separated values in
+  `PoolSurvey` and `RotativePanelSurvey`, removed duplicate description
+  block in `Survey` that was parsed as keyword entries.
+* Simplified `.onAttach()` to a single version message.
+* Removed hardcoded production API URL from `.onLoad()`.
+* Deleted orphan Spanish-only vignette `metasurvey-es.Rmd`.
+* Added `.Rbuildignore` entries for deployment artifacts (`inst/scripts`,
+  `inst/seed-data`, Dockerfiles, `inst/shiny-auth.R`).
+* Deleted empty `inst/extdata/` directory.
+* Fixed `add_weight()` regex example.
+* Fixed `load_survey()` example.
+* Fixed `set_lazy()` → `set_lazy_processing()` in vignettes.
+* Enabled `eval=TRUE` on in-memory vignette chunks (`bake`, `get-steps`).
+* `load_survey_example()`: removed dead `file.exists()` branch, wrapped
+  `download.file()` in `tryCatch()` for graceful failure.
+* Added `requireNamespace("htmltools")` check in `view_graph()`.
+* Removed version constraint from `parallel` in Suggests.
+* R CMD check: 0 errors, 0 warnings, 1 note (new submission).
+
+## Translations
+
+* All remaining Spanish return values translated to English:
+  `"Trianual"` → `"Triennial"`, `"Multianual"` → `"Multi-year"`.
+* All Spanish inline comments translated to English.
+* Translated roxygen documentation for `recipe()`, `extract_surveys()`,
+  `get_implantation()`, `get_follow_up()`.
+
+## New features
+
+* Added STATA-to-metasurvey transpiler: `transpile_stata()`,
+  `transpile_stata_module()`, `parse_do_file()`, `parse_stata_labels()`,
+  and `transpile_coverage()`. Converts `.do` files into Recipe JSON,
+  supporting gen/replace chains, recode, egen, foreach loops, mvencode,
+  destring, labels, and more.
+* Added `labels` field to `Recipe` class for storing variable and value
+  labels from STATA transpilation.
+* Added Shiny DAG graph loading spinner and disclaimer for recipes with
+  more than 20 steps.
+
+## Bug fixes
+
+* Fixed `validate_weight_time_pattern()` crash when `weight` is NULL
+  (triggered by `shallow_clone()` on surveys without weights).
+* Fixed `steps_to_recipe()` producing unparseable step strings: long
+  `step_recode` calls were split across multiple lines by `deparse()`,
+  breaking JSON round-trip.
+* Fixed `bake_recipes()` not executing `step_rename` and `step_remove`:
+  recipe step replay now temporarily disables lazy processing so all
+  steps execute immediately.
+* Fixed Shiny `category_tag()` crash when recipe topic is NULL.
+
+## Documentation
+
+* Added `@family` tags to all exported functions across 16 groups.
+* Standardized `@keywords` tags (removed commas, fixed multi-word entries).
+* Removed redundant `@title` tags in `R/set_engine.R`.
+* Updated `cran-comments.md` to reflect 1 NOTE (new submission).
+* Added `stata-transpiler` vignette covering all supported STATA patterns.
+* Added `ech-demographics-recipe` vignette showing hand-crafted vs
+  transpiled recipe workflows.
+
 # metasurvey 0.0.8
 
 ## Bug fixes
@@ -219,7 +297,13 @@
 
 # metasurvey 0.0.3
 
+* Added `step_join()` for merging external reference data into surveys.
+* Added `step_remove()` and `step_rename()` for variable management.
+
 # metasurvey 0.0.2
+
+* Added `RotativePanelSurvey` and `PoolSurvey` R6 classes for complex designs.
+* Added `extract_surveys()`, `get_implantation()`, `get_follow_up()`.
 
 # metasurvey 0.0.1
 

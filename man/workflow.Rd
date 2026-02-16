@@ -13,11 +13,14 @@ contain properly configured sample design}
 \item{...}{Calls to survey package functions (such as \code{svymean},
 \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially}
 
-\item{estimation_type}{Type of estimation that determines which weight to use.
-Options: "monthly", "quarterly", "annual", or vector with multiple types}
+\item{estimation_type}{Type of estimation that
+determines which weight to use. Options:
+"monthly", "quarterly", "annual", or vector
+with multiple types}
 }
 \value{
-\code{data.table} with results from all estimations, including columns:
+\code{data.table} with results from all
+estimations, including columns:
 \itemize{
 \item \code{stat}: Name of estimated statistic
 \item \code{value}: Estimation value
@@ -49,36 +52,28 @@ For PoolSurvey objects, it uses a specialized methodology that handles
 pooling of multiple surveys.
 }
 \examples{
-\dontrun{
-# Basic estimations
+# Simple estimation with a test survey
+dt <- data.table::data.table(
+  x = rnorm(100), g = sample(c("a", "b"), 100, TRUE),
+  w = rep(1, 100)
+)
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
 result <- workflow(
-  survey = list(ech_2023),
-  svymean(~unemployed, na.rm = TRUE),
-  svytotal(~active_population, na.rm = TRUE),
+  survey = list(svy),
+  survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
 
-# Multiple periods
-result_multiple <- workflow(
-  survey = list(ech_jan, ech_feb, ech_mar),
-  svymean(~labor_income, na.rm = TRUE),
-  svyratio(~total_income, ~persons, na.rm = TRUE),
-  estimation_type = "monthly"
-)
-
-# Domain estimations
-result_domains <- workflow(
-  survey = list(ech_2023),
-  svyby(~unemployed, ~region_4, svymean, na.rm = TRUE),
-  estimation_type = "annual"
-)
-
-# Multiple estimation types
-result_complete <- workflow(
-  survey = list(ech_quarter),
-  svymean(~activity_rate, na.rm = TRUE),
-  estimation_type = c("monthly", "quarterly")
-)
+\donttest{
+# ECH example with domain estimations
+# result <- workflow(
+#   survey = list(ech_2023),
+#   svyby(~unemployed, ~region, svymean, na.rm = TRUE),
+#   estimation_type = "annual")
 }
 
 }
@@ -88,5 +83,16 @@ result_complete <- workflow(
 \code{\link[survey]{svyratio}} for ratios
 \code{\link[survey]{svyby}} for domain estimations
 \code{\link{PoolSurvey}} for survey pooling
+
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{read_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow_from_list}()}
 }
-\keyword{Surveymethods}
+\concept{workflows}
+\keyword{survey}

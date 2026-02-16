@@ -1,7 +1,7 @@
 Package: metasurvey
 Title: Reproducible Survey Data Processing with Step Pipelines
-Version: 0.0.8
-URL: https://metasurveyr.github.io/metasurvey, https://github.com/metasurveyr/metasurvey
+Version: 0.0.9
+URL: https://metasurveyr.github.io/metasurvey/, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
     c(
@@ -63,7 +63,7 @@ Suggests:
     knitr (>= 1.33),
     foreign (>= 0.8-81),
     rmarkdown (>= 2.11),
-    parallel (>= 4.1.1),
+    parallel,
     rio (>= 0.5.27),
     here (>= 1.0.1),
     DBI,

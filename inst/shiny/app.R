@@ -13,7 +13,11 @@ app_dir <- if (file.exists("R/api_utils.R")) {
 } else {
   system.file("shiny", package = "metasurvey")
 }
-for (f in list.files(file.path(app_dir, "R"), full.names = TRUE, pattern = "\\.R$")) {
+for (f in list.files(
+  file.path(app_dir, "R"),
+  full.names = TRUE,
+  pattern = "\\.R$"
+)) {
   source(f, local = TRUE)
 }
 
@@ -106,7 +110,10 @@ server <- function(input, output, session) {
   # Dynamic nav label
   output$nav_auth_label <- renderUI({
     if (isTRUE(auth$logged_in) && !is.null(auth$user)) {
-      tags$span(bs_icon("person-check-fill", size = ".9rem"), " ", auth$user$name)
+      tags$span(
+        bs_icon("person-check-fill", size = ".9rem"),
+        " ", auth$user$name
+      )
     } else {
       tags$span(bs_icon("box-arrow-in-right", size = ".9rem"), " Login")
     }

@@ -31,10 +31,13 @@ Much faster than clone(deep=TRUE) but design objects are shared.
 \section{Methods}{
 
 \describe{
-\item{initialize(data, edition, type, psu, engine, weight, design, steps, recipes)}{Create a Survey object}
+\item{initialize(data, edition, type, psu, engine,
+weight, design, steps, recipes)}{Create a Survey
+object}
 \item{get_data(), get_edition(), get_type()}{Basic accessors}
 \item{set_data(), set_edition(), set_type(), set_weight()}{Mutators}
-\item{add_step(step), add_recipe(recipe), add_workflow(wf)}{Pipeline management}
+\item{add_step(step), add_recipe(recipe),
+add_workflow(wf)}{Pipeline management}
 \item{bake()}{Bake associated recipes}
 }
 }
@@ -42,14 +45,17 @@ Much faster than clone(deep=TRUE) but design objects are shared.
 \section{Active bindings}{
 
 \describe{
-\item{design_active}{Recompute design on-demand from current data and weights.}
+\item{design_active}{Recompute design on-demand
+from current data and weights.}
 }
 }
 
 \section{Main methods}{
 
 \describe{
-\item{$new(data, edition, type, psu, engine, weight, design = NULL, steps = NULL, recipes = list())}{Constructor.}
+\item{$new(data, edition, type, psu, engine,
+weight, design = NULL, steps = NULL,
+recipes = list())}{Constructor.}
 \item{$get_data()}{Return data.}
 \item{$get_edition()}{Return edition.}
 \item{$get_type()}{Return type.}
@@ -80,34 +86,20 @@ svy
 \seealso{
 \code{\link{survey_empty}}, \code{\link{bake_recipes}},
 \code{\link{cat_design}}, \code{\link{cat_recipes}}
+
+Other survey-objects: 
+\code{\link{cat_design}()},
+\code{\link{cat_design_type}()},
+\code{\link{get_data}()},
+\code{\link{get_metadata}()},
+\code{\link{set_data}()},
+\code{\link{survey_empty}()},
+\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_tibble}()}
 }
-\keyword{(steps,}
-\keyword{(type,}
-\keyword{Provides}
-\keyword{R6}
-\keyword{Survey}
-\keyword{and}
-\keyword{apply}
-\keyword{associated}
-\keyword{class}
-\keyword{data,}
-\keyword{design,}
-\keyword{edition,}
-\keyword{encapsulates}
-\keyword{its}
-\keyword{metadata}
-\keyword{methods}
-\keyword{periodicity)}
-\keyword{recipes,}
-\keyword{recipes.}
-\keyword{sampling}
-\keyword{structures}
+\concept{survey-objects}
 \keyword{survey}
-\keyword{that}
-\keyword{to}
-\keyword{update}
-\keyword{weights}
-\keyword{workflows).}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -140,7 +132,8 @@ svy
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{design_active}}{Active binding that recomputes design on-demand from current data and weights.}
+\item{\code{design_active}}{Active binding that recomputes
+design on-demand from current data and weights.}
 }
 \if{html}{\out{</div>}}
 }
@@ -447,7 +440,8 @@ Update design variables using current data and weight
 \if{html}{\out{<a id="method-Survey-shallow_clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Survey-shallow_clone}{}}}
 \subsection{Method \code{shallow_clone()}}{
-Create a shallow copy of the Survey (optimized for performance)
+Create a shallow copy of the Survey
+(optimized for performance)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Survey$shallow_clone()}\if{html}{\out{</div>}}
 }

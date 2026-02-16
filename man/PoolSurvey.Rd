@@ -7,7 +7,9 @@
 An object of class \code{PoolSurvey}.
 }
 \description{
-This class represents a collection of surveys grouped by specific periods (e.g., monthly, quarterly, annual).
+This class represents a collection of
+surveys grouped by specific periods
+(e.g., monthly, quarterly, annual).
 It provides methods to access and manipulate the grouped surveys.
 }
 \examples{
@@ -16,8 +18,15 @@ pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
 }
 
 }
-\keyword{PoolSurvey}
-\keyword{Surveymethods,}
+\seealso{
+Other panel-surveys: 
+\code{\link{RotativePanelSurvey}},
+\code{\link{extract_surveys}()},
+\code{\link{get_follow_up}()},
+\code{\link{get_implantation}()}
+}
+\concept{panel-surveys}
+\keyword{panel-survey}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -63,7 +72,8 @@ Retrieves surveys for a specific period.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{period}}{A string specifying the period to retrieve (e.g., "monthly", "quarterly").}
+\item{\code{period}}{A string specifying the period to
+retrieve (e.g., "monthly", "quarterly").}
 }
 \if{html}{\out{</div>}}
 }

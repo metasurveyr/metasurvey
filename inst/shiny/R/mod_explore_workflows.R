@@ -74,7 +74,12 @@ explore_workflows_ui <- function(id) {
   )
 }
 
-explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reactiveVal(list()), navigate_to_recipe = NULL, pending_workflow_id = NULL) {
+explore_workflows_server <- function(
+    id,
+    auth_state,
+    all_recipes = shiny::reactiveVal(list()),
+    navigate_to_recipe = NULL,
+    pending_workflow_id = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -157,10 +162,19 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
       n_official <- sum(vapply(workflows, function(wf) {
         (wf$certification$level %||% "community") == "official"
       }, logical(1)))
-      total_downloads <- sum(vapply(workflows, function(wf) wf$downloads %||% 0L, integer(1)))
+      total_downloads <- sum(vapply(
+        workflows,
+        function(wf) wf$downloads %||% 0L,
+        integer(1)
+      ))
 
       htmltools::tags$div(
-        style = "display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;",
+        style = paste0(
+          "display: grid; ",
+          "grid-template-columns: repeat(3, 1fr); ",
+          "gap: 1rem; ",
+          "margin-bottom: 1rem;"
+        ),
         htmltools::tags$div(
           class = "stat-box",
           htmltools::tags$div(class = "stat-number", n_total),
@@ -173,7 +187,10 @@ explore_workflows_server <- function(id, auth_state, all_recipes = shiny::reacti
         ),
         htmltools::tags$div(
           class = "stat-box",
-          htmltools::tags$div(class = "stat-number", format_downloads(total_downloads)),
+          htmltools::tags$div(
+            class = "stat-number",
+            format_downloads(total_downloads)
+          ),
           htmltools::tags$div(class = "stat-label", "Total Downloads")
         )
       )

@@ -1,5 +1,6 @@
 #' @title RecipeRegistry
-#' @description Local JSON-backed catalog for recipe discovery, ranking, and filtering.
+#' @description Local JSON-backed catalog for recipe
+#'   discovery, ranking, and filtering.
 #'
 #' @examples
 #' # Use the tidy API instead:
@@ -39,7 +40,8 @@ RecipeRegistry <- R6::R6Class(
     search = function(query) {
       pattern <- tolower(query)
       Filter(function(r) {
-        grepl(pattern, tolower(r$name)) || grepl(pattern, tolower(r$description))
+        grepl(pattern, tolower(r$name)) ||
+          grepl(pattern, tolower(r$description))
       }, private$.recipes)
     },
 
@@ -49,7 +51,9 @@ RecipeRegistry <- R6::R6Class(
     #' @param category Character category name or NULL
     #' @param certification_level Character certification level or NULL
     #' @return List of matching Recipe objects
-    filter = function(survey_type = NULL, edition = NULL, category = NULL, certification_level = NULL) {
+    filter = function(survey_type = NULL, edition = NULL,
+                      category = NULL,
+                      certification_level = NULL) {
       results <- private$.recipes
       if (!is.null(survey_type)) {
         results <- Filter(function(r) r$survey_type == survey_type, results)
@@ -95,7 +99,11 @@ RecipeRegistry <- R6::R6Class(
       if (length(recipes) == 0) {
         return(list())
       }
-      cert_levels <- vapply(recipes, function(r) r$certification$numeric_level(), integer(1))
+      cert_levels <- vapply(
+        recipes,
+        function(r) r$certification$numeric_level(),
+        integer(1)
+      )
       downloads <- vapply(recipes, function(r) r$downloads, integer(1))
       ordered <- recipes[order(cert_levels, downloads, decreasing = TRUE)]
       if (!is.null(n)) {
@@ -135,11 +143,18 @@ RecipeRegistry <- R6::R6Class(
           downloads = r$downloads,
           categories = lapply(r$categories, function(c) c$to_list()),
           certification = r$certification$to_list(),
-          user_info = if (!is.null(r$user_info)) r$user_info$to_list() else NULL,
+          user_info = if (!is.null(r$user_info)) {
+            r$user_info$to_list()
+          } else {
+            NULL
+          },
           steps = r$steps
         )
       })
-      jsonlite::write_json(recipes_data, path, auto_unbox = TRUE, pretty = TRUE)
+      jsonlite::write_json(
+        recipes_data, path,
+        auto_unbox = TRUE, pretty = TRUE
+      )
     },
 
     #' @description Load a registry catalog from a JSON file
@@ -211,7 +226,8 @@ RecipeRegistry <- R6::R6Class(
         if (is.null(r$user_info)) {
           return(FALSE)
         }
-        if (r$user_info$user_type == "institution" && r$user_info$name == institution_name) {
+        if (r$user_info$user_type == "institution" &&
+          r$user_info$name == institution_name) {
           return(TRUE)
         }
         if (r$user_info$user_type == "institutional_member" &&
@@ -256,13 +272,26 @@ RecipeRegistry <- R6::R6Class(
     #' @param ... Additional arguments (not used)
     print = function(...) {
       s <- self$stats()
-      cat(crayon::bold("RecipeRegistry"), paste0("(", s$total, " recipes)\n"))
+      cat(
+        crayon::bold("RecipeRegistry"),
+        paste0("(", s$total, " recipes)\n")
+      )
       if (length(s$by_category) > 0) {
-        cat("  Categories:", paste(names(s$by_category), collapse = ", "), "\n")
+        cat(
+          "  Categories:",
+          paste(names(s$by_category), collapse = ", "),
+          "\n"
+        )
       }
       if (length(s$by_certification) > 0) {
         cat("  Certification:", paste(
-          vapply(names(s$by_certification), function(k) paste0(k, ": ", s$by_certification[[k]]), character(1)),
+          vapply(
+            names(s$by_certification),
+            function(k) {
+              paste0(k, ": ", s$by_certification[[k]])
+            },
+            character(1)
+          ),
           collapse = ", "
         ), "\n")
       }

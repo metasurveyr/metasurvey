@@ -16,7 +16,10 @@ List of Step objects
 Get steps from survey
 }
 \examples{
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -24,6 +27,16 @@ svy <- Survey$new(
 svy <- step_compute(svy, age2 = age * 2)
 get_steps(svy) # list of Step objects
 }
-\keyword{Steps}
-\keyword{Survey}
-\keyword{methods}
+\seealso{
+Other steps: 
+\code{\link{bake_steps}()},
+\code{\link{step_compute}()},
+\code{\link{step_join}()},
+\code{\link{step_recode}()},
+\code{\link{step_remove}()},
+\code{\link{step_rename}()},
+\code{\link{view_graph}()}
+}
+\concept{steps}
+\keyword{step}
+\keyword{survey}

@@ -1,24 +1,30 @@
 #' @title metasurvey: Survey Processing with Meta-Programming
 #'
 #' @description
-#' The metasurvey package provides a comprehensive framework for processing complex survey data
-#' using meta-programming techniques. It integrates seamlessly with the survey package while
-#' adding powerful features for reproducible survey analysis workflows.
+#' The metasurvey package provides a comprehensive
+#' framework for processing complex survey data using
+#' meta-programming techniques. It integrates seamlessly
+#' with the survey package while adding powerful features
+#' for reproducible survey analysis workflows.
 #'
 #' @section Key Features:
 #'
 #' **Survey Objects and Classes:**
 #' \itemize{
 #'   \item \code{\link{Survey}}: Basic survey object for cross-sectional data
-#'   \item \code{\link{RotativePanelSurvey}}: Panel survey with implantation and follow-up
-#'   \item \code{\link{PoolSurvey}}: Pool of multiple surveys for time series analysis
+#'   \item \code{\link{RotativePanelSurvey}}: Panel survey
+#'     with implantation and follow-up
+#'   \item \code{\link{PoolSurvey}}: Pool of multiple
+#'     surveys for time series analysis
 #' }
 #'
 #' **Steps and Workflows:**
 #' \itemize{
 #'   \item \code{\link{step_compute}}: Create computed variables
-#'   \item \code{\link{step_recode}}: Recode variables with multiple conditions
-#'   \item \code{\link{workflow}}: Execute estimation workflows with variance adjustment
+#'   \item \code{\link{step_recode}}: Recode variables
+#'     with multiple conditions
+#'   \item \code{\link{workflow}}: Execute estimation
+#'     workflows with variance adjustment
 #' }
 #'
 #' **Recipes and Reproducibility:**
@@ -38,7 +44,8 @@
 #'
 #' **Quality Assessment:**
 #' \itemize{
-#'   \item \code{\link{evaluate_cv}}: Evaluate coefficient of variation quality
+#'   \item \code{\link{evaluate_cv}}: Evaluate coefficient
+#'     of variation quality
 #'   \item Built-in variance estimation with multiple engines
 #' }
 #'
@@ -98,12 +105,15 @@
 #' Fabricio Machado \email{fabricio.mch.slv@@gmail.com}
 #'
 #' @references
-#' Lumley, T. (2020). "survey: analysis of complex survey samples". R package version 4.0.
+#' Lumley, T. (2020). "survey: analysis of complex survey
+#' samples". R package version 4.0.
 #'
 #' @seealso
 #' \itemize{
-#'   \item \url{https://CRAN.R-project.org/package=survey} for the survey package
-#'   \item Package website: \url{https://github.com/metasurveyr/metasurvey}
+#'   \item \url{https://CRAN.R-project.org/package=survey}
+#'     for the survey package
+#'   \item Package website:
+#'     \url{https://github.com/metasurveyr/metasurvey}
 #'   \item Vignettes: \code{vignette(package = "metasurvey")}
 #' }
 #'

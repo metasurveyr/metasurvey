@@ -79,7 +79,7 @@
 #'
 #' # With included example data
 #' ech_example <- load_survey(
-#'   metasurvey::load_survey_example("ech", "ech_2022"),
+#'   path = load_survey_example("ech", "ech_2022"),
 #'   svy_type = "ech",
 #'   svy_edition = "2022",
 #'   svy_weight = add_weight(annual = "pesoano")
@@ -93,6 +93,7 @@
 #' \code{\link{load_panel_survey}} for panel surveys
 #'
 #' @keywords preprocessing
+#' @family survey-loading
 #' @export
 load_survey <- function(
     path = NULL,
@@ -104,7 +105,8 @@ load_survey <- function(
     recipes = NULL) {
   path_null <- missing(path)
 
-  svy_args_null <- missing(svy_type) || missing(svy_edition) || missing(svy_weight)
+  svy_args_null <- missing(svy_type) ||
+    missing(svy_edition) || missing(svy_weight)
 
 
   if (
@@ -150,14 +152,28 @@ load_survey <- function(
 }
 
 
-#' @title Read panel survey files from different formats and create a RotativePanelSurvey object
-#' @param path_implantation Survey implantation path, file can be in different formats, csv, xtsx, dta, sav and rds
-#' @param path_follow_up Path with all the needed files with only survey valid files but also can be character vector with path files.
-#' @param svy_type String with the survey type, supported types; "ech" (Encuensta Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares, Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
-#' @param svy_weight_implantation List with survey implantation weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
-#' @param svy_weight_follow_up List with survey follow_up weights information specifing periodicity and  the name of the weight variable. Recomended to use the helper function add_weight().
-#' @param ... Further arguments to be passed to  load_panel_survey
-#' @keywords preprocessing
+#' @title Read panel survey files from different formats
+#'   and create a RotativePanelSurvey object
+#' @param path_implantation Survey implantation path, file
+#'   can be in different formats, csv, xtsx, dta, sav and
+#'   rds
+#' @param path_follow_up Path with all the needed files
+#'   with only survey valid files but also can be character
+#'   vector with path files.
+#' @param svy_type String with the survey type, supported
+#'   types; "ech" (Encuensta Continua de Hogares, Uruguay),
+#'   "eph" (Encuesta Permanente de Hogares, Argentina),
+#'   "eai" (Encuesta de Actividades de Innovacion, Uruguay)
+#' @param svy_weight_implantation List with survey
+#'   implantation weights information specifing periodicity
+#'   and the name of the weight variable. Recomended to use
+#'   the helper function add_weight().
+#' @param svy_weight_follow_up List with survey follow_up
+#'   weights information specifing periodicity and the name
+#'   of the weight variable. Recomended to use the helper
+#'   function add_weight().
+#' @param ... Further arguments to be passed to
+#'   load_panel_survey
 #' @return RotativePanelSurvey object
 #' @examples
 #' \dontrun{
@@ -209,6 +225,7 @@ load_survey <- function(
 #' print(panel_survey)
 #' }
 #' @keywords preprocessing
+#' @family survey-loading
 #' @export
 
 load_panel_survey <- function(
@@ -256,7 +273,10 @@ load_panel_survey <- function(
 
     for (i in path_file) {
       if (file.info(i)$isdir) {
-        path_file_final <- c(path_file_final, list.files(i, full.names = TRUE, pattern = ".csv"))
+        path_file_final <- c(
+          path_file_final,
+          list.files(i, full.names = TRUE, pattern = ".csv")
+        )
       } else {
         path_file_final <- c(path_file_final, i)
       }
@@ -268,7 +288,10 @@ load_panel_survey <- function(
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
         if (time_pattern$periodicity != "Monthly") {
-          stop("The periodicity of the file is not monthly", call. = FALSE)
+          stop(
+            "The periodicity of the file is not monthly",
+            call. = FALSE
+          )
         } else {
           return(
             time_pattern$year * 100 + time_pattern$month
@@ -308,7 +331,10 @@ load_panel_survey <- function(
       FUN = function(x) {
         time_pattern <- extract_time_pattern(x)
         if (time_pattern$periodicity != "Monthly") {
-          stop("The periodicity of the file is not monthly", call. = FALSE)
+          stop(
+            "The periodicity of the file is not monthly",
+            call. = FALSE
+          )
         } else {
           return(
             time_pattern$year * 100 + time_pattern$month
@@ -390,7 +416,12 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
   if (convert) {
     if (.extension != ".csv" && !file.exists(.output_file)) {
       if (!requireNamespace("rio", quietly = TRUE)) {
-        stop("Package 'rio' is required to convert file formats. Install with: install.packages('rio')", call. = FALSE)
+        stop(
+        "Package 'rio' is required to convert file ",
+        "formats. Install with: ",
+        "install.packages('rio')",
+        call. = FALSE
+      )
       }
       rio::convert(
         in_file = file,
@@ -549,8 +580,12 @@ config_survey <- function(...) {
 #' @return Logical
 #' @keywords internal
 
-validate_recipe <- function(svy_type, svy_edition, recipe_svy_edition, recipe_svy_type) {
-  equal_type <- any(tolower(svy_type) == tolower(recipe_svy_type))
+validate_recipe <- function(svy_type, svy_edition,
+                            recipe_svy_edition,
+                            recipe_svy_type) {
+  equal_type <- any(
+    tolower(svy_type) == tolower(recipe_svy_type)
+  )
 
   equal_edition <- any(svy_edition %in% recipe_svy_edition)
 

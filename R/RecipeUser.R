@@ -1,15 +1,19 @@
 #' @title RecipeUser
-#' @description User identity for the recipe ecosystem. Supports three account types:
-#' individual, institutional_member, and institution.
+#' @description User identity for the recipe ecosystem.
+#' Supports three account types: individual,
+#' institutional_member, and institution.
 #'
 #' @field name Character. User or institution name.
 #' @field email Character or NULL. Email address.
-#' @field user_type Character. One of "individual", "institutional_member", "institution".
+#' @field user_type Character. One of "individual",
+#'   "institutional_member", "institution".
 #' @field affiliation Character or NULL. Organizational affiliation.
-#' @field institution RecipeUser or NULL. Parent institution (for institutional_member).
+#' @field institution RecipeUser or NULL. Parent institution
+#'   (for institutional_member).
 #' @field url Character or NULL. Institution URL.
 #' @field verified Logical. Whether the account is verified.
-#' @field review_status Character. One of "approved", "pending", "rejected".
+#' @field review_status Character. One of "approved",
+#'   "pending", "rejected".
 #'
 #' @return An object of class \code{RecipeUser}.
 #'
@@ -17,8 +21,12 @@
 #' # Use recipe_user() for the public API:
 #' user <- recipe_user("Juan Perez", email = "juan@example.com")
 #' inst <- recipe_user("IECON", type = "institution")
-#' member <- recipe_user("Maria", type = "institutional_member", institution = inst)
+#' member <- recipe_user(
+#'   "Maria", type = "institutional_member",
+#'   institution = inst
+#' )
 #'
+#' @family tidy-api
 #' @export
 RecipeUser <- R6::R6Class(
   "RecipeUser",
@@ -34,13 +42,16 @@ RecipeUser <- R6::R6Class(
 
     #' @description Create a new RecipeUser
     #' @param name Character. User or institution name.
-    #' @param user_type Character. One of "individual", "institutional_member", "institution".
+    #' @param user_type Character. One of "individual",
+    #'   "institutional_member", "institution".
     #' @param email Character or NULL. Email address.
     #' @param affiliation Character or NULL. Organizational affiliation.
-    #' @param institution RecipeUser or NULL. Parent institution for institutional_member.
+    #' @param institution RecipeUser or NULL. Parent
+    #'   institution for institutional_member.
     #' @param url Character or NULL. Institution URL.
     #' @param verified Logical. Whether account is verified.
-    #' @param review_status Character. "approved", "pending", or "rejected".
+    #' @param review_status Character. "approved", "pending",
+    #'   or "rejected".
     initialize = function(name, user_type, email = NULL, affiliation = NULL,
                           institution = NULL, url = NULL, verified = FALSE,
                           review_status = "approved") {
@@ -48,8 +59,13 @@ RecipeUser <- R6::R6Class(
         stop("User name must be a non-empty character string")
       }
       valid_types <- c("individual", "institutional_member", "institution")
-      if (is.null(user_type) || !is.character(user_type) || !(user_type %in% valid_types)) {
-        stop("user_type must be one of: ", paste(valid_types, collapse = ", "))
+      if (is.null(user_type) ||
+          !is.character(user_type) ||
+          !(user_type %in% valid_types)) {
+        stop(
+          "user_type must be one of: ",
+          paste(valid_types, collapse = ", ")
+        )
       }
       if (user_type == "institutional_member") {
         if (is.null(institution) || !inherits(institution, "RecipeUser")) {
@@ -77,7 +93,8 @@ RecipeUser <- R6::R6Class(
     },
 
     #' @description Check if user can certify at a given level
-    #' @param level Character. Certification level ("reviewed" or "official").
+    #' @param level Character. Certification level
+    #'   ("reviewed" or "official").
     #' @return Logical
     can_certify = function(level) {
       required <- switch(level,
@@ -114,15 +131,33 @@ RecipeUser <- R6::R6Class(
         "institutional_member" = "Institutional Member",
         "institution" = "Institution"
       )
-      cat(crayon::bold(self$name), paste0("(", type_label, ")"), "\n")
+      cat(
+        crayon::bold(self$name),
+        paste0("(", type_label, ")"), "\n"
+      )
       if (!is.null(self$email)) cat("  Email:", self$email, "\n")
-      if (!is.null(self$affiliation)) cat("  Affiliation:", self$affiliation, "\n")
-      if (!is.null(self$institution)) cat("  Institution:", self$institution$name, "\n")
+      if (!is.null(self$affiliation)) {
+        cat("  Affiliation:", self$affiliation, "\n")
+      }
+      if (!is.null(self$institution)) {
+        cat(
+          "  Institution:",
+          self$institution$name, "\n"
+        )
+      }
       if (!is.null(self$url)) cat("  URL:", self$url, "\n")
       if (self$verified) cat("  ", crayon::green("Verified"), "\n")
       if (self$review_status != "approved") {
-        status_col <- if (self$review_status == "pending") crayon::yellow else crayon::red
-        cat("  ", status_col(paste0("Review: ", self$review_status)), "\n")
+        status_col <- if (self$review_status == "pending") {
+          crayon::yellow
+        } else {
+          crayon::red
+        }
+        cat(
+          "  ",
+          status_col(paste0("Review: ", self$review_status)),
+          "\n"
+        )
       }
       invisible(self)
     }

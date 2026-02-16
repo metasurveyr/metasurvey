@@ -20,4 +20,16 @@ Read a RecipeWorkflow from a JSON file
 wf <- read_workflow("my_workflow.json")
 }
 }
-\keyword{Workflows}
+\seealso{
+Other workflows: 
+\code{\link{RecipeWorkflow-class}},
+\code{\link{evaluate_cv}()},
+\code{\link{print.RecipeWorkflow}()},
+\code{\link{publish_workflow}()},
+\code{\link{reproduce_workflow}()},
+\code{\link{save_workflow}()},
+\code{\link{workflow}()},
+\code{\link{workflow_from_list}()}
+}
+\concept{workflows}
+\keyword{workflow}

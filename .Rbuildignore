@@ -57,3 +57,13 @@
 ^test\.json$
 ^test_.*\.R$
 ^vignettes/.*\.html$
+^inst/scripts$
+^inst/seed-data$
+^inst/api/Dockerfile$
+^inst/api/render\.yaml$
+^inst/shiny/Dockerfile$
+^inst/shiny-auth\.R$
+^vignettes/api-database\.Rmd$
+^vignettes/api-database-es\.Rmd$
+^vignettes/shiny-explorer\.Rmd$
+^vignettes/shiny-explorer-es\.Rmd$

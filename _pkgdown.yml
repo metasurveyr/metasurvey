@@ -149,6 +149,14 @@ reference:
   contents:
   - anda_variables
   - anda_download_microdata
+- title: STATA Transpiler
+  desc: Convert STATA do-files to metasurvey recipes
+  contents:
+  - transpile_stata
+  - transpile_stata_module
+  - transpile_coverage
+  - parse_do_file
+  - parse_stata_labels
 - title: Ecosystem Classes
   desc: R6 classes for the recipe ecosystem
   contents:
@@ -176,14 +184,18 @@ articles:
   contents:
   - shiny-explorer
   - api-database
+- title: "STATA Transpiler"
+  desc: "Convert STATA do-files to metasurvey recipes"
+  contents:
+  - stata-transpiler
 - title: "Case Studies"
   desc: "Real-world examples with ECH data"
   contents:
+  - ech-demographics-recipe
   - ech-case-study
 - title: "Español"
   desc: "Documentación en español"
   contents:
-  - metasurvey-es
   - getting-started-es
   - recipes-es
   - workflows-and-estimation-es
