@@ -26,7 +26,7 @@ Much faster than clone(deep=TRUE) but design objects are shared.
 \section{Main methods}{
 
 \describe{
-\item{$new(data, edition, type, psu, engine,
+\item{$new(data, edition, type, psu, strata, engine,
 weight, design = NULL, steps = NULL,
 recipes = list())}{Constructor.}
 \item{$set_data(data)}{Set data.}
@@ -98,6 +98,8 @@ Other survey-objects:
 
 \item{\code{psu}}{Primary Sampling Unit specification (formula or character).}
 
+\item{\code{strata}}{Stratification variable name (character or NULL).}
+
 \item{\code{design_initialized}}{Logical flag for lazy design initialization.}
 }
 \if{html}{\out{</div>}}
@@ -145,6 +147,7 @@ Create a Survey object
   edition,
   type,
   psu = NULL,
+  strata = NULL,
   engine,
   weight,
   design = NULL,
@@ -163,6 +166,8 @@ Create a Survey object
 \item{\code{type}}{Survey type (character)}
 
 \item{\code{psu}}{PSU variable or formula (optional)}
+
+\item{\code{strata}}{Stratification variable name (optional)}
 
 \item{\code{engine}}{Default engine}
 

@@ -17,7 +17,7 @@ Cast recipes from survey
 }
 \examples{
 \dontrun{
-svy <- load_survey("data.csv", svy_type = "ech", svy_edition = "2023")
+svy <- survey_empty(type = "demo", edition = "2023")
 cat_recipes(svy)
 }
 }
