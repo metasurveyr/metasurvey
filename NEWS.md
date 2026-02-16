@@ -1,3 +1,23 @@
+# metasurvey 0.0.13
+
+## Breaking changes
+* `Step$comments` field renamed to `Step$comment`. The old name still works
+  as a legacy alias but will be removed in a future version.
+* `workflow()` first parameter renamed from `survey` to `svy` for consistency.
+  Positional usage is unchanged.
+
+## New features
+* `use_copy` parameter in all step functions (`step_compute`, `step_recode`,
+  `step_join`, `step_remove`, `step_rename`) is deprecated in favour of `.copy`,
+  following dplyr's dot-prefix convention for secondary arguments.
+* Added survey state predicates: `has_steps()`, `has_recipes()`, `is_baked()`,
+  `has_design()`.
+* `step_recode()`, `step_join()`, `step_remove()`, `step_rename()` no longer
+  default `svy` to `survey_empty()`; the survey argument is now required.
+
+## Documentation
+* Updated vignettes to use `Step$comment` instead of `Step$comments`.
+
 # metasurvey 0.0.12
 
 ## Bug fixes
