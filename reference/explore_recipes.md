@@ -25,6 +25,10 @@ explore_recipes(port = NULL, host = "127.0.0.1", launch.browser = TRUE)
 
   Logical. Open the app in a browser?
 
+## Value
+
+NULL (called for side effect of launching the app).
+
 ## Examples
 
 ``` r

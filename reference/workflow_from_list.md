@@ -17,3 +17,11 @@ workflow_from_list(lst)
 ## Value
 
 A RecipeWorkflow object
+
+## Examples
+
+``` r
+lst <- list(name = "example", user = "test", survey_type = "ech",
+            edition = "2023", estimation_type = "svymean")
+wf <- workflow_from_list(lst)
+```

@@ -1,6 +1,6 @@
-# Get a single recipe by ID
+# Get recipe(s) by ID
 
-Get a single recipe by ID
+Get recipe(s) by ID
 
 ## Usage
 
@@ -12,8 +12,17 @@ api_get_recipe(id)
 
 - id:
 
-  Recipe ID
+  Character vector of recipe ID(s). If length \> 1, returns a list.
 
 ## Value
 
-Recipe object or NULL
+A single Recipe object (or NULL) when `length(id) == 1`. A list of
+Recipe objects when `length(id) > 1` (NULLs are dropped).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_get_recipe("r_1739654400_742")
+} # }
+```

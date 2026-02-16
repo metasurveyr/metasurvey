@@ -21,3 +21,11 @@ api_get_anda_variables(survey_type = "ech", var_names = NULL)
 ## Value
 
 A list of variable metadata objects
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_get_anda_variables("ech", c("pobpcoac", "e27"))
+} # }
+```

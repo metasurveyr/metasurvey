@@ -17,3 +17,11 @@ read_workflow(file)
 ## Value
 
 A RecipeWorkflow object
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+wf <- read_workflow("my_workflow.json")
+} # }
+```

@@ -17,7 +17,7 @@ Source:
 [`inst/CITATION`](https://github.com/metasurveyr/metasurvey/blob/main/inst/CITATION)
 
 Loprete M, da Silva N, Machado F (2025). *metasurvey: Survey Processing
-with Meta-Programming*. R package version 0.0.5,
+with Meta-Programming*. R package version 0.0.6,
 <https://github.com/metasurveyr/metasurvey>.
 
     @Manual{,
@@ -25,5 +25,5 @@ with Meta-Programming*. R package version 0.0.5,
       author = {Mauro Loprete and Natalia {da Silva} and Fabricio Machado},
       year = {2025},
       url = {https://github.com/metasurveyr/metasurvey},
-      note = {R package version 0.0.5},
+      note = {R package version 0.0.6},
     }

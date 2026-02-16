@@ -4,6 +4,10 @@ This class represents a collection of surveys grouped by specific
 periods (e.g., monthly, quarterly, annual). It provides methods to
 access and manipulate the grouped surveys.
 
+## Value
+
+An object of class `PoolSurvey`.
+
 ## Public fields
 
 - `surveys`:
@@ -84,3 +88,11 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
+} # }
+```

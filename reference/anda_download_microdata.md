@@ -77,3 +77,12 @@ or
 For editions \>= 2022, ANDA provides separate files for implantation,
 monthly follow-ups, and bootstrap replicate weights. Use the `resource`
 parameter to select which file to download.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+path <- anda_download_microdata("2023", resource = "implantation")
+svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
+} # }
+```

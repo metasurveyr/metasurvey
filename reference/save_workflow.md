@@ -21,3 +21,11 @@ save_workflow(wf, file)
 ## Value
 
 NULL (called for side-effect)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+save_workflow(wf, "my_workflow.json")
+} # }
+```

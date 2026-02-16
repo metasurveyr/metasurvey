@@ -4,6 +4,10 @@ This class represents a rotative panel survey, which includes
 implantation and follow-up surveys. It provides methods to access and
 manipulate survey data, steps, recipes, workflows, and designs.
 
+## Value
+
+An object of class `RotativePanelSurvey`.
+
 ## Public fields
 
 - `implantation`:
@@ -287,3 +291,15 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+panel <- RotativePanelSurvey$new(
+  implantation = impl_survey, follow_up = list(fu1, fu2),
+  type = "ech", default_engine = "data.table",
+  steps = list(), recipes = list(), workflows = list(), design = NULL
+)
+} # }
+```

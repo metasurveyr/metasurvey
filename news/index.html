@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,26 @@
       <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.6" id="metasurvey-006">metasurvey 0.0.6<a class="anchor" aria-label="anchor" href="#metasurvey-006"></a></h2>
+<div class="section level3">
+<h3 id="documentation-0-0-6">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-6"></a></h3>
+<ul><li>All exported functions and R6 classes now have <code>@return</code> and <code>@examples</code> roxygen2 tags, meeting rOpenSci documentation requirements.</li>
+<li>Added <code>@return</code> to R6 class exports: <code>Recipe</code>, <code>RecipeWorkflow</code>, <code>RecipeCategory</code>, <code>RecipeCertification</code>, <code>RecipeUser</code>, <code>PoolSurvey</code>, <code>RotativePanelSurvey</code>, and <code>Survey</code>.</li>
+<li>Added <code>@examples</code> to <code><a href="../reference/set_engine.html">set_engine()</a></code>, <code><a href="../reference/show_engines.html">show_engines()</a></code>, <code><a href="../reference/get_engine.html">get_engine()</a></code>, and all API/backend functions.</li>
+<li>Added <code>@return</code> to <code><a href="../reference/get_metadata.html">get_metadata()</a></code>, <code><a href="../reference/set_lazy_processing.html">set_lazy_processing()</a></code>, <code><a href="../reference/set_use_copy.html">set_use_copy()</a></code>, <code><a href="../reference/set_backend.html">set_backend()</a></code>, <code><a href="../reference/set_workflow_backend.html">set_workflow_backend()</a></code>, and <code><a href="../reference/explore_recipes.html">explore_recipes()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-6"></a></h3>
+<ul><li>Fixed Codecov GitHub Actions workflow: replaced deprecated <code>covr::codecov()</code> with <code>covr::package_coverage()</code> + <code>codecov/codecov-action@v5</code> for reliable coverage uploads with token authentication.</li>
+<li>Added CI guard to <code>.Rprofile</code> to skip example-data setup in GitHub Actions, preventing potential download failures during CI builds.</li>
+<li>Added missing <code>archive</code>, <code>haven</code>, and <code>openxlsx</code> to <code>Suggests</code> in DESCRIPTION, fixing R CMD check warnings about undeclared dependencies.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-0-6">Internal<a class="anchor" aria-label="anchor" href="#internal-0-0-6"></a></h3>
+<ul><li>Added <code>.claude/</code> directory with development agents and commands for code review, testing, documentation auditing, and rOpenSci preparation.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.5" id="metasurvey-005">metasurvey 0.0.5<a class="anchor" aria-label="anchor" href="#metasurvey-005"></a></h2>
 <div class="section level3">

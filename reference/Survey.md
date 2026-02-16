@@ -554,3 +554,23 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+dt <- data.table::data.table(id = 1:5, x = rnorm(5), w = rep(1, 5))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
+svy
+#> Type: TEST
+#> Edition: 2023
+#> Periodicity: Annual
+#> Engine: data.table
+#> Design: 
+#>   Design: Not initialized (lazy initialization - will be created when needed)
+#> 
+#> Steps: None
+#> Recipes: None
+```

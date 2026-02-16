@@ -109,8 +109,10 @@ to execute all pending steps
 ``` r
 # Basic computation
 dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
-svy <- Survey$new(data = dt, edition = "2023", type = "test",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
 svy <- svy |> step_compute(age_squared = age^2, comment = "Age squared")
 svy <- bake_steps(svy)
 get_data(svy)

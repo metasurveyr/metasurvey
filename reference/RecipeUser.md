@@ -3,6 +3,10 @@
 User identity for the recipe ecosystem. Supports three account types:
 individual, institutional_member, and institution.
 
+## Value
+
+An object of class `RecipeUser`.
+
 ## Public fields
 
 - `name`:

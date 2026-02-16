@@ -23,3 +23,11 @@ anda_variables(survey_type = "ech", var_names = NULL)
 ## Value
 
 A data.frame with columns: name, label, type
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+anda_variables("ech", c("pobpcoac", "e27"))
+} # }
+```

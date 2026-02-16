@@ -19,6 +19,10 @@ set_backend(type, path = NULL)
 
   Character. File path for local backend.
 
+## Value
+
+Invisibly, the RecipeBackend object created.
+
 ## Examples
 
 ``` r

@@ -55,8 +55,10 @@ renaming).
 
 ``` r
 dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
-svy <- Survey$new(data = dt, edition = "2023", type = "ech",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "ech",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
 svy2 <- step_rename(svy, edad = age)
 svy2 <- bake_steps(svy2)
 "edad" %in% names(get_data(svy2)) # TRUE

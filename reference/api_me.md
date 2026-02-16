@@ -11,3 +11,11 @@ api_me()
 ## Value
 
 List with user fields (name, email, user_type, etc.)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_me()
+} # }
+```

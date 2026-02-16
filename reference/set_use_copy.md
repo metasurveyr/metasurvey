@@ -17,6 +17,10 @@ set_use_copy(use_copy)
   Logical value: TRUE to create data copies (safer), FALSE to modify
   data in place (more efficient)
 
+## Value
+
+Invisibly, the value set.
+
 ## Details
 
 Setting use_copy affects all subsequent survey operations:

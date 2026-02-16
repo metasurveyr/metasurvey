@@ -44,3 +44,11 @@ api_list_workflows(
 ## Value
 
 List of RecipeWorkflow objects
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_list_workflows(survey_type = "ech")
+} # }
+```

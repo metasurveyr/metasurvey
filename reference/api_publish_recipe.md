@@ -19,3 +19,11 @@ api_publish_recipe(recipe)
 ## Value
 
 Invisibly, the API response with the assigned ID.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_publish_recipe(my_recipe)
+} # }
+```

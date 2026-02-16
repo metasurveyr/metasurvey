@@ -34,8 +34,10 @@ implantation and all follow-up surveys.
 
 ``` r
 dt <- data.table::data.table(id = 1:5, age = c(15, 30, 45, 50, 70), w = 1)
-svy <- Survey$new(data = dt, edition = "2023", type = "test",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
 svy <- step_compute(svy, age2 = age * 2)
 svy <- bake_steps(svy)
 get_data(svy)

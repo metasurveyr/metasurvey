@@ -8,6 +8,10 @@ Recipe R6 class
 
 An R6 class generator (R6ClassGenerator)
 
+## Value
+
+An object of class `Recipe`.
+
 ## Details
 
 R6 class representing a reproducible data transformation recipe for
@@ -383,3 +387,14 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+# Use the recipe() constructor:
+svy <- survey_empty(type = "ech", edition = "2023")
+r <- recipe(
+  name = "Example", user = "Test", svy = svy,
+  description = "Example recipe"
+)
+```

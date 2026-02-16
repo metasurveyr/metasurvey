@@ -4,6 +4,10 @@ Quality certification for recipes with three tiers: community (default),
 reviewed (peer-reviewed by institutional member), and official
 (certified by institution).
 
+## Value
+
+An object of class `RecipeCertification`.
+
 ## Public fields
 
 - `level`:

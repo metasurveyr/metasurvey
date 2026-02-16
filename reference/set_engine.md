@@ -19,3 +19,15 @@ set_engine(.engine = show_engines())
   the engine returned by the
   [`show_engines()`](https://metasurveyr.github.io/metasurvey/reference/show_engines.md)
   function is used.
+
+## Value
+
+Invisibly, the configured engine name.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+set_engine("data.table")
+} # }
+```

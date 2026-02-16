@@ -27,3 +27,12 @@ resolve_weight_spec(weight_spec, dest_dir = tempdir())
 ## Value
 
 Named list compatible with add_weight() output
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+wf <- api_get_workflow("w_123")
+weight <- resolve_weight_spec(wf$weight_spec)
+} # }
+```

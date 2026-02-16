@@ -16,6 +16,10 @@ configure_api(url)
 
   API base URL (e.g., `"https://metasurvey-api.example.com"`)
 
+## Value
+
+Invisibly, the configured URL.
+
 ## Examples
 
 ``` r

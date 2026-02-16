@@ -424,7 +424,7 @@ REST client for the recipe registry
 - [`api_list_recipes()`](https://metasurveyr.github.io/metasurvey/reference/api_list_recipes.md)
   : List recipes from API
 - [`api_get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe.md)
-  : Get a single recipe by ID
+  : Get recipe(s) by ID
 - [`api_publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_publish_recipe.md)
   : Publish a recipe
 - [`api_list_workflows()`](https://metasurveyr.github.io/metasurvey/reference/api_list_workflows.md)

@@ -46,8 +46,6 @@ workflow(survey, ..., estimation_type = "monthly")
 
 - Other columns depending on estimation type
 
-Data
-
 ## Details
 
 The function automatically selects the appropriate sample design

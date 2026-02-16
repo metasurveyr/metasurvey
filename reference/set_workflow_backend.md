@@ -19,6 +19,10 @@ set_workflow_backend(type, path = NULL)
 
   Character. File path for local backend.
 
+## Value
+
+Invisibly, the WorkflowBackend object created.
+
 ## Examples
 
 ``` r

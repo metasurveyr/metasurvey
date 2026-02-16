@@ -7,3 +7,15 @@ Clear the stored API token from memory and the environment.
 ``` r
 api_logout()
 ```
+
+## Value
+
+Invisibly, NULL.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_logout()
+} # }
+```

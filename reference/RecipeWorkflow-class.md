@@ -8,6 +8,10 @@ RecipeWorkflow R6 class
 
 An R6 class generator (R6ClassGenerator)
 
+## Value
+
+An object of class `RecipeWorkflow`.
+
 ## Details
 
 R6 class representing a publishable workflow that captures statistical
@@ -348,3 +352,16 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+wf <- RecipeWorkflow$new(
+  name = "Labor workflow", description = "Unemployment rate",
+  user = "test", survey_type = "ech", edition = "2023",
+  estimation_type = "annual", recipe_ids = "r_001",
+  calls = list("svymean(~desocupado, na.rm = TRUE)")
+)
+} # }
+```

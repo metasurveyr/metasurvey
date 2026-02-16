@@ -13,3 +13,10 @@ show_engines()
 ## Value
 
 Character vector with the names of the available engines.
+
+## Examples
+
+``` r
+show_engines()
+#> [1] "data.table" "tidyverse"  "dplyr"     
+```

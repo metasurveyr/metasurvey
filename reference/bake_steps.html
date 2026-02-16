@@ -19,7 +19,7 @@ the underlying data.table. Each step is validated before execution
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,8 +87,10 @@ implantation and all follow-up surveys.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">50</span>, <span class="fl">70</span><span class="op">)</span>, w <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dt</span>, edition <span class="op">=</span> <span class="st">"2023"</span>, type <span class="op">=</span> <span class="st">"test"</span>,</span></span>
-<span class="r-in"><span>  psu <span class="op">=</span> <span class="cn">NULL</span>, engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">dt</span>, edition <span class="op">=</span> <span class="st">"2023"</span>, type <span class="op">=</span> <span class="st">"test"</span>,</span></span>
+<span class="r-in"><span>  psu <span class="op">=</span> <span class="cn">NULL</span>, engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>, age2 <span class="op">=</span> <span class="va">age</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu">bake_steps</span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>

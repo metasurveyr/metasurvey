@@ -171,8 +171,10 @@ The objects of this class are cloneable with this method.
 # Step objects are created internally by step_compute(), step_recode(), etc.
 # Use the tidy API:
 dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
-svy <- Survey$new(data = dt, edition = "2023", type = "test",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+)
 svy <- step_compute(svy, age2 = age * 2)
 get_steps(svy)
 #> $`step_1 Compute: age2`

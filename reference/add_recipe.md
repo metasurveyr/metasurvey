@@ -25,3 +25,11 @@ add_recipe(svy, recipe, bake = lazy_default())
 ## Value
 
 The Survey object (invisibly), modified in place
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+svy <- add_recipe(svy, my_recipe)
+} # }
+```

@@ -14,6 +14,10 @@ set_lazy_processing(lazy)
 
   Logical. If TRUE, steps are deferred until bake_steps() is called.
 
+## Value
+
+Invisibly, the previous value.
+
 ## Examples
 
 ``` r

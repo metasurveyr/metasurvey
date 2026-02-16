@@ -30,3 +30,12 @@ reproduce_workflow(wf, data_path = NULL, dest_dir = tempdir())
 ## Value
 
 Survey object with recipes applied and weight configuration set
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+wf <- api_get_workflow("w_123")
+svy <- reproduce_workflow(wf)
+} # }
+```

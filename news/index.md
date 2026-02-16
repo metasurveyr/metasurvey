@@ -1,5 +1,47 @@
 # Changelog
 
+## metasurvey 0.0.6
+
+### Documentation
+
+- All exported functions and R6 classes now have `@return` and
+  `@examples` roxygen2 tags, meeting rOpenSci documentation
+  requirements.
+- Added `@return` to R6 class exports: `Recipe`, `RecipeWorkflow`,
+  `RecipeCategory`, `RecipeCertification`, `RecipeUser`, `PoolSurvey`,
+  `RotativePanelSurvey`, and `Survey`.
+- Added `@examples` to
+  [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md),
+  [`show_engines()`](https://metasurveyr.github.io/metasurvey/reference/show_engines.md),
+  [`get_engine()`](https://metasurveyr.github.io/metasurvey/reference/get_engine.md),
+  and all API/backend functions.
+- Added `@return` to
+  [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+  [`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md),
+  [`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md),
+  [`set_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_backend.md),
+  [`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md),
+  and
+  [`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md).
+
+### Bug fixes
+
+- Fixed Codecov GitHub Actions workflow: replaced deprecated
+  `covr::codecov()` with `covr::package_coverage()` +
+  `codecov/codecov-action@v5` for reliable coverage uploads with token
+  authentication.
+- Added CI guard to `.Rprofile` to skip example-data setup in GitHub
+  Actions, preventing potential download failures during CI builds.
+- Added missing `archive`, `haven`, and `openxlsx` to `Suggests` in
+  DESCRIPTION, fixing R CMD check warnings about undeclared
+  dependencies.
+
+### Internal
+
+- Added `.claude/` directory with development agents and commands for
+  code review, testing, documentation auditing, and rOpenSci
+  preparation.
+
 ## metasurvey 0.0.5
 
 ### Breaking changes

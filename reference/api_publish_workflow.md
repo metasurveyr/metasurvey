@@ -17,3 +17,11 @@ api_publish_workflow(workflow)
 ## Value
 
 Invisibly, the API response.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_publish_workflow(my_workflow)
+} # }
+```

@@ -14,3 +14,11 @@ api_refresh_token()
 ## Value
 
 The new token string (invisibly), or NULL if refresh fails.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+api_refresh_token()
+} # }
+```

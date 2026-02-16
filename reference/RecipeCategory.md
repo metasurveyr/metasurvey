@@ -3,6 +3,10 @@
 Standardized taxonomy for classifying recipes by domain. Supports
 hierarchical categories with parent-child relationships.
 
+## Value
+
+An object of class `RecipeCategory`.
+
 ## Methods
 
 - \$new(name, description, parent):

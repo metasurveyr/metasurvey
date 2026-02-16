@@ -13,3 +13,10 @@ get_engine()
 ## Value
 
 Character vector with the name of the configured engine.
+
+## Examples
+
+``` r
+get_engine()
+#> [1] "data.table"
+```
