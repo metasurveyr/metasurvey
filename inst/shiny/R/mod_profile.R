@@ -29,7 +29,8 @@ profile_server <- function(id, auth_state) {
       type_icon <- switch(user$user_type,
         "individual" = bsicons::bs_icon("person-fill", size = "1.2rem"),
         "institutional_member" = bsicons::bs_icon(
-          "person-badge-fill", size = "1.2rem"
+          "person-badge-fill",
+          size = "1.2rem"
         ),
         "institution" = bsicons::bs_icon("building", size = "1.2rem"),
         ""
@@ -120,19 +121,19 @@ profile_server <- function(id, auth_state) {
       token_content <- if (!is.null(token_val)) {
         code_text <- paste0(
           '<span class="code-comment">',
-          '# Configure metasurvey API access',
-          '</span>\n',
+          "# Configure metasurvey API access",
+          "</span>\n",
           "library(metasurvey)\n",
           '<span class="code-func">Sys.setenv</span>',
-          '(METASURVEY_TOKEN = ',
+          "(METASURVEY_TOKEN = ",
           '<span class="code-string">"',
           token_val, '"</span>)\n',
           "\n",
           '<span class="code-comment">',
-          '# Or add to your .Renviron file:',
-          '</span>\n',
+          "# Or add to your .Renviron file:",
+          "</span>\n",
           '<span class="code-comment">',
-          '# METASURVEY_TOKEN=',
+          "# METASURVEY_TOKEN=",
           token_val, "</span>\n",
           "\n",
           '<span class="code-comment"># Browse available recipes</span>\n',
@@ -142,17 +143,17 @@ profile_server <- function(id, auth_state) {
           '"employment"</span>)\n',
           "\n",
           '<span class="code-comment"># Download and apply a recipe</span>\n',
-          'recipe &lt;- ',
+          "recipe &lt;- ",
           '<span class="code-func">api_get_recipe',
           '</span>(<span class="code-string">',
           '"recipe_id"</span>)\n',
-          'svy &lt;- ',
+          "svy &lt;- ",
           '<span class="code-func">survey_empty',
-          '</span>(type = ',
+          "</span>(type = ",
           '<span class="code-string">"ech"</span>',
-          ', edition = ',
+          ", edition = ",
           '<span class="code-string">"2023"',
-          '</span>)\n',
+          "</span>)\n",
           'svy &lt;- <span class="code-func">set_data</span>(svy, my_data)\n',
           'svy &lt;- <span class="code-func">add_recipe</span>(svy, recipe)\n',
           'svy &lt;- <span class="code-func">bake_recipes</span>(svy)'
@@ -342,8 +343,10 @@ profile_server <- function(id, auth_state) {
           ),
           bsicons::bs_icon("shield-lock-fill", size = "1.2rem"),
           htmltools::tags$strong(
-            paste("Admin Panel -",
-              length(pending), "pending")
+            paste(
+              "Admin Panel -",
+              length(pending), "pending"
+            )
           ),
           shiny::actionButton(ns("refresh_admin"), "",
             icon = shiny::icon("sync"),

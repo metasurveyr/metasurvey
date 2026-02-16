@@ -43,7 +43,8 @@ explore_recipes <- function(port = NULL,
     stop("Shiny app not found. Reinstall metasurvey.")
   }
   shiny::runApp(
-    app_dir, port = port, host = host,
+    app_dir,
+    port = port, host = host,
     launch.browser = launch.browser
   )
 }

@@ -99,10 +99,10 @@ RecipeCategory <- R6::R6Class(
         name = self$name,
         description = self$description,
         parent = if (!is.null(self$parent)) {
-        self$parent$to_list()
-      } else {
-        NULL
-      }
+          self$parent$to_list()
+        } else {
+          NULL
+        }
       )
       lst
     },
@@ -169,7 +169,7 @@ RecipeCategory$from_list <- function(lst) {
   }
   # Handle empty data.frames from JSON simplifyVector
   if (is.data.frame(lst) &&
-      (nrow(lst) == 0 || ncol(lst) == 0)) {
+    (nrow(lst) == 0 || ncol(lst) == 0)) {
     return(NULL)
   }
   # Handle empty lists from JSON (NULL serialized as {})
@@ -180,7 +180,7 @@ RecipeCategory$from_list <- function(lst) {
   if (!is.null(lst$parent) &&
     !(is.data.frame(lst$parent) &&
       (nrow(lst$parent) == 0 ||
-       ncol(lst$parent) == 0)) &&
+        ncol(lst$parent) == 0)) &&
     !(is.list(lst$parent) &&
       length(lst$parent) == 0)) {
     parent_obj <- RecipeCategory$from_list(lst$parent)

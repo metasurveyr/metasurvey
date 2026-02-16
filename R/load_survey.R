@@ -417,11 +417,11 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
     if (.extension != ".csv" && !file.exists(.output_file)) {
       if (!requireNamespace("rio", quietly = TRUE)) {
         stop(
-        "Package 'rio' is required to convert file ",
-        "formats. Install with: ",
-        "install.packages('rio')",
-        call. = FALSE
-      )
+          "Package 'rio' is required to convert file ",
+          "formats. Install with: ",
+          "install.packages('rio')",
+          call. = FALSE
+        )
       }
       rio::convert(
         in_file = file,

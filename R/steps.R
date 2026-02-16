@@ -17,7 +17,7 @@ compute <- function(svy, ..., .by = NULL,
     }
 
     if (!is(.dots, "call") & !is(.dots, "name") &
-        !is(.dots, "numeric") & !is(.dots, "logical")) {
+      !is(.dots, "numeric") & !is(.dots, "logical")) {
       .exprs <- list()
       for (i in seq.int(2L, length(.dots))) {
         .exprs <- c(.exprs, .dots[[i]])
@@ -260,17 +260,18 @@ step_compute <- function(
       },
       error = function(e) {
         stop(paste0(
-        "Error in shallow_clone. Please run ",
-        "set_use_copy(TRUE) and instance a new ",
-        "survey object and try again"
-      ))
+          "Error in shallow_clone. Please run ",
+          "set_use_copy(TRUE) and instance a new ",
+          "survey object and try again"
+        ))
       }
     )
 
     # Direct evaluation with compute function
     # (force lazy=FALSE to execute immediately)
     .svy_after <- compute(
-      svy, ..., .by = .by,
+      svy, ...,
+      .by = .by,
       use_copy = use_copy, lazy = FALSE
     )
 
@@ -351,7 +352,8 @@ step_compute_rotative <- function(
   if (.level == "auto" || .level == "follow_up") {
     follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
       step_compute(
-        sub_svy, ..., .by = .by,
+        sub_svy, ...,
+        .by = .by,
         use_copy = use_copy,
         comment = comment
       )
@@ -360,7 +362,8 @@ step_compute_rotative <- function(
 
   if (.level == "auto" || .level == "implantation") {
     implantation_processed <- step_compute(
-      svy$implantation, ..., .by = .by,
+      svy$implantation, ...,
+      .by = .by,
       use_copy = use_copy,
       comment = comment
     )
@@ -867,7 +870,8 @@ step_join <- function(
       svy$follow_up,
       function(fu) {
         step_join(
-          fu, x = x, by = by,
+          fu,
+          x = x, by = by,
           type = type,
           suffixes = suffixes,
           use_copy = use_copy,
@@ -1072,7 +1076,7 @@ step_remove <- function(
         silent = TRUE
       )
       if (!inherits(evald, "try-error") &&
-          is.character(evald)) {
+        is.character(evald)) {
         var_names <- as.character(evald)
       }
     }
@@ -1219,8 +1223,11 @@ step_rename <- function(
     old_names <- vapply(
       pairs,
       function(x) {
-        if (is.symbol(x)) deparse1(x)
-        else as.character(x)
+        if (is.symbol(x)) {
+          deparse1(x)
+        } else {
+          as.character(x)
+        }
       },
       character(1)
     )
@@ -1869,8 +1876,8 @@ find_dependencies <- function(call_expr, survey) {
       }
     }
   } else if (is.name(call_expr) &&
-             as.character(call_expr) %in%
-             names(survey)) {
+    as.character(call_expr) %in%
+      names(survey)) {
     dependencies <- unique(
       c(dependencies, as.character(call_expr))
     )

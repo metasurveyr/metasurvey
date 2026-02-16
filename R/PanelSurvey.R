@@ -263,8 +263,8 @@ extract_surveys <- function(RotativePanelSurvey,
                             biannual = NULL,
                             use.parallel = FALSE) {
   if (is.null(monthly) && is.null(annual) &&
-      is.null(quarterly) && is.null(biannual) &&
-      is.null(index)) {
+    is.null(quarterly) && is.null(biannual) &&
+    is.null(index)) {
     warning(paste0(
       "At least one interval argument must be ",
       "different from NULL. ",
@@ -273,8 +273,10 @@ extract_surveys <- function(RotativePanelSurvey,
     annual <- 1
   }
 
-  if (!inherits(RotativePanelSurvey,
-                "RotativePanelSurvey")) {
+  if (!inherits(
+    RotativePanelSurvey,
+    "RotativePanelSurvey"
+  )) {
     stop(paste0(
       "The `RotativeSurvey` argument must be an ",
       "object of class `RotativePanelSurvey`"
@@ -516,8 +518,10 @@ PoolSurvey <- R6Class(
 #' @export
 
 get_implantation <- function(RotativePanelSurvey) {
-  if (!inherits(RotativePanelSurvey,
-                "RotativePanelSurvey")) {
+  if (!inherits(
+    RotativePanelSurvey,
+    "RotativePanelSurvey"
+  )) {
     stop(paste0(
       "The `RotativeSurvey` argument must be ",
       "an object of class ",
@@ -618,8 +622,10 @@ get_follow_up <- function(
     index = seq_along(
       RotativePanelSurvey$follow_up
     )) {
-  if (!inherits(RotativePanelSurvey,
-                "RotativePanelSurvey")) {
+  if (!inherits(
+    RotativePanelSurvey,
+    "RotativePanelSurvey"
+  )) {
     stop(paste0(
       "The `RotativeSurvey` argument must be ",
       "an object of class ",

@@ -822,5 +822,3 @@ foreach x in e26 e29_6 e30 e35 e36 e37 e39 e236 e45_cv e45_1_1_cv e45_2_1_cv e45
 lab values `x' `x'
 	
 }
-
-
