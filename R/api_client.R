@@ -312,11 +312,15 @@ api_get_recipe <- function(id) {
     result <- tryCatch(
       api_request(paste0("recipes/", single_id), method = "GET"),
       error = function(e) {
-        if (grepl("404", e$message)) return(NULL)
+        if (grepl("404", e$message)) {
+          return(NULL)
+        }
         stop(e)
       }
     )
-    if (is.null(result) || is.null(result$recipe)) return(NULL)
+    if (is.null(result) || is.null(result$recipe)) {
+      return(NULL)
+    }
     tryCatch(parse_recipe_from_json(result$recipe), error = function(e) {
       warning("Failed to parse recipe '", single_id, "': ", e$message, call. = FALSE)
       NULL
