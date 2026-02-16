@@ -80,7 +80,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #'   The URL can also be set via the \code{METASURVEY_API_URL} environment
 #'   variable, and the token via \code{METASURVEY_TOKEN}.
 #' @param url API base URL (e.g., \code{"https://metasurvey-api.example.com"})
-#' @return Invisibly, the configured URL.
+#' @return Invisibly, the previous URL (for restoring).
 #' @export
 #' @examples
 #' \dontrun{
@@ -89,9 +89,10 @@ token_expires_soon <- function(token, margin_secs = 300) {
 configure_api <- function(url) {
   # Remove trailing slash
   url <- sub("/$", "", url)
+  old <- getOption("metasurvey.api_url")
   options(metasurvey.api_url = url)
   message("API configured: ", url)
-  invisible(NULL)
+  invisible(old)
 }
 
 # ── Internal HTTP helper ─────────────────────────────────────────────────────
@@ -278,7 +279,6 @@ api_refresh_token <- function() {
 #' }
 api_logout <- function() {
   options(metasurvey.api_token = NULL)
-  Sys.unsetenv("METASURVEY_TOKEN")
   message("Logged out.")
   invisible(NULL)
 }

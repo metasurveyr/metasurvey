@@ -192,9 +192,6 @@ load_survey_example <- function(svy_type, svy_edition) {
     )
     return(f)
   }
-
-
-  return(file.path(tempdir(), paste0(svy_type, paste0(svy_edition, ".csv"), sep = "/")))
 }
 
 #' Get data copy option
@@ -255,7 +252,7 @@ use_copy_default <- function() {
 #' # Reset to default
 #' set_use_copy(TRUE)
 #'
-#' @return Invisibly, the value set.
+#' @return Invisibly, the previous value (for restoring).
 #' @seealso \code{\link{use_copy_default}} to check current setting
 #' @export
 #' @keywords utils
@@ -264,7 +261,9 @@ set_use_copy <- function(use_copy) {
     stop("use_copy must be a logical")
   }
 
+  old <- getOption("use_copy")
   options(use_copy = use_copy)
+  invisible(old)
 }
 
 
@@ -320,7 +319,9 @@ set_lazy_processing <- function(lazy) {
     stop("lazy must be a logical")
   }
 
+  old <- getOption("lazy_processing")
   options(lazy_processing = lazy)
+  invisible(old)
 }
 
 
@@ -366,7 +367,7 @@ extract_time_pattern <- function(svy_edition) {
       periodicity <- "Monthly"
     } else {
       month <- NA
-      periodicity <- "Formato incorrecto"
+      periodicity <- "Invalid format"
     }
 
     # Caso: Mensual en formato MMYYYY (e.g., "122023")
@@ -378,7 +379,7 @@ extract_time_pattern <- function(svy_edition) {
       periodicity <- "Monthly"
     } else {
       month <- NA
-      periodicity <- "Formato incorrecto"
+      periodicity <- "Invalid format"
     }
 
     # Caso: Mensual con formato MM_YYYY o MM-YYYY (e.g., "01_2023", "12_2023")
@@ -390,7 +391,7 @@ extract_time_pattern <- function(svy_edition) {
       periodicity <- "Monthly"
     } else {
       month <- NA
-      periodicity <- "Formato incorrecto"
+      periodicity <- "Invalid format"
     }
 
     # Caso: Mensual con formato YYYY_MM o YYYY-MM (e.g., "2023_12")
@@ -402,7 +403,7 @@ extract_time_pattern <- function(svy_edition) {
       periodicity <- "Monthly"
     } else {
       month <- NA
-      periodicity <- "Formato incorrecto"
+      periodicity <- "Invalid format"
     }
 
     # Caso: Encuesta con rango de años (e.g., "2019_2021")
@@ -445,7 +446,7 @@ extract_time_pattern <- function(svy_edition) {
       periodicity <- "Monthly"
     }
   } else {
-    periodicity <- "Formato desconocido"
+    periodicity <- "Unknown format"
   }
 
   # Devolver los resultados
@@ -971,26 +972,26 @@ reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
 
 #' Evaluate estimation with Coefficient of Variation
 #' @param cv Numeric coefficient of variation value.
-#' @return Character string with the quality category (e.g. "Excelente", "Bueno").
+#' @return Character string with the quality category (e.g. "Excellent", "Good").
 #' @keywords utils
 #' @examples
-#' evaluate_cv(3) # "Excelente"
-#' evaluate_cv(12) # "Bueno"
-#' evaluate_cv(30) # "Utilizar con precaucion"
+#' evaluate_cv(3) # "Excellent"
+#' evaluate_cv(12) # "Good"
+#' evaluate_cv(30) # "Use with caution"
 #' @export
 
 evaluate_cv <- function(cv) {
   if (cv < 5) {
-    return("Excelente")
+    return("Excellent")
   } else if (cv >= 5 && cv < 10) {
-    return("Muy bueno")
+    return("Very good")
   } else if (cv >= 10 && cv < 15) {
-    return("Bueno")
+    return("Good")
   } else if (cv >= 15 && cv < 25) {
-    return("Aceptable")
+    return("Acceptable")
   } else if (cv >= 25 && cv < 35) {
-    return("Utilizar con precaucion")
+    return("Use with caution")
   } else {
-    return("No publicar")
+    return("Do not publish")
   }
 }
