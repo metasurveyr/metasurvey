@@ -1,9 +1,9 @@
-# Obtener encuesta de implantación de panel rotativo
+# Get implantation survey from a rotating panel
 
-Esta función extrae la encuesta de implantación (primera onda) de un
-objeto RotativePanelSurvey. La encuesta de implantación representa la
-primera recolección de datos del panel y es fundamental para establecer
-la línea base y las características estructurales del panel.
+Extracts the implantation (baseline) survey from a RotativePanelSurvey
+object. The implantation survey represents the first data collection
+wave and is essential for establishing the baseline and structural
+characteristics of the panel.
 
 ## Usage
 
@@ -15,86 +15,86 @@ get_implantation(RotativePanelSurvey)
 
 - RotativePanelSurvey:
 
-  Objeto `RotativePanelSurvey` del cual extraer la encuesta de
-  implantación
+  A `RotativePanelSurvey` object from which to extract the implantation
+  survey
 
 ## Value
 
-Objeto `Survey` que contiene la encuesta de implantación con todos sus
-metadatos, datos y configuración de diseño
+A `Survey` object containing the implantation survey with all its
+metadata, data, and design configuration
 
 ## Details
 
-La encuesta de implantación es especial en un panel rotativo porque:
+The implantation survey is special in a rotating panel because:
 
-- Establece la línea base: Define las características iniciales de todas
-  las unidades del panel
+- Establishes the baseline: Defines initial characteristics of all panel
+  units
 
-- Contiene toda la muestra: Incluye todas las unidades que participarán
-  en las diferentes ondas del panel
+- Contains the full sample: Includes all units that will participate in
+  the different panel waves
 
-- Define estructura temporal: Establece los patrones de rotación y
-  seguimiento del panel
+- Defines temporal structure: Establishes rotation and follow-up
+  patterns
 
-- Configura metadatos: Contiene información sobre periodicidad,
-  variables clave y estratificación
+- Configures metadata: Contains information about periodicity, key
+  variables, and stratification
 
-- Base para seguimiento: Sirve como referencia para tracking de unidades
-  en ondas posteriores
+- Serves as tracking reference: Basis for unit tracking in subsequent
+  waves
 
-Esta función es esencial para análisis que requieren:
+This function is essential for analysis requiring:
 
-- Comparaciones temporales desde la línea base
+- Temporal comparisons from the baseline
 
-- Análisis de la estructura completa del panel
+- Analysis of the complete panel structure
 
-- Configuración de modelos longitudinales
+- Configuration of longitudinal models
 
-- Evaluación de la calidad del diseño muestral
+- Evaluation of sampling design quality
 
 ## See also
 
 [`get_follow_up`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
-para obtener encuestas de seguimiento
+for obtaining follow-up surveys
 [`extract_surveys`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md)
-para extraer múltiples encuestas por criterios
+for extracting multiple surveys by criteria
 [`load_panel_survey`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md)
-para cargar paneles rotativos
+for loading rotating panels
 [`workflow`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
-para análisis con la encuesta de implantación
+for analysis with the implantation survey
+
+Other panel-surveys:
+[`PoolSurvey`](https://metasurveyr.github.io/metasurvey/reference/PoolSurvey.md),
+[`RotativePanelSurvey`](https://metasurveyr.github.io/metasurvey/reference/RotativePanelSurvey.md),
+[`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+[`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Cargar panel rotativo de ECH
+# Load ECH rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
-# Obtener encuesta de implantación
-ech_implantacion <- get_implantation(panel_ech)
+# Get implantation survey
+ech_baseline <- get_implantation(panel_ech)
 
-# Verificar características de la implantación
-cat("Tamaño muestra implantación:", nrow(ech_implantacion$data))
-cat("Variables disponibles:", ncol(ech_implantacion$data))
+# Check implantation characteristics
+cat("Implantation sample size:", nrow(ech_baseline$data))
+cat("Available variables:", ncol(ech_baseline$data))
 
-# Usar en análisis de línea base
+# Use in baseline analysis
 baseline_stats <- workflow(
-  survey = ech_implantacion,
-  svymean(~tasa_actividad, na.rm = TRUE),
+  survey = ech_baseline,
+  svymean(~activity_rate, na.rm = TRUE),
   estimation_type = "baseline"
 )
 
-# Comparar con follow-up
+# Compare with follow-up
 followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-
-# Análisis de cambios desde implantación
-panel_comparison <- list(
-  implantacion = ech_implantacion,
-  seguimiento = followup_1
-)
 } # }
 ```

@@ -31,8 +31,8 @@ load_panel_survey(
 - svy_type:
 
   String with the survey type, supported types; "ech" (Encuensta
-  Continua de Hogares, Uruguay), "eph" ( Encuesta Permanente de Hogares,
-  Argentina), "eai" (Encuesta de Actividades de Innovación, Uruguay)
+  Continua de Hogares, Uruguay), "eph" (Encuesta Permanente de Hogares,
+  Argentina), "eai" (Encuesta de Actividades de Innovacion, Uruguay)
 
 - svy_weight_implantation:
 
@@ -53,6 +53,15 @@ load_panel_survey(
 ## Value
 
 RotativePanelSurvey object
+
+## See also
+
+Other survey-loading:
+[`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md),
+[`group_dates()`](https://metasurveyr.github.io/metasurvey/reference/group_dates.md),
+[`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md),
+[`load_survey_example()`](https://metasurveyr.github.io/metasurvey/reference/load_survey_example.md),
+[`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
 
 ## Examples
 

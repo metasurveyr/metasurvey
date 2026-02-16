@@ -19,7 +19,7 @@ recipes."><meta property="og:image" content="https://metasurveyr.github.io/metas
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ recipes."><meta property="og:image" content="https://metasurveyr.github.io/metas
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Get recipe from repository or API</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
       <div class="d-none name"><code>get_recipe.Rd</code></div>
     </div>
 
@@ -88,7 +88,8 @@ Supported formats: "YYYY", "YYYYMM", "YYYY-YYYY"</p></dd>
 
 
 <dt id="arg-allowmultiple">allowMultiple<a class="anchor" aria-label="anchor" href="#arg-allowmultiple"></a></dt>
-<dd><p>Logical indicating whether multiple recipes are allowed.
+<dd><p>Logical indicating whether
+multiple recipes are allowed.
 If FALSE and multiple matches exist, returns the most recent one</p></dd>
 
 </dl></div>
@@ -110,7 +111,8 @@ transformations</p></li>
 connection is required</strong>. If the API is unavailable or you need to work
 offline:</p>
 <p><strong>Working Offline:</strong></p><ul><li><p>Don't call <code>get_recipe()</code> - work directly with steps</p></li>
-<li><p>Set <code>options(metasurvey.skip_recipes = TRUE)</code> to disable API calls</p></li>
+<li><p>Set <code>options(metasurvey.skip_recipes = TRUE)</code>
+to disable API calls</p></li>
 <li><p>Load recipes from local files using <code><a href="read_recipe.html">read_recipe()</a></code></p></li>
 <li><p>Create custom recipes with <code><a href="recipe.html">recipe()</a></code></p></li>
 </ul><p>Search criteria are combined with AND operator, so all specified criteria
@@ -122,7 +124,18 @@ must match for a recipe to be returned.</p>
 <code><a href="save_recipe.html">save_recipe</a></code> to save recipes locally
 <code><a href="read_recipe.html">read_recipe</a></code> to read recipes from file
 <code><a href="publish_recipe.html">publish_recipe</a></code> to publish recipes to the repository
-<code><a href="load_survey.html">load_survey</a></code> where recipes are used</p></div>
+<code><a href="load_survey.html">load_survey</a></code> where recipes are used</p>
+<p>Other recipes:
+<code><a href="Recipe-class.html">Recipe-class</a></code>,
+<code><a href="add_recipe.html">add_recipe()</a></code>,
+<code><a href="bake_recipes.html">bake_recipes()</a></code>,
+<code><a href="explore_recipes.html">explore_recipes()</a></code>,
+<code><a href="print.Recipe.html">print.Recipe()</a></code>,
+<code><a href="publish_recipe.html">publish_recipe()</a></code>,
+<code><a href="read_recipe.html">read_recipe()</a></code>,
+<code><a href="recipe.html">recipe()</a></code>,
+<code><a href="save_recipe.html">save_recipe()</a></code>,
+<code><a href="steps_to_recipe.html">steps_to_recipe()</a></code></p></div>
     </div>
 
     <div class="section level2">

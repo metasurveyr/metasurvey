@@ -23,6 +23,13 @@ set_backend(type, path = NULL)
 
 Invisibly, the RecipeBackend object created.
 
+## See also
+
+Other backends:
+[`get_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_backend.md),
+[`get_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_workflow_backend.md),
+[`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md)
+
 ## Examples
 
 ``` r

@@ -26,6 +26,20 @@ NULL.
 
 This function encodes the Recipe object and writes it to a JSON file.
 
+## See also
+
+Other recipes:
+[`Recipe-class`](https://metasurveyr.github.io/metasurvey/reference/Recipe-class.md),
+[`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md),
+[`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md),
+[`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md),
+[`get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/get_recipe.md),
+[`print.Recipe()`](https://metasurveyr.github.io/metasurvey/reference/print.Recipe.md),
+[`publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/publish_recipe.md),
+[`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
+[`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md),
+[`steps_to_recipe()`](https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.md)
+
 ## Examples
 
 ``` r
@@ -36,5 +50,5 @@ r <- recipe(
 )
 f <- tempfile(fileext = ".json")
 save_recipe(r, f)
-#> The recipe has been saved in /tmp/Rtmp0OGaHX/file1a6f7cbed09a.json
+#> The recipe has been saved in /tmp/RtmpPBp4jc/file1a2b77ca2e8e.json
 ```

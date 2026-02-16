@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,9 +41,66 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.9" id="metasurvey-009">metasurvey 0.0.9<a class="anchor" aria-label="anchor" href="#metasurvey-009"></a></h2>
+<div class="section level3">
+<h3 id="cran-compliance-0-0-9">CRAN compliance<a class="anchor" aria-label="anchor" href="#cran-compliance-0-0-9"></a></h3>
+<ul><li>Namespaced all global options: <code>use_copy</code> → <code>metasurvey.use_copy</code>, <code>lazy_processing</code> → <code>metasurvey.lazy_processing</code>.</li>
+<li>
+<code><a href="../reference/set_use_copy.html">set_use_copy()</a></code> and <code><a href="../reference/set_lazy_processing.html">set_lazy_processing()</a></code> return the previous value invisibly, matching <code><a href="../reference/set_engine.html">set_engine()</a></code> behavior.</li>
+<li>
+<code><a href="../reference/set_backend.html">set_backend()</a></code> and <code><a href="../reference/set_workflow_backend.html">set_workflow_backend()</a></code> return the previous value invisibly.</li>
+<li>Replaced all <code>\dontrun{}</code> examples with runnable or <code>\donttest{}</code> where appropriate (<code><a href="../reference/set_engine.html">set_engine()</a></code>, <code><a href="../reference/view_graph.html">view_graph()</a></code>, <code><a href="../reference/survey_empty.html">survey_empty()</a></code>, <code><a href="../reference/set_workflow_backend.html">set_workflow_backend()</a></code>, <code><a href="../reference/get_workflow_backend.html">get_workflow_backend()</a></code>).</li>
+<li>Fixed <code>print.RecipeWorkflow</code> example: removed non-existent <code>recipe_name</code> and <code>results</code> arguments.</li>
+<li>Fixed <code><a href="../reference/extract_time_pattern.html">extract_time_pattern()</a></code> roxygen block: was accidentally attached to internal <code>validate_monthly()</code>, causing the export to be dropped.</li>
+<li>Fixed malformed <code>@keywords</code> tags: removed comma-separated values in <code>PoolSurvey</code> and <code>RotativePanelSurvey</code>, removed duplicate description block in <code>Survey</code> that was parsed as keyword entries.</li>
+<li>Simplified <code>.onAttach()</code> to a single version message.</li>
+<li>Removed hardcoded production API URL from <code>.onLoad()</code>.</li>
+<li>Deleted orphan Spanish-only vignette <code>metasurvey-es.Rmd</code>.</li>
+<li>Added <code>.Rbuildignore</code> entries for deployment artifacts (<code>inst/scripts</code>, <code>inst/seed-data</code>, Dockerfiles, <code>inst/shiny-auth.R</code>).</li>
+<li>Deleted empty <code>inst/extdata/</code> directory.</li>
+<li>Fixed <code><a href="../reference/add_weight.html">add_weight()</a></code> regex example.</li>
+<li>Fixed <code><a href="../reference/load_survey.html">load_survey()</a></code> example.</li>
+<li>Fixed <code>set_lazy()</code> → <code><a href="../reference/set_lazy_processing.html">set_lazy_processing()</a></code> in vignettes.</li>
+<li>Enabled <code>eval=TRUE</code> on in-memory vignette chunks (<code>bake</code>, <code>get-steps</code>).</li>
+<li>
+<code><a href="../reference/load_survey_example.html">load_survey_example()</a></code>: removed dead <code><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists()</a></code> branch, wrapped <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file()</a></code> in <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch()</a></code> for graceful failure.</li>
+<li>Added <code><a href="https://github.com/rstudio/htmltools" class="external-link">requireNamespace("htmltools")</a></code> check in <code><a href="../reference/view_graph.html">view_graph()</a></code>.</li>
+<li>Removed version constraint from <code>parallel</code> in Suggests.</li>
+<li>R CMD check: 0 errors, 0 warnings, 1 note (new submission).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="translations-0-0-9">Translations<a class="anchor" aria-label="anchor" href="#translations-0-0-9"></a></h3>
+<ul><li>All remaining Spanish return values translated to English: <code>"Trianual"</code> → <code>"Triennial"</code>, <code>"Multianual"</code> → <code>"Multi-year"</code>.</li>
+<li>All Spanish inline comments translated to English.</li>
+<li>Translated roxygen documentation for <code><a href="../reference/recipe.html">recipe()</a></code>, <code><a href="../reference/extract_surveys.html">extract_surveys()</a></code>, <code><a href="../reference/get_implantation.html">get_implantation()</a></code>, <code><a href="../reference/get_follow_up.html">get_follow_up()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-0-9">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9"></a></h3>
+<ul><li>Added STATA-to-metasurvey transpiler: <code><a href="../reference/transpile_stata.html">transpile_stata()</a></code>, <code><a href="../reference/transpile_stata_module.html">transpile_stata_module()</a></code>, <code><a href="../reference/parse_do_file.html">parse_do_file()</a></code>, <code><a href="../reference/parse_stata_labels.html">parse_stata_labels()</a></code>, and <code><a href="../reference/transpile_coverage.html">transpile_coverage()</a></code>. Converts <code>.do</code> files into Recipe JSON, supporting gen/replace chains, recode, egen, foreach loops, mvencode, destring, labels, and more.</li>
+<li>Added <code>labels</code> field to <code>Recipe</code> class for storing variable and value labels from STATA transpilation.</li>
+<li>Added Shiny DAG graph loading spinner and disclaimer for recipes with more than 20 steps.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-9">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-9"></a></h3>
+<ul><li>Fixed <code>validate_weight_time_pattern()</code> crash when <code>weight</code> is NULL (triggered by <code>shallow_clone()</code> on surveys without weights).</li>
+<li>Fixed <code><a href="../reference/steps_to_recipe.html">steps_to_recipe()</a></code> producing unparseable step strings: long <code>step_recode</code> calls were split across multiple lines by <code><a href="https://rdrr.io/r/base/deparse.html" class="external-link">deparse()</a></code>, breaking JSON round-trip.</li>
+<li>Fixed <code><a href="../reference/bake_recipes.html">bake_recipes()</a></code> not executing <code>step_rename</code> and <code>step_remove</code>: recipe step replay now temporarily disables lazy processing so all steps execute immediately.</li>
+<li>Fixed Shiny <code>category_tag()</code> crash when recipe topic is NULL.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-0-9">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-9"></a></h3>
+<ul><li>Added <code>@family</code> tags to all exported functions across 16 groups.</li>
+<li>Standardized <code>@keywords</code> tags (removed commas, fixed multi-word entries).</li>
+<li>Removed redundant <code>@title</code> tags in <code>R/set_engine.R</code>.</li>
+<li>Updated <code>cran-comments.md</code> to reflect 1 NOTE (new submission).</li>
+<li>Added <code>stata-transpiler</code> vignette covering all supported STATA patterns.</li>
+<li>Added <code>ech-demographics-recipe</code> vignette showing hand-crafted vs transpiled recipe workflows.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.8" id="metasurvey-008">metasurvey 0.0.8<a class="anchor" aria-label="anchor" href="#metasurvey-008"></a></h2>
 <div class="section level3">
@@ -137,7 +194,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-0-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-6"></a></h3>
-<ul><li>Fixed Codecov GitHub Actions workflow: replaced deprecated <code><a href="http://covr.r-lib.org/reference/codecov.html" class="external-link">covr::codecov()</a></code> with <code><a href="http://covr.r-lib.org/reference/package_coverage.html" class="external-link">covr::package_coverage()</a></code> + <code>codecov/codecov-action@v5</code> for reliable coverage uploads with token authentication.</li>
+<ul><li>Fixed Codecov GitHub Actions workflow: replaced deprecated <code>covr::codecov()</code> with <code>covr::package_coverage()</code> + <code>codecov/codecov-action@v5</code> for reliable coverage uploads with token authentication.</li>
 <li>Added CI guard to <code>.Rprofile</code> to skip example-data setup in GitHub Actions, preventing potential download failures during CI builds.</li>
 <li>Added missing <code>archive</code>, <code>haven</code>, and <code>openxlsx</code> to <code>Suggests</code> in DESCRIPTION, fixing R CMD check warnings about undeclared dependencies.</li>
 </ul></div>
@@ -251,10 +308,14 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.3" id="metasurvey-003">metasurvey 0.0.3<a class="anchor" aria-label="anchor" href="#metasurvey-003"></a></h2>
-</div>
+<ul><li>Added <code><a href="../reference/step_join.html">step_join()</a></code> for merging external reference data into surveys.</li>
+<li>Added <code><a href="../reference/step_remove.html">step_remove()</a></code> and <code><a href="../reference/step_rename.html">step_rename()</a></code> for variable management.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="metasurvey-002">metasurvey 0.0.2<a class="anchor" aria-label="anchor" href="#metasurvey-002"></a></h2>
-</div>
+<ul><li>Added <code>RotativePanelSurvey</code> and <code>PoolSurvey</code> R6 classes for complex designs.</li>
+<li>Added <code><a href="../reference/extract_surveys.html">extract_surveys()</a></code>, <code><a href="../reference/get_implantation.html">get_implantation()</a></code>, <code><a href="../reference/get_follow_up.html">get_follow_up()</a></code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="metasurvey-001">metasurvey 0.0.1<a class="anchor" aria-label="anchor" href="#metasurvey-001"></a></h2>
 <ul><li>Initial CRAN submission.</li>

@@ -52,10 +52,24 @@ step_remove(
 Survey object with the specified variables removed (or queued for
 removal).
 
+## See also
+
+Other steps:
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md),
+[`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
+[`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+[`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
+[`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+[`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+
 ## Examples
 
 ``` r
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = rep(1, 5))
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60),
+  w = rep(1, 5)
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "ech",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")

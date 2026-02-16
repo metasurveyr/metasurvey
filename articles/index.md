@@ -34,10 +34,19 @@ Interactive explorer, REST API, and database
 - [API and Database
   Reference](https://metasurveyr.github.io/metasurvey/articles/api-database.md):
 
+### STATA Transpiler
+
+Convert STATA do-files to metasurvey recipes
+
+- [Transpiling STATA do-files to metasurvey
+  Recipes](https://metasurveyr.github.io/metasurvey/articles/stata-transpiler.md):
+
 ### Case Studies
 
 Real-world examples with ECH data
 
+- [Building an ECH Demographics
+  Recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.md):
 - [ECH Case Study: From STATA to
   R](https://metasurveyr.github.io/metasurvey/articles/ech-case-study.md):
 
@@ -45,8 +54,6 @@ Real-world examples with ECH data
 
 Documentación en español
 
-- [Introducción a
-  metasurvey](https://metasurveyr.github.io/metasurvey/articles/metasurvey-es.md):
 - [Primeros pasos con metasurvey
   (ES)](https://metasurveyr.github.io/metasurvey/articles/getting-started-es.md):
 - [Creación y Compartición de Recipes

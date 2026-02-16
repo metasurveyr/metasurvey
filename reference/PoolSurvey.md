@@ -8,6 +8,14 @@ access and manipulate the grouped surveys.
 
 An object of class `PoolSurvey`.
 
+## See also
+
+Other panel-surveys:
+[`RotativePanelSurvey`](https://metasurveyr.github.io/metasurvey/reference/RotativePanelSurvey.md),
+[`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+[`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md),
+[`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
+
 ## Public fields
 
 - `surveys`:

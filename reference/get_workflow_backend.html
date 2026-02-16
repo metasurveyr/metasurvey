@@ -15,7 +15,7 @@ Defaults to "local" if not configured.'><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ Defaults to "local" if not configured.'><meta property="og:image" content="https
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Get workflow backend</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/WorkflowBackend.R" class="external-link"><code>R/WorkflowBackend.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/WorkflowBackend.R" class="external-link"><code>R/WorkflowBackend.R</code></a></small>
       <div class="d-none name"><code>get_workflow_backend.Rd</code></div>
     </div>
 
@@ -61,13 +61,19 @@ Defaults to "local" if not configured.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>WorkflowBackend object</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other backends:
+<code><a href="get_backend.html">get_backend()</a></code>,
+<code><a href="set_backend.html">set_backend()</a></code>,
+<code><a href="set_workflow_backend.html">set_workflow_backend()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">backend</span> <span class="op">&lt;-</span> <span class="fu">get_workflow_backend</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">backend</span><span class="op">$</span><span class="fu">search</span><span class="op">(</span><span class="st">"labor"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -15,7 +15,7 @@ Supports hierarchical categories with parent-child relationships."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ Supports hierarchical categories with parent-child relationships."><meta propert
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>RecipeCategory</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/RecipeCategory.R" class="external-link"><code>R/RecipeCategory.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/RecipeCategory.R" class="external-link"><code>R/RecipeCategory.R</code></a></small>
       <div class="d-none name"><code>RecipeCategory.Rd</code></div>
     </div>
 
@@ -62,10 +62,12 @@ Supports hierarchical categories with parent-child relationships.</p>
 
 
 <dl><dt>$new(name, description, parent)</dt>
-<dd><p>Constructor for creating a new category</p></dd>
+<dd><p>Constructor
+for creating a new category</p></dd>
 
 <dt>$is_subcategory_of(ancestor_name)</dt>
-<dd><p>Check if this category is a subcategory of another</p></dd>
+<dd><p>Check if
+this category is a subcategory of another</p></dd>
 
 <dt>$get_path()</dt>
 <dd><p>Get full hierarchical path</p></dd>
@@ -80,10 +82,35 @@ Supports hierarchical categories with parent-child relationships.</p>
 <dd><p>Print category information</p></dd>
 
 <dt>$from_list(lst)</dt>
-<dd><p>Class method to reconstruct from list (see details)</p></dd>
+<dd><p>Class method to reconstruct
+from list (see details)</p></dd>
 
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other tidy-api:
+<code><a href="RecipeCertification.html">RecipeCertification</a></code>,
+<code><a href="RecipeUser.html">RecipeUser</a></code>,
+<code><a href="add_category.html">add_category()</a></code>,
+<code><a href="certify_recipe.html">certify_recipe()</a></code>,
+<code><a href="default_categories.html">default_categories()</a></code>,
+<code><a href="filter_recipes.html">filter_recipes()</a></code>,
+<code><a href="filter_workflows.html">filter_workflows()</a></code>,
+<code><a href="find_workflows_for_recipe.html">find_workflows_for_recipe()</a></code>,
+<code><a href="list_recipes.html">list_recipes()</a></code>,
+<code><a href="list_workflows.html">list_workflows()</a></code>,
+<code><a href="rank_recipes.html">rank_recipes()</a></code>,
+<code><a href="rank_workflows.html">rank_workflows()</a></code>,
+<code><a href="recipe_category.html">recipe_category()</a></code>,
+<code><a href="recipe_certification.html">recipe_certification()</a></code>,
+<code><a href="recipe_user.html">recipe_user()</a></code>,
+<code><a href="remove_category.html">remove_category()</a></code>,
+<code><a href="search_recipes.html">search_recipes()</a></code>,
+<code><a href="search_workflows.html">search_workflows()</a></code>,
+<code><a href="set_user_info.html">set_user_info()</a></code>,
+<code><a href="set_version.html">set_version()</a></code></p></div>
+    </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>name</code></dt>
@@ -148,7 +175,8 @@ Supports hierarchical categories with parent-child relationships.</p>
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>ancestor_name</code></dt>
-<dd><p>Character. Name of the potential ancestor category.</p></dd>
+<dd><p>Character. Name of the potential
+ancestor category.</p></dd>
 
 
 </dl><p></p></div>
@@ -261,8 +289,13 @@ Supports hierarchical categories with parent-child relationships.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Use recipe_category() for the public API:</span></span></span>
-<span class="r-in"><span><span class="va">cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_category.html">recipe_category</a></span><span class="op">(</span><span class="st">"economics"</span>, <span class="st">"Economic indicators"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_category.html">recipe_category</a></span><span class="op">(</span><span class="st">"labor_market"</span>, <span class="st">"Labor market"</span>, parent <span class="op">=</span> <span class="st">"economics"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_category.html">recipe_category</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"economics"</span>, <span class="st">"Economic indicators"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_category.html">recipe_category</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"labor_market"</span>, <span class="st">"Labor market"</span>,</span></span>
+<span class="r-in"><span>  parent <span class="op">=</span> <span class="st">"economics"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

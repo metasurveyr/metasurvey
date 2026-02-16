@@ -1,9 +1,9 @@
-# set_engine
+# Configure the survey data engine
 
-This function configures the engine to be used for loading surveys. It
-checks if the provided engine is supported, sets the default engine if
-none is specified, and generates a message indicating the configured
-engine. If the engine is not supported, it throws an error.
+Configures the engine to be used for loading surveys. Checks if the
+provided engine is supported, sets the default engine if none is
+specified, and generates a message indicating the configured engine. If
+the engine is not supported, it throws an error.
 
 ## Usage
 
@@ -24,10 +24,23 @@ set_engine(.engine = show_engines())
 
 Invisibly, the previous engine name (for restoring).
 
+## See also
+
+Other options:
+[`get_engine()`](https://metasurveyr.github.io/metasurvey/reference/get_engine.md),
+[`lazy_default()`](https://metasurveyr.github.io/metasurvey/reference/lazy_default.md),
+[`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md),
+[`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md),
+[`show_engines()`](https://metasurveyr.github.io/metasurvey/reference/show_engines.md),
+[`use_copy_default()`](https://metasurveyr.github.io/metasurvey/reference/use_copy_default.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-set_engine("data.table")
-} # }
+# \donttest{
+old <- set_engine("data.table")
+#> Engine: data.table
+get_engine()
+#> [1] "data.table"
+# }
 ```

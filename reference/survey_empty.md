@@ -40,11 +40,22 @@ survey_empty(
 
 Survey object
 
+## See also
+
+Other survey-objects:
+[`Survey`](https://metasurveyr.github.io/metasurvey/reference/Survey.md),
+[`cat_design()`](https://metasurveyr.github.io/metasurvey/reference/cat_design.md),
+[`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md),
+[`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
+[`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+[`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
+[`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
+[`survey_to_data_frame()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.md),
+[`survey_to_tibble()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_tibble.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-empty <- survey_empty()
+empty <- survey_empty(edition = "2023", type = "test")
 empty_typed <- survey_empty(edition = "2023", type = "ech")
-} # }
 ```

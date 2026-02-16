@@ -18,6 +18,12 @@ api_publish_workflow(workflow)
 
 Invisibly, the API response.
 
+## See also
+
+Other api-workflows:
+[`api_get_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_get_workflow.md),
+[`api_list_workflows()`](https://metasurveyr.github.io/metasurvey/reference/api_list_workflows.md)
+
 ## Examples
 
 ``` r

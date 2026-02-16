@@ -28,6 +28,12 @@ resolve_weight_spec(weight_spec, dest_dir = tempdir())
 
 Named list compatible with add_weight() output
 
+## See also
+
+Other weights:
+[`add_replicate()`](https://metasurveyr.github.io/metasurvey/reference/add_replicate.md),
+[`add_weight()`](https://metasurveyr.github.io/metasurvey/reference/add_weight.md)
+
 ## Examples
 
 ``` r

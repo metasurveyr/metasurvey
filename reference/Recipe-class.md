@@ -41,6 +41,18 @@ transformation steps to be applied to a Survey object.
 [`read_recipe`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
 [`bake_recipes`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md)
 
+Other recipes:
+[`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md),
+[`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md),
+[`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md),
+[`get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/get_recipe.md),
+[`print.Recipe()`](https://metasurveyr.github.io/metasurvey/reference/print.Recipe.md),
+[`publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/publish_recipe.md),
+[`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
+[`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md),
+[`save_recipe()`](https://metasurveyr.github.io/metasurvey/reference/save_recipe.md),
+[`steps_to_recipe()`](https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.md)
+
 ## Public fields
 
 - `name`:
@@ -125,6 +137,10 @@ transformation steps to be applied to a Survey object.
   List with S3 bucket info (s3_bucket, s3_prefix, file_pattern,
   provider) or NULL.
 
+- `labels`:
+
+  List with variable and value labels (var_labels, val_labels) or NULL.
+
 ## Methods
 
 ### Public methods
@@ -175,7 +191,8 @@ Create a Recipe object
       user_info = NULL,
       version = "1.0.0",
       depends_on_recipes = list(),
-      data_source = NULL
+      data_source = NULL,
+      labels = NULL
     )
 
 #### Arguments
@@ -259,6 +276,10 @@ Create a Recipe object
 - `data_source`:
 
   List with S3 bucket info (optional)
+
+- `labels`:
+
+  List with var_labels and val_labels (optional)
 
 ------------------------------------------------------------------------
 

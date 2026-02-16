@@ -76,38 +76,41 @@ estimations
 [`PoolSurvey`](https://metasurveyr.github.io/metasurvey/reference/PoolSurvey.md)
 for survey pooling
 
+Other workflows:
+[`RecipeWorkflow-class`](https://metasurveyr.github.io/metasurvey/reference/RecipeWorkflow-class.md),
+[`evaluate_cv()`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md),
+[`print.RecipeWorkflow()`](https://metasurveyr.github.io/metasurvey/reference/print.RecipeWorkflow.md),
+[`publish_workflow()`](https://metasurveyr.github.io/metasurvey/reference/publish_workflow.md),
+[`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md),
+[`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
+[`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md),
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Basic estimations
+# Simple estimation with a test survey
+dt <- data.table::data.table(
+  x = rnorm(100), g = sample(c("a", "b"), 100, TRUE),
+  w = rep(1, 100)
+)
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
 result <- workflow(
-  survey = list(ech_2023),
-  svymean(~unemployed, na.rm = TRUE),
-  svytotal(~active_population, na.rm = TRUE),
+  survey = list(svy),
+  survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
+#> Warning: CV may not be useful for negative statistics
 
-# Multiple periods
-result_multiple <- workflow(
-  survey = list(ech_jan, ech_feb, ech_mar),
-  svymean(~labor_income, na.rm = TRUE),
-  svyratio(~total_income, ~persons, na.rm = TRUE),
-  estimation_type = "monthly"
-)
-
-# Domain estimations
-result_domains <- workflow(
-  survey = list(ech_2023),
-  svyby(~unemployed, ~region_4, svymean, na.rm = TRUE),
-  estimation_type = "annual"
-)
-
-# Multiple estimation types
-result_complete <- workflow(
-  survey = list(ech_quarter),
-  svymean(~activity_rate, na.rm = TRUE),
-  estimation_type = c("monthly", "quarterly")
-)
-} # }
+# \donttest{
+# ECH example with domain estimations
+# result <- workflow(
+#   survey = list(ech_2023),
+#   svyby(~unemployed, ~region, svymean, na.rm = TRUE),
+#   estimation_type = "annual")
+# }
 ```

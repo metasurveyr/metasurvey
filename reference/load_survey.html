@@ -17,7 +17,7 @@ survey types with specific configurations for each one."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@ survey types with specific configurations for each one."><meta property="og:imag
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Load survey from file and create Survey object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/load_survey.R" class="external-link"><code>R/load_survey.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/load_survey.R" class="external-link"><code>R/load_survey.R</code></a></small>
       <div class="d-none name"><code>load_survey.Rd</code></div>
     </div>
 
@@ -141,7 +141,13 @@ be used to build step pipelines without initial data.</p>
     <div class="dont-index"><p><code><a href="add_weight.html">add_weight</a></code> to specify weights
 <code><a href="get_recipe.html">get_recipe</a></code> to get available recipes
 <code><a href="load_survey_example.html">load_survey_example</a></code> to load example data
-<code><a href="load_panel_survey.html">load_panel_survey</a></code> for panel surveys</p></div>
+<code><a href="load_panel_survey.html">load_panel_survey</a></code> for panel surveys</p>
+<p>Other survey-loading:
+<code><a href="extract_time_pattern.html">extract_time_pattern()</a></code>,
+<code><a href="group_dates.html">group_dates()</a></code>,
+<code><a href="load_panel_survey.html">load_panel_survey()</a></code>,
+<code><a href="load_survey_example.html">load_survey_example()</a></code>,
+<code><a href="validate_time_pattern.html">validate_time_pattern()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -174,7 +180,7 @@ be used to build step pipelines without initial data.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With included example data</span></span></span>
 <span class="r-in"><span><span class="va">ech_example</span> <span class="op">&lt;-</span> <span class="fu">load_survey</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu">metasurvey</span><span class="fu">::</span><span class="fu"><a href="load_survey_example.html">load_survey_example</a></span><span class="op">(</span><span class="st">"ech"</span>, <span class="st">"ech_2022"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  path <span class="op">=</span> <span class="fu"><a href="load_survey_example.html">load_survey_example</a></span><span class="op">(</span><span class="st">"ech"</span>, <span class="st">"ech_2022"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  svy_type <span class="op">=</span> <span class="st">"ech"</span>,</span></span>
 <span class="r-in"><span>  svy_edition <span class="op">=</span> <span class="st">"2022"</span>,</span></span>
 <span class="r-in"><span>  svy_weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pesoano"</span><span class="op">)</span></span></span>

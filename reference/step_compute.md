@@ -104,11 +104,22 @@ for categorical recodings
 [`bake_steps`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
 to execute all pending steps
 
+Other steps:
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md),
+[`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
+[`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
+[`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+[`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+[`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+
 ## Examples
 
 ``` r
 # Basic computation
-dt <- data.table::data.table(id = 1:5, age = c(25, 30, 45, 50, 60), w = 1)
+dt <- data.table::data.table(
+  id = 1:5, age = c(25, 30, 45, 50, 60), w = 1
+)
 svy <- Survey$new(
   data = dt, edition = "2023", type = "test",
   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
@@ -124,12 +135,11 @@ get_data(svy)
 #> 4:     4    50     1        2500
 #> 5:     5    60     1        3600
 
-if (FALSE) { # \dontrun{
+# \donttest{
 # ECH example: labor indicator
-ech <- ech |>
-  step_compute(
-    unemployed = ifelse(POBPCOAC %in% 3:5, 1, 0),
-    comment = "Unemployment indicator"
-  )
-} # }
+# ech <- ech |>
+#   step_compute(
+#     unemployed = ifelse(POBPCOAC %in% 3:5, 1, 0),
+#     comment = "Unemployment indicator")
+# }
 ```

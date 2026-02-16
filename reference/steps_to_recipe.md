@@ -50,6 +50,20 @@ steps_to_recipe(
 
 A Recipe object
 
+## See also
+
+Other recipes:
+[`Recipe-class`](https://metasurveyr.github.io/metasurvey/reference/Recipe-class.md),
+[`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md),
+[`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md),
+[`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md),
+[`get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/get_recipe.md),
+[`print.Recipe()`](https://metasurveyr.github.io/metasurvey/reference/print.Recipe.md),
+[`publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/publish_recipe.md),
+[`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
+[`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md),
+[`save_recipe()`](https://metasurveyr.github.io/metasurvey/reference/save_recipe.md)
+
 ## Examples
 
 ``` r

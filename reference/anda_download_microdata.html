@@ -17,7 +17,7 @@ resources, and downloads the appropriate file."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@ resources, and downloads the appropriate file."><meta property="og:image" conten
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Download ECH microdata from ANDA5</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/anda.R" class="external-link"><code>R/anda.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/anda.R" class="external-link"><code>R/anda.R</code></a></small>
       <div class="d-none name"><code>anda_download_microdata.Rd</code></div>
     </div>
 
@@ -112,14 +112,22 @@ a temporary directory.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Character path (or vector of paths for monthly) to the downloaded
-file(s), ready to pass to <code><a href="load_survey.html">load_survey()</a></code> or <code><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">data.table::fread()</a></code>.</p>
+    <p>Character path (or vector of paths for
+monthly) to the downloaded file(s), ready to pass
+to <code><a href="load_survey.html">load_survey()</a></code> or
+<code><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">data.table::fread()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For editions &gt;= 2022, ANDA provides separate files for implantation,
 monthly follow-ups, and bootstrap replicate weights. Use the <code>resource</code>
 parameter to select which file to download.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other anda:
+<code><a href="anda_variables.html">anda_variables()</a></code>,
+<code><a href="api_get_anda_variables.html">api_get_anda_variables()</a></code></p></div>
     </div>
 
     <div class="section level2">

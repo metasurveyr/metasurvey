@@ -59,7 +59,7 @@ Reproducible and portable pipelines
   [`Recipe`](https://metasurveyr.github.io/metasurvey/reference/Recipe-class.md)
   : Recipe R6 class
 - [`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md)
-  : Crear receta de transformación de datos de encuesta
+  : Create a survey data transformation recipe
 - [`steps_to_recipe()`](https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.md)
   : Convert a list of steps to a recipe
 - [`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md)
@@ -157,11 +157,11 @@ Survey estimation workflows
 Panels with implantation and follow-ups
 
 - [`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
-  : Obtener encuesta de implantación de panel rotativo
+  : Get implantation survey from a rotating panel
 - [`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
-  : Obtener encuestas de seguimiento de panel rotativo
+  : Get follow-up surveys from a rotating panel
 - [`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md)
-  : Extraer encuestas por periodicidad de panel rotativo
+  : Extract surveys by periodicity from a rotating panel
 
 ## Weights and Design
 
@@ -179,11 +179,11 @@ Weight and sampling design configuration
 - [`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md)
   : cat_design_type
 - [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md)
-  : set_engine
+  : Configure the survey data engine
 - [`get_engine()`](https://metasurveyr.github.io/metasurvey/reference/get_engine.md)
-  : get_engine
+  : Get the current survey data engine
 - [`show_engines()`](https://metasurveyr.github.io/metasurvey/reference/show_engines.md)
-  : show_engines
+  : List available survey data engines
 - [`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md)
   : Set data copy option
 - [`use_copy_default()`](https://metasurveyr.github.io/metasurvey/reference/use_copy_default.md)
@@ -248,6 +248,21 @@ INE Uruguay ANDA catalog metadata
   : Query ANDA variable metadata from the API
 - [`anda_download_microdata()`](https://metasurveyr.github.io/metasurvey/reference/anda_download_microdata.md)
   : Download ECH microdata from ANDA5
+
+## STATA Transpiler
+
+Convert STATA do-files to metasurvey recipes
+
+- [`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md)
+  : Transpile a STATA .do file to metasurvey steps
+- [`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
+  : Transpile and group do-files by thematic module
+- [`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md)
+  : Analyze transpilation coverage for STATA do-files
+- [`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md)
+  : Parse a STATA .do file into structured commands
+- [`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md)
+  : Parse STATA label commands from source lines
 
 ## Ecosystem Classes
 

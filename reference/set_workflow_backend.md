@@ -23,11 +23,20 @@ set_workflow_backend(type, path = NULL)
 
 Invisibly, the WorkflowBackend object created.
 
+## See also
+
+Other backends:
+[`get_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_backend.md),
+[`get_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_workflow_backend.md),
+[`set_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_backend.md)
+
 ## Examples
 
 ``` r
+# \donttest{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
+# }
 if (FALSE) { # \dontrun{
-set_workflow_backend("local", path = "my_workflows.json")
 set_workflow_backend("api")
 } # }
 ```

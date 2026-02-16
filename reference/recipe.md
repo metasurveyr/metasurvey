@@ -1,9 +1,9 @@
-# Crear receta de transformación de datos de encuesta
+# Create a survey data transformation recipe
 
-Esta función crea un objeto Recipe que encapsula una secuencia de
-transformaciones de datos que pueden ser aplicadas a encuestas de manera
-reproducible. Las recetas permiten documentar, compartir y reutilizar
-workflows de procesamiento de datos.
+Creates a Recipe object that encapsulates a sequence of data
+transformations that can be applied to surveys in a reproducible manner.
+Recipes allow documenting, sharing, and reusing data processing
+workflows.
 
 ## Usage
 
@@ -15,61 +15,75 @@ recipe(...)
 
 - ...:
 
-  A list with the following metadata: name, user, svy, description
+  Required metadata and optional steps. Required parameters:
+
+  - `name`: Descriptive name for the recipe
+
+  - `user`: User/author creating the recipe
+
+  - `svy`: Base Survey object (use
+    [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md)
+    for generic recipes)
+
+  - `description`: Detailed description of the recipe's purpose
+
+  Optional parameters include data transformation steps.
 
 ## Value
 
-Objeto `Recipe` que contiene:
-
-- Metadata completa de la receta
-
-- Lista de steps de transformación
-
-- Información de dependencias
-
-- Configuración de motor por defecto
-
-A Recipe object
+A `Recipe` object containing metadata, transformation steps, dependency
+information, and default engine configuration.
 
 ## Details
 
-Las recetas son fundamentales para:
+Recipes are essential for:
 
-- Reproducibilidad: Garantizar que las transformaciones se apliquen
-  consistentemente
+- Reproducibility: Ensure transformations are applied consistently
 
-- Documentación: Mantener registro de qué transformaciones se realizan y
-  por qué
+- Documentation: Keep a record of what transformations are performed and
+  why
 
-- Colaboración: Compartir workflows entre usuarios y equipos
+- Collaboration: Share workflows between users and teams
 
-- Versionado: Mantener diferentes versiones de procesamiento para
-  distintas ediciones
+- Versioning: Maintain different processing versions for different
+  editions
 
-- Automatización: Aplicar transformaciones complejas automáticamente
+- Automation: Apply complex transformations automatically
 
-Los steps incluidos en la receta pueden ser cualquier combinación de
-`step_compute`, `step_recode`, u otros steps de transformación.
+Steps included in the recipe can be any combination of `step_compute`,
+`step_recode`, or other transformation steps.
 
-Las recetas se pueden guardar con
+Recipes can be saved with
 [`save_recipe()`](https://metasurveyr.github.io/metasurvey/reference/save_recipe.md),
-cargar con
+loaded with
 [`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
-y aplicar automáticamente con
+and applied automatically with
 [`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md).
 
 ## See also
 
 [`Recipe`](https://metasurveyr.github.io/metasurvey/reference/Recipe-class.md)
-para la definición de la clase
+for class definition
 [`save_recipe`](https://metasurveyr.github.io/metasurvey/reference/save_recipe.md)
-para guardar recetas
+to save recipes
 [`read_recipe`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md)
-para cargar recetas
+to load recipes
 [`get_recipe`](https://metasurveyr.github.io/metasurvey/reference/get_recipe.md)
-para obtener recetas del repositorio
+to retrieve recipes from repository
 [`bake_recipes`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md)
-para aplicar recetas a datos
+to apply recipes to data
+
+Other recipes:
+[`Recipe-class`](https://metasurveyr.github.io/metasurvey/reference/Recipe-class.md),
+[`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md),
+[`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md),
+[`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md),
+[`get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/get_recipe.md),
+[`print.Recipe()`](https://metasurveyr.github.io/metasurvey/reference/print.Recipe.md),
+[`publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/publish_recipe.md),
+[`read_recipe()`](https://metasurveyr.github.io/metasurvey/reference/read_recipe.md),
+[`save_recipe()`](https://metasurveyr.github.io/metasurvey/reference/save_recipe.md),
+[`steps_to_recipe()`](https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.md)
 
 ## Examples
 

@@ -133,51 +133,52 @@ to execute all pending steps
 [`get_steps`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md)
 to view step history
 
+Other steps:
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md),
+[`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
+[`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+[`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
+[`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+[`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Create labor force status variable
-ech <- ech |>
-  step_recode(
-    labor_status,
-    POBPCOAC == 2 ~ "Employed",
-    POBPCOAC %in% 3:5 ~ "Unemployed",
-    POBPCOAC %in% 6:8 ~ "Inactive",
-    .default = "Missing",
-    comment = "Labor force status from ECH"
-  )
-
-# Create age groups
-ech <- ech |>
+# Basic recode: categorize ages
+dt <- data.table::data.table(
+  id = 1:6, age = c(10, 25, 45, 60, 70, 80), w = 1
+)
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "test",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
+svy <- svy |>
   step_recode(
     age_group,
-    e27 < 18 ~ "Under 18",
-    e27 >= 18 & e27 < 65 ~ "Working age",
-    e27 >= 65 ~ "Senior",
-    .default = "Missing",
-    .to_factor = TRUE,
-    ordered = TRUE,
-    comment = "Standard age groups"
+    age < 18 ~ "Under 18",
+    age >= 18 & age < 65 ~ "Working age",
+    age >= 65 ~ "Senior",
+    .default = "Unknown"
   )
+svy <- bake_steps(svy)
+get_data(svy)
+#>       id   age     w   age_group
+#>    <int> <num> <num>      <char>
+#> 1:     1    10     1    Under 18
+#> 2:     2    25     1 Working age
+#> 3:     3    45     1 Working age
+#> 4:     4    60     1 Working age
+#> 5:     5    70     1      Senior
+#> 6:     6    80     1      Senior
 
-# Dummy variable
-ech <- ech |>
-  step_recode(
-    household_head,
-    e30 == 1 ~ 1,
-    .default = 0,
-    comment = "Household head indicator"
-  )
-
-# For rotative panel
-panel <- panel |>
-  step_recode(
-    region_simple,
-    REGION_4 == 1 ~ "Montevideo",
-    REGION_4 != 1 ~ "Interior",
-    .level = "implantation",
-    comment = "Simplified region"
-  )
-} # }
+# \donttest{
+# ECH example: labor force status
+# ech <- ech |>
+#   step_recode(labor_status,
+#     POBPCOAC == 2 ~ "Employed",
+#     POBPCOAC %in% 3:5 ~ "Unemployed",
+#     .default = "Missing")
+# }
 ```

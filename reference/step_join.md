@@ -76,6 +76,17 @@ implantation and every follow_up survey.
 - Avoids extra dependencies; resolves name conflicts by suffixing RHS
   columns
 
+## See also
+
+Other steps:
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md),
+[`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
+[`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+[`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+[`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+[`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+
 ## Examples
 
 ``` r

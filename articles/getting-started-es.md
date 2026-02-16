@@ -261,6 +261,21 @@ para ejecutar todas las transformaciones pendientes:
 ``` r
 svy <- bake_steps(svy)
 head(get_data(svy), 3)
+#>     dpto numero   age sex_code  ht11 POBPCOAC pesoano ht11_thousands employed
+#>    <int>  <int> <int>    <num> <num>    <num>   <num>          <num>    <num>
+#> 1:     1      9    66        1 48617        2  2.2527         48.617        1
+#> 2:     1     39    47        1 74100        2  2.6680         74.100        1
+#> 3:     1     52    21        2 35551        2  1.6245         35.551        1
+#>    labor_status      age_group gender  dpto_name     region dpto_name.y
+#>          <char>         <fctr> <char>     <char>     <char>      <char>
+#> 1:     Employed           <NA>   Male Montevideo Montevideo  Montevideo
+#> 2:     Employed Mature (45-64)   Male Montevideo Montevideo  Montevideo
+#> 3:     Employed Mature (45-64) Female Montevideo Montevideo  Montevideo
+#>      region.y
+#>        <char>
+#> 1: Montevideo
+#> 2: Montevideo
+#> 3: Montevideo
 ```
 
 El historial de steps se preserva para documentacion y reproducibilidad:
@@ -268,10 +283,13 @@ El historial de steps se preserva para documentacion y reproducibilidad:
 ``` r
 steps <- get_steps(svy)
 length(steps) # Number of transformation steps
+#> [1] 11
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
+#> Step 1: step_1 Compute: ht11_thousands, employed, working_age
 cat("Comment:", steps[[1]]$comments, "\n")
+#> Comment: Basic labor force indicators
 ```
 
 ### Visualizacion del pipeline
@@ -536,13 +554,13 @@ Se pueden modificar las configuraciones para la sesion actual:
 
 ``` r
 # Disable lazy evaluation (execute steps immediately)
-set_lazy(FALSE)
+set_lazy_processing(FALSE)
 
 # Modify inplace (faster, but modifies original data)
 set_use_copy(FALSE)
 
 # Reset to defaults
-set_lazy(TRUE)
+set_lazy_processing(TRUE)
 set_use_copy(TRUE)
 ```
 

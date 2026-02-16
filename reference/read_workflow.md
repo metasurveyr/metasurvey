@@ -18,6 +18,18 @@ read_workflow(file)
 
 A RecipeWorkflow object
 
+## See also
+
+Other workflows:
+[`RecipeWorkflow-class`](https://metasurveyr.github.io/metasurvey/reference/RecipeWorkflow-class.md),
+[`evaluate_cv()`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md),
+[`print.RecipeWorkflow()`](https://metasurveyr.github.io/metasurvey/reference/print.RecipeWorkflow.md),
+[`publish_workflow()`](https://metasurveyr.github.io/metasurvey/reference/publish_workflow.md),
+[`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
+[`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md),
+[`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md),
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+
 ## Examples
 
 ``` r

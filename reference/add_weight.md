@@ -71,10 +71,13 @@ where this configuration is used
 [`workflow`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
 that automatically selects weights
 
+Other weights:
+[`add_replicate()`](https://metasurveyr.github.io/metasurvey/reference/add_replicate.md),
+[`resolve_weight_spec()`](https://metasurveyr.github.io/metasurvey/reference/resolve_weight_spec.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # Basic configuration with simple weight variables
 ech_weights <- add_weight(
   monthly = "pesomes",
@@ -82,6 +85,7 @@ ech_weights <- add_weight(
   annual = "pesoano"
 )
 
+if (FALSE) { # \dontrun{
 # With bootstrap replicates for variance estimation
 weights_with_replicates <- add_weight(
   monthly = add_replicate(

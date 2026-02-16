@@ -40,6 +40,13 @@ https://github.com/metasurveyr/metasurvey_data
 [`load_survey`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md)
 for loading the downloaded data
 
+Other survey-loading:
+[`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md),
+[`group_dates()`](https://metasurveyr.github.io/metasurvey/reference/group_dates.md),
+[`load_panel_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md),
+[`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md),
+[`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
+
 ## Examples
 
 ``` r

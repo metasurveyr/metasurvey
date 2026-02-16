@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Getting Started with metasurvey</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="d-none name"><code>getting-started.Rmd</code></div>
     </div>
 
@@ -130,7 +130,7 @@ the infrastructure.</p>
 <code class="sourceCode R"><span><span class="co"># Install from GitHub</span></span>
 <span><span class="co"># devtools::install_github("metaSurveyR/metasurvey")</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey">metasurvey</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -164,7 +164,7 @@ Instituto Nacional de Estadistica (INE). Key variables include:</p>
 <strong>pesoano</strong>: Annual expansion factor (weight)</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey">metasurvey</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
@@ -339,16 +339,34 @@ This is useful for adding:</p>
 transformations:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     dpto numero   age sex_code  ht11 POBPCOAC pesoano ht11_thousands employed</span></span>
+<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;    &lt;num&gt; &lt;num&gt;    &lt;num&gt;   &lt;num&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     1      9    66        1 48617        2  2.2527         48.617        1</span></span>
+<span><span class="co">#&gt; 2:     1     39    47        1 74100        2  2.6680         74.100        1</span></span>
+<span><span class="co">#&gt; 3:     1     52    21        2 35551        2  1.6245         35.551        1</span></span>
+<span><span class="co">#&gt;    labor_status      age_group gender  dpto_name     region dpto_name.y</span></span>
+<span><span class="co">#&gt;          &lt;char&gt;         &lt;fctr&gt; &lt;char&gt;     &lt;char&gt;     &lt;char&gt;      &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     Employed           &lt;NA&gt;   Male Montevideo Montevideo  Montevideo</span></span>
+<span><span class="co">#&gt; 2:     Employed Mature (45-64)   Male Montevideo Montevideo  Montevideo</span></span>
+<span><span class="co">#&gt; 3:     Employed Mature (45-64) Female Montevideo Montevideo  Montevideo</span></span>
+<span><span class="co">#&gt;      region.y</span></span>
+<span><span class="co">#&gt;        &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: Montevideo</span></span>
+<span><span class="co">#&gt; 2: Montevideo</span></span>
+<span><span class="co">#&gt; 3: Montevideo</span></span></code></pre></div>
 <p>The step history is preserved for documentation and
 reproducibility:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">steps</span><span class="op">)</span> <span class="co"># Number of transformation steps</span></span>
+<span><span class="co">#&gt; [1] 11</span></span>
 <span></span>
 <span><span class="co"># View step details</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Step 1:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Comment:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">comments</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; Step 1: step_1 Compute: ht11_thousands, employed, working_age</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Comment:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">comments</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Comment: Basic labor force indicators</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualizing-the-pipeline">Visualizing the pipeline<a class="anchor" aria-label="anchor" href="#visualizing-the-pipeline"></a>
@@ -638,13 +656,13 @@ workflow:</p>
 <p>You can modify settings for the current session:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Disable lazy evaluation (execute steps immediately)</span></span>
-<span><span class="fu">set_lazy</span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/set_lazy_processing.html">set_lazy_processing</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Modify inplace (faster, but modifies original data)</span></span>
 <span><span class="fu"><a href="../reference/set_use_copy.html">set_use_copy</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reset to defaults</span></span>
-<span><span class="fu">set_lazy</span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/set_lazy_processing.html">set_lazy_processing</a></span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/set_use_copy.html">set_use_copy</a></span><span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

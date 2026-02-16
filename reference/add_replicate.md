@@ -78,6 +78,10 @@ replicate design in survey package
 [`load_survey`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md)
 where this configuration is used
 
+Other weights:
+[`add_weight()`](https://metasurveyr.github.io/metasurvey/reference/add_weight.md),
+[`resolve_weight_spec()`](https://metasurveyr.github.io/metasurvey/reference/resolve_weight_spec.md)
+
 ## Examples
 
 ``` r

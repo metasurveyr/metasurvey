@@ -13,6 +13,13 @@ get_backend()
 
 RecipeBackend object
 
+## See also
+
+Other backends:
+[`get_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_workflow_backend.md),
+[`set_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_backend.md),
+[`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md)
+
 ## Examples
 
 ``` r
@@ -34,6 +41,6 @@ backend
 #>     search: function (query) 
 #>     type: local
 #>   Private:
-#>     .path: /tmp/Rtmp0OGaHX/file1a6f10a46b11.json
+#>     .path: /tmp/RtmpPBp4jc/file1a2b1503d785.json
 #>     .registry: RecipeRegistry, R6
 ```

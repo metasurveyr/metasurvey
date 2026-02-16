@@ -8,6 +8,14 @@ manipulate survey data, steps, recipes, workflows, and designs.
 
 An object of class `RotativePanelSurvey`.
 
+## See also
+
+Other panel-surveys:
+[`PoolSurvey`](https://metasurveyr.github.io/metasurvey/reference/PoolSurvey.md),
+[`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+[`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md),
+[`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
+
 ## Public fields
 
 - `implantation`:

@@ -111,6 +111,13 @@ to load example data
 [`load_panel_survey`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md)
 for panel surveys
 
+Other survey-loading:
+[`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md),
+[`group_dates()`](https://metasurveyr.github.io/metasurvey/reference/group_dates.md),
+[`load_panel_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md),
+[`load_survey_example()`](https://metasurveyr.github.io/metasurvey/reference/load_survey_example.md),
+[`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
+
 ## Examples
 
 ``` r
@@ -142,7 +149,7 @@ pipeline <- load_survey(
 
 # With included example data
 ech_example <- load_survey(
-  metasurvey::load_survey_example("ech", "ech_2022"),
+  path = load_survey_example("ech", "ech_2022"),
   svy_type = "ech",
   svy_edition = "2022",
   svy_weight = add_weight(annual = "pesoano")

@@ -18,6 +18,12 @@ api_get_workflow(id)
 
 RecipeWorkflow object or NULL
 
+## See also
+
+Other api-workflows:
+[`api_list_workflows()`](https://metasurveyr.github.io/metasurvey/reference/api_list_workflows.md),
+[`api_publish_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_publish_workflow.md)
+
 ## Examples
 
 ``` r

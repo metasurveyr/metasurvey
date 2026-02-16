@@ -41,6 +41,15 @@ api_register(
 
 Invisibly, the API response (list with `ok`, `token`, `user`).
 
+## See also
+
+Other api-auth:
+[`api_login()`](https://metasurveyr.github.io/metasurvey/reference/api_login.md),
+[`api_logout()`](https://metasurveyr.github.io/metasurvey/reference/api_logout.md),
+[`api_me()`](https://metasurveyr.github.io/metasurvey/reference/api_me.md),
+[`api_refresh_token()`](https://metasurveyr.github.io/metasurvey/reference/api_refresh_token.md),
+[`configure_api()`](https://metasurveyr.github.io/metasurvey/reference/configure_api.md)
+
 ## Examples
 
 ``` r

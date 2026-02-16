@@ -24,6 +24,12 @@ anda_variables(survey_type = "ech", var_names = NULL)
 
 A data.frame with columns: name, label, type
 
+## See also
+
+Other anda:
+[`anda_download_microdata()`](https://metasurveyr.github.io/metasurvey/reference/anda_download_microdata.md),
+[`api_get_anda_variables()`](https://metasurveyr.github.io/metasurvey/reference/api_get_anda_variables.md)
+
 ## Examples
 
 ``` r

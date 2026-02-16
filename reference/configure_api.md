@@ -20,6 +20,15 @@ configure_api(url)
 
 Invisibly, the previous URL (for restoring).
 
+## See also
+
+Other api-auth:
+[`api_login()`](https://metasurveyr.github.io/metasurvey/reference/api_login.md),
+[`api_logout()`](https://metasurveyr.github.io/metasurvey/reference/api_logout.md),
+[`api_me()`](https://metasurveyr.github.io/metasurvey/reference/api_me.md),
+[`api_refresh_token()`](https://metasurveyr.github.io/metasurvey/reference/api_refresh_token.md),
+[`api_register()`](https://metasurveyr.github.io/metasurvey/reference/api_register.md)
+
 ## Examples
 
 ``` r

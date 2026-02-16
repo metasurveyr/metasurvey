@@ -15,7 +15,7 @@ Recipe R6 class"><meta property="og:image" content="https://metasurveyr.github.i
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ Recipe R6 class"><meta property="og:image" content="https://metasurveyr.github.i
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Recipe R6 class</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
       <div class="d-none name"><code>Recipe-class.Rd</code></div>
     </div>
 
@@ -71,21 +71,38 @@ transformation steps to be applied to a Survey object.</p>
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 
-<dl><dt>$new(name, edition, survey_type, default_engine, depends_on, user, description, steps, id, doi, topic)</dt>
+<dl><dt>$new(name, edition, survey_type,
+default_engine, depends_on, user, description,
+steps, id, doi, topic)</dt>
 <dd><p>Class constructor.</p></dd>
 
 <dt>$doc()</dt>
-<dd><p>Auto-generate documentation from recipe steps. Returns a list with metadata, input_variables, output_variables, and pipeline information.</p></dd>
+<dd><p>Auto-generate documentation from
+recipe steps. Returns a list with metadata,
+input_variables, output_variables, and pipeline
+information.</p></dd>
 
 <dt>$validate(svy)</dt>
-<dd><p>Validate that a survey object has all required input variables.</p></dd>
+<dd><p>Validate that a survey
+object has all required input variables.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="recipe.html">recipe</a></code>, <code><a href="save_recipe.html">save_recipe</a></code>,
-<code><a href="read_recipe.html">read_recipe</a></code>, <code><a href="bake_recipes.html">bake_recipes</a></code></p></div>
+<code><a href="read_recipe.html">read_recipe</a></code>, <code><a href="bake_recipes.html">bake_recipes</a></code></p>
+<p>Other recipes:
+<code><a href="add_recipe.html">add_recipe()</a></code>,
+<code><a href="bake_recipes.html">bake_recipes()</a></code>,
+<code><a href="explore_recipes.html">explore_recipes()</a></code>,
+<code><a href="get_recipe.html">get_recipe()</a></code>,
+<code><a href="print.Recipe.html">print.Recipe()</a></code>,
+<code><a href="publish_recipe.html">publish_recipe()</a></code>,
+<code><a href="read_recipe.html">read_recipe()</a></code>,
+<code><a href="recipe.html">recipe()</a></code>,
+<code><a href="save_recipe.html">save_recipe()</a></code>,
+<code><a href="steps_to_recipe.html">steps_to_recipe()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -138,7 +155,8 @@ transformation steps to be applied to a Survey object.</p>
 
 
 <dt><code>step_objects</code></dt>
-<dd><p>List of Step R6 objects (list|NULL), used for documentation generation.</p></dd>
+<dd><p>List of Step R6 objects (list|NULL),
+used for documentation generation.</p></dd>
 
 
 <dt><code>categories</code></dt>
@@ -162,11 +180,19 @@ transformation steps to be applied to a Survey object.</p>
 
 
 <dt><code>depends_on_recipes</code></dt>
-<dd><p>List of recipe IDs that must be applied before this one.</p></dd>
+<dd><p>List of recipe IDs that must
+be applied before this one.</p></dd>
 
 
 <dt><code>data_source</code></dt>
-<dd><p>List with S3 bucket info (s3_bucket, s3_prefix, file_pattern, provider) or NULL.</p></dd>
+<dd><p>List with S3 bucket info
+(s3_bucket, s3_prefix, file_pattern, provider)
+or NULL.</p></dd>
+
+
+<dt><code>labels</code></dt>
+<dd><p>List with variable and value labels
+(var_labels, val_labels) or NULL.</p></dd>
 
 
 </dl><p></p></div>
@@ -210,7 +236,8 @@ transformation steps to be applied to a Survey object.</p>
 <span>  user_info <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
 <span>  depends_on_recipes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  data_source <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  data_source <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -261,11 +288,13 @@ transformation steps to be applied to a Survey object.</p>
 
 
 <dt><code>step_objects</code></dt>
-<dd><p>List of Step R6 objects (optional, used for doc generation)</p></dd>
+<dd><p>List of Step R6 objects
+(optional, used for doc generation)</p></dd>
 
 
 <dt><code>cached_doc</code></dt>
-<dd><p>Pre-computed documentation (optional, used when loading from JSON)</p></dd>
+<dd><p>Pre-computed documentation
+(optional, used when loading from JSON)</p></dd>
 
 
 <dt><code>categories</code></dt>
@@ -277,7 +306,8 @@ transformation steps to be applied to a Survey object.</p>
 
 
 <dt><code>certification</code></dt>
-<dd><p>RecipeCertification object (optional, default community)</p></dd>
+<dd><p>RecipeCertification object
+(optional, default community)</p></dd>
 
 
 <dt><code>user_info</code></dt>
@@ -289,11 +319,16 @@ transformation steps to be applied to a Survey object.</p>
 
 
 <dt><code>depends_on_recipes</code></dt>
-<dd><p>List of recipe IDs that must be applied before this one (optional)</p></dd>
+<dd><p>List of recipe IDs
+that must be applied before this one (optional)</p></dd>
 
 
 <dt><code>data_source</code></dt>
 <dd><p>List with S3 bucket info (optional)</p></dd>
+
+
+<dt><code>labels</code></dt>
+<dd><p>List with var_labels and val_labels (optional)</p></dd>
 
 
 </dl><p></p></div>
@@ -381,7 +416,8 @@ Steps are encoded as character strings via deparse().</p><div class="section">
 
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>A list with metadata, input_variables, output_variables, and pipeline information</p>
+<p>A list with metadata, input_variables,
+output_variables, and pipeline information</p>
 </div>
 
 </div><p></p><hr><a id="method-Recipe-validate"></a><div class="section">
@@ -401,7 +437,8 @@ Steps are encoded as character strings via deparse().</p><div class="section">
 </div>
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>TRUE if valid, otherwise stops with error listing missing variables</p>
+<p>TRUE if valid, otherwise stops with
+error listing missing variables</p>
 </div>
 
 </div><p></p><hr><a id="method-Recipe-clone"></a><div class="section">

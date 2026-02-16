@@ -138,6 +138,17 @@ faster than clone(deep=TRUE) but design objects are shared.
 [`cat_design`](https://metasurveyr.github.io/metasurvey/reference/cat_design.md),
 [`cat_recipes`](https://metasurveyr.github.io/metasurvey/reference/cat_recipes.md)
 
+Other survey-objects:
+[`cat_design()`](https://metasurveyr.github.io/metasurvey/reference/cat_design.md),
+[`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md),
+[`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
+[`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+[`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
+[`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
+[`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
+[`survey_to_data_frame()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.md),
+[`survey_to_tibble()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_tibble.md)
+
 ## Public fields
 
 - `data`:

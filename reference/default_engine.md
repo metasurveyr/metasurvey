@@ -1,8 +1,8 @@
-# default_engine
+# Set default engine
 
-This function sets a default engine for loading surveys. If an engine is
-already configured, it keeps it; otherwise, it sets "data.table" as the
-default engine.
+Sets a default engine for loading surveys. If an engine is already
+configured, it keeps it; otherwise, it sets "data.table" as the default
+engine.
 
 ## Usage
 

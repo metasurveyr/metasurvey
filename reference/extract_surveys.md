@@ -1,9 +1,9 @@
-# Extraer encuestas por periodicidad de panel rotativo
+# Extract surveys by periodicity from a rotating panel
 
-Esta función extrae subconjuntos de encuestas de un objeto
-RotativePanelSurvey basándose en criterios temporales específicos.
-Permite obtener encuestas para diferentes tipos de análisis (mensual,
-trimestral, anual) respetando la estructura temporal del panel rotativo.
+Extracts subsets of surveys from a RotativePanelSurvey object based on
+temporal criteria. Allows obtaining surveys for different types of
+analysis (monthly, quarterly, annual) respecting the rotating panel's
+temporal structure.
 
 ## Usage
 
@@ -23,131 +23,133 @@ extract_surveys(
 
 - RotativePanelSurvey:
 
-  Objeto `RotativePanelSurvey` que contiene las encuestas del panel
-  rotativo organizadas temporalmente
+  A `RotativePanelSurvey` object containing the rotating panel surveys
+  organized temporally
 
 - index:
 
-  Vector de enteros que especifica índices específicos de encuestas a
-  extraer. Si es un solo valor, devuelve esa encuesta; si es un vector,
-  devuelve una lista
+  Integer vector specifying survey indices to extract. If a single
+  value, returns that survey; if a vector, returns a list
 
 - monthly:
 
-  Vector de enteros que especifica qué meses extraer para análisis
-  mensual (1-12)
+  Integer vector specifying which months to extract for monthly analysis
+  (1-12)
 
 - annual:
 
-  Vector de enteros que especifica qué años extraer para análisis anual
+  Integer vector specifying which years to extract for annual analysis
 
 - quarterly:
 
-  Vector de enteros que especifica qué trimestres extraer para análisis
-  trimestral (1-4)
+  Integer vector specifying which quarters to extract for quarterly
+  analysis (1-4)
 
 - biannual:
 
-  Vector de enteros que especifica qué semestres extraer para análisis
-  semestral (1-2)
+  Integer vector specifying which semesters to extract for biannual
+  analysis (1-2)
 
 - use.parallel:
 
-  Lógico que indica si usar procesamiento en paralelo para operaciones
-  intensivas. Por defecto FALSE
+  Logical indicating whether to use parallel processing for intensive
+  operations. Default FALSE
 
 ## Value
 
-Lista de objetos `Survey` que corresponden a los criterios
-especificados, o un solo objeto `Survey` si se especifica un índice
-único
+A list of `Survey` objects matching the specified criteria, or a single
+`Survey` object if a single index is specified
 
 ## Details
 
-Esta función es esencial para trabajar con paneles rotativos porque:
+This function is essential for working with rotating panels because:
 
-- Facilita análisis por periodicidad: Permite extraer datos para
-  diferentes tipos de estimaciones temporales
+- Enables periodicity-based analysis: Extract data for different types
+  of temporal estimations
 
-- Mantiene estructura temporal: Respeta las relaciones temporales entre
-  las diferentes ondas del panel
+- Preserves temporal structure: Respects temporal relationships between
+  different panel waves
 
-- Optimiza memoria: Solo carga las encuestas necesarias para el análisis
+- Optimizes memory: Only loads surveys needed for the analysis
 
-- Facilita comparaciones: Permite extraer períodos específicos para
-  análisis comparativos
+- Facilitates comparisons: Extract specific periods for comparative
+  analysis
 
-- Soporta paralelización: Para operaciones con grandes volúmenes de
-  datos
+- Supports parallelization: For operations with large data volumes
 
-Los criterios de extracción se interpretan según la frecuencia de la
-encuesta:
+Extraction criteria are interpreted according to survey frequency:
 
-- Para ECH mensual: monthly=c(1,3,6) extrae enero, marzo y junio
+- For monthly ECH: monthly=c(1,3,6) extracts January, March and June
 
-- Para análisis anual: annual=1 típicamente extrae el primer año
-  disponible
+- For annual analysis: annual=1 typically extracts the first available
+  year
 
-- Para análisis trimestral: quarterly=c(1,4) extrae Q1 y Q4
+- For quarterly analysis: quarterly=c(1,4) extracts Q1 and Q4
 
-Si no se especifica ningún criterio, la función devuelve la encuesta de
-implantación con una advertencia.
+If no criteria are specified, the function returns the implantation
+survey with a warning.
 
 ## See also
 
 [`load_panel_survey`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md)
-para cargar paneles rotativos
+for loading rotating panels
 [`get_implantation`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
-para obtener datos de implantación
+for obtaining implantation data
 [`get_follow_up`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
-para obtener datos de seguimiento
+for obtaining follow-up data
 [`workflow`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
-para usar las encuestas extraídas en análisis
+for using extracted surveys in analysis
+
+Other panel-surveys:
+[`PoolSurvey`](https://metasurveyr.github.io/metasurvey/reference/PoolSurvey.md),
+[`RotativePanelSurvey`](https://metasurveyr.github.io/metasurvey/reference/RotativePanelSurvey.md),
+[`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md),
+[`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Cargar panel rotativo
+# Load rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
-# Extraer encuestas mensuales específicas
-ech_trimestre1 <- extract_surveys(
+# Extract specific monthly surveys
+ech_q1 <- extract_surveys(
   panel_ech,
-  monthly = c(1, 2, 3) # Enero, febrero, marzo
+  monthly = c(1, 2, 3) # January, February, March
 )
 
-# Extraer por índice
-ech_primera <- extract_surveys(panel_ech, index = 1)
-ech_varias <- extract_surveys(panel_ech, index = c(1, 3, 6))
+# Extract by index
+ech_first <- extract_surveys(panel_ech, index = 1)
+ech_several <- extract_surveys(panel_ech, index = c(1, 3, 6))
 
-# Análisis trimestral
+# Quarterly analysis
 ech_Q1_Q4 <- extract_surveys(
   panel_ech,
   quarterly = c(1, 4)
 )
 
-# Para análisis anual (típicamente todas las encuestas del año)
-ech_anual <- extract_surveys(
+# Annual analysis (typically all surveys for the year)
+ech_annual <- extract_surveys(
   panel_ech,
   annual = 1
 )
 
-# Con procesamiento paralelo para grandes volúmenes
-ech_completo <- extract_surveys(
+# With parallel processing for large volumes
+ech_full <- extract_surveys(
   panel_ech,
   monthly = 1:12,
   use.parallel = TRUE
 )
 
-# Usar en workflow
-resultados <- workflow(
+# Use in workflow
+results <- workflow(
   survey = extract_surveys(panel_ech, quarterly = c(1, 2)),
-  svymean(~desocupado, na.rm = TRUE),
+  svymean(~unemployed, na.rm = TRUE),
   estimation_type = "quarterly"
 )
 } # }

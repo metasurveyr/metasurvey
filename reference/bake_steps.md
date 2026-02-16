@@ -30,6 +30,17 @@ can reference variables created by previous steps.
 For RotativePanelSurvey objects, steps are applied to both the
 implantation and all follow-up surveys.
 
+## See also
+
+Other steps:
+[`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
+[`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+[`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
+[`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+[`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+[`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+
 ## Examples
 
 ``` r

@@ -1,10 +1,9 @@
-# Obtener encuestas de seguimiento de panel rotativo
+# Get follow-up surveys from a rotating panel
 
-Esta función extrae una o múltiples encuestas de seguimiento (ondas
-posteriores a la implantación) de un objeto RotativePanelSurvey. Las
-encuestas de seguimiento representan las recolecciones posteriores del
-panel y son esenciales para análisis longitudinales y de cambio
-temporal.
+Extracts one or more follow-up surveys (waves after the implantation)
+from a RotativePanelSurvey object. Follow-up surveys represent
+subsequent data collections and are essential for longitudinal and
+temporal change analysis.
 
 ## Usage
 
@@ -19,107 +18,102 @@ get_follow_up(
 
 - RotativePanelSurvey:
 
-  Objeto `RotativePanelSurvey` del cual extraer las encuestas de
-  seguimiento
+  A `RotativePanelSurvey` object from which to extract the follow-up
+  surveys
 
 - index:
 
-  Vector de enteros que especifica cuáles encuestas de seguimiento
-  extraer. Por defecto extrae todas las disponibles
-  (1:length(follow_up)). Puede ser un solo índice o un vector de índices
+  Integer vector specifying which follow-up surveys to extract. Defaults
+  to all available (1:length(follow_up)). Can be a single index or a
+  vector of indices
 
 ## Value
 
-Lista de objetos `Survey` correspondientes a las encuestas de
-seguimiento especificadas. Si se especifica un solo índice, devuelve una
-lista con un elemento
+A list of `Survey` objects corresponding to the specified follow-up
+surveys. If a single index is specified, returns a list with one element
 
 ## Details
 
-Las encuestas de seguimiento son fundamentales en paneles rotativos
-porque:
+Follow-up surveys are fundamental in rotating panels because:
 
-- Permiten análisis longitudinal: Seguimiento de las mismas unidades a
-  través del tiempo
+- Enable longitudinal analysis: Track the same units over time
 
-- Capturan cambios temporales: Evolución de variables económicas,
-  sociales y demográficas
+- Capture temporal changes: Evolution of economic, social, and
+  demographic variables
 
-- Mantienen representatividad: Cada onda mantiene representatividad
-  poblacional mediante rotación controlada
+- Maintain representativeness: Each wave preserves population
+  representativeness through controlled rotation
 
-- Optimizan recursos: Reutilizan información de ondas anteriores para
-  reducir costos de recolección
+- Optimize resources: Reuse information from previous waves to reduce
+  collection costs
 
-- Facilitan comparaciones: Estructura temporal consistente para análisis
-  de tendencias
+- Facilitate comparisons: Consistent temporal structure for trend
+  analysis
 
-En paneles rotativos como ECH:
+In rotating panels like ECH:
 
-- Cada onda de seguimiento cubre un período específico
-  (mensual/trimestral)
+- Each follow-up wave covers a specific period (monthly/quarterly)
 
-- Las unidades rotan gradualmente manteniendo overlap temporal
+- Units rotate gradually maintaining temporal overlap
 
-- Los índices corresponden al orden cronológico de recolección
+- Indices correspond to the chronological collection order
 
-- Cada seguimiento mantiene consistencia metodológica con implantación
+- Each follow-up maintains methodological consistency with implantation
 
 ## See also
 
 [`get_implantation`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
-para obtener la encuesta de implantación
+for obtaining the implantation survey
 [`extract_surveys`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md)
-para extraer encuestas por criterios temporales
+for extracting surveys by temporal criteria
 [`load_panel_survey`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md)
-para cargar paneles rotativos
+for loading rotating panels
 [`workflow`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
-para análisis con encuestas de seguimiento
+for analysis with follow-up surveys
+
+Other panel-surveys:
+[`PoolSurvey`](https://metasurveyr.github.io/metasurvey/reference/PoolSurvey.md),
+[`RotativePanelSurvey`](https://metasurveyr.github.io/metasurvey/reference/RotativePanelSurvey.md),
+[`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+[`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# Cargar panel rotativo
+# Load rotating panel
 panel_ech <- load_panel_survey(
   path = "ech_panel_2023.dta",
   svy_type = "ech_panel",
   svy_edition = "2023"
 )
 
-# Obtener primera encuesta de seguimiento
-seguimiento_1 <- get_follow_up(panel_ech, index = 1)[[1]]
+# Get first follow-up survey
+followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
 
-# Obtener múltiples seguimientos
-seguimientos_trim1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
+# Get multiple follow-ups
+followups_q1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
 
-# Obtener todos los seguimientos disponibles
-todos_seguimientos <- get_follow_up(panel_ech)
+# Get all available follow-ups
+all_followups <- get_follow_up(panel_ech)
 
-# Verificar número de seguimientos disponibles
-n_seguimientos <- length(get_follow_up(panel_ech))
-cat("Seguimientos disponibles:", n_seguimientos)
+# Check number of available follow-ups
+n_followups <- length(get_follow_up(panel_ech))
+cat("Available follow-ups:", n_followups)
 
-# Análisis longitudinal con seguimientos
-implantacion <- get_implantation(panel_ech)
-seguimiento_final <- get_follow_up(panel_ech, index = n_seguimientos)[[1]]
+# Longitudinal analysis with follow-ups
+baseline <- get_implantation(panel_ech)
+final_followup <- get_follow_up(panel_ech, index = n_followups)[[1]]
 
-# Comparar tasas entre implantación y seguimiento final
-tasa_inicial <- workflow(
-  survey = implantacion,
-  svymean(~tasa_desempleo, na.rm = TRUE)
+# Compare rates between implantation and final follow-up
+initial_rate <- workflow(
+  survey = baseline,
+  svymean(~unemployment_rate, na.rm = TRUE)
 )
 
-tasa_final <- workflow(
-  survey = seguimiento_final,
-  svymean(~tasa_desempleo, na.rm = TRUE)
-)
-
-# Análisis trimestral con seguimientos específicos
-trimestre_actual <- workflow(
-  survey = seguimientos_trim1,
-  svymean(~ingreso_laboral, na.rm = TRUE),
-  estimation_type = "quarterly"
+final_rate <- workflow(
+  survey = final_followup,
+  svymean(~unemployment_rate, na.rm = TRUE)
 )
 } # }
 ```

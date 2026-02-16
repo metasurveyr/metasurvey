@@ -78,6 +78,12 @@ For editions \>= 2022, ANDA provides separate files for implantation,
 monthly follow-ups, and bootstrap replicate weights. Use the `resource`
 parameter to select which file to download.
 
+## See also
+
+Other anda:
+[`anda_variables()`](https://metasurveyr.github.io/metasurvey/reference/anda_variables.md),
+[`api_get_anda_variables()`](https://metasurveyr.github.io/metasurvey/reference/api_get_anda_variables.md)
+
 ## Examples
 
 ``` r

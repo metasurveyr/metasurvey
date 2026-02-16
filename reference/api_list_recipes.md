@@ -50,6 +50,12 @@ api_list_recipes(
 
 List of Recipe objects
 
+## See also
+
+Other api-recipes:
+[`api_get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe.md),
+[`api_publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_publish_recipe.md)
+
 ## Examples
 
 ``` r

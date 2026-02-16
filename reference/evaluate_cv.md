@@ -18,6 +18,18 @@ evaluate_cv(cv)
 
 Character string with the quality category (e.g. "Excellent", "Good").
 
+## See also
+
+Other workflows:
+[`RecipeWorkflow-class`](https://metasurveyr.github.io/metasurvey/reference/RecipeWorkflow-class.md),
+[`print.RecipeWorkflow()`](https://metasurveyr.github.io/metasurvey/reference/print.RecipeWorkflow.md),
+[`publish_workflow()`](https://metasurveyr.github.io/metasurvey/reference/publish_workflow.md),
+[`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md),
+[`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
+[`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md),
+[`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md),
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+
 ## Examples
 
 ``` r

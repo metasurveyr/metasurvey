@@ -13,11 +13,17 @@ get_workflow_backend()
 
 WorkflowBackend object
 
+## See also
+
+Other backends:
+[`get_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_backend.md),
+[`set_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_backend.md),
+[`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 backend <- get_workflow_backend()
-backend$search("labor")
-} # }
+# }
 ```

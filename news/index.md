@@ -1,5 +1,122 @@
 # Changelog
 
+## metasurvey 0.0.9
+
+### CRAN compliance
+
+- Namespaced all global options: `use_copy` → `metasurvey.use_copy`,
+  `lazy_processing` → `metasurvey.lazy_processing`.
+- [`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md)
+  and
+  [`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md)
+  return the previous value invisibly, matching
+  [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md)
+  behavior.
+- [`set_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_backend.md)
+  and
+  [`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md)
+  return the previous value invisibly.
+- Replaced all `\dontrun{}` examples with runnable or `\donttest{}`
+  where appropriate
+  ([`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md),
+  [`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md),
+  [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
+  [`set_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/set_workflow_backend.md),
+  [`get_workflow_backend()`](https://metasurveyr.github.io/metasurvey/reference/get_workflow_backend.md)).
+- Fixed `print.RecipeWorkflow` example: removed non-existent
+  `recipe_name` and `results` arguments.
+- Fixed
+  [`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md)
+  roxygen block: was accidentally attached to internal
+  `validate_monthly()`, causing the export to be dropped.
+- Fixed malformed `@keywords` tags: removed comma-separated values in
+  `PoolSurvey` and `RotativePanelSurvey`, removed duplicate description
+  block in `Survey` that was parsed as keyword entries.
+- Simplified `.onAttach()` to a single version message.
+- Removed hardcoded production API URL from `.onLoad()`.
+- Deleted orphan Spanish-only vignette `metasurvey-es.Rmd`.
+- Added `.Rbuildignore` entries for deployment artifacts
+  (`inst/scripts`, `inst/seed-data`, Dockerfiles, `inst/shiny-auth.R`).
+- Deleted empty `inst/extdata/` directory.
+- Fixed
+  [`add_weight()`](https://metasurveyr.github.io/metasurvey/reference/add_weight.md)
+  regex example.
+- Fixed
+  [`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md)
+  example.
+- Fixed `set_lazy()` →
+  [`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md)
+  in vignettes.
+- Enabled `eval=TRUE` on in-memory vignette chunks (`bake`,
+  `get-steps`).
+- [`load_survey_example()`](https://metasurveyr.github.io/metasurvey/reference/load_survey_example.md):
+  removed dead [`file.exists()`](https://rdrr.io/r/base/files.html)
+  branch, wrapped
+  [`download.file()`](https://rdrr.io/r/utils/download.file.html) in
+  [`tryCatch()`](https://rdrr.io/r/base/conditions.html) for graceful
+  failure.
+- Added
+  [`requireNamespace("htmltools")`](https://github.com/rstudio/htmltools)
+  check in
+  [`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md).
+- Removed version constraint from `parallel` in Suggests.
+- R CMD check: 0 errors, 0 warnings, 1 note (new submission).
+
+### Translations
+
+- All remaining Spanish return values translated to English:
+  `"Trianual"` → `"Triennial"`, `"Multianual"` → `"Multi-year"`.
+- All Spanish inline comments translated to English.
+- Translated roxygen documentation for
+  [`recipe()`](https://metasurveyr.github.io/metasurvey/reference/recipe.md),
+  [`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+  [`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md),
+  [`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md).
+
+### New features
+
+- Added STATA-to-metasurvey transpiler:
+  [`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md),
+  [`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md),
+  [`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md),
+  [`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md),
+  and
+  [`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md).
+  Converts `.do` files into Recipe JSON, supporting gen/replace chains,
+  recode, egen, foreach loops, mvencode, destring, labels, and more.
+- Added `labels` field to `Recipe` class for storing variable and value
+  labels from STATA transpilation.
+- Added Shiny DAG graph loading spinner and disclaimer for recipes with
+  more than 20 steps.
+
+### Bug fixes
+
+- Fixed `validate_weight_time_pattern()` crash when `weight` is NULL
+  (triggered by `shallow_clone()` on surveys without weights).
+- Fixed
+  [`steps_to_recipe()`](https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.md)
+  producing unparseable step strings: long `step_recode` calls were
+  split across multiple lines by
+  [`deparse()`](https://rdrr.io/r/base/deparse.html), breaking JSON
+  round-trip.
+- Fixed
+  [`bake_recipes()`](https://metasurveyr.github.io/metasurvey/reference/bake_recipes.md)
+  not executing `step_rename` and `step_remove`: recipe step replay now
+  temporarily disables lazy processing so all steps execute immediately.
+- Fixed Shiny `category_tag()` crash when recipe topic is NULL.
+
+### Documentation
+
+- Added `@family` tags to all exported functions across 16 groups.
+- Standardized `@keywords` tags (removed commas, fixed multi-word
+  entries).
+- Removed redundant `@title` tags in `R/set_engine.R`.
+- Updated `cran-comments.md` to reflect 1 NOTE (new submission).
+- Added `stata-transpiler` vignette covering all supported STATA
+  patterns.
+- Added `ech-demographics-recipe` vignette showing hand-crafted vs
+  transpiled recipe workflows.
+
 ## metasurvey 0.0.8
 
 ### Bug fixes
@@ -160,8 +277,7 @@
 ### Bug fixes
 
 - Fixed Codecov GitHub Actions workflow: replaced deprecated
-  [`covr::codecov()`](http://covr.r-lib.org/reference/codecov.md) with
-  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md) +
+  `covr::codecov()` with `covr::package_coverage()` +
   `codecov/codecov-action@v5` for reliable coverage uploads with token
   authentication.
 - Added CI guard to `.Rprofile` to skip example-data setup in GitHub
@@ -320,7 +436,23 @@
 
 ## metasurvey 0.0.3
 
+- Added
+  [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md)
+  for merging external reference data into surveys.
+- Added
+  [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md)
+  and
+  [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md)
+  for variable management.
+
 ## metasurvey 0.0.2
+
+- Added `RotativePanelSurvey` and `PoolSurvey` R6 classes for complex
+  designs.
+- Added
+  [`extract_surveys()`](https://metasurveyr.github.io/metasurvey/reference/extract_surveys.md),
+  [`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md),
+  [`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md).
 
 ## metasurvey 0.0.1
 

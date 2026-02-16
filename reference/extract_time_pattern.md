@@ -18,6 +18,15 @@ extract_time_pattern(svy_edition)
 
 List with components: periodicity, year, month (when applicable).
 
+## See also
+
+Other survey-loading:
+[`group_dates()`](https://metasurveyr.github.io/metasurvey/reference/group_dates.md),
+[`load_panel_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md),
+[`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md),
+[`load_survey_example()`](https://metasurveyr.github.io/metasurvey/reference/load_survey_example.md),
+[`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
+
 ## Examples
 
 ``` r

@@ -45,6 +45,12 @@ api_list_workflows(
 
 List of RecipeWorkflow objects
 
+## See also
+
+Other api-workflows:
+[`api_get_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_get_workflow.md),
+[`api_publish_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_publish_workflow.md)
+
 ## Examples
 
 ``` r
