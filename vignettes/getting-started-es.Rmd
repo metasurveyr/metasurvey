@@ -265,7 +265,7 @@ length(steps) # Number of transformation steps
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
-cat("Comment:", steps[[1]]$comments, "\n")
+cat("Comment:", steps[[1]]$comment, "\n")
 ```
 
 ### Visualizacion del pipeline
