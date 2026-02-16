@@ -145,14 +145,14 @@ Recipe <- R6Class("Recipe",
         name = self$name,
         user = self$user,
         survey_type = self$survey_type,
-        edition = self$edition,
+        edition = as.character(self$edition),
         description = self$description,
         topic = self$topic,
         doi = self$doi,
         id = self$id,
         version = self$version,
         downloads = self$downloads,
-        depends_on = self$depends_on,
+        depends_on = unique(unlist(self$depends_on)),
         depends_on_recipes = self$depends_on_recipes,
         data_source = self$data_source,
         categories = lapply(self$categories, function(c) c$to_list()),
@@ -163,9 +163,9 @@ Recipe <- R6Class("Recipe",
           output_variables = doc_info$output_variables,
           pipeline = doc_info$pipeline
         ),
-        steps = lapply(self$steps, function(s) {
-          if (is.character(s)) s else paste(deparse(s), collapse = " ")
-        })
+        steps = unname(lapply(self$steps, function(s) {
+          if (is.character(s)) paste(s, collapse = " ") else paste(deparse(s), collapse = " ")
+        }))
       )
     },
 
@@ -285,7 +285,7 @@ Recipe <- R6Class("Recipe",
       required_vars <- doc_info$input_variables
 
       survey_vars <- names(get_data(svy))
-      missing_vars <- setdiff(required_vars, survey_vars)
+      missing_vars <- required_vars[!tolower(required_vars) %in% tolower(survey_vars)]
 
       if (length(missing_vars) > 0) {
         stop(
@@ -358,44 +358,29 @@ metadata_recipe <- function() {
 #' \code{read_recipe()}, y aplicar automáticamente con \code{bake_recipes()}.
 #'
 #' @examples
+#' # Basic recipe without steps
+#' r <- recipe(
+#'   name = "Basic ECH Indicators",
+#'   user = "Analyst",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Basic labor indicators for ECH 2023"
+#' )
+#' r
+#'
 #' \dontrun{
-#' # Receta básica sin steps
-#' receta_base <- recipe(
-#'   name = "Indicadores ECH Básicos",
-#'   user = "Analista INE",
+#' # Recipe with steps
+#' r2 <- recipe(
+#'   name = "Labor Market ECH",
+#'   user = "Labor Team",
 #'   svy = survey_empty(type = "ech", edition = "2023"),
-#'   description = "Crea indicadores laborales básicos para ECH 2023"
-#' )
-#'
-#' # Receta con steps incluidos
-#' receta_completa <- recipe(
-#'   name = "Mercado Laboral ECH",
-#'   user = "Equipo Laboral",
-#'   svy = survey_empty(type = "ech", edition = "2023"),
-#'   description = "Análisis completo del mercado laboral uruguayo",
-#'
-#'   # Steps de transformación
+#'   description = "Full labor market analysis",
 #'   step_recode(
-#'     condicion_actividad,
-#'     POBPCOAC == 2 ~ "Ocupado",
-#'     POBPCOAC %in% 3:5 ~ "Desocupado",
-#'     POBPCOAC %in% 6:8 ~ "Inactivo",
-#'     .default = "Sin dato"
+#'     labor_status,
+#'     POBPCOAC == 2 ~ "Employed",
+#'     POBPCOAC %in% 3:5 ~ "Unemployed",
+#'     .default = "Other"
 #'   ),
-#'   step_compute(
-#'     tasa_actividad = (ocupados + desocupados) / poblacion_14_mas * 100,
-#'     tasa_empleo = ocupados / poblacion_14_mas * 100,
-#'     tasa_desempleo = desocupados / (ocupados + desocupados) * 100
-#'   )
-#' )
-#'
-#' # Aplicar receta a datos
-#' ech_procesada <- load_survey(
-#'   path = "ech_2023.dta",
-#'   svy_type = "ech",
-#'   svy_edition = "2023",
-#'   recipes = receta_completa,
-#'   bake = TRUE
+#'   step_compute(activity_rate = active / total * 100)
 #' )
 #' }
 #'
@@ -437,7 +422,7 @@ recipe <- function(...) {
   if ("steps" %in% names(dots)) {
     return(
       Recipe$new(
-        id = dots$id %||% stats::runif(1, 0, 1),
+        id = dots$id %||% generate_id("r"),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -459,7 +444,7 @@ recipe <- function(...) {
   } else {
     return(
       Recipe$new(
-        id = dots$id %||% stats::runif(1, 0, 1),
+        id = dots$id %||% generate_id("r"),
         name = dots$name,
         user = dots$user,
         edition = dots$svy$edition,
@@ -517,10 +502,13 @@ decode_step <- function(steps) {
 #' @keywords utils
 #' @details This function encodes the Recipe object and writes it to a JSON file.
 #' @examples
-#' \dontrun{
-#' # Example of saving a Recipe object
-#' save_recipe(recipe_obj, "recipe.json")
-#' }
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_recipe(r, f)
 #' @export
 
 save_recipe <- function(recipe, file) {
@@ -530,7 +518,7 @@ save_recipe <- function(recipe, file) {
   recipe_data <- list(
     name = recipe$name,
     user = recipe$user,
-    svy_type = recipe$survey_type,
+    survey_type = recipe$survey_type,
     edition = recipe$edition,
     description = recipe$description,
     topic = recipe$topic,
@@ -561,14 +549,13 @@ save_recipe <- function(recipe, file) {
 #' recipe to json
 #' @param recipe A Recipe object
 #' @return A JSON object
-#' @keywords Survey methods
-#' @keywords Recipes
+#' @keywords internal
 
 recipe_to_json <- function(recipe) {
   recipe <- list(
     name = recipe$name,
     user = recipe$user,
-    svy_type = recipe$svy_type,
+    survey_type = recipe$survey_type,
     edition = recipe$edition,
     description = recipe$description,
     steps = recipe$steps
@@ -586,11 +573,15 @@ recipe_to_json <- function(recipe) {
 #' @details This function reads a JSON file and decodes it into a Recipe object.
 #' @keywords utils
 #' @examples
-#' \dontrun{
-#' # Example of reading a Recipe object
-#' recipe_obj <- read_recipe("recipe.json")
-#' print(recipe_obj)
-#' }
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' f <- tempfile(fileext = ".json")
+#' save_recipe(r, f)
+#' r2 <- read_recipe(f)
+#' r2
 #' @export
 
 read_recipe <- function(file) {
@@ -673,12 +664,12 @@ read_recipe <- function(file) {
       name = json_data$name %||% "Unnamed Recipe",
       user = json_data$user %||% "Unknown",
       edition = json_data$edition %||% json_data$svy_edition %||% "Unknown",
-      survey_type = json_data$svy_type %||% json_data$survey_type %||% "Unknown",
+      survey_type = json_data$survey_type %||% json_data$svy_type %||% "Unknown",
       default_engine = default_engine(),
       depends_on = json_data$depends_on %||% list(),
       description = json_data$description %||% "",
       steps = steps,
-      id = json_data$id %||% stats::runif(1, 0, 1),
+      id = json_data$id %||% generate_id("r"),
       doi = json_data$doi %||% NULL,
       topic = json_data$topic %||% NULL,
       cached_doc = cached_doc,
@@ -904,15 +895,19 @@ get_distinct_recipes <- function(recipe) {
 }
 
 #' @title Publish Recipe
-#' @description Publishes a Recipe object to the API.
+#' @description Publishes a Recipe object to the active backend
+#'   (local JSON registry or remote API).
 #' @param recipe A Recipe object.
-#' @return A JSON object containing the API response.
-#' @details This function sends a Recipe object to the API for publication.
+#' @return The Recipe object (invisibly).
 #' @examples
-#' \dontrun{
-#' # Example of publishing a Recipe object to the API
-#' publish_recipe(recipe_obj)
-#' }
+#' set_backend("local", path = tempfile(fileext = ".json"))
+#' r <- recipe(
+#'   name = "Example", user = "Test",
+#'   svy = survey_empty(type = "ech", edition = "2023"),
+#'   description = "Example recipe"
+#' )
+#' publish_recipe(r)
+#' length(list_recipes())
 #' @keywords utils
 #' @export
 
@@ -920,9 +915,8 @@ publish_recipe <- function(recipe) {
   if (!inherits(recipe, "Recipe")) {
     stop("recipe must be a Recipe object", call. = FALSE)
   }
-  result <- api_publish_recipe(recipe)
-  message("Recipe successfully published to metasurvey API. Thanks for your contribution :)")
-  invisible(result)
+  get_backend()$publish(recipe)
+  invisible(recipe)
 }
 
 #' Print method for Recipe objects

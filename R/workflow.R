@@ -277,24 +277,61 @@ cat_estimation <- function(estimation, call) {
 #' @noRd
 
 cat_estimation.svyby <- function(estimation, call) {
-  dt <- data.table(estimation)
+  by_vars <- attr(estimation, "svyby")$margins
+  if (is.null(by_vars)) by_vars <- character(0)
 
-  se_cols <- grep("^se\\.", names(dt), value = TRUE)
+  all_names <- names(estimation)
+  se_cols <- grep("^se\\.", all_names, value = TRUE)
+  stat_cols <- setdiff(all_names, c(by_vars, se_cols))
 
-  est_cols <- setdiff(names(dt), se_cols)
+  ci <- tryCatch(stats::confint(estimation), error = function(e) NULL)
+  cv_mat <- tryCatch(survey::cv(estimation), error = function(e) NULL)
 
-  dt_melted <- melt(dt,
-    measure.vars = est_cols,
-    variable.name = "stat",
-    value.name = "value"
-  )
+  n_groups <- nrow(estimation)
+  results <- list()
 
-  for (col in se_cols) {
-    stat_name <- gsub("^se\\.", "", col)
-    dt_melted[stat == stat_name, se := dt[[col]]]
+  for (j in seq_along(stat_cols)) {
+    s <- stat_cols[j]
+    se_col <- paste0("se.", s)
+
+    vals <- as.numeric(estimation[[s]])
+    ses <- as.numeric(
+      if (se_col %in% all_names) estimation[[se_col]] else rep(NA_real_, n_groups)
+    )
+
+    if (!is.null(cv_mat)) {
+      cvs <- as.numeric(if (is.matrix(cv_mat)) cv_mat[, j] else cv_mat)
+    } else {
+      cvs <- ses / vals
+    }
+
+    ci_start <- (j - 1) * n_groups + 1
+    ci_end <- j * n_groups
+    if (!is.null(ci) && nrow(ci) >= ci_end) {
+      ci_lo <- ci[ci_start:ci_end, 1]
+      ci_hi <- ci[ci_start:ci_end, 2]
+    } else {
+      ci_lo <- vals - 1.96 * ses
+      ci_hi <- vals + 1.96 * ses
+    }
+
+    cols <- list(
+      stat = rep(paste0(call, ": ", s), n_groups),
+      value = vals,
+      se = ses,
+      cv = cvs,
+      confint_lower = ci_lo,
+      confint_upper = ci_hi
+    )
+
+    for (bv in by_vars) {
+      cols[[bv]] <- estimation[[bv]]
+    }
+
+    results[[length(results) + 1]] <- data.table::as.data.table(cols)
   }
 
-  return(dt_melted)
+  rbindlist(results, fill = TRUE)
 }
 
 
@@ -386,6 +423,16 @@ cat_estimation.svyratio <- function(estimation, call) {
   # Only auto-capture if surveys have recipes
   if (length(recipe_ids) == 0) return(NULL)
 
+  # Extract weight specification from first survey with weights
+  weight_spec <- NULL
+  for (s in survey_list) {
+    if (!inherits(s, "Survey")) next
+    if (!is.null(s$weight) && length(s$weight) > 0) {
+      weight_spec <- .serialize_weight_spec(s$weight, s$edition)
+      break
+    }
+  }
+
   # Parse call metadata from .calls
   calls_str <- list()
   call_metadata <- list()
@@ -427,6 +474,7 @@ cat_estimation.svyratio <- function(estimation, call) {
     estimation_type = estimation_type,
     recipe_ids = recipe_ids,
     calls = calls_str,
-    call_metadata = call_metadata
+    call_metadata = call_metadata,
+    weight_spec = weight_spec
   )
 }

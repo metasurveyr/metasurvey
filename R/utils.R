@@ -4,6 +4,21 @@ is_blank <- function(x) {
   )
 }
 
+#' Generate a unique ID
+#'
+#' Creates a human-readable unique identifier with an optional prefix,
+#' a Unix timestamp, and a random suffix.
+#'
+#' @param prefix Character prefix (e.g., "r" for recipes, "w" for workflows).
+#' @return Character string ID like "r_1739654400_742".
+#' @keywords internal
+#' @noRd
+generate_id <- function(prefix = "r") {
+  ts <- as.integer(Sys.time())
+  rand <- sample.int(999, 1)
+  paste0(prefix, "_", ts, "_", rand)
+}
+
 
 "%||%" <- function(x, y) if (is.null(x)) y else x
 
@@ -203,7 +218,6 @@ load_survey_example <- function(svy_type, svy_edition) {
 #' print(current_setting)
 #'
 #' @seealso \code{\link{set_use_copy}} to change the setting
-#' @keywords utils
 #' @export
 
 use_copy_default <- function() {
@@ -748,6 +762,191 @@ add_replicate <- function(
   replicate_list_clean <- replicate_list[!sapply(replicate_list, is.null)]
 
   return(replicate_list_clean)
+}
+
+# --- Weight spec serialization/resolution ---
+
+#' Convert a local replicate path to a portable source reference
+#' @param path Local file path (or NULL)
+#' @param edition Survey edition
+#' @return List with provider/resource/edition, or NULL
+#' @keywords internal
+#' @noRd
+.path_to_source <- function(path, edition = NULL) {
+  if (is.null(path)) return(NULL)
+
+  # Use first path if vector
+  p <- if (length(path) > 1) path[1] else path
+  basename_lower <- tolower(basename(p))
+
+  resource <- NULL
+  if (grepl("bootstrap.*anual|anual.*bootstrap|bootstrap.*annual", basename_lower)) {
+    resource <- "bootstrap_annual"
+  } else if (grepl("bootstrap.*mensual|mensual.*bootstrap|bootstrap.*monthly", basename_lower)) {
+    resource <- "bootstrap_monthly"
+  } else if (grepl("bootstrap.*trimest|trimest.*bootstrap|bootstrap.*quarterly", basename_lower)) {
+    resource <- "bootstrap_quarterly"
+  } else if (grepl("bootstrap.*semest|semest.*bootstrap|bootstrap.*semestral", basename_lower)) {
+    resource <- "bootstrap_semestral"
+  }
+
+  if (!is.null(resource)) {
+    return(list(
+      provider = "anda",
+      resource = resource,
+      edition = as.character(edition)
+    ))
+  }
+
+  list(
+    provider = "local",
+    path_hint = basename(p),
+    edition = as.character(edition)
+  )
+}
+
+#' Serialize a Survey weight list into portable weight_spec format
+#'
+#' Converts the in-memory weight list (output of add_weight()) into a
+#' portable JSON-friendly format. Local replicate paths are replaced with
+#' provider references.
+#'
+#' @param weight_list Named list from Survey$weight
+#' @param edition Survey edition (used for replicate_source)
+#' @return Named list suitable for JSON serialization
+#' @keywords internal
+#' @noRd
+.serialize_weight_spec <- function(weight_list, edition = NULL) {
+  if (is.null(weight_list) || length(weight_list) == 0) return(NULL)
+
+  lapply(weight_list, function(w) {
+    if (is.character(w)) {
+      list(type = "simple", variable = w)
+    } else if (is.list(w)) {
+      spec <- list(
+        type = "replicate",
+        variable = w$weight,
+        replicate_pattern = w$replicate_pattern,
+        replicate_type = w$replicate_type
+      )
+      if (!is.null(w$replicate_id)) {
+        spec$replicate_id <- list(
+          survey_key = names(w$replicate_id)[1],
+          replicate_key = unname(w$replicate_id)[1]
+        )
+      }
+      spec$replicate_source <- .path_to_source(w$replicate_path, edition)
+      spec
+    } else {
+      list(type = "simple", variable = as.character(w))
+    }
+  })
+}
+
+#' Resolve a portable weight specification to a usable weight configuration
+#'
+#' Converts the portable weight_spec from a RecipeWorkflow back into the
+#' format expected by \code{load_survey()} and \code{add_weight()}.
+#' For replicate weights with ANDA sources, automatically downloads the
+#' replicate file.
+#'
+#' @param weight_spec Named list from RecipeWorkflow$weight_spec
+#' @param dest_dir Character directory for downloaded files (default: tempdir())
+#' @return Named list compatible with add_weight() output
+#' @export
+resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
+  if (is.null(weight_spec)) return(NULL)
+
+  resolved <- lapply(weight_spec, function(ws) {
+    if (ws$type == "simple") {
+      ws$variable
+    } else if (ws$type == "replicate") {
+      replicate_path <- NULL
+      src <- ws$replicate_source
+
+      if (!is.null(src) && src$provider == "anda") {
+        replicate_path <- anda_download_microdata(
+          edition = src$edition,
+          resource = src$resource,
+          dest_dir = dest_dir
+        )
+      } else if (!is.null(src) && src$provider == "local") {
+        warning(
+          "Replicate source is local-only ('", src$path_hint,
+          "'). Please provide the file manually.",
+          call. = FALSE
+        )
+      }
+
+      rep_id <- NULL
+      if (!is.null(ws$replicate_id)) {
+        rep_id <- stats::setNames(ws$replicate_id$replicate_key, ws$replicate_id$survey_key)
+      }
+
+      add_replicate(
+        weight = ws$variable,
+        replicate_pattern = ws$replicate_pattern,
+        replicate_path = replicate_path,
+        replicate_id = rep_id,
+        replicate_type = ws$replicate_type
+      )
+    }
+  })
+
+  names(resolved) <- names(weight_spec)
+  resolved
+}
+
+#' Reproduce a workflow from its published specification
+#'
+#' Given a RecipeWorkflow (typically fetched from the registry), downloads
+#' the data, resolves the weight configuration, fetches referenced recipes,
+#' and returns a Survey object ready for \code{workflow()} estimation.
+#'
+#' @param wf RecipeWorkflow object
+#' @param data_path Character path to survey microdata. If NULL, attempts to
+#'   download from ANDA for ECH surveys.
+#' @param dest_dir Character directory for downloaded files
+#' @return Survey object with recipes applied and weight configuration set
+#' @export
+reproduce_workflow <- function(wf, data_path = NULL, dest_dir = tempdir()) {
+  if (!inherits(wf, "RecipeWorkflow")) {
+    stop("wf must be a RecipeWorkflow object", call. = FALSE)
+  }
+
+  svy_weight <- resolve_weight_spec(wf$weight_spec, dest_dir = dest_dir)
+
+  if (is.null(data_path) && tolower(wf$survey_type) == "ech") {
+    edition <- as.character(wf$edition)
+    data_path <- anda_download_microdata(edition, resource = "implantation",
+                                          dest_dir = dest_dir)
+  }
+
+  if (is.null(data_path)) {
+    stop("Cannot resolve data source. Please provide data_path.", call. = FALSE)
+  }
+
+  recipes <- NULL
+  if (length(wf$recipe_ids) > 0) {
+    backend <- tryCatch(get_backend(), error = function(e) NULL)
+    if (!is.null(backend)) {
+      recipe_list <- list()
+      for (rid in wf$recipe_ids) {
+        r <- tryCatch(backend$get(rid), error = function(e) NULL)
+        if (!is.null(r)) recipe_list <- c(recipe_list, list(r))
+      }
+      if (length(recipe_list) > 0) recipes <- recipe_list
+    }
+  }
+
+  load_survey(
+    path = data_path,
+    svy_type = wf$survey_type,
+    svy_edition = as.character(wf$edition),
+    svy_weight = svy_weight,
+    recipes = recipes,
+    bake = !is.null(recipes)
+  )
 }
 
 #' Evaluate estimation with Coefficient of Variation
