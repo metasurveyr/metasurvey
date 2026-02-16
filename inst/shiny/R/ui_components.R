@@ -892,6 +892,53 @@ s3_object_path <- function(recipe, edition_str) {
   )
 }
 
+# Convert a weight_spec to add_weight() R code (HTML-escaped)
+.weight_spec_to_code <- function(ws) {
+  if (is.null(ws) || length(ws) == 0) return(NULL)
+  parts <- character(0)
+  for (pname in names(ws)) {
+    entry <- ws[[pname]]
+    if (is.null(entry$type) || entry$type == "simple") {
+      parts <- c(parts, paste0(
+        pname, ' = <span class="code-string">"', entry$variable, '"</span>'
+      ))
+    } else if (entry$type == "replicate") {
+      src <- entry$replicate_source
+      if (!is.null(src) && identical(src$provider, "anda")) {
+        rep_path <- paste0(
+          '<span class="code-func">anda_download_microdata</span>(',
+          '<span class="code-string">"', src$edition %||% "2023", '"</span>, ',
+          'resource = <span class="code-string">"', src$resource, '"</span>)'
+        )
+      } else {
+        rep_path <- '<span class="code-string">"path/to/replicate_weights"</span>'
+      }
+      rep_id_str <- 'c(<span class="code-string">"ID"</span> = <span class="code-string">"ID"</span>)'
+      if (!is.null(entry$replicate_id)) {
+        sk <- entry$replicate_id$survey_key %||% "ID"
+        rk <- entry$replicate_id$replicate_key %||% "ID"
+        rep_id_str <- paste0(
+          'c(<span class="code-string">"', sk, '"</span> = <span class="code-string">"', rk, '"</span>)'
+        )
+      }
+      parts <- c(parts, paste0(
+        pname, ' = <span class="code-func">add_replicate</span>(\n',
+        '    <span class="code-string">"', entry$variable %||% "W", '"</span>,\n',
+        '    replicate_path = ', rep_path, ',\n',
+        '    replicate_pattern = <span class="code-string">"', entry$replicate_pattern %||% "wr[0-9]+", '"</span>,\n',
+        '    replicate_id = ', rep_id_str, ',\n',
+        '    replicate_type = <span class="code-string">"', entry$replicate_type %||% "bootstrap", '"</span>\n',
+        '  )'
+      ))
+    }
+  }
+  paste0(
+    '<span class="code-func">add_weight</span>(\n  ',
+    paste(parts, collapse = ",\n  "),
+    '\n)'
+  )
+}
+
 # Generate R code snippet for using a recipe (tidy API only)
 recipe_code_snippet <- function(recipe) {
   rid <- recipe$id %||% "recipe_id"
@@ -902,68 +949,68 @@ recipe_code_snippet <- function(recipe) {
 
   lines <- c('library(metasurvey)', '')
 
-  # Data download
-  if (tolower(stype) == "ech") {
-    lines <- c(lines,
-      '<span class="code-comment"># Available ECH editions in ANDA</span>',
-      '<span class="code-func">anda_list_editions</span>()',
-      '',
-      '<span class="code-comment"># Download microdata from INE (ANDA5)</span>',
-      paste0('my_data &lt;- <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition_str, '"</span>) %&gt;%'),
-      '  data.table::<span class="code-func">fread</span>()',
-      ''
-    )
-  } else {
-    s3 <- s3_object_path(recipe, edition_str)
-    if (!is.null(s3)) {
-      lines <- c(lines,
-        '<span class="code-comment"># Download data from S3</span>',
-        paste0('my_data &lt;- aws.s3::<span class="code-func">s3read_using</span>('),
-        paste0('  data.table::fread,'),
-        paste0('  object = <span class="code-string">"', s3$object, '"</span>,'),
-        paste0('  bucket = <span class="code-string">"', s3$bucket, '"</span>'),
-        ')',
-        ''
-      )
-    }
-  }
-
-  # Build pipeline with %>%
+  # Fetch recipe(s)
   lines <- c(lines,
-    '<span class="code-comment"># Create survey and load data</span>',
-    paste0('svy &lt;- <span class="code-func">survey_empty</span>(type = <span class="code-string">"', stype, '"</span>, edition = <span class="code-string">"', edition_str, '"</span>) %&gt;%'),
-    '  <span class="code-func">set_data</span>(my_data)',
-    ''
+    '<span class="code-comment"># Get recipe from registry</span>',
+    paste0('recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)')
   )
 
-  # Prerequisite recipes
   if (length(dep_recipes) > 0) {
-    lines <- c(lines, '<span class="code-comment"># Apply prerequisite recipes first</span>')
     for (i in seq_along(dep_recipes)) {
       lines <- c(lines, paste0(
         'dep_', i, ' &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"',
         dep_recipes[i], '"</span>)'
       ))
     }
-    pipe_lines <- c()
-    for (i in seq_along(dep_recipes)) {
-      pipe_lines <- c(pipe_lines, paste0('  <span class="code-func">add_recipe</span>(dep_', i, ') %&gt;%'))
-    }
+  }
+  lines <- c(lines, '')
+
+  # Build weight code — recipes don't have weight_spec, use heuristic
+  if (tolower(stype) == "ech") {
+    weight_name <- if (as.integer(edition_str) >= 2022) "W_ANO" else "pesoano"
+    weight_code <- paste0(
+      '<span class="code-func">add_weight</span>(annual = <span class="code-string">"', weight_name, '"</span>)'
+    )
+  } else {
+    weight_code <- '<span class="code-func">add_weight</span>(annual = <span class="code-string">"weight"</span>)'
+  }
+
+  # Load survey with load_survey
+  if (tolower(stype) == "ech") {
     lines <- c(lines,
-      'svy &lt;- svy %&gt;%',
-      pipe_lines,
-      '  <span class="code-func">bake_recipes</span>()',
-      ''
+      '<span class="code-comment"># Load ECH microdata from ANDA and apply recipe</span>',
+      'svy &lt;- <span class="code-func">load_survey</span>(',
+      paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition_str, '"</span>),'),
+      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
+      paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
+      paste0('  svy_weight  = ', weight_code, ',')
+    )
+  } else {
+    lines <- c(lines,
+      '<span class="code-comment"># Load survey with recipe</span>',
+      'svy &lt;- <span class="code-func">load_survey</span>(',
+      paste0('  <span class="code-string">"path/to/', stype, '_', edition_str, '.csv"</span>,'),
+      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
+      paste0('  svy_edition = <span class="code-string">"', edition_str, '"</span>,'),
+      paste0('  svy_weight  = ', weight_code, ',')
     )
   }
 
-  lines <- c(lines,
-    '<span class="code-comment"># Apply this recipe</span>',
-    paste0('recipe &lt;- <span class="code-func">api_get_recipe</span>(<span class="code-string">"', rid, '"</span>)'),
-    'svy &lt;- svy %&gt;%',
-    '  <span class="code-func">add_recipe</span>(recipe) %&gt;%',
-    '  <span class="code-func">bake_recipes</span>()'
-  )
+  # Add recipes parameter
+  if (length(dep_recipes) > 0) {
+    dep_list <- paste0("dep_", seq_along(dep_recipes), collapse = ", ")
+    lines <- c(lines,
+      paste0('  recipes     = list(', dep_list, ', recipe),'),
+      '  bake        = <span class="code-keyword">TRUE</span>',
+      ')'
+    )
+  } else {
+    lines <- c(lines,
+      '  recipes     = recipe,',
+      '  bake        = <span class="code-keyword">TRUE</span>',
+      ')'
+    )
+  }
 
   paste(lines, collapse = "\n")
 }
@@ -978,25 +1025,9 @@ workflow_code_snippet <- function(wf) {
 
   lines <- c('library(metasurvey)', '')
 
-  # Data download
-  if (tolower(stype) == "ech") {
-    lines <- c(lines,
-      '<span class="code-comment"># Download microdata from INE (ANDA5)</span>',
-      paste0('my_data &lt;- <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition, '"</span>) %&gt;%'),
-      '  data.table::<span class="code-func">fread</span>()',
-      ''
-    )
-  }
-
-  lines <- c(lines,
-    '<span class="code-comment"># Create survey and load data</span>',
-    paste0('svy &lt;- <span class="code-func">survey_empty</span>(type = <span class="code-string">"', stype, '"</span>, edition = <span class="code-string">"', edition, '"</span>) %&gt;%'),
-    '  <span class="code-func">set_data</span>(my_data)',
-    ''
-  )
-
+  # Fetch recipes
   if (length(recipe_ids) > 0) {
-    lines <- c(lines, '<span class="code-comment"># Apply required recipes</span>')
+    lines <- c(lines, '<span class="code-comment"># Get recipes from registry</span>')
     for (i in seq_along(recipe_ids)) {
       rvar <- paste0("r", i)
       lines <- c(lines, paste0(
@@ -1004,15 +1035,52 @@ workflow_code_snippet <- function(wf) {
         recipe_ids[i], '"</span>)'
       ))
     }
-    pipe_lines <- c()
-    for (i in seq_along(recipe_ids)) {
-      pipe_lines <- c(pipe_lines, paste0('  <span class="code-func">add_recipe</span>(r', i, ') %&gt;%'))
+    lines <- c(lines, '')
+  }
+
+  # Build weight code from weight_spec if available, else fallback to heuristic
+  weight_code <- .weight_spec_to_code(wf$weight_spec)
+  if (is.null(weight_code)) {
+    if (tolower(stype) == "ech") {
+      weight_name <- if (as.integer(edition) >= 2022) "W_ANO" else "pesoano"
+      weight_code <- paste0(
+        '<span class="code-func">add_weight</span>(annual = <span class="code-string">"', weight_name, '"</span>)'
+      )
+    } else {
+      weight_code <- '<span class="code-func">add_weight</span>(annual = <span class="code-string">"weight"</span>)'
     }
+  }
+
+  # Load survey with load_survey
+  if (tolower(stype) == "ech") {
     lines <- c(lines,
-      'svy &lt;- svy %&gt;%',
-      pipe_lines,
-      '  <span class="code-func">bake_recipes</span>()'
+      '<span class="code-comment"># Load ECH microdata from ANDA and apply recipes</span>',
+      'svy &lt;- <span class="code-func">load_survey</span>(',
+      paste0('  <span class="code-func">anda_download_microdata</span>(<span class="code-string">"', edition, '"</span>),'),
+      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
+      paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
+      paste0('  svy_weight  = ', weight_code, ',')
     )
+  } else {
+    lines <- c(lines,
+      '<span class="code-comment"># Load survey with recipes</span>',
+      'svy &lt;- <span class="code-func">load_survey</span>(',
+      paste0('  <span class="code-string">"path/to/', stype, '_', edition, '.csv"</span>,'),
+      paste0('  svy_type    = <span class="code-string">"', stype, '"</span>,'),
+      paste0('  svy_edition = <span class="code-string">"', edition, '"</span>,'),
+      paste0('  svy_weight  = ', weight_code, ',')
+    )
+  }
+
+  if (length(recipe_ids) > 0) {
+    recipe_list <- paste0("r", seq_along(recipe_ids), collapse = ", ")
+    lines <- c(lines,
+      paste0('  recipes     = list(', recipe_list, '),'),
+      '  bake        = <span class="code-keyword">TRUE</span>',
+      ')'
+    )
+  } else {
+    lines <- c(lines, ')')
   }
 
   if (length(calls) > 0) {
