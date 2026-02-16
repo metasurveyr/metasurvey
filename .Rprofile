@@ -1,5 +1,8 @@
 # source("renv/activate.R")
 
+# Skip example-data setup in CI environments
+if (nzchar(Sys.getenv("CI"))) return(invisible())
+
 library(utils)
 
 clean_directory_ech <- function(cache = TRUE) {

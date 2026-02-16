@@ -9,6 +9,7 @@
 #'   for local use. Set to \code{"0.0.0.0"} for server deployments (Railway, etc.).
 #' @param launch.browser Logical. Open the app in a browser?
 #'
+#' @return NULL (called for side effect of launching the app).
 #' @examples
 #' \dontrun{
 #' # Local / RStudio viewer

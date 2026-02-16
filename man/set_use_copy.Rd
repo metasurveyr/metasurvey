@@ -10,6 +10,9 @@ set_use_copy(use_copy)
 \item{use_copy}{Logical value: TRUE to create data copies (safer),
 FALSE to modify data in place (more efficient)}
 }
+\value{
+Invisibly, the value set.
+}
 \description{
 Configures whether survey operations should create copies of the data or
 modify existing data in place. This setting affects memory usage and

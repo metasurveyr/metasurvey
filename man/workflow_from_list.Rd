@@ -15,3 +15,8 @@ A RecipeWorkflow object
 \description{
 Construct a RecipeWorkflow from a plain list
 }
+\examples{
+lst <- list(name = "example", user = "test", survey_type = "ech",
+            edition = "2023", estimation_type = "svymean")
+wf <- workflow_from_list(lst)
+}

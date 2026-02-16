@@ -11,6 +11,8 @@
 #' @field verified Logical. Whether the account is verified.
 #' @field review_status Character. One of "approved", "pending", "rejected".
 #'
+#' @return An object of class \code{RecipeUser}.
+#'
 #' @examples
 #' # Use recipe_user() for the public API:
 #' user <- recipe_user("Juan Perez", email = "juan@example.com")

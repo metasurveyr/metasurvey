@@ -9,6 +9,9 @@ configure_api(url)
 \arguments{
 \item{url}{API base URL (e.g., \code{"https://metasurvey-api.example.com"})}
 }
+\value{
+Invisibly, the configured URL.
+}
 \description{
 Set API base URL and optionally load stored credentials.
 The URL can also be set via the \code{METASURVEY_API_URL} environment

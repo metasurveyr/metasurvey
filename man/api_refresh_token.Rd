@@ -15,3 +15,8 @@ The new token is stored automatically. This is called internally by
 \code{api_request()} when the current token is close to expiry (within 5
 minutes).
 }
+\examples{
+\dontrun{
+api_refresh_token()
+}
+}

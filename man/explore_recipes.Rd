@@ -14,6 +14,9 @@ for local use. Set to \code{"0.0.0.0"} for server deployments (Railway, etc.).}
 
 \item{launch.browser}{Logical. Open the app in a browser?}
 }
+\value{
+NULL (called for side effect of launching the app).
+}
 \description{
 Opens an interactive web application to explore, search, and browse
 metasurvey recipes with visual documentation cards. Supports user

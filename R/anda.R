@@ -226,6 +226,11 @@ anda_list_editions <- function() {
 #' @return Character path (or vector of paths for monthly) to the downloaded
 #'   file(s), ready to pass to \code{load_survey()} or \code{data.table::fread()}.
 #' @export
+#' @examples
+#' \dontrun{
+#' path <- anda_download_microdata("2023", resource = "implantation")
+#' svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
+#' }
 anda_download_microdata <- function(edition,
                                     resource = "implantation",
                                     dest_dir = tempdir(),
@@ -512,6 +517,10 @@ anda_download_microdata <- function(edition,
 #'   returns all variables for the survey type.
 #' @return A data.frame with columns: name, label, type
 #' @export
+#' @examples
+#' \dontrun{
+#' anda_variables("ech", c("pobpcoac", "e27"))
+#' }
 anda_variables <- function(survey_type = "ech", var_names = NULL) {
   vars <- api_get_anda_variables(survey_type, var_names)
 

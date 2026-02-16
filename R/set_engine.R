@@ -2,6 +2,11 @@
 #' @keywords engine
 #' @description This function configures the engine to be used for loading surveys. It checks if the provided engine is supported, sets the default engine if none is specified, and generates a message indicating the configured engine. If the engine is not supported, it throws an error.
 #' @param .engine Character vector with the name of the engine to configure. By default, the engine returned by the `show_engines()` function is used.
+#' @return Invisibly, the configured engine name.
+#' @examples
+#' \dontrun{
+#' set_engine("data.table")
+#' }
 #' @importFrom glue glue glue_col identity_transformer
 #' @export
 
@@ -55,6 +60,8 @@ set_engine <- function(.engine = show_engines()) {
 #' @importFrom glue glue glue_col
 #' @export
 #' @return Character vector with the names of the available engines.
+#' @examples
+#' show_engines()
 
 show_engines <- function() {
   c(
@@ -69,6 +76,8 @@ show_engines <- function() {
 #' @export
 #' @return Character vector with the name of the configured engine.
 #' @keywords engine
+#' @examples
+#' get_engine()
 
 get_engine <- function() {
   Sys.getenv("metasurvey.engine") %@% getOption("metasurvey.engine")

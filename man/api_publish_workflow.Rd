@@ -15,3 +15,8 @@ Invisibly, the API response.
 \description{
 Publish a RecipeWorkflow object to the API. Requires authentication.
 }
+\examples{
+\dontrun{
+api_publish_workflow(my_workflow)
+}
+}

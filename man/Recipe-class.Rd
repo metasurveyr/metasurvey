@@ -8,6 +8,9 @@
 \format{
 An R6 class generator (R6ClassGenerator)
 }
+\value{
+An object of class \code{Recipe}.
+}
 \description{
 Recipe R6 class
 
@@ -27,6 +30,15 @@ transformation steps to be applied to a Survey object.
 }
 }
 
+\examples{
+# Use the recipe() constructor:
+svy <- survey_empty(type = "ech", edition = "2023")
+r <- recipe(
+  name = "Example", user = "Test", svy = svy,
+  description = "Example recipe"
+)
+
+}
 \seealso{
 \code{\link{recipe}}, \code{\link{save_recipe}},
 \code{\link{read_recipe}}, \code{\link{bake_recipes}}

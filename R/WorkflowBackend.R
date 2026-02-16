@@ -169,6 +169,7 @@ WorkflowBackend <- R6::R6Class(
 #' @description Configure the active workflow backend via options.
 #' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
 #' @param path Character. File path for local backend.
+#' @return Invisibly, the WorkflowBackend object created.
 #' @examples
 #' \dontrun{
 #' set_workflow_backend("local", path = "my_workflows.json")

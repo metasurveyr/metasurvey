@@ -16,8 +16,8 @@ Character string with the quality category (e.g. "Excelente", "Bueno").
 Evaluate estimation with Coefficient of Variation
 }
 \examples{
-evaluate_cv(3)   # "Excelente"
-evaluate_cv(12)  # "Bueno"
-evaluate_cv(30)  # "Utilizar con precaucion"
+evaluate_cv(3) # "Excelente"
+evaluate_cv(12) # "Bueno"
+evaluate_cv(30) # "Utilizar con precaucion"
 }
 \keyword{utils}

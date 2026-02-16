@@ -81,6 +81,7 @@ token_expires_soon <- function(token, margin_secs = 300) {
 #'   The URL can also be set via the \code{METASURVEY_API_URL} environment
 #'   variable, and the token via \code{METASURVEY_TOKEN}.
 #' @param url API base URL (e.g., \code{"https://metasurvey-api.example.com"})
+#' @return Invisibly, the configured URL.
 #' @export
 #' @examples
 #' \dontrun{
@@ -229,6 +230,10 @@ api_login <- function(email, password) {
 #' @description Returns profile info for the currently authenticated user.
 #' @return List with user fields (name, email, user_type, etc.)
 #' @export
+#' @examples
+#' \dontrun{
+#' api_me()
+#' }
 api_me <- function() {
   api_request("auth/me", method = "GET")
 }
@@ -240,6 +245,10 @@ api_me <- function() {
 #'   minutes).
 #' @return The new token string (invisibly), or NULL if refresh fails.
 #' @export
+#' @examples
+#' \dontrun{
+#' api_refresh_token()
+#' }
 api_refresh_token <- function() {
   result <- tryCatch(
     api_request("auth/refresh", method = "POST"),
@@ -255,7 +264,12 @@ api_refresh_token <- function() {
 
 #' @title Logout
 #' @description Clear the stored API token from memory and the environment.
+#' @return Invisibly, NULL.
 #' @export
+#' @examples
+#' \dontrun{
+#' api_logout()
+#' }
 api_logout <- function() {
   options(metasurvey.api_token = NULL)
   Sys.unsetenv("METASURVEY_TOKEN")
@@ -307,6 +321,10 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 #' @return A single Recipe object (or NULL) when \code{length(id) == 1}.
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 #' @export
+#' @examples
+#' \dontrun{
+#' api_get_recipe("r_1739654400_742")
+#' }
 api_get_recipe <- function(id) {
   fetch_one <- function(single_id) {
     result <- tryCatch(
@@ -337,6 +355,10 @@ api_get_recipe <- function(id) {
 #' @param recipe A Recipe object
 #' @return Invisibly, the API response with the assigned ID.
 #' @export
+#' @examples
+#' \dontrun{
+#' api_publish_recipe(my_recipe)
+#' }
 api_publish_recipe <- function(recipe) {
   if (!inherits(recipe, "Recipe")) {
     stop("recipe must be a Recipe object", call. = FALSE)
@@ -372,6 +394,10 @@ api_download_recipe <- function(id) {
 #' @param offset Skip first N results
 #' @return List of RecipeWorkflow objects
 #' @export
+#' @examples
+#' \dontrun{
+#' api_list_workflows(survey_type = "ech")
+#' }
 api_list_workflows <- function(search = NULL, survey_type = NULL,
                                recipe_id = NULL, user = NULL,
                                limit = 50, offset = 0) {
@@ -395,6 +421,10 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 #' @param id Workflow ID
 #' @return RecipeWorkflow object or NULL
 #' @export
+#' @examples
+#' \dontrun{
+#' api_get_workflow("w_1739654400_123")
+#' }
 api_get_workflow <- function(id) {
   result <- tryCatch(
     api_request(paste0("workflows/", id), method = "GET"),
@@ -421,6 +451,10 @@ api_get_workflow <- function(id) {
 #' @param workflow A RecipeWorkflow object
 #' @return Invisibly, the API response.
 #' @export
+#' @examples
+#' \dontrun{
+#' api_publish_workflow(my_workflow)
+#' }
 api_publish_workflow <- function(workflow) {
   if (!inherits(workflow, "RecipeWorkflow")) {
     stop("workflow must be a RecipeWorkflow object", call. = FALSE)
@@ -535,6 +569,10 @@ parse_recipe_from_json <- function(doc) {
 #' @param var_names Character vector of variable names. If NULL, returns all.
 #' @return A list of variable metadata objects
 #' @export
+#' @examples
+#' \dontrun{
+#' api_get_anda_variables("ech", c("pobpcoac", "e27"))
+#' }
 api_get_anda_variables <- function(survey_type = "ech", var_names = NULL) {
   params <- list(survey_type = survey_type)
   if (!is.null(var_names) && length(var_names) > 0) {

@@ -1,3 +1,33 @@
+# metasurvey 0.0.6
+
+## Documentation
+
+* All exported functions and R6 classes now have `@return` and `@examples`
+  roxygen2 tags, meeting rOpenSci documentation requirements.
+* Added `@return` to R6 class exports: `Recipe`, `RecipeWorkflow`,
+  `RecipeCategory`, `RecipeCertification`, `RecipeUser`, `PoolSurvey`,
+  `RotativePanelSurvey`, and `Survey`.
+* Added `@examples` to `set_engine()`, `show_engines()`, `get_engine()`,
+  and all API/backend functions.
+* Added `@return` to `get_metadata()`, `set_lazy_processing()`,
+  `set_use_copy()`, `set_backend()`, `set_workflow_backend()`, and
+  `explore_recipes()`.
+
+## Bug fixes
+
+* Fixed Codecov GitHub Actions workflow: replaced deprecated `covr::codecov()`
+  with `covr::package_coverage()` + `codecov/codecov-action@v5` for reliable
+  coverage uploads with token authentication.
+* Added CI guard to `.Rprofile` to skip example-data setup in GitHub Actions,
+  preventing potential download failures during CI builds.
+* Added missing `archive`, `haven`, and `openxlsx` to `Suggests` in
+  DESCRIPTION, fixing R CMD check warnings about undeclared dependencies.
+
+## Internal
+
+* Added `.claude/` directory with development agents and commands for
+  code review, testing, documentation auditing, and rOpenSci preparation.
+
 # metasurvey 0.0.5
 
 ## Breaking changes

@@ -17,3 +17,8 @@ A list of variable metadata objects
 \description{
 Get ANDA variable metadata from the API
 }
+\examples{
+\dontrun{
+api_get_anda_variables("ech", c("pobpcoac", "e27"))
+}
+}

@@ -3,9 +3,18 @@
 \name{PoolSurvey}
 \alias{PoolSurvey}
 \title{PoolSurvey Class}
+\value{
+An object of class \code{PoolSurvey}.
+}
 \description{
 This class represents a collection of surveys grouped by specific periods (e.g., monthly, quarterly, annual).
 It provides methods to access and manipulate the grouped surveys.
+}
+\examples{
+\dontrun{
+pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
+}
+
 }
 \keyword{PoolSurvey}
 \keyword{Surveymethods,}

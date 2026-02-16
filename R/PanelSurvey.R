@@ -10,7 +10,18 @@
 #' @field workflows A list of workflows associated with the survey.
 #' @field design A design object for the survey.
 #' @field periodicity A list containing the periodicity of the implantation and follow-up surveys.
+#' @return An object of class \code{RotativePanelSurvey}.
 #' @keywords Surveymethods, RotativePanelSurvey
+#'
+#' @examples
+#' \dontrun{
+#' panel <- RotativePanelSurvey$new(
+#'   implantation = impl_survey, follow_up = list(fu1, fu2),
+#'   type = "ech", default_engine = "data.table",
+#'   steps = list(), recipes = list(), workflows = list(), design = NULL
+#' )
+#' }
+#'
 #' @export
 RotativePanelSurvey <- R6Class(
   "RotativePanelSurvey",
@@ -307,7 +318,14 @@ extract_surveys <- function(RotativePanelSurvey, index = NULL, monthly = NULL, a
 #' @description This class represents a collection of surveys grouped by specific periods (e.g., monthly, quarterly, annual).
 #' It provides methods to access and manipulate the grouped surveys.
 #' @field surveys A list containing the grouped surveys.
+#' @return An object of class \code{PoolSurvey}.
 #' @keywords Surveymethods, PoolSurvey
+#'
+#' @examples
+#' \dontrun{
+#' pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
+#' }
+#'
 #' @export
 PoolSurvey <- R6Class(
   "PoolSurvey",

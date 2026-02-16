@@ -3,6 +3,9 @@
 \name{RecipeCategory}
 \alias{RecipeCategory}
 \title{RecipeCategory}
+\value{
+An object of class \code{RecipeCategory}.
+}
 \description{
 Standardized taxonomy for classifying recipes by domain.
 Supports hierarchical categories with parent-child relationships.

@@ -15,4 +15,9 @@ A RecipeWorkflow object
 \description{
 Read a RecipeWorkflow from a JSON file
 }
+\examples{
+\dontrun{
+wf <- read_workflow("my_workflow.json")
+}
+}
 \keyword{Workflows}

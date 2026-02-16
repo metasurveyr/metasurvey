@@ -161,6 +161,7 @@ RecipeBackend <- R6::R6Class(
 #' @description Configure the active recipe backend via options.
 #' @param type Character. "local" or "api" (also accepts "mongo" for backward compat).
 #' @param path Character. File path for local backend.
+#' @return Invisibly, the RecipeBackend object created.
 #' @examples
 #' set_backend("local", path = tempfile(fileext = ".json"))
 #' @export
