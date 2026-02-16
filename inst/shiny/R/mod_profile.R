@@ -228,11 +228,17 @@ profile_server <- function(id, auth_state) {
           ),
           htmltools::tags$div(
             style = "display: flex; gap: .5rem;",
-            shiny::actionButton(ns(paste0("approve_", i)), "Approve",
-              class = "btn-sm btn-success", icon = shiny::icon("check")
+            htmltools::tags$button(
+              type = "button",
+              class = "btn btn-sm btn-success",
+              onclick = sprintf("Shiny.setInputValue('%s', %d, {priority: 'event'})", ns("admin_approve_click"), i),
+              shiny::icon("check"), " Approve"
             ),
-            shiny::actionButton(ns(paste0("reject_", i)), "Reject",
-              class = "btn-sm btn-danger", icon = shiny::icon("times")
+            htmltools::tags$button(
+              type = "button",
+              class = "btn btn-sm btn-danger",
+              onclick = sprintf("Shiny.setInputValue('%s', %d, {priority: 'event'})", ns("admin_reject_click"), i),
+              shiny::icon("times"), " Reject"
             )
           )
         )
@@ -253,49 +259,54 @@ profile_server <- function(id, auth_state) {
       )
     })
 
-    # Admin approve/reject handlers
+    # Admin approve/reject handlers — store pending users in a reactiveVal
+    pending_users <- shiny::reactiveVal(list())
+
     shiny::observe({
       result <- tryCatch(shiny_fetch_pending_users(auth_state$token), error = function(e) list(ok = FALSE))
-      if (!isTRUE(result$ok)) {
-        return()
+      if (isTRUE(result$ok)) {
+        pending_users(result$users %||% list())
       }
-      pending <- result$users %||% list()
-
-      lapply(seq_along(pending), function(i) {
-        approve_id <- paste0("approve_", i)
-        reject_id <- paste0("reject_", i)
-        user_email <- pending[[i]]$email
-
-        shiny::observeEvent(input[[approve_id]],
-          {
-            res <- tryCatch(shiny_approve_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
-            if (isTRUE(res$ok)) {
-              shiny::showNotification(paste("Approved:", user_email), type = "message")
-            }
-          },
-          ignoreInit = TRUE,
-          once = TRUE
-        )
-
-        shiny::observeEvent(input[[reject_id]],
-          {
-            res <- tryCatch(shiny_reject_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
-            if (isTRUE(res$ok)) {
-              shiny::showNotification(paste("Rejected:", user_email), type = "warning")
-            }
-          },
-          ignoreInit = TRUE,
-          once = TRUE
-        )
-      })
     }) |> shiny::bindEvent(auth_state$logged_in)
 
-    # Refresh admin panel
+    # Single delegated observer for approve buttons
+    shiny::observeEvent(input$admin_approve_click, {
+      idx <- input$admin_approve_click
+      pending <- pending_users()
+      if (idx >= 1 && idx <= length(pending)) {
+        user_email <- pending[[idx]]$email
+        res <- tryCatch(shiny_approve_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
+        if (isTRUE(res$ok)) {
+          shiny::showNotification(paste("Approved:", user_email), type = "message")
+          # Refresh pending list
+          result <- tryCatch(shiny_fetch_pending_users(auth_state$token), error = function(e) list(ok = FALSE))
+          if (isTRUE(result$ok)) pending_users(result$users %||% list())
+        }
+      }
+    })
+
+    # Single delegated observer for reject buttons
+    shiny::observeEvent(input$admin_reject_click, {
+      idx <- input$admin_reject_click
+      pending <- pending_users()
+      if (idx >= 1 && idx <= length(pending)) {
+        user_email <- pending[[idx]]$email
+        res <- tryCatch(shiny_reject_user(user_email, auth_state$token), error = function(e) list(ok = FALSE))
+        if (isTRUE(res$ok)) {
+          shiny::showNotification(paste("Rejected:", user_email), type = "warning")
+          # Refresh pending list
+          result <- tryCatch(shiny_fetch_pending_users(auth_state$token), error = function(e) list(ok = FALSE))
+          if (isTRUE(result$ok)) pending_users(result$users %||% list())
+        }
+      }
+    })
+
+    # Refresh admin panel by re-fetching pending users
     shiny::observeEvent(input$refresh_admin, {
-      output$admin_panel <- shiny::renderUI({
-        # Re-trigger by invalidating
-        shiny::invalidateLater(0)
-      })
+      result <- tryCatch(shiny_fetch_pending_users(auth_state$token), error = function(e) list(ok = FALSE))
+      if (isTRUE(result$ok)) {
+        pending_users(result$users %||% list())
+      }
     })
 
     # My recipes
