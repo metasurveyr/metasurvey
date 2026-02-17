@@ -49,8 +49,11 @@ validate_weight <- function(svy, weight) {
   }
 
   if (!weight %in% colnames(svy)) {
-    stop(cli::col_red(glue::glue("Weight {weight} not found in survey")),
-      call. = FALSE)
+    stop(
+      glue::glue("Weight column '{weight}' not found in survey data. ",
+        "Available columns: {paste(head(colnames(svy), 10), collapse = ', ')}"),
+      call. = FALSE
+    )
   } else {
     weight
   }
@@ -74,9 +77,12 @@ validate_replicate <- function(svy, replicate) {
     }
 
     if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
-      stop(cli::col_red(
-        glue::glue("Replicate ID {replicate$replicate_id} not found in survey")
-      ), call. = FALSE)
+      missing <- setdiff(names(replicate$replicate_id), colnames(svy))
+      stop(
+        glue::glue("Replicate ID column(s) not found in survey: ",
+          "{paste(missing, collapse = ', ')}"),
+        call. = FALSE
+      )
     }
   }
 
@@ -276,8 +282,8 @@ use_copy_default <- function() {
 #' @export
 #' @keywords utils
 set_use_copy <- function(use_copy) {
-  if (!is.logical(use_copy)) {
-    stop("use_copy must be a logical", call. = FALSE)
+  if (!is.logical(use_copy) || length(use_copy) != 1L) {
+    stop("use_copy must be a single logical value", call. = FALSE)
   }
 
   old <- getOption("metasurvey.use_copy")
@@ -340,8 +346,8 @@ lazy_default <- function() {
 #' @export
 
 set_lazy_processing <- function(lazy) {
-  if (!is.logical(lazy)) {
-    stop("lazy must be a logical", call. = FALSE)
+  if (!is.logical(lazy) || length(lazy) != 1L) {
+    stop("lazy must be a single logical value", call. = FALSE)
   }
 
   old <- getOption("metasurvey.lazy_processing")

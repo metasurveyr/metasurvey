@@ -1,5 +1,12 @@
 # Tests for utility functions
 
+test_that("show_engines() returns available engines", {
+  engines <- show_engines()
+  expect_true(is.character(engines))
+  expect_true(length(engines) >= 3)
+  expect_true(all(c("data.table", "tidyverse", "dplyr") %in% engines))
+})
+
 test_that("add_weight() with annual returns named list", {
   w <- add_weight(annual = "pesoano")
   expect_true(is.list(w))
@@ -751,4 +758,14 @@ test_that("get_design wrapper initializes and returns design", {
   result <- get_design(s)
   expect_true(is.list(result))
   expect_true("annual" %in% names(result))
+})
+
+test_that("set_lazy_processing rejects non-scalar logical", {
+  expect_error(set_lazy_processing(c(TRUE, FALSE)), "single logical")
+  expect_error(set_lazy_processing("yes"), "single logical")
+})
+
+test_that("set_use_copy rejects non-scalar logical", {
+  expect_error(set_use_copy(c(TRUE, FALSE)), "single logical")
+  expect_error(set_use_copy(42), "single logical")
 })

@@ -143,5 +143,5 @@ utils::globalVariables(c(
   "variance", "value", "new_category"
 ))
 
-#' @importFrom stats as.formula confint median quantile
+#' @importFrom stats as.formula confint
 NULL

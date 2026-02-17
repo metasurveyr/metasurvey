@@ -436,7 +436,7 @@ cat_estimation.default <- function(estimation, call) {
 #' @noRd
 
 cat_estimation.svyratio <- function(estimation, call) {
-  confint_estimation <- confint(estimation)
+  confint_estimation <- stats::confint(estimation)
 
 
 
