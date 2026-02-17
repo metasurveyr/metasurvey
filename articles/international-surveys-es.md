@@ -262,12 +262,12 @@ workflow(
   survey::svymean(~age, na.rm = TRUE),
   estimation_type = "quarterly"
 )
-#>                    stat    value        se         cv confint_lower
-#>                  <char>    <num>     <num>      <num>         <num>
-#> 1: survey::svymean: age 35.55343 0.8333037 0.02343806      33.92019
+#>                    stat    value       se         cv confint_lower
+#>                  <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: age 35.55343 0.856023 0.02407708      33.87566
 #>    confint_upper
 #>            <num>
-#> 1:      37.18668
+#> 1:      37.23121
 ```
 
 Para microdatos reales de la PNADc:

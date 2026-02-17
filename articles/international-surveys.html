@@ -445,12 +445,12 @@ bundled example microdata.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">age</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"quarterly"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                    stat    value        se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                  &lt;char&gt;    &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: age 35.55343 0.8333037 0.02343806      33.92019</span></span>
+<span><span class="co">#&gt;                    stat    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: age 35.55343 0.856023 0.02407708      33.87566</span></span>
 <span><span class="co">#&gt;    confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      37.18668</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      37.23121</span></span></code></pre></div>
 <p>For real PNADc microdata:
 <code>PNADcIBGE::get_pnadc(year = 2023, quarter = 1)</code>. The
 download is approximately 200 MB.</p>
