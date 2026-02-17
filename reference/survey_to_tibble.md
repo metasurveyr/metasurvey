@@ -16,7 +16,9 @@ survey_to_tibble(svy)
 
 ## Value
 
-tibble
+A tibble
+([tbl_df](https://tibble.tidyverse.org/reference/tbl_df-class.html))
+containing the survey data.
 
 ## See also
 

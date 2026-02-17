@@ -166,9 +166,8 @@ la region de Los Rios.
 Instalar con `remotes::install_github("pachadotdev/casen")`.
 
 ``` r
-library(casen)
-
-data("casen_2017_los_rios", package = "casen")
+# Requiere: remotes::install_github("pachadotdev/casen")
+data("casen_2017_los_rios")
 dt_casen <- data.table(casen_2017_los_rios)
 
 svy_casen <- Survey$new(
@@ -207,16 +206,10 @@ workflow(
   survey::svymean(~ytotcorh, na.rm = TRUE),
   estimation_type = "annual"
 )
-#>                         stat   value       se         cv confint_lower
-#>                       <char>   <num>    <num>      <num>         <num>
-#> 1: survey::svymean: ytotcorh 1036342 69507.48 0.06707002      900109.9
-#>    confint_upper
-#>            <num>
-#> 1:       1172574
 ```
 
 Para los microdatos completos de la CASEN:
-`casen::descargar_casen_github(2017, tempdir())`.
+`descargar_casen_github(2017, tempdir())` del paquete casen.
 
 ## PNADc – Brasil
 

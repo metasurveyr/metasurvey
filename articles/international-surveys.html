@@ -75,7 +75,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>International Survey Compatibility</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.16/vignettes/international-surveys.Rmd" class="external-link"><code>vignettes/international-surveys.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/international-surveys.Rmd" class="external-link"><code>vignettes/international-surveys.Rmd</code></a></small>
       <div class="d-none name"><code>international-surveys.Rmd</code></div>
     </div>
 
@@ -352,9 +352,8 @@ bundled sample from the Los Rios region.</p>
 <p>Install with
 <code>remotes::install_github("pachadotdev/casen")</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pacha.dev/casen/" class="external-link">casen</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"casen_2017_los_rios"</span>, package <span class="op">=</span> <span class="st">"casen"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Requires: remotes::install_github("pachadotdev/casen")</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"casen_2017_los_rios"</span><span class="op">)</span></span>
 <span><span class="va">dt_casen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="va">casen_2017_los_rios</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">svy_casen</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -392,15 +391,10 @@ bundled sample from the Los Rios region.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_casen</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ytotcorh</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         stat   value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;   &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: ytotcorh 1036342 69507.48 0.06707002      900109.9</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:       1172574</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>For the full CASEN microdata, use
-<code>casen::descargar_casen_github(2017, tempdir())</code>.</p>
+<code>descargar_casen_github(2017, tempdir())</code> from the casen
+package.</p>
 </div>
 <div class="section level2">
 <h2 id="pnadc-brazil">PNADc – Brazil<a class="anchor" aria-label="anchor" href="#pnadc-brazil"></a>
