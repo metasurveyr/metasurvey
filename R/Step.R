@@ -185,13 +185,18 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
 
   valid_types <- c(
     "compute", "recode", "step_join",
-    "step_remove", "step_rename"
+    "step_remove", "step_rename", "validate"
   )
   if (!step$type %in% valid_types) {
     stop("Invalid step type: '", step$type, "'. Must be one of: ",
       paste(valid_types, collapse = ", "),
       call. = FALSE
     )
+  }
+
+  if (step$type == "validate") {
+    bake_validate(svy, step)
+    return(svy)
   }
 
   if (step$type %in% c("step_join", "step_remove", "step_rename")) {
@@ -201,6 +206,68 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
   updated_svy <- do.call(step$type, args)
 
   return(updated_svy)
+}
+
+#' Execute validation checks from a validate step
+#' @param svy A Survey object
+#' @param step A Step object with type "validate"
+#' @noRd
+#' @keywords internal
+bake_validate <- function(svy, step) {
+  .data <- get_data(svy)
+  checks <- step$exprs$checks
+  action <- step$exprs$.action %||% "stop"
+  min_n <- step$exprs$.min_n
+
+  # Check minimum number of rows
+  if (!is.null(min_n)) {
+    if (nrow(.data) < min_n) {
+      msg <- sprintf(
+        "Validation failed [min_n]: expected at least %d rows, got %d",
+        min_n, nrow(.data)
+      )
+      if (action == "warn") {
+        warning(msg, call. = FALSE)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    }
+  }
+
+  # Evaluate each row-level check
+  check_names <- names(checks)
+  for (i in seq_along(checks)) {
+    result <- eval(checks[[i]], .data, baseenv())
+    if (!is.logical(result)) {
+      stop(sprintf(
+        "Validation check '%s' did not return a logical vector",
+        deparse1(checks[[i]])
+      ), call. = FALSE)
+    }
+    n_fail <- sum(!result, na.rm = TRUE)
+    # NA counts as failure
+    n_na <- sum(is.na(result))
+    n_fail <- n_fail + n_na
+
+    if (n_fail > 0) {
+      label <- if (!is.null(check_names) && nzchar(check_names[[i]])) {
+        check_names[[i]]
+      } else {
+        deparse1(checks[[i]])
+      }
+      msg <- sprintf(
+        "Validation failed [%s]: %d row%s did not pass",
+        label, n_fail, if (n_fail == 1) "" else "s"
+      )
+      if (action == "warn") {
+        warning(msg, call. = FALSE)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    }
+  }
+
+  invisible(NULL)
 }
 
 #' Execute all pending steps
