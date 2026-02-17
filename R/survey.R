@@ -407,7 +407,7 @@ survey_to_data_frame <- function(svy) {
 #' @keywords survey
 #' @description Convert survey to tibble
 #' @param svy Survey object
-#' @examples
+#' @examplesIf requireNamespace("tibble", quietly = TRUE)
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
 #'   w = rep(1, 5)
@@ -420,9 +420,13 @@ survey_to_data_frame <- function(svy) {
 #' class(tbl)
 #' @family survey-objects
 #' @export
-#' @return tibble
+#' @return A tibble ([tbl_df][tibble::tbl_df]) containing the survey data.
 
 survey_to_tibble <- function(svy) {
+  if (!requireNamespace("tibble", quietly = TRUE)) {
+    stop("Package 'tibble' required. Install with: install.packages('tibble')",
+         call. = FALSE)
+  }
   tibble::as_tibble(svy$get_data())
 }
 
