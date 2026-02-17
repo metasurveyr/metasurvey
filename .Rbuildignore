@@ -74,3 +74,7 @@
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
 ^vignettes/self-hosting-es\.Rmd$
+^vignettes/ech-demographics-recipe\.Rmd$
+^vignettes/api-database\.Rmd$
+^vignettes/self-hosting\.Rmd$
+^vignettes/stata-transpiler\.Rmd$

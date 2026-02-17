@@ -19,6 +19,9 @@ SKIP_COMMANDS <- c(
 
 #' Transpile a STATA .do file to metasurvey steps
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Parses a STATA .do file and translates its commands into
 #' metasurvey step call strings suitable for use in Recipe objects.
 #'
@@ -67,6 +70,9 @@ transpile_stata <- function(do_file, survey_type = "ech",
 }
 
 #' Transpile and group do-files by thematic module
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' Processes all do-files in a year directory and groups them
 #' into thematic Recipe objects (demographics, income, etc.).
@@ -1148,6 +1154,9 @@ filter_labels <- function(labels, vars) {
 
 
 #' Analyze transpilation coverage for STATA do-files
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' Reports what percentage of commands in a .do file (or directory
 #' of files) can be automatically transpiled vs require manual review.

@@ -27,6 +27,8 @@ commands found)
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Parses a STATA .do file and translates its commands into
 metasurvey step call strings suitable for use in Recipe objects.
 }

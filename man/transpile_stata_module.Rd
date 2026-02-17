@@ -19,6 +19,8 @@ transpile_stata_module(year_dir, year, user = "iecon", output_dir = NULL)
 A named list of Recipe objects, one per thematic module
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Processes all do-files in a year directory and groups them
 into thematic Recipe objects (demographics, income, etc.).
 }

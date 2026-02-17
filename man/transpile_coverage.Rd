@@ -16,6 +16,8 @@ A data.frame with columns: file, total_commands, translated,
 skipped, manual_review, coverage_pct
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Reports what percentage of commands in a .do file (or directory
 of files) can be automatically transpiled vs require manual review.
 }

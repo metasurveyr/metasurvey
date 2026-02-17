@@ -994,7 +994,8 @@ get_distinct_recipes <- function(recipe) {
 }
 
 #' @title Publish Recipe
-#' @description Publishes a Recipe object to the active backend
+#' @description
+#' Publishes a Recipe object to the active backend
 #'   (local JSON registry or remote API).
 #' @param recipe A Recipe object.
 #' @return The Recipe object (invisibly).
