@@ -1335,6 +1335,128 @@ get_type_step <- function(steps) {
   }
 }
 
+#' Validate data during the step pipeline
+#'
+#' Creates a non-mutating step that checks data invariants when
+#' \code{\link{bake_steps}} is called. Each check is a logical expression
+#' evaluated row-wise against the survey data. If any row fails a check,
+#' the pipeline stops (or warns).
+#'
+#' @param svy A Survey or RotativePanelSurvey object
+#' @param ... Logical expressions evaluated against the data. Each must
+#'   return a logical vector with one value per row. Named expressions
+#'   use the name in error messages; unnamed expressions use the deparsed
+#'   code. Examples: \code{income > 0}, \code{!is.na(age)},
+#'   \code{sex \%in\% c(1, 2)}.
+#' @param .action What to do when a check fails: \code{"stop"} (default)
+#'   raises an error, \code{"warn"} issues a warning and continues.
+#' @param .min_n Minimum number of rows required. Checked before
+#'   row-level expressions.
+#' @param .copy Whether to operate on a copy (default:
+#'   \code{use_copy_default()})
+#' @param comment Descriptive text for the step for documentation
+#'   and traceability.
+#' @return The survey object with a validate step recorded (no data
+#'   mutation).
+#'
+#' @details
+#' **Lazy evaluation (default):** Like all steps, validation checks are
+#' recorded but **not executed** until \code{\link{bake_steps}} is called.
+#' This means \code{step_validate} can reference variables created by
+#' preceding \code{\link{step_compute}} calls.
+#'
+#' The validate step does **not** modify the data in any way. It only
+#' inspects the current state of the data.table and raises an error
+#' or warning if any check fails.
+#'
+#' @examples
+#' dt <- data.table::data.table(
+#'   id = 1:5, age = c(25, 30, 45, 50, 60),
+#'   income = c(1000, 2000, 3000, 4000, 5000), w = 1
+#' )
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "test",
+#'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#'
+#' # Validate that all ages are positive and income is not NA
+#' svy <- svy |>
+#'   step_validate(age > 0, !is.na(income), .min_n = 3) |>
+#'   bake_steps()
+#'
+#' @family steps
+#' @export
+step_validate <- function(
+    svy, ...,
+    .action = c("stop", "warn"),
+    .min_n = NULL,
+    .copy = use_copy_default(),
+    comment = "Validate step") {
+  .action <- match.arg(.action)
+  .call <- match.call()
+
+  # Capture check expressions
+  checks <- as.list(substitute(list(...))[-1])
+
+  if (length(checks) == 0 && is.null(.min_n)) {
+    stop("step_validate requires at least one check expression or .min_n",
+      call. = FALSE
+    )
+  }
+
+  # Collect dependencies from all check expressions
+  dependencies <- unique(unlist(lapply(checks, all.vars)))
+
+  if (is(svy, "RotativePanelSurvey")) {
+    svy$implantation <- step_validate(
+      svy$implantation, ...,
+      .action = .action, .min_n = .min_n,
+      .copy = .copy, comment = comment
+    )
+    svy$follow_up <- lapply(svy$follow_up, function(fu) {
+      step_validate(fu, ...,
+        .action = .action, .min_n = .min_n,
+        .copy = .copy, comment = comment
+      )
+    })
+    return(svy)
+  }
+
+  out <- if (.copy) svy$shallow_clone() else svy
+
+  check_labels <- if (!is.null(names(checks))) {
+    ifelse(
+      nzchar(names(checks)),
+      names(checks),
+      vapply(checks, deparse1, character(1))
+    )
+  } else {
+    vapply(checks, deparse1, character(1))
+  }
+
+  step <- Step$new(
+    name = paste0("Validate: ", paste(check_labels, collapse = ", ")),
+    edition = get_edition(out),
+    survey_type = get_type(out),
+    type = "validate",
+    new_var = NULL,
+    exprs = list(
+      checks = checks,
+      .action = .action,
+      .min_n = .min_n
+    ),
+    call = .call,
+    svy_before = NULL,
+    default_engine = get_engine(),
+    depends_on = dependencies,
+    comment = comment,
+    bake = FALSE
+  )
+
+  out$add_step(step)
+  out
+}
+
 #' View graph
 #' @param svy Survey object
 #' @param init_step Initial step label (default: "Load survey")
@@ -1386,6 +1508,7 @@ view_graph <- function(svy, init_step = "Load survey") {
     join       = "#1abc9c",
     remove     = "#e74c3c",
     rename     = "#e67e22",
+    validate   = "#27ae60",
     dataframe  = "#95a5a6",
     background = "#f8f9fa",
     edge       = "#bdc3c7",
@@ -1742,6 +1865,23 @@ view_graph <- function(svy, init_step = "Load survey") {
         enabled = TRUE, size = 6,
         x = 2, y = 2,
         color = "rgba(230,126,34,.2)"
+      )
+    ) |>
+    visNetwork::visGroups(
+      groupname = "validate",
+      shape = "icon",
+      icon = list(
+        code = "f058", size = 50,
+        color = palette$validate
+      ),
+      font = list(
+        size = 14, color = "#2c3e50",
+        face = "bold"
+      ),
+      shadow = list(
+        enabled = TRUE, size = 6,
+        x = 2, y = 2,
+        color = "rgba(39,174,96,.2)"
       )
     ) |>
     visNetwork::visGroups(

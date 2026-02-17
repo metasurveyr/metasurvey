@@ -76,6 +76,7 @@ Other steps:
 \code{\link{step_join}()},
 \code{\link{step_recode}()},
 \code{\link{step_rename}()},
+\code{\link{step_validate}()},
 \code{\link{view_graph}()}
 }
 \concept{steps}
