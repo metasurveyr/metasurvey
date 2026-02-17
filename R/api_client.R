@@ -162,12 +162,20 @@ api_request <- function(endpoint, method = "GET",
   # Dispatch
   resp <- switch(method,
     GET = httr2::req_perform(req),
-    POST = {
-      req <- httr2::req_body_raw(
-        req,
-        jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
-        type = "application/json"
-      )
+    POST = ,
+    PUT = {
+      req <- httr2::req_method(req, method)
+      if (!is.null(body)) {
+        req <- httr2::req_body_raw(
+          req,
+          jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
+          type = "application/json"
+        )
+      }
+      httr2::req_perform(req)
+    },
+    DELETE = {
+      req <- httr2::req_method(req, "DELETE")
       httr2::req_perform(req)
     },
     stop("Unsupported HTTP method: ", method, call. = FALSE)
@@ -698,4 +706,227 @@ api_get_anda_variables <- function(survey_type = "ech", var_names = NULL) {
       list()
     }
   )
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# STARS — PUT /recipes/:id/star, GET /recipes/:id/stars, etc.
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' @title Rate a recipe
+#' @description Give a star rating (1-5) to a recipe. Requires authentication.
+#'   Each user can have one rating per recipe (upserts on subsequent calls).
+#' @param id Recipe ID
+#' @param value Integer rating from 1 to 5
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_star_recipe("r_1739654400_742", 5)
+#' }
+#' @family api-stars
+api_star_recipe <- function(id, value) {
+  validate_api_id(id)
+  value <- as.integer(value)
+  if (is.na(value) || value < 1L || value > 5L) {
+    stop("value must be an integer between 1 and 5", call. = FALSE)
+  }
+  result <- api_request(
+    paste0("recipes/", id, "/star"),
+    method = "PUT",
+    body = list(value = value)
+  )
+  invisible(result)
+}
+
+#' @title Get star summary for a recipe
+#' @description Returns average rating, count, and the current user's rating
+#'   (if authenticated).
+#' @param id Recipe ID
+#' @return List with \code{average}, \code{count}, and optionally
+#'   \code{user_value}.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_get_recipe_stars("r_1739654400_742")
+#' }
+#' @family api-stars
+api_get_recipe_stars <- function(id) {
+  validate_api_id(id)
+  api_request(paste0("recipes/", id, "/stars"), method = "GET")
+}
+
+#' @title Rate a workflow
+#' @description Give a star rating (1-5) to a workflow. Requires authentication.
+#' @param id Workflow ID
+#' @param value Integer rating from 1 to 5
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_star_workflow("w_1739654400_123", 4)
+#' }
+#' @family api-stars
+api_star_workflow <- function(id, value) {
+  validate_api_id(id)
+  value <- as.integer(value)
+  if (is.na(value) || value < 1L || value > 5L) {
+    stop("value must be an integer between 1 and 5", call. = FALSE)
+  }
+  result <- api_request(
+    paste0("workflows/", id, "/star"),
+    method = "PUT",
+    body = list(value = value)
+  )
+  invisible(result)
+}
+
+#' @title Get star summary for a workflow
+#' @description Returns average rating, count, and the current user's rating
+#'   (if authenticated).
+#' @param id Workflow ID
+#' @return List with \code{average}, \code{count}, and optionally
+#'   \code{user_value}.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_get_workflow_stars("w_1739654400_123")
+#' }
+#' @family api-stars
+api_get_workflow_stars <- function(id) {
+  validate_api_id(id)
+  api_request(paste0("workflows/", id, "/stars"), method = "GET")
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMMENTS — POST /recipes/:id/comments, GET /recipes/:id/comments, etc.
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' @title Add a comment to a recipe
+#' @description Post a text comment on a recipe. Requires authentication.
+#' @param id Recipe ID
+#' @param text Comment text (max 2000 characters)
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_comment_recipe("r_1739654400_742", "Great recipe!")
+#' }
+#' @family api-comments
+api_comment_recipe <- function(id, text) {
+  validate_api_id(id)
+  if (!is.character(text) || nchar(text) < 1 || nchar(text) > 2000) {
+    stop("text must be between 1 and 2000 characters", call. = FALSE)
+  }
+  result <- api_request(
+    paste0("recipes/", id, "/comments"),
+    method = "POST",
+    body = list(text = text)
+  )
+  invisible(result)
+}
+
+#' @title Get comments for a recipe
+#' @description List all comments on a recipe, sorted by creation date.
+#' @param id Recipe ID
+#' @return List of comment objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_get_recipe_comments("r_1739654400_742")
+#' }
+#' @family api-comments
+api_get_recipe_comments <- function(id) {
+  validate_api_id(id)
+  result <- api_request(
+    paste0("recipes/", id, "/comments"),
+    method = "GET"
+  )
+  result$comments %||% list()
+}
+
+#' @title Add a comment to a workflow
+#' @description Post a text comment on a workflow. Requires authentication.
+#' @param id Workflow ID
+#' @param text Comment text (max 2000 characters)
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_comment_workflow("w_1739654400_123", "Very useful workflow!")
+#' }
+#' @family api-comments
+api_comment_workflow <- function(id, text) {
+  validate_api_id(id)
+  if (!is.character(text) || nchar(text) < 1 || nchar(text) > 2000) {
+    stop("text must be between 1 and 2000 characters", call. = FALSE)
+  }
+  result <- api_request(
+    paste0("workflows/", id, "/comments"),
+    method = "POST",
+    body = list(text = text)
+  )
+  invisible(result)
+}
+
+#' @title Get comments for a workflow
+#' @description List all comments on a workflow, sorted by creation date.
+#' @param id Workflow ID
+#' @return List of comment objects.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_get_workflow_comments("w_1739654400_123")
+#' }
+#' @family api-comments
+api_get_workflow_comments <- function(id) {
+  validate_api_id(id)
+  result <- api_request(
+    paste0("workflows/", id, "/comments"),
+    method = "GET"
+  )
+  result$comments %||% list()
+}
+
+#' @title Delete a comment
+#' @description Delete a comment by its ID. Only the comment author can delete
+#'   it. Requires authentication.
+#' @param comment_id Comment ID
+#' @return Invisibly, the API response.
+#' @export
+#' @examples
+#' \dontrun{
+#' api_delete_comment("c_abc123")
+#' }
+#' @family api-comments
+api_delete_comment <- function(comment_id) {
+  validate_api_id(comment_id)
+  result <- api_request(
+    paste0("comments/", comment_id),
+    method = "DELETE"
+  )
+  invisible(result)
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DEPENDENTS (backlinks) — GET /recipes/:id/dependents
+# ══════════════════════════════════════════════════════════════════════════════
+
+#' @title Get recipes that depend on a recipe
+#' @description Find all recipes whose \code{depends_on_recipes} field
+#'   references the given recipe ID (backlinks).
+#' @param id Recipe ID
+#' @return List of recipe summaries (id, name, user).
+#' @export
+#' @examples
+#' \dontrun{
+#' api_get_recipe_dependents("r_1739654400_742")
+#' }
+#' @family api-recipes
+api_get_recipe_dependents <- function(id) {
+  validate_api_id(id)
+  result <- api_request(
+    paste0("recipes/", id, "/dependents"),
+    method = "GET"
+  )
+  result$dependents %||% list()
 }

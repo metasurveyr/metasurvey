@@ -44,6 +44,7 @@ recipes <- api_list_recipes(survey_type = "ech")
 \seealso{
 Other api-recipes: 
 \code{\link{api_get_recipe}()},
+\code{\link{api_get_recipe_dependents}()},
 \code{\link{api_publish_recipe}()}
 }
 \concept{api-recipes}
