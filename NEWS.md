@@ -1,3 +1,44 @@
+# metasurvey 0.0.20
+
+## Breaking changes
+* `survey_to_data.table()` is deprecated in favor of `survey_to_datatable()`
+  (avoids non-standard dots in function names). The old function still works
+  with a deprecation warning.
+
+## New features
+* `metasurvey_msg()` internal helper wraps `message()` behind
+  `options(metasurvey.verbose = FALSE)` for silent operation in scripts.
+* All HTTP requests (ANDA, API client, Shiny) now send a
+  `metasurvey/<version>` User-Agent header.
+* `read_file()` now gives an actionable install hint when the required
+  reader package is missing (e.g., `haven` for `.dta` files).
+
+## Bug fixes
+* Added `call. = FALSE` to all `stop()` and `warning()` calls for cleaner
+  error tracebacks without internal call stack noise.
+* Fixed `&` vs `&&` in `compute()` and `cat_estimation()` — single `&`
+  would evaluate both sides even when the first was FALSE.
+* `get_metadata()` now uses `cat()` instead of `message()`, making output
+  testable with `expect_output()` and suppressible with `capture.output()`.
+* Removed `.onAttach()` startup message (package loads silently).
+
+## Documentation
+* Fixed all broken URLs flagged by CRAN: updated Azure AKS and INE Uruguay
+  redirects, removed dead Railway API and metasurvey-infra links.
+* Included `api-database` vignette in build (was excluded via
+  `.Rbuildignore`, causing broken cross-vignette file URI references).
+* Reduced vignette tarball from 10.6 MB to 3.7 MB by disabling
+  `visNetwork` widget rendering (`eval = FALSE`).
+* Replaced `\dontrun{}` examples in `get_implantation()` and
+  `get_follow_up()` with runnable examples using test data.
+* Added runnable examples for `provenance_to_json()` and
+  `provenance_diff()`.
+* Added `@family transpiler` cross-references to all transpiler functions.
+* Documented default parameter values across all `step_*` and tidy API
+  functions.
+* Added `print.metasurvey_provenance_diff` man page.
+* Removed unused `digest` from Suggests.
+
 # metasurvey 0.0.19
 
 ## New features

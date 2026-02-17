@@ -1,6 +1,6 @@
 Package: metasurvey
 Title: Reproducible Survey Data Processing with Step Pipelines
-Version: 0.0.19
+Version: 0.0.20
 URL: https://metasurveyr.github.io/metasurvey/, https://github.com/metasurveyr/metasurvey
 BugReports: https://github.com/metasurveyr/metasurvey/issues
 Authors@R:
