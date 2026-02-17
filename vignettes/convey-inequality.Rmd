@@ -1,0 +1,287 @@
+---
+title: "Poverty and Inequality with convey"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Poverty and Inequality with convey}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+can_run <- requireNamespace("convey", quietly = TRUE)
+```
+
+## Introduction
+
+The [convey](https://www.convey-r.org/) package by Guilherme Jacob, Anthony
+Damico, and Djalma Pessoa implements poverty and inequality indicators for
+complex survey data. It works with `survey::svydesign` objects --- the same
+objects that metasurvey wraps inside `Survey` objects.
+
+This vignette shows how to use `convey` functions inside `workflow()` to
+compute Gini coefficients, at-risk-of-poverty rates, FGT indices, and other
+distributional measures, all with proper standard errors and CVs.
+
+For the full reference on every measure, see the
+[convey book](https://www.convey-r.org/).
+
+## Setup
+
+We use the `api` dataset from the `survey` package. The `api00` variable
+(Academic Performance Index score in 2000) serves as our continuous variable
+for inequality measures, and `meals` (percent of students eligible for
+subsidized meals) works as an income-like proxy.
+
+```{r setup, eval = can_run}
+library(metasurvey)
+library(survey)
+library(convey)
+library(data.table)
+
+data(api, package = "survey")
+dt <- data.table(apistrat)
+
+svy <- Survey$new(
+  data    = dt,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw")
+)
+```
+
+### Preparing the design for convey
+
+Before using any `convey` function, the underlying design must be prepared
+with `convey_prep()`. Build the design with `ensure_design()` and then
+replace the estimation-type entry:
+
+```{r convey-prep, eval = can_run}
+svy$ensure_design()
+svy$design[["annual"]] <- convey_prep(svy$design[["annual"]])
+```
+
+## Inequality Measures
+
+### Gini coefficient
+
+The Gini index measures overall inequality on a 0--1 scale:
+
+```{r gini, eval = can_run}
+gini <- workflow(
+  list(svy),
+  convey::svygini(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+gini
+```
+
+### Atkinson index
+
+The Atkinson index uses an inequality aversion parameter `epsilon`.
+Higher epsilon gives more weight to the lower tail:
+
+```{r atkinson, eval = can_run}
+atk_05 <- workflow(
+  list(svy),
+  convey::svyatk(~api00, epsilon = 0.5),
+  estimation_type = "annual"
+)
+
+atk_1 <- workflow(
+  list(svy),
+  convey::svyatk(~api00, epsilon = 1),
+  estimation_type = "annual"
+)
+
+rbind(atk_05, atk_1)
+```
+
+### Quintile share ratio (QSR)
+
+The QSR compares income at the top 20% with the bottom 20%:
+
+```{r qsr, eval = can_run}
+qsr <- workflow(
+  list(svy),
+  convey::svyqsr(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+qsr
+```
+
+### Generalized entropy index
+
+The GEI family includes the Theil index (`alpha = 1`) and the mean log
+deviation (`alpha = 0`):
+
+```{r gei, eval = can_run}
+theil <- workflow(
+  list(svy),
+  convey::svygei(~api00, epsilon = 1),
+  estimation_type = "annual"
+)
+
+mld <- workflow(
+  list(svy),
+  convey::svygei(~api00, epsilon = 0),
+  estimation_type = "annual"
+)
+
+rbind(theil, mld)
+```
+
+## Poverty Measures
+
+For poverty measures we use `meals` (percent of students receiving subsidized
+meals) as an income-like variable. We define a poverty threshold at 50%.
+
+### At-risk-of-poverty threshold
+
+`svyarpt()` computes the at-risk-of-poverty threshold (60% of the median
+by default):
+
+```{r arpt, eval = can_run}
+arpt <- workflow(
+  list(svy),
+  convey::svyarpt(~meals, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+arpt
+```
+
+### At-risk-of-poverty rate
+
+`svyarpr()` computes the proportion of units below the ARPT:
+
+```{r arpr, eval = can_run}
+arpr <- workflow(
+  list(svy),
+  convey::svyarpr(~meals, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+arpr
+```
+
+### FGT poverty indices
+
+The Foster-Greer-Thorbecke (FGT) family provides:
+
+- **FGT(0)**: headcount ratio (proportion below the line)
+- **FGT(1)**: poverty gap (average depth of poverty)
+- **FGT(2)**: severity (squared poverty gap, penalizes extreme poverty)
+
+```{r fgt, eval = can_run}
+threshold <- 50
+
+fgt0 <- workflow(
+  list(svy),
+  convey::svyfgt(~meals, g = 0, abs_thresh = threshold, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+fgt1 <- workflow(
+  list(svy),
+  convey::svyfgt(~meals, g = 1, abs_thresh = threshold, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+fgt2 <- workflow(
+  list(svy),
+  convey::svyfgt(~meals, g = 2, abs_thresh = threshold, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+rbind(fgt0, fgt1, fgt2)
+```
+
+## Full Pipeline: Steps + Convey
+
+A complete pipeline with data transformations followed by inequality estimation:
+
+```{r full-pipeline, eval = can_run}
+dt_full <- data.table(apistrat)
+
+svy_full <- Survey$new(
+  data    = dt_full,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw")
+)
+
+# Transform: compute a derived variable
+svy_full <- step_compute(svy_full,
+  api_growth = api00 - api99,
+  comment = "API score growth"
+)
+
+# Bake the steps
+svy_full <- bake_steps(svy_full)
+
+# Prepare for convey
+svy_full$ensure_design()
+svy_full$design[["annual"]] <- convey_prep(svy_full$design[["annual"]])
+
+# Inequality: Gini on derived variable, Atkinson on api00 (must be positive)
+results <- workflow(
+  list(svy_full),
+  convey::svygini(~api_growth, na.rm = TRUE),
+  convey::svyatk(~api00, epsilon = 1),
+  estimation_type = "annual"
+)
+
+results
+```
+
+### Quality assessment
+
+```{r cv-assessment, eval = can_run}
+for (i in seq_len(nrow(results))) {
+  cv_val <- results$cv[i] * 100
+  cat(
+    results$stat[i], ":",
+    round(cv_val, 1), "% CV -",
+    evaluate_cv(cv_val), "\n"
+  )
+}
+```
+
+### Publication table
+
+```{r table, eval = can_run && requireNamespace("gt", quietly = TRUE)}
+workflow_table(
+  results,
+  title = "Inequality of API Score Growth",
+  subtitle = "California Schools, 2000"
+)
+```
+
+## Provenance
+
+Provenance is tracked automatically. The full lineage --- steps applied,
+convey estimates computed, and package versions --- is available:
+
+```{r provenance, eval = can_run}
+prov <- provenance(results)
+cat("metasurvey version:", prov$environment$metasurvey_version, "\n")
+cat("Steps applied:", length(prov$steps), "\n")
+```
+
+## References
+
+- Jacob, G., Damico, A., & Pessoa, D. (2024). *Poverty and Inequality with
+  Complex Survey Data*. <https://www.convey-r.org/>
+- Lumley, T. (2010). *Complex Surveys: A Guide to Analysis Using R*. Wiley.

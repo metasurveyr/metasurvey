@@ -289,7 +289,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
 cat_estimation <- function(estimation, call) {
   class_estimation <- class(estimation)[1]
 
-  if (class_estimation != "svyby" && class_estimation != "svyratio") {
+  if (!class_estimation %in% c("svyby", "svyratio", "cvystat")) {
     class_estimation <- "default"
   }
 
@@ -424,6 +424,38 @@ cat_estimation.default <- function(estimation, call) {
   )
   names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
+}
+
+#' cat_estimation for cvystat objects (convey package)
+#' @param estimation cvystat object from convey functions
+#' @param call Call string
+#' @importFrom data.table data.table
+#' @keywords internal
+#' @noRd
+cat_estimation.cvystat <- function(estimation, call) {
+  val <- as.numeric(estimation)
+  var_mat <- attr(estimation, "var")
+  se_val <- if (!is.null(var_mat)) sqrt(var_mat[1, 1]) else NA_real_
+  cv_val <- if (!is.na(se_val) && abs(val) > 0) se_val / abs(val) else NA_real_
+  stat_name <- attr(estimation, "statistic") %||% "estimate"
+
+  ci <- tryCatch(stats::confint(estimation), error = function(e) NULL)
+  if (!is.null(ci)) {
+    ci_lo <- ci[1, 1]
+    ci_hi <- ci[1, 2]
+  } else {
+    ci_lo <- val - 1.96 * se_val
+    ci_hi <- val + 1.96 * se_val
+  }
+
+  data.table(
+    stat = paste0(call, ": ", stat_name),
+    value = val,
+    se = se_val,
+    cv = cv_val,
+    confint_lower = ci_lo,
+    confint_upper = ci_hi
+  )
 }
 
 #' cat_estimation_svyratio

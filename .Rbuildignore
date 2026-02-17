@@ -78,3 +78,4 @@
 ^vignettes/api-database\.Rmd$
 ^vignettes/self-hosting\.Rmd$
 ^vignettes/stata-transpiler\.Rmd$
+^vignettes/convey-inequality\.Rmd$

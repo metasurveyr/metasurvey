@@ -50,6 +50,7 @@ Imports:
     methods
 Suggests:
     archive,
+    convey,
     httr2 (>= 1.0.0),
     haven,
     openxlsx,

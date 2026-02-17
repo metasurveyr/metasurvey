@@ -468,3 +468,61 @@ test_that("evaluate_cv classifies CV correctly on percentage scale", {
   expect_equal(evaluate_cv(30), "Use with caution")
   expect_equal(evaluate_cv(40), "Do not publish")
 })
+
+# --- cat_estimation.cvystat tests (convey package) ---
+
+test_that("cat_estimation.cvystat formats mock cvystat object", {
+  # Create a mock cvystat object without needing convey installed
+  mock_cvystat <- 0.35
+  attr(mock_cvystat, "var") <- matrix(0.0004, 1, 1)
+  attr(mock_cvystat, "statistic") <- "gini"
+  class(mock_cvystat) <- "cvystat"
+
+  result <- metasurvey:::cat_estimation.cvystat(mock_cvystat, "convey::svygini")
+  expect_s3_class(result, "data.table")
+  expected_cols <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
+  expect_true(all(expected_cols %in% names(result)))
+  expect_equal(result$value, 0.35)
+  expect_equal(result$se, 0.02, tolerance = 1e-10)
+  expect_true(grepl("gini", result$stat))
+})
+
+test_that("cat_estimation dispatches to cvystat", {
+  mock_cvystat <- 0.42
+  attr(mock_cvystat, "var") <- matrix(0.001, 1, 1)
+  attr(mock_cvystat, "statistic") <- "atkinson"
+  class(mock_cvystat) <- "cvystat"
+
+  result <- metasurvey:::cat_estimation(mock_cvystat, "convey::svyatk")
+  expect_s3_class(result, "data.table")
+  expect_equal(result$value, 0.42)
+  expect_true(grepl("atkinson", result$stat))
+})
+
+test_that("cat_estimation.cvystat handles missing statistic attr", {
+  mock_cvystat <- 0.5
+  attr(mock_cvystat, "var") <- matrix(0.0025, 1, 1)
+  class(mock_cvystat) <- "cvystat"
+
+  result <- metasurvey:::cat_estimation.cvystat(mock_cvystat, "convey::svyfgt")
+  expect_s3_class(result, "data.table")
+  expect_true(grepl("estimate", result$stat))
+})
+
+test_that("workflow works with convey functions", {
+  skip_if_not_installed("convey")
+
+  survey <- make_test_survey(100)
+  survey$ensure_design()
+  survey$design[["annual"]] <- convey::convey_prep(survey$design[["annual"]])
+
+  result <- workflow(
+    list(survey),
+    convey::svygini(~income, na.rm = TRUE),
+    estimation_type = "annual"
+  )
+
+  expect_s3_class(result, "data.table")
+  expect_true(nrow(result) == 1)
+  expect_true(result$value > 0 && result$value < 1)
+})
