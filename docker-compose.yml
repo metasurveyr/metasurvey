@@ -4,10 +4,65 @@
 #   docker compose up --build
 #
 # Services:
-#   api   → http://localhost:8787  (Plumber REST API)
-#   shiny → http://localhost:3838  (Recipe Explorer)
+#   mongo  → MongoDB (port 27017)
+#   api    → http://localhost:8787  (Plumber REST API — public)
+#   worker → http://localhost:8788  (Compute Worker — internal)
+#   shiny  → http://localhost:3838  (Recipe Explorer)
+#
+# Architecture:
+#   Frontend/Users → api (indicators, recipes, workflows)
+#                     ↓ POST /indicators/compute
+#                   worker (loads microdata, applies recipes, estimates)
+#                     ↓
+#                   mongo (stores results)
 
 services:
+  mongo:
+    image: mongo:7
+    container_name: metasurvey-mongo
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-metasurvey}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-metasurvey-dev}
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    build:
+      context: ./inst/worker
+      dockerfile: Dockerfile
+      args:
+        METASURVEY_REF: ${METASURVEY_REF:-main}
+    container_name: metasurvey-worker
+    # NOT exposed to host in production — only api talks to worker
+    ports:
+      - "${WORKER_PORT:-8788}:8788"
+    environment:
+      - METASURVEY_MONGO_URI=${METASURVEY_MONGO_URI:-mongodb://${MONGO_USER:-metasurvey}:${MONGO_PASSWORD:-metasurvey-dev}@mongo:27017/?authSource=admin}
+      - METASURVEY_DB=${METASURVEY_DB:-metasurvey}
+      - SURVEY_DATA_DIR=/data/surveys
+      - PORT=8788
+    volumes:
+      - ${SURVEY_DATA_PATH:-./data/surveys}:/data/surveys:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8788/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
   api:
     build:
       context: ./inst/api
@@ -16,11 +71,19 @@ services:
     ports:
       - "${API_PORT:-8787}:8787"
     environment:
-      - METASURVEY_MONGO_URI=${METASURVEY_MONGO_URI}
+      - METASURVEY_MONGO_URI=${METASURVEY_MONGO_URI:-mongodb://${MONGO_USER:-metasurvey}:${MONGO_PASSWORD:-metasurvey-dev}@mongo:27017/?authSource=admin}
       - METASURVEY_DB=${METASURVEY_DB:-metasurvey}
       - METASURVEY_JWT_SECRET=${METASURVEY_JWT_SECRET:-metasurvey-dev-secret-change-me}
       - METASURVEY_ADMIN_EMAIL=${METASURVEY_ADMIN_EMAIL:-}
+      - METASURVEY_WORKER_URL=http://worker:8788
+      - METASURVEY_ENABLE_INDICATORS=${METASURVEY_ENABLE_INDICATORS:-1}
+      - METASURVEY_ENABLE_WORKER=${METASURVEY_ENABLE_WORKER:-1}
       - PORT=8787
+    depends_on:
+      mongo:
+        condition: service_healthy
+      worker:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8787/health"]
@@ -45,3 +108,6 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  mongo_data:
