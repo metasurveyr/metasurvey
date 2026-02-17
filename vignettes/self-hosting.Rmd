@@ -51,9 +51,7 @@ and access to microdata. The worker is the only component that touches raw
 survey data.
 
 ```{r architecture-diagram, echo=FALSE, eval=TRUE, out.width="100%", fig.cap="metasurvey self-hosting infrastructure"}
-knitr::include_graphics(
-  system.file("diagrams", "metasurvey-infrastructure.svg", package = "metasurvey")
-)
+knitr::include_graphics("metasurvey-infrastructure.png")
 ```
 
 **Key separation**: The Worker loads microdata, fetches recipes from MongoDB,
@@ -909,38 +907,80 @@ METASURVEY_ENABLE_WORKER=1
 METASURVEY_WORKER_URL=http://worker:8788
 ```
 
-## Hybrid Deployment: Public Registry + Private Worker
+## Hybrid Deployment: Public Registry + Private Infrastructure
 
 You don't need to run your own MongoDB to access shared recipes. You can
-point your private API/Worker to the **public metasurvey recipe registry**
-so that researchers with access to microdata can apply community-published
-recipes locally.
+deploy **your own API + Worker** pointing to the **public metasurvey recipe
+registry**, so that researchers with access to microdata can apply
+community-published recipes locally.
+
+The organization deploys two services:
+
+1. **plumber API** (`:8787`) -- connects to the public MongoDB to read
+   recipes and workflows. Receives requests from the frontend or
+   researchers, and proxies compute requests to the worker.
+2. **Worker** (`:8788`) -- has metasurvey installed and access to private
+   microdata. Fetches recipes from the public registry (via MongoDB),
+   applies them, and runs estimations.
+
+```text
+  Public metasurvey MongoDB             Your infrastructure
+  (recipes, workflows)                  (private network)
+  +-------------------+           +---------------------------+
+  |  MongoDB Atlas     |<----------| plumber API  :8787        |
+  |  (read-only)       |           |   - reads recipes/wf      |
+  +-------------------+           |   - proxies POST /compute  |
+                                   +-------------+-------------+
+                                                 |
+                                    POST /compute|
+                                                 v
+                                   +-------------+-------------+
+                                   | Worker  :8788              |
+                                   |   - loads microdata        |
+                                   |   - applies recipes        |
+                                   |   - runs workflow()        |
+                                   +---------------------------+
+                                                 ^
+                                   +-------------+-------------+
+                                   | Microdata (.sav, .dta)    |
+                                   | PRIVATE — never leaves    |
+                                   +---------------------------+
+```
 
 ```bash
 # .env for hybrid deployment
-# Use the public metasurvey MongoDB (read-only for recipes/workflows)
+# Both API and Worker point to the public metasurvey MongoDB
 METASURVEY_MONGO_URI=mongodb+srv://readonly:public@metasurvey.mongodb.net
 METASURVEY_DB=metasurvey
 
 # Worker has local microdata
 SURVEY_DATA_PATH=/secure/microdata
 
-# Indicators stay local (your own MongoDB or disabled)
-METASURVEY_ENABLE_INDICATORS=0
+# API proxies compute requests to the worker
+METASURVEY_WORKER_URL=http://worker:8788
 METASURVEY_ENABLE_WORKER=1
+
+# Indicators disabled (no local MongoDB to store them)
+METASURVEY_ENABLE_INDICATORS=0
+```
+
+```bash
+docker compose up api worker
 ```
 
 In this mode:
 
 - **Recipes and workflows** are fetched from the public registry -- any
-  recipe published by the community is available to your worker.
+  recipe published by the community is available to your API and worker.
 - **Microdata stays private** -- the worker loads survey files from a local
   volume, never exposed externally.
-- **Estimation is local** -- the worker applies recipes and runs workflows
-  on your infrastructure.
+- **Estimation is local** -- the API receives the request, proxies it to
+  the worker, which applies recipes and runs `workflow()` on your
+  infrastructure.
+- **No MongoDB to maintain** -- you use the public registry as-is.
 
 This is useful for research teams that have access to restricted microdata
-and want to apply standardized recipes without maintaining their own recipe
+and want to apply standardized recipes without maintaining their own
 database.
 
 ## Production Deployment

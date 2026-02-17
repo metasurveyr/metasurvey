@@ -1,0 +1,313 @@
+<mxfile host="app.diagrams.net" modified="2026-02-16T12:00:00.000Z" agent="metasurvey" version="24.0.0" type="device">
+  <diagram id="infrastructure" name="metasurvey Infrastructure">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================================ -->
+        <!-- BACKGROUND: Cloud Provider -->
+        <!-- ============================================================ -->
+        <mxCell id="cloud" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#4f46e5;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="1520" height="940" as="geometry" />
+        </mxCell>
+        <mxCell id="cloud_label" value="&lt;font style=&quot;font-size: 14px;&quot; color=&quot;#4f46e5&quot;&gt;&lt;b&gt;Cloud Provider&lt;/b&gt; (AWS / Azure / GCP / On-Premise)&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="380" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- KUBERNETES CLUSTER -->
+        <!-- ============================================================ -->
+        <mxCell id="k8s" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1e3a5f;strokeWidth=2;arcSize=6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="900" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="k8s_icon" value="&lt;font style=&quot;font-size: 15px;&quot; color=&quot;#326ce5&quot;&gt;&#9096;&lt;/font&gt; &lt;font style=&quot;font-size: 14px;&quot; color=&quot;#1e3a5f&quot;&gt;&lt;b&gt;Kubernetes Cluster&lt;/b&gt;&lt;/font&gt;  &lt;font style=&quot;font-size: 11px;&quot; color=&quot;#64748b&quot;&gt;(EKS / AKS / GKE / Minikube)&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="110" width="450" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Namespace label -->
+        <mxCell id="ns_label" value="&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#6366f1&quot;&gt;&lt;b&gt;namespace: metasurvey&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="100" y="135" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- POD: metasurvey API -->
+        <!-- ============================================================ -->
+        <mxCell id="api_pod" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="170" width="250" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="api_title" value="&lt;font style=&quot;font-size: 13px;&quot; color=&quot;#5b21b6&quot;&gt;&lt;b&gt;metasurvey API&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#7c3aed&quot;&gt;Deployment (replicas: 2)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="140" y="178" width="210" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="api_container" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;plumber&lt;/b&gt; :8787&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;rocker/r-ver:4.4.0&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#a78bfa;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="140" y="225" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- API Endpoints list -->
+        <mxCell id="api_endpoints" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;GET /indicators&lt;br&gt;GET /indicators/:id&lt;br&gt;GET /indicators/:id/recipe&lt;br&gt;GET /indicators/:id/workflow&lt;br&gt;POST /indicators&lt;br&gt;&lt;b&gt;POST /indicators/compute&lt;/b&gt; &amp;rarr; Worker&lt;br&gt;GET /recipes  ·  GET /workflows&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="142" y="282" width="210" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- POD: Shiny Explorer -->
+        <!-- ============================================================ -->
+        <mxCell id="shiny_pod" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="170" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="shiny_title" value="&lt;font style=&quot;font-size: 13px;&quot; color=&quot;#065f46&quot;&gt;&lt;b&gt;Shiny Explorer&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#059669&quot;&gt;Deployment (replicas: 1)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="420" y="178" width="210" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="shiny_container" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;shiny&lt;/b&gt; :3838&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;Recipe browser UI&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#6ee7b7;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="425" y="228" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- POD: Compute Worker (always-on service) -->
+        <!-- ============================================================ -->
+        <mxCell id="worker_pod" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="170" width="260" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="worker_title" value="&lt;font style=&quot;font-size: 13px;&quot; color=&quot;#92400e&quot;&gt;&lt;b&gt;Compute Worker&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#d97706&quot;&gt;Deployment (replicas: 1) :8788&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="700" y="178" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="worker_container" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;plumber + metasurvey&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;rocker/r-ver:4.4.0&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#fbbf24;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="700" y="225" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="worker_detail" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;POST /compute:&lt;br&gt;1. Load microdata from volume&lt;br&gt;2. Fetch recipe from MongoDB&lt;br&gt;3. Apply recipes (bake_steps)&lt;br&gt;4. Run workflow (svymean/svytotal)&lt;br&gt;5. Return results to API&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="695" y="278" width="230" height="85" as="geometry" />
+        </mxCell>
+        <!-- Private badge on worker -->
+        <mxCell id="worker_private_badge" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#ffffff&quot;&gt;&lt;b&gt;INTERNAL&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d97706;strokeColor=none;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="880" y="175" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- INGRESS -->
+        <!-- ============================================================ -->
+        <mxCell id="ingress" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="420" width="540" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress_title" value="&lt;font style=&quot;font-size: 13px;&quot; color=&quot;#1e40af&quot;&gt;&lt;b&gt;Ingress Controller&lt;/b&gt;&lt;/font&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#3b82f6&quot;&gt;  (NGINX / ALB)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="230" y="428" width="320" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ingress_routes" value="&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#1e3a5f&quot;&gt;api.metasurvey.org &amp;rarr; :8787  &lt;/font&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#64748b&quot;&gt;|&lt;/font&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#1e3a5f&quot;&gt;  explorer.metasurvey.org &amp;rarr; :3838&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="170" y="458" width="440" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- TLS badge -->
+        <mxCell id="tls_badge" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#ffffff&quot;&gt;&lt;b&gt;TLS&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#16a34a;strokeColor=none;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="130" y="430" width="35" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- HPA -->
+        <mxCell id="hpa" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#6366f1&quot;&gt;&lt;b&gt;HPA&lt;/b&gt; auto-scaling&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#a5b4fc;strokeWidth=1;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="700" y="430" width="120" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ConfigMap + Secrets -->
+        <mxCell id="config" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;ConfigMap&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=1;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="700" y="462" width="75" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="secrets" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;Secrets&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=1;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="785" y="462" width="65" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- ARROWS: Ingress to Pods -->
+        <!-- ============================================================ -->
+        <mxCell id="arr_ing_api" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2563eb;strokeWidth=2;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.3;exitY=0;exitDx=0;exitDy=0;" edge="1" source="ingress" target="api_pod" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_ing_shiny" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.7;exitY=0;exitDx=0;exitDy=0;" edge="1" source="ingress" target="shiny_pod" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Shiny to API (internal) -->
+        <mxCell id="arr_shiny_api" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#94a3b8;strokeWidth=1;dashed=1;dashPattern=4 4;" edge="1" source="shiny_pod" target="api_pod" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_shiny_api_label" value="&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#94a3b8&quot;&gt;internal&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="375" y="155" width="45" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: API to Worker (POST /compute proxy) -->
+        <mxCell id="arr_api_worker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="api_pod" target="worker_pod" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_api_worker_label" value="&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#d97706&quot;&gt;&lt;b&gt;POST /compute&lt;/b&gt;&lt;br&gt;(proxy)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="445" y="220" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- MANAGED SERVICES (right side) -->
+        <!-- ============================================================ -->
+
+        <!-- MongoDB -->
+        <mxCell id="mongo" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="100" width="240" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="mongo_title" value="&lt;font style=&quot;font-size: 14px;&quot; color=&quot;#991b1b&quot;&gt;&lt;b&gt;MongoDB&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#dc2626&quot;&gt;DocumentDB / CosmosDB / Atlas / mongo:7&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1070" y="108" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mongo_collections" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;b&gt;Collections:&lt;/b&gt;&lt;br&gt;&lt;/font&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;&#8226; &lt;b&gt;indicators&lt;/b&gt; &amp;larr; results + traceability&lt;br&gt;&#8226; &lt;b&gt;recipes&lt;/b&gt; &amp;larr; transformation steps&lt;br&gt;&#8226; &lt;b&gt;workflows&lt;/b&gt; &amp;larr; estimation calls&lt;br&gt;&#8226; users&lt;br&gt;&#8226; anda_variables&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="1078" y="150" width="210" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Object Storage -->
+        <mxCell id="storage" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#ca8a04;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="310" width="240" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_title" value="&lt;font style=&quot;font-size: 14px;&quot; color=&quot;#854d0e&quot;&gt;&lt;b&gt;Object Storage&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#ca8a04&quot;&gt;S3 / Blob Storage / GCS&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1070" y="318" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_detail" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;&#8226; Microdata files (.sav, .dta, .csv)&lt;br&gt;&#8226; Bootstrap replicate weights&lt;br&gt;&#8226; Mounted read-only on &lt;b&gt;Worker&lt;/b&gt;&lt;br&gt;&#8226; Encrypted, versioned, &lt;b&gt;PRIVATE&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="1078" y="360" width="210" height="60" as="geometry" />
+        </mxCell>
+        <!-- Private badge -->
+        <mxCell id="private_badge" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#ffffff&quot;&gt;&lt;b&gt;PRIVATE&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dc2626;strokeColor=none;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="1245" y="315" width="50" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Redis (optional) -->
+        <mxCell id="redis" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;arcSize=10;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="460" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="redis_title" value="&lt;font style=&quot;font-size: 14px;&quot; color=&quot;#166534&quot;&gt;&lt;b&gt;Redis&lt;/b&gt;&lt;/font&gt; &lt;font style=&quot;font-size: 10px;&quot; color=&quot;#16a34a&quot;&gt;(optional)&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;ElastiCache / Memorystore / Azure Cache&lt;br&gt;Indicator cache + rate limiting&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1070" y="468" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- ARROWS: K8s to Managed Services -->
+        <!-- ============================================================ -->
+        <mxCell id="arr_api_mongo" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#dc2626;strokeWidth=2;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="k8s" target="mongo" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_worker_storage" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ca8a04;strokeWidth=2;exitX=1;exitY=0.55;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="k8s" target="storage" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_api_redis" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=1;dashed=1;dashPattern=4 4;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="k8s" target="redis" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- PUBLIC CONSUMERS (bottom) -->
+        <!-- ============================================================ -->
+        <mxCell id="public_zone" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;dashed=1;dashPattern=5 3;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="680" width="700" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="public_label" value="&lt;font style=&quot;font-size: 13px;&quot; color=&quot;#334155&quot;&gt;&lt;b&gt;Public Internet&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="100" y="688" width="150" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Consumer: Researchers -->
+        <mxCell id="researcher" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;Researchers&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;R / Python / curl&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6366f1;strokeWidth=2;arcSize=10;shadow=1;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="110" y="730" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Consumer: Frontend -->
+        <mxCell id="frontend" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;Organization Website&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;Angular / React / Vue&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6366f1;strokeWidth=2;arcSize=10;shadow=1;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="730" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Consumer: Journalists -->
+        <mxCell id="journalist" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;Journalists&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748b&quot;&gt;Data verification&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6366f1;strokeWidth=2;arcSize=10;shadow=1;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="510" y="730" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Consumers to Ingress -->
+        <mxCell id="arr_public_ingress1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366f1;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.15;entryY=1;entryDx=0;entryDy=0;" edge="1" source="researcher" target="ingress" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="185" y="640" />
+              <mxPoint x="201" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arr_public_ingress2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366f1;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="frontend" target="ingress" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="385" y="640" />
+              <mxPoint x="390" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arr_public_ingress3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#6366f1;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" edge="1" source="journalist" target="ingress" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="585" y="640" />
+              <mxPoint x="579" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- TRANSPARENCY CHAIN (bottom right) -->
+        <!-- ============================================================ -->
+        <mxCell id="chain_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#7c3aed;strokeWidth=2;arcSize=8;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="590" width="480" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="chain_title" value="&lt;font style=&quot;font-size: 14px;&quot; color=&quot;#5b21b6&quot;&gt;&lt;b&gt;Transparency Chain&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1200" y="598" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Chain: Indicator -->
+        <mxCell id="chain_ind" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;Indicator&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;GET /indicators/:id&lt;br&gt;&lt;br&gt;value: &lt;b&gt;0.082&lt;/b&gt;&lt;br&gt;se: 0.003&lt;br&gt;cv: 0.037&lt;br&gt;CI: [0.076, 0.088]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#7c3aed;strokeWidth=2;arcSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="640" width="170" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Chain: Workflow -->
+        <mxCell id="chain_wf" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;Workflow&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;GET /indicators/:id/workflow&lt;br&gt;&lt;br&gt;svymean(~pd, design)&lt;br&gt;estimation: annual&lt;br&gt;recipe_ids: [ech_emp_001]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;arcSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="790" width="195" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Chain: Recipe -->
+        <mxCell id="chain_recipe" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;b&gt;Recipe&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#374151&quot;&gt;GET /indicators/:id/recipe&lt;br&gt;&lt;br&gt;step_compute(pd = ...)&lt;br&gt;step_recode(pea, ...)&lt;br&gt;depends_on: [e27, f66]&lt;br&gt;output_vars: [po, pd, pea]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;strokeWidth=2;arcSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="790" width="185" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Chain arrows -->
+        <mxCell id="arr_ind_wf" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#4f46e5&quot;&gt;&lt;b&gt;how was it estimated?&lt;/b&gt;&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4f46e5;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="chain_ind" target="chain_wf" parent="1">
+          <mxGeometry x="0.1" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arr_wf_recipe" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#059669&quot;&gt;&lt;b&gt;how were variables built?&lt;/b&gt;&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="chain_wf" target="chain_recipe" parent="1">
+          <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- "The number" label -->
+        <mxCell id="chain_num_label" value="&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#7c3aed&quot;&gt;&lt;b&gt;the number&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1260" y="700" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- "Public, no auth" badge -->
+        <mxCell id="public_badge_chain" value="&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#ffffff&quot;&gt;&lt;b&gt;PUBLIC (no auth)&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#16a34a;strokeColor=none;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="640" width="120" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- DEPLOYMENT OPTIONS (top right corner) -->
+        <!-- ============================================================ -->
+        <mxCell id="deploy_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#cbd5e1;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="100" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="deploy_title" value="&lt;font style=&quot;font-size: 12px;&quot; color=&quot;#334155&quot;&gt;&lt;b&gt;Deployment Options&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="1360" y="108" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="deploy_options" value="&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#374151&quot;&gt;&lt;b&gt;Local:&lt;/b&gt;&lt;br&gt;  docker compose&lt;br&gt;  minikube&lt;br&gt;&lt;br&gt;&lt;b&gt;Cloud:&lt;/b&gt;&lt;br&gt;  AWS EKS + DocumentDB&lt;br&gt;  Azure AKS + CosmosDB&lt;br&gt;  GCP GKE + Atlas&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];spacing=2;" vertex="1" parent="1">
+          <mxGeometry x="1355" y="135" width="170" height="125" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- BOTTOM: metasurvey branding -->
+        <!-- ============================================================ -->
+        <mxCell id="brand" value="&lt;font style=&quot;font-size: 12px;&quot; color=&quot;#6366f1&quot;&gt;&lt;b&gt;metasurvey&lt;/b&gt;&lt;/font&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#94a3b8&quot;&gt;  |  Self-Hosting Infrastructure  |  github.com/metasurveyr/metasurvey-infra&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" parent="1">
+          <mxGeometry x="480" y="955" width="500" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -52,6 +52,9 @@
 ^inst/shiny-auth\.R$
 ^inst/shiny/Dockerfile$
 ^inst/shiny/\.dockerignore$
+^inst/worker/Dockerfile$
+^inst/worker/\.dockerignore$
+^inst/diagrams/.*\.drawio$
 ^lib$
 ^metasurvey\.Rcheck$
 ^metasurvey_.*\.tar\.gz$
@@ -80,6 +83,7 @@
 ^vignettes/recipes-es\.Rmd$
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
+^vignettes/self-hosting-es\.Rmd$
 ^summary_iecon\.md$
 ^ropensci-presubmission-plan\.md$
 ^\.env\.example$

@@ -50,6 +50,10 @@ The full stack is deployed and publicly available:
   through the [REST API](https://metasurvey-api-production.up.railway.app/__docs__/) or a local JSON registry.
 - **Shiny app**: [interactive recipe and workflow explorer](https://metasurvey-shiny-production.up.railway.app) with
   `explore_recipes()`.
+- **Self-hosting**: deploy the full stack on your infrastructure with
+  Docker Compose or Kubernetes. Publish indicators with full traceability
+  (indicator → workflow → recipe) while keeping microdata private.
+  See `vignette("self-hosting")`.
 - **STATA transpiler**: convert `.do` files into reproducible Recipe objects.
 
 ---
@@ -292,6 +296,7 @@ See `vignette("stata-transpiler")` for the full reference.
 - [ECH demographics recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.html)
 - [Interactive explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html)
 - [API and database](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
+- [Self-hosting guide](https://metasurveyr.github.io/metasurvey/articles/self-hosting.html)
 
 ---
 
