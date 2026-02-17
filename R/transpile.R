@@ -853,10 +853,131 @@ optimize_steps <- function(steps) {
       next
     }
 
+    # Collapse consecutive step_compute with dependency analysis
+    if (grepl("^step_compute\\(", step)) {
+      compute_steps <- step
+      j <- i + 1
+      while (j <= length(steps) &&
+        grepl("^step_compute\\(", steps[[j]])) {
+        compute_steps <- c(compute_steps, steps[[j]])
+        j <- j + 1
+      }
+      if (length(compute_steps) > 1) {
+        result <- c(result, collapse_compute_steps(compute_steps))
+      } else {
+        result <- c(result, step)
+      }
+      i <- j
+      next
+    }
+
     result <- c(result, step)
     i <- i + 1
   }
 
+  result
+}
+
+#' Parse a step_compute string into body and .by components
+#' @param step A step_compute string
+#' @return A list with `body` (the variable assignments) and `by` (the .by
+#'   value or NULL)
+#' @noRd
+parse_compute_step <- function(step) {
+  # Remove "step_compute(svy, " prefix and trailing ")"
+  inner <- sub("^step_compute\\(svy,\\s*", "", step)
+  inner <- sub("\\)$", "", inner)
+
+  # Split off .by parameter if present
+  # Match , .by = ... at the end, being careful with nested parens
+  by_match <- regmatches(inner, regexec(
+    ",\\s*\\.by\\s*=\\s*(.+)$", inner
+  ))[[1]]
+
+  if (length(by_match) >= 2) {
+    by_val <- trimws(by_match[[2]])
+    body <- sub(",\\s*\\.by\\s*=\\s*.+$", "", inner)
+  } else {
+    by_val <- NULL
+    body <- inner
+  }
+
+  list(body = trimws(body), by = by_val)
+}
+
+#' Collapse a vector of step_compute strings respecting dependencies
+#' @param steps Character vector of step_compute strings
+#' @return Character vector of collapsed step_compute strings
+#' @noRd
+collapse_compute_steps <- function(steps) {
+  parsed <- lapply(steps, parse_compute_step)
+
+  result <- character(0)
+  group_bodies <- character(0)
+  group_by <- NULL
+  created_vars <- character(0)
+
+  flush_group <- function() {
+    if (length(group_bodies) > 0) {
+      body <- paste(group_bodies, collapse = ", ")
+      if (!is.null(group_by)) {
+        result <<- c(result, sprintf(
+          "step_compute(svy, %s, .by = %s)", body, group_by
+        ))
+      } else {
+        result <<- c(result, sprintf("step_compute(svy, %s)", body))
+      }
+      group_bodies <<- character(0)
+      group_by <<- NULL
+      created_vars <<- character(0)
+    }
+  }
+
+  for (p in parsed) {
+    # Extract output variable name(s) and referenced variables
+    expr <- tryCatch(
+      parse(text = paste0("list(", p$body, ")")),
+      error = function(e) NULL
+    )
+
+    if (is.null(expr)) {
+      # Can't parse: flush and emit as-is
+      flush_group()
+      if (!is.null(p$by)) {
+        result <- c(result, sprintf(
+          "step_compute(svy, %s, .by = %s)", p$body, p$by
+        ))
+      } else {
+        result <- c(result, sprintf("step_compute(svy, %s)", p$body))
+      }
+      next
+    }
+
+    expr_list <- expr[[1]]
+    out_vars <- names(expr_list)[-1] # skip 'list'
+    ref_vars <- all.vars(expr_list)
+    # ref_vars includes out_vars; remove them to get only referenced
+    ref_vars <- setdiff(ref_vars, out_vars)
+
+    # Check .by compatibility
+    by_matches <- identical(p$by, group_by)
+    if (length(group_bodies) > 0 && !by_matches) {
+      flush_group()
+    }
+
+    # Check dependency: does this step reference any created var?
+    has_dep <- length(intersect(ref_vars, created_vars)) > 0
+
+    if (has_dep) {
+      flush_group()
+    }
+
+    group_bodies <- c(group_bodies, p$body)
+    group_by <- p$by
+    created_vars <- c(created_vars, out_vars)
+  }
+
+  flush_group()
   result
 }
 
