@@ -154,6 +154,18 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
     attr(result, "workflow") <- wf
   }
 
+  # Attach provenance from first survey
+  if (length(survey) > 0 && inherits(survey[[1]], "Survey")) {
+    prov <- survey[[1]]$provenance
+    if (!is.null(prov)) {
+      prov$estimation <- list(
+        timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
+        estimation_type = estimation_type
+      )
+      attr(result, "provenance") <- prov
+    }
+  }
+
   return(result)
 }
 

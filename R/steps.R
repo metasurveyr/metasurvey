@@ -143,6 +143,52 @@ recode <- function(svy, new_var, ...,
   }
 }
 
+
+filter_rows <- function(svy, ..., .by = NULL,
+                        .copy = use_copy_default(),
+                        lazy = lazy_default()) {
+  if (!lazy) {
+    if (!.copy) {
+      .data <- get_data(svy)
+    } else {
+      .clone <- svy$shallow_clone()
+      .data <- get_data(.clone)
+    }
+
+    .conditions <- substitute(list(...))
+
+    # Build combined AND condition from all expressions
+    combined <- NULL
+    for (i in seq.int(2L, length(.conditions))) {
+      cond <- .conditions[[i]]
+      if (is.null(combined)) {
+        combined <- cond
+      } else {
+        combined <- substitute(a & b, list(a = combined, b = cond))
+      }
+    }
+
+    if (!is.null(.by)) {
+      .data <- .data[, .SD[eval(combined, .SD)], by = .by]
+    } else {
+      .data <- .data[eval(combined, .data, parent.frame())]
+    }
+
+    if (!.copy) {
+      return(set_data(svy, .data))
+    } else {
+      return(set_data(.clone, .data))
+    }
+  } else {
+    if (!.copy) {
+      return(svy)
+    } else {
+      return(svy$shallow_clone())
+    }
+  }
+}
+
+
 #' Create computation steps for survey variables
 #'
 #' This function uses optimized expression evaluation
@@ -1457,6 +1503,143 @@ step_validate <- function(
   out
 }
 
+
+#' Filter rows from survey data
+#'
+#' Creates a step that filters (subsets) rows from the survey data based
+#' on logical conditions. Multiple conditions are combined with AND.
+#'
+#' @param svy A [Survey] or [RotativePanelSurvey] object.
+#' @param ... Logical expressions evaluated against the data. Each must
+#'   return a logical vector. Multiple conditions are combined with AND.
+#' @param .by Optional grouping variable(s) for within-group filtering.
+#' @param .copy Whether to operate on a copy (default: [use_copy_default()]).
+#' @param comment Descriptive text for the step.
+#' @param .level For [RotativePanelSurvey], the level to apply:
+#'   `"implantation"`, `"follow_up"`, or `"auto"` (both).
+#'
+#' @return The survey object with rows filtered and the step recorded.
+#'
+#' @details
+#' **Lazy evaluation (default):** Like all steps, filter is recorded but
+#' **not executed** until [bake_steps()] is called.
+#'
+#' @examples
+#' svy <- Survey$new(
+#'   data = data.table::data.table(
+#'     id = 1:10, age = c(15, 25, 35, 45, 55, 65, 75, 20, 30, 40), w = 1
+#'   ),
+#'   edition = "2023", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' svy <- svy |> step_filter(age >= 18) |> bake_steps()
+#' nrow(get_data(svy))
+#'
+#' @family steps
+#' @export
+step_filter <- function(
+    svy, ...,
+    .by = NULL,
+    .copy = use_copy_default(),
+    comment = "Filter step",
+    .level = "auto") {
+  .call <- match.call()
+
+  # Capture filter expressions
+  exprs <- as.list(substitute(list(...))[-1])
+
+  if (length(exprs) == 0) {
+    stop("step_filter requires at least one filter expression", call. = FALSE)
+  }
+
+  # Collect dependencies
+  dependencies <- unique(unlist(lapply(exprs, all.vars)))
+
+  if (is(svy, "RotativePanelSurvey")) {
+    return(step_filter_rotative(svy, ...,
+      .by = .by, .copy = .copy,
+      comment = comment, .level = .level, .call = .call
+    ))
+  }
+
+  out <- if (.copy) svy$shallow_clone() else svy
+
+  filter_labels <- vapply(exprs, deparse1, character(1))
+
+  step <- Step$new(
+    name = paste0("Filter: ", paste(filter_labels, collapse = " & ")),
+    edition = get_edition(out),
+    survey_type = get_type(out),
+    type = "filter",
+    new_var = NULL,
+    exprs = substitute(list(...)),
+    call = .call,
+    svy_before = NULL,
+    default_engine = get_engine(),
+    depends_on = dependencies,
+    comment = comment,
+    bake = FALSE
+  )
+
+  out$add_step(step)
+  out
+}
+
+
+#' @keywords internal
+#' @noRd
+step_filter_rotative <- function(
+    svy, ...,
+    .by = NULL,
+    .copy = use_copy_default(),
+    comment = "Filter step",
+    .level = "auto", .call) {
+  follow_up_processed <- svy$follow_up
+  implantation_processed <- svy$implantation
+
+  if (.level == "auto" || .level == "follow_up") {
+    follow_up_processed <- lapply(svy$follow_up, function(sub_svy) {
+      step_filter(sub_svy, ...,
+        .by = .by, .copy = .copy, comment = comment
+      )
+    })
+  }
+
+  if (.level == "auto" || .level == "implantation") {
+    implantation_processed <- step_filter(
+      svy$implantation, ...,
+      .by = .by, .copy = .copy, comment = comment
+    )
+  }
+
+  if (length(implantation_processed$steps) > 0) {
+    steps <- implantation_processed$steps
+  } else if (length(follow_up_processed) > 0) {
+    steps <- follow_up_processed[[1]]$steps
+  } else {
+    steps <- list()
+  }
+
+  if (.copy) {
+    result <- RotativePanelSurvey$new(
+      implantation = implantation_processed,
+      follow_up = follow_up_processed,
+      type = svy$type,
+      default_engine = "data.table",
+      steps = NULL, recipes = NULL,
+      workflows = NULL, design = NULL
+    )
+    result$steps <- steps
+    return(result)
+  } else {
+    svy$implantation <- implantation_processed
+    svy$follow_up <- follow_up_processed
+    svy$steps <- steps
+    return(svy)
+  }
+}
+
+
 #' View graph
 #' @param svy Survey object
 #' @param init_step Initial step label (default: "Load survey")
@@ -1509,6 +1692,7 @@ view_graph <- function(svy, init_step = "Load survey") {
     remove     = "#e74c3c",
     rename     = "#e67e22",
     validate   = "#27ae60",
+    filter     = "#f39c12",
     dataframe  = "#95a5a6",
     background = "#f8f9fa",
     edge       = "#bdc3c7",
@@ -1593,6 +1777,8 @@ view_graph <- function(svy, init_step = "Load survey") {
       "step_join"   = palette$join,
       "step_remove" = palette$remove,
       "step_rename" = palette$rename,
+      "validate"    = palette$validate,
+      "filter"      = palette$filter,
       "dataframe"   = palette$dataframe,
       "Load survey" = palette$primary,
       palette$primary

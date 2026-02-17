@@ -890,3 +890,93 @@ test_that("step_compute on RotativePanelSurvey with .copy=FALSE modifies in plac
   result <- step_compute(panel, z = x + y, .copy = FALSE)
   expect_s3_class(result, "RotativePanelSurvey")
 })
+
+
+# ── step_filter ──────────────────────────────────────────
+
+test_that("step_filter removes rows based on condition", {
+  s <- make_test_survey(50)
+  s2 <- step_filter(s, age >= 30)
+  s2 <- bake_steps(s2)
+  expect_true(all(get_data(s2)$age >= 30))
+  expect_true(nrow(get_data(s2)) < 50)
+})
+
+test_that("step_filter with multiple conditions (AND)", {
+  s <- make_test_survey(100)
+  s2 <- step_filter(s, age >= 25, income > 2000)
+  s2 <- bake_steps(s2)
+  dt <- get_data(s2)
+  expect_true(all(dt$age >= 25))
+  expect_true(all(dt$income > 2000))
+})
+
+test_that("step_filter records step in history", {
+  s <- make_test_survey()
+  s2 <- step_filter(s, age >= 30)
+  expect_true(any(grepl("Filter:", names(s2$steps))))
+  expect_equal(length(s2$steps), 1)
+})
+
+test_that("step_filter chains with other steps", {
+  s <- make_test_survey(50)
+  s2 <- s |>
+    step_compute(age2 = age * 2) |>
+    step_filter(age >= 30) |>
+    step_remove(x)
+  s2 <- bake_steps(s2)
+  expect_true(all(get_data(s2)$age >= 30))
+  expect_true("age2" %in% names(get_data(s2)))
+  expect_false("x" %in% names(get_data(s2)))
+})
+
+test_that("step_filter with .by filters within groups", {
+  dt <- data.table::data.table(
+    id = 1:20, val = c(1:10, 1:10),
+    grp = rep(c("a", "b"), each = 10),
+    w = 1
+  )
+  s <- Survey$new(
+    data = dt, edition = "2023", type = "test",
+    psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s2 <- step_filter(s, val <= 5, .by = "grp")
+  s2 <- bake_steps(s2)
+  expect_equal(nrow(get_data(s2)), 10)
+})
+
+test_that("step_filter on RotativePanelSurvey", {
+  panel <- make_test_panel()
+  result <- step_filter(panel, age >= 30)
+  expect_s3_class(result, "RotativePanelSurvey")
+  expect_true(length(result$steps) > 0)
+})
+
+test_that("step_filter validates dependencies", {
+  s <- make_test_survey()
+  s2 <- step_filter(s, nonexistent_var > 0)
+  expect_error(bake_steps(s2), "not in the survey")
+})
+
+test_that("step_filter is lazy by default", {
+  s <- make_test_survey()
+  n_before <- nrow(get_data(s))
+  s2 <- step_filter(s, age >= 100)
+  expect_equal(nrow(get_data(s2)), n_before)
+  expect_false(s2$steps[[1]]$bake)
+})
+
+test_that("step_filter with .copy preserves original", {
+  s <- make_test_survey(50)
+  n_before <- nrow(get_data(s))
+  s2 <- step_filter(s, age >= 30, .copy = TRUE)
+  s2 <- bake_steps(s2)
+  expect_equal(nrow(get_data(s)), n_before)
+  expect_true(nrow(get_data(s2)) < n_before)
+})
+
+test_that("step_filter requires at least one expression", {
+  s <- make_test_survey()
+  expect_error(step_filter(s), "at least one filter expression")
+})

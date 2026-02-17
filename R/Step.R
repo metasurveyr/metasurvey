@@ -185,7 +185,7 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
 
   valid_types <- c(
     "compute", "recode", "step_join",
-    "step_remove", "step_rename", "validate"
+    "step_remove", "step_rename", "validate", "filter"
   )
   if (!step$type %in% valid_types) {
     stop("Invalid step type: '", step$type, "'. Must be one of: ",
@@ -197,6 +197,18 @@ bake_step <- function(svy, step, .copy = use_copy_default()) {
   if (step$type == "validate") {
     bake_validate(svy, step)
     return(svy)
+  }
+
+  if (step$type == "filter") {
+    filter_args <- list(svy = svy, lazy = FALSE, .copy = .copy)
+    if (is.call(step$exprs) &&
+      identical(step$exprs[[1]], as.name("list"))) {
+      filter_args <- c(filter_args, as.list(step$exprs)[-1])
+    } else if (is.list(step$exprs)) {
+      filter_args <- c(filter_args, step$exprs)
+    }
+    updated_svy <- do.call(filter_rows, filter_args)
+    return(updated_svy)
   }
 
   if (step$type %in% c("step_join", "step_remove", "step_rename")) {
@@ -352,18 +364,58 @@ bake_steps_survey <- function(svy) {
   if (use_copy_default()) {
     svy_copy <- svy$shallow_clone()
     svy_copy$steps <- lapply(svy$steps, function(s) s$clone())
+    # Ensure provenance exists (backward compat)
+    if (is.null(svy_copy$provenance)) {
+      svy_copy$provenance <- structure(
+        list(source = list(), steps = list(), environment = list()),
+        class = "metasurvey_provenance"
+      )
+    }
     for (i in seq_along(svy_copy$steps)) {
+      n_before <- nrow(get_data(svy_copy))
+      t_start <- proc.time()[["elapsed"]]
       svy_copy <- bake_step(svy_copy, svy_copy$steps[[i]],
         .copy = FALSE
       )
       svy_copy$steps[[i]]$bake <- TRUE
+      t_end <- proc.time()[["elapsed"]]
+      svy_copy$provenance$steps[[length(svy_copy$provenance$steps) + 1]] <-
+        list(
+          type = svy_copy$steps[[i]]$type,
+          name = svy_copy$steps[[i]]$name,
+          expression = deparse1(svy_copy$steps[[i]]$exprs),
+          n_before = n_before,
+          n_after = nrow(get_data(svy_copy)),
+          timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
+          duration_ms = round((t_end - t_start) * 1000, 2)
+        )
     }
     svy_copy$update_design()
     return(svy_copy)
   } else {
+    # Ensure provenance exists (backward compat)
+    if (is.null(svy$provenance)) {
+      svy$provenance <- structure(
+        list(source = list(), steps = list(), environment = list()),
+        class = "metasurvey_provenance"
+      )
+    }
     for (i in seq_along(svy$steps)) {
+      n_before <- nrow(get_data(svy))
+      t_start <- proc.time()[["elapsed"]]
       bake_step(svy, svy$steps[[i]], .copy = FALSE)
       svy$steps[[i]]$bake <- TRUE
+      t_end <- proc.time()[["elapsed"]]
+      svy$provenance$steps[[length(svy$provenance$steps) + 1]] <-
+        list(
+          type = svy$steps[[i]]$type,
+          name = svy$steps[[i]]$name,
+          expression = deparse1(svy$steps[[i]]$exprs),
+          n_before = n_before,
+          n_after = nrow(get_data(svy)),
+          timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
+          duration_ms = round((t_end - t_start) * 1000, 2)
+        )
     }
     svy$update_design()
     return(svy)

@@ -83,6 +83,7 @@ Survey <- R6Class(
     psu = NULL,
     strata = NULL,
     design_initialized = FALSE,
+    provenance = NULL,
 
     #' @description Create a Survey object
     #' @param data Survey data
@@ -129,6 +130,29 @@ Survey <- R6Class(
       self$recipes <- if (is.null(recipes)) list() else recipes
       self$workflows <- list()
       self$steps <- if (is.null(steps)) list() else steps
+
+      # Initialize provenance
+      self$provenance <- structure(
+        list(
+          source = list(
+            path = NULL,
+            timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
+            initial_n = if (!is.null(data)) nrow(data) else NULL,
+            hash = NULL
+          ),
+          steps = list(),
+          environment = list(
+            metasurvey_version = as.character(
+              utils::packageVersion("metasurvey")
+            ),
+            r_version = paste(R.version$major, R.version$minor, sep = "."),
+            survey_version = as.character(
+              utils::packageVersion("survey")
+            )
+          )
+        ),
+        class = "metasurvey_provenance"
+      )
     },
 
     #' @description Return the underlying data
