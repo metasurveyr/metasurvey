@@ -17,12 +17,11 @@ over time (rotating panels, repeated cross-sections).
 
 The full stack is deployed and publicly available:
 
-| Service             | URL                                                                                                                  | Description                                                                         |
-|---------------------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| **Recipe Explorer** | [metasurvey-shiny-production.up.railway.app](https://metasurvey-shiny-production.up.railway.app)                     | Interactive Shiny app to browse, search and inspect community recipes and workflows |
-| **REST API**        | [metasurvey-api-production.up.railway.app](https://metasurvey-api-production.up.railway.app)                         | Plumber API backed by MongoDB Atlas for publishing and discovering recipes          |
-| **API Docs**        | [metasurvey-api-production.up.railway.app/\_\_docs\_\_/](https://metasurvey-api-production.up.railway.app/__docs__/) | Swagger/OpenAPI interactive documentation                                           |
-| **pkgdown site**    | [metasurveyr.github.io/metasurvey](https://metasurveyr.github.io/metasurvey/)                                        | Full package documentation and vignettes                                            |
+| Service             | URL                                                                                              | Description                                                                                                                                                      |
+|---------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Recipe Explorer** | [metasurvey-shiny-production.up.railway.app](https://metasurvey-shiny-production.up.railway.app) | Interactive Shiny app to browse, search and inspect community recipes and workflows                                                                              |
+| **REST API**        | [API reference](https://metasurveyr.github.io/metasurvey/articles/api-database.html)             | Plumber API backed by MongoDB for publishing and discovering recipes ([self-hosting guide](https://metasurveyr.github.io/metasurvey/articles/self-hosting.html)) |
+| **pkgdown site**    | [metasurveyr.github.io/metasurvey](https://metasurveyr.github.io/metasurvey/)                    | Full package documentation and vignettes                                                                                                                         |
 
 ------------------------------------------------------------------------
 
@@ -47,9 +46,7 @@ The full stack is deployed and publicly available:
   for robust variance with
   [`survey::svrepdesign`](https://rdrr.io/pkg/survey/man/svrepdesign.html).
 - **Recipe registry**: publish, search and discover recipes and
-  workflows through the [REST
-  API](https://metasurvey-api-production.up.railway.app/__docs__/) or a
-  local JSON registry.
+  workflows through a self-hosted REST API or a local JSON registry.
 - **Shiny app**: [interactive recipe and workflow
   explorer](https://metasurvey-shiny-production.up.railway.app) with
   [`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md).
@@ -161,7 +158,7 @@ workflow(
 ## Full example: ECH panel with bootstrap replicate weights
 
 This example uses the rotating panel from Uruguay’s [*Encuesta Continua
-de Hogares*](https://www.ine.gub.uy/encuesta-continua-de-hogares) (ECH)
+de Hogares*](https://www.gub.uy/instituto-nacional-estadistica/) (ECH)
 with bootstrap replicate weights. First, download the example data:
 
 ``` r
@@ -333,9 +330,15 @@ citation("metasurvey")
 
 ------------------------------------------------------------------------
 
+## Contributing
+
+Please see
+[CONTRIBUTING.md](https://metasurveyr.github.io/metasurvey/CONTRIBUTING.md)
+for guidelines on how to contribute to metasurvey.
+
 ## Code of Conduct
 
 Please note that the metasurvey project is released with a [Contributor
 Code of
-Conduct](https://metasurveyr.github.io/metasurvey/CODE_OF_CONDUCT.md).
+Conduct](https://github.com/metasurveyr/metasurvey/blob/main/CODE_OF_CONDUCT.md).
 By contributing to this project you agree to abide by its terms.

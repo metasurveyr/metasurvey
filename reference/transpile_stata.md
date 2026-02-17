@@ -40,6 +40,14 @@ A list with:
 
 - stats: list with command counts
 
+## See also
+
+Other transpiler:
+[`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md),
+[`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md),
+[`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md),
+[`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
+
 ## Examples
 
 ``` r

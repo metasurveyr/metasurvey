@@ -48,7 +48,8 @@ step_validate(
 
 - comment:
 
-  Descriptive text for the step for documentation and traceability.
+  Descriptive text for the step for documentation and traceability
+  (default `"Validate step"`).
 
 ## Value
 

@@ -40,8 +40,8 @@ step_remove(
 
 - comment:
 
-  Descriptive text for the step for documentation and traceability.
-  Defaults to "Remove variables"
+  Descriptive text for the step for documentation and traceability
+  (default `"Remove variables"`).
 
 - use_copy:
 
@@ -49,11 +49,12 @@ step_remove(
 
 - lazy:
 
-  Internal. Whether to delay execution.
+  Internal. Whether to delay execution (default
+  [`lazy_default()`](https://metasurveyr.github.io/metasurvey/reference/lazy_default.md)).
 
 - record:
 
-  Internal. Whether to record the step.
+  Internal. Whether to record the step (default `TRUE`).
 
 ## Value
 

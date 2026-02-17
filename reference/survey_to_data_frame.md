@@ -32,7 +32,7 @@ Other survey-objects:
 [`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md),
 [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
 [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
-[`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
+[`survey_to_datatable()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.md),
 [`survey_to_tibble()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_tibble.md)
 
 ## Examples

@@ -15,7 +15,7 @@ to a file."><meta property="og:image" content="https://metasurveyr.github.io/met
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,10 +77,37 @@ to a file.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other provenance:
 <code><a href="print.metasurvey_provenance.html">print.metasurvey_provenance()</a></code>,
+<code><a href="print.metasurvey_provenance_diff.html">print.metasurvey_provenance_diff()</a></code>,
 <code><a href="provenance.html">provenance()</a></code>,
 <code><a href="provenance_diff.html">provenance_diff()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  edition <span class="op">=</span> <span class="st">"2023"</span>, type <span class="op">=</span> <span class="st">"test"</span>,</span></span>
+<span class="r-in"><span>  engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prov</span> <span class="op">&lt;-</span> <span class="fu"><a href="provenance.html">provenance</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">provenance_to_json</span><span class="op">(</span><span class="va">prov</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   "source": {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "path": null,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "timestamp": "2026-02-17T15:22:49",</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "initial_n": 5,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "hash": null</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   },</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   "steps": [],</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   "environment": {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "metasurvey_version": "0.0.21",</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "r_version": "4.5.2",</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "survey_version": "4.4.8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> } </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

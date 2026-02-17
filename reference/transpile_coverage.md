@@ -24,6 +24,14 @@ transpile_coverage(path, recursive = TRUE)
 A data.frame with columns: file, total_commands, translated, skipped,
 manual_review, coverage_pct
 
+## See also
+
+Other transpiler:
+[`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md),
+[`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md),
+[`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md),
+[`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
+
 ## Examples
 
 ``` r
@@ -32,8 +40,8 @@ tf <- tempfile(fileext = ".do")
 writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 transpile_coverage(tf)
 #>                  file                                path total_commands
-#> 1 file1e2f2eedb5ac.do /tmp/Rtmp1hUMFK/file1e2f2eedb5ac.do              2
-#> 2               TOTAL /tmp/Rtmp1hUMFK/file1e2f2eedb5ac.do              2
+#> 1 file1e4e7a5de882.do /tmp/RtmpglJzIl/file1e4e7a5de882.do              2
+#> 2               TOTAL /tmp/RtmpglJzIl/file1e4e7a5de882.do              2
 #>   translated skipped manual_review coverage_pct
 #> 1          2       0             0          100
 #> 2          2       0             0          100

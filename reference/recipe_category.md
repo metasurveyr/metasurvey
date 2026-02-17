@@ -22,8 +22,9 @@ recipe_category(name, description = "", parent = NULL)
 
 - parent:
 
-  RecipeCategory object or character parent category name. If a string
-  is provided, it creates a parent category with that name.
+  RecipeCategory object or character parent category name (default
+  `NULL`). If a string is provided, it creates a parent category with
+  that name.
 
 ## Value
 

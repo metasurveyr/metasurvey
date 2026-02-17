@@ -437,7 +437,7 @@ api_list_recipes(survey_type = "ech")
 ```
 
 Consulta la vignette [API y Base de
-Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.md)
+Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
 para instrucciones sobre cómo desplegar la API Plumber con MongoDB para
 tu propia organización.
 

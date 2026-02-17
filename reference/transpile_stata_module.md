@@ -31,6 +31,14 @@ transpile_stata_module(year_dir, year, user = "iecon", output_dir = NULL)
 
 A named list of Recipe objects, one per thematic module
 
+## See also
+
+Other transpiler:
+[`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md),
+[`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md),
+[`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md),
+[`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md)
+
 ## Examples
 
 ``` r

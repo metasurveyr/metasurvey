@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,62 @@
       <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.21" id="metasurvey-0021">metasurvey 0.0.21<a class="anchor" aria-label="anchor" href="#metasurvey-0021"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-21">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-21"></a></h3>
+<ul><li>
+<code>validate_weight()</code> now shows available columns when weight is not found.</li>
+<li>
+<code>validate_replicate()</code> now lists missing replicate ID columns in the error.</li>
+<li>
+<code><a href="../reference/set_use_copy.html">set_use_copy()</a></code> and <code><a href="../reference/set_lazy_processing.html">set_lazy_processing()</a></code> reject non-scalar logical input.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-0-21">Internal<a class="anchor" aria-label="anchor" href="#internal-0-0-21"></a></h3>
+<ul><li>Step functions (<code>step_join</code>, <code>step_remove</code>, <code>step_rename</code>, <code>step_validate</code>, <code>step_filter</code>) now return <code>invisible(out)</code> per R convention for side-effect functions.</li>
+<li>Added <code>@rdname provenance</code> to S3 method documentation.</li>
+<li>Removed unused <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">stats::median</a></code> and <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">stats::quantile</a></code> imports.</li>
+<li>Use fully qualified <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">stats::confint()</a></code> in <code>cat_estimation.svyratio</code>.</li>
+<li>Added edge case tests: double bake idempotency, filter-then-compute chain, <code>provenance_diff</code> print output.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.20" id="metasurvey-0020">metasurvey 0.0.20<a class="anchor" aria-label="anchor" href="#metasurvey-0020"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-0-20">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-20"></a></h3>
+<ul><li>
+<code><a href="../reference/survey_to_datatable.html">survey_to_data.table()</a></code> is deprecated in favor of <code><a href="../reference/survey_to_datatable.html">survey_to_datatable()</a></code> (avoids non-standard dots in function names). The old function still works with a deprecation warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-0-20">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-20"></a></h3>
+<ul><li>
+<code>metasurvey_msg()</code> internal helper wraps <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> behind <code>options(metasurvey.verbose = FALSE)</code> for silent operation in scripts.</li>
+<li>All HTTP requests (ANDA, API client, Shiny) now send a <code>metasurvey/&lt;version&gt;</code> User-Agent header.</li>
+<li>
+<code>read_file()</code> now gives an actionable install hint when the required reader package is missing (e.g., <code>haven</code> for <code>.dta</code> files).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-20">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-20"></a></h3>
+<ul><li>Added <code>call. = FALSE</code> to all <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> and <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> calls for cleaner error tracebacks without internal call stack noise.</li>
+<li>Fixed <code>&amp;</code> vs <code>&amp;&amp;</code> in <code>compute()</code> and <code>cat_estimation()</code> — single <code>&amp;</code> would evaluate both sides even when the first was FALSE.</li>
+<li>
+<code><a href="../reference/get_metadata.html">get_metadata()</a></code> now uses <code><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat()</a></code> instead of <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code>, making output testable with <code>expect_output()</code> and suppressible with <code><a href="https://rdrr.io/r/utils/capture.output.html" class="external-link">capture.output()</a></code>.</li>
+<li>Removed <code>.onAttach()</code> startup message (package loads silently).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-0-20">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-20"></a></h3>
+<ul><li>Fixed all broken URLs flagged by CRAN: updated Azure AKS and INE Uruguay redirects, removed dead Railway API and metasurvey-infra links.</li>
+<li>Included <code>api-database</code> vignette in build (was excluded via <code>.Rbuildignore</code>, causing broken cross-vignette file URI references).</li>
+<li>Reduced vignette tarball from 10.6 MB to 3.7 MB by disabling <code>visNetwork</code> widget rendering (<code>eval = FALSE</code>).</li>
+<li>Replaced <code>\dontrun{}</code> examples in <code><a href="../reference/get_implantation.html">get_implantation()</a></code> and <code><a href="../reference/get_follow_up.html">get_follow_up()</a></code> with runnable examples using test data.</li>
+<li>Added runnable examples for <code><a href="../reference/provenance_to_json.html">provenance_to_json()</a></code> and <code><a href="../reference/provenance_diff.html">provenance_diff()</a></code>.</li>
+<li>Added <code>@family transpiler</code> cross-references to all transpiler functions.</li>
+<li>Documented default parameter values across all <code>step_*</code> and tidy API functions.</li>
+<li>Added <code>print.metasurvey_provenance_diff</code> man page.</li>
+<li>Removed unused <code>digest</code> from Suggests.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.19" id="metasurvey-0019">metasurvey 0.0.19<a class="anchor" aria-label="anchor" href="#metasurvey-0019"></a></h2>
 <div class="section level3">

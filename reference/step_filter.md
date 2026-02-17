@@ -42,14 +42,14 @@ step_filter(
 
 - comment:
 
-  Descriptive text for the step.
+  Descriptive text for the step (default `"Filter step"`).
 
 - .level:
 
   For
   [RotativePanelSurvey](https://metasurveyr.github.io/metasurvey/reference/RotativePanelSurvey.md),
-  the level to apply: `"implantation"`, `"follow_up"`, or `"auto"`
-  (both).
+  the level to apply (default `"auto"`): `"implantation"`,
+  `"follow_up"`, or `"auto"` (both).
 
 ## Value
 

@@ -31,11 +31,11 @@ recipe_user(
 
 - email:
 
-  Character or NULL. Email address.
+  Character or `NULL` (default `NULL`). Email address.
 
 - affiliation:
 
-  Character or NULL. Organizational affiliation.
+  Character or `NULL` (default `NULL`). Organizational affiliation.
 
 - institution:
 
@@ -45,11 +45,11 @@ recipe_user(
 
 - url:
 
-  Character or NULL. Institution URL.
+  Character or `NULL` (default `NULL`). Institution URL.
 
 - verified:
 
-  Logical. Whether the account is verified.
+  Logical (default `FALSE`). Whether the account is verified.
 
 ## Value
 

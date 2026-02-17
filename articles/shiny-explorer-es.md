@@ -201,7 +201,7 @@ conecta la aplicación. Puede apuntar a una instancia auto-alojada.
 ## Próximos pasos
 
 - **[Referencia de API y Base de
-  Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.md)**
+  Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.html)**
   – Detalles técnicos sobre los endpoints de la API y el esquema de
   MongoDB
 - **[Creación y Compartición de

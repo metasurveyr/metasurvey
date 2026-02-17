@@ -17,7 +17,7 @@ metadata. Automatically handles different survey types and periodicities."><meta
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,9 +77,9 @@ Must contain properly configured sample design.</p></dd>
 
 
 <dt id="arg-estimation-type">estimation_type<a class="anchor" aria-label="anchor" href="#arg-estimation-type"></a></dt>
-<dd><p>Type of estimation that
+<dd><p>Type of estimation (default <code>"monthly"</code>) that
 determines which weight to use. Options:
-"monthly", "quarterly", "annual", or vector
+<code>"monthly"</code>, <code>"quarterly"</code>, <code>"annual"</code>, or vector
 with multiple types</p></dd>
 
 </dl></div>
@@ -141,6 +141,7 @@ pooling of multiple surveys.</p>
 <span class="r-in"><span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>CV may not be useful for negative statistics</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># ECH example with domain estimations</span></span></span>

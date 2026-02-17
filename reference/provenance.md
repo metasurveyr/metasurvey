@@ -7,6 +7,15 @@ file, step history with row counts, and environment info.
 
 ``` r
 provenance(x, ...)
+
+# S3 method for class 'Survey'
+provenance(x, ...)
+
+# S3 method for class 'data.table'
+provenance(x, ...)
+
+# Default S3 method
+provenance(x, ...)
 ```
 
 ## Arguments
@@ -30,6 +39,7 @@ A `metasurvey_provenance` list, or `NULL` if no provenance is available.
 
 Other provenance:
 [`print.metasurvey_provenance()`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance.md),
+[`print.metasurvey_provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance_diff.md),
 [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md),
 [`provenance_to_json()`](https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.md)
 
@@ -43,11 +53,11 @@ svy <- Survey$new(
 )
 provenance(svy)
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-02-17T05:27:21 
+#> Loaded: 2026-02-17T15:22:49 
 #> Initial rows: 10 
 #> 
 #> Environment:
-#>   metasurvey: 0.0.19 
+#>   metasurvey: 0.0.21 
 #>   R: 4.5.2 
 #>   survey: 4.4.8 
 ```

@@ -21,11 +21,11 @@ recipe_certification(level = "community", certified_by = NULL, notes = NULL)
 
 - certified_by:
 
-  RecipeUser or NULL. Required for reviewed/official.
+  RecipeUser or `NULL` (default `NULL`). Required for reviewed/official.
 
 - notes:
 
-  Character or NULL. Additional notes.
+  Character or `NULL` (default `NULL`). Additional notes.
 
 ## Value
 

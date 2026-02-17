@@ -18,19 +18,20 @@ filter_workflows(
 
 - survey_type:
 
-  Character survey type or NULL.
+  Character survey type or `NULL` (default `NULL`).
 
 - edition:
 
-  Character edition or NULL.
+  Character edition or `NULL` (default `NULL`).
 
 - recipe_id:
 
-  Character recipe ID or NULL (find workflows using this recipe).
+  Character recipe ID or `NULL` (default `NULL`). Find workflows using
+  this recipe.
 
 - certification_level:
 
-  Character certification level or NULL.
+  Character certification level or `NULL` (default `NULL`).
 
 ## Value
 

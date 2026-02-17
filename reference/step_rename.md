@@ -39,8 +39,8 @@ step_rename(
 
 - comment:
 
-  Descriptive text for the step for documentation and traceability.
-  Defaults to "Rename variables"
+  Descriptive text for the step for documentation and traceability
+  (default `"Rename variables"`).
 
 - use_copy:
 
@@ -48,11 +48,12 @@ step_rename(
 
 - lazy:
 
-  Internal. Whether to delay execution.
+  Internal. Whether to delay execution (default
+  [`lazy_default()`](https://metasurveyr.github.io/metasurvey/reference/lazy_default.md)).
 
 - record:
 
-  Internal. Whether to record the step.
+  Internal. Whether to record the step (default `TRUE`).
 
 ## Value
 

@@ -616,7 +616,8 @@ Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.md).
 Los datos de ejemplo utilizados en esta vinieta provienen de la
 *Encuesta Continua de Hogares* (ECH) 2023, publicada por el Instituto
 Nacional de Estadistica (INE) de Uruguay. Los microdatos completos estan
-disponibles en [www.ine.gub.uy](https://www.ine.gub.uy).
+disponibles en
+[INE](https://www.gub.uy/instituto-nacional-estadistica/).
 
 El paquete **[ech](https://calcita.github.io/ech/)** de Gabriela Mathieu
 y Richard Detomasi fue una inspiracion importante para metasurvey.
@@ -670,7 +671,7 @@ guias:
 
 Instituto Nacional de Estadística (INE). 2023. *Encuesta Continua de
 Hogares: Metodología y Documentación*. Instituto Nacional de Estadística
-(INE), Uruguay. <https://www.ine.gub.uy/encuesta-continua-de-hogares1>.
+(INE), Uruguay. <https://www.gub.uy/instituto-nacional-estadistica/>.
 
 Lumley, Thomas. 2004. “Analysis of Complex Survey Samples.” *Journal of
 Statistical Software* 9 (1): 1–19.

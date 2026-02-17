@@ -73,8 +73,9 @@ step_recode(
 
 - .level:
 
-  For RotativePanelSurvey objects, specifies the level where recoding is
-  applied: "implantation", "follow_up", "quarter", "month", or "auto"
+  For RotativePanelSurvey objects (default `"auto"`), specifies the
+  level where recoding is applied: `"implantation"`, `"follow_up"`,
+  `"quarter"`, `"month"`, or `"auto"`
 
 - use_copy:
 

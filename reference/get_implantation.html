@@ -19,7 +19,7 @@ characteristics of the panel."><meta property="og:image" content="https://metasu
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,31 +109,31 @@ subsequent waves</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Load ECH rotating panel</span></span></span>
-<span class="r-in"><span><span class="va">panel_ech</span> <span class="op">&lt;-</span> <span class="fu"><a href="load_panel_survey.html">load_panel_survey</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  path <span class="op">=</span> <span class="st">"ech_panel_2023.dta"</span>,</span></span>
-<span class="r-in"><span>  svy_type <span class="op">=</span> <span class="st">"ech_panel"</span>,</span></span>
-<span class="r-in"><span>  svy_edition <span class="op">=</span> <span class="st">"2023"</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">impl</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, w <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  edition <span class="op">=</span> <span class="st">"2023"</span>, type <span class="op">=</span> <span class="st">"test"</span>, psu <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Get implantation survey</span></span></span>
-<span class="r-in"><span><span class="va">ech_baseline</span> <span class="op">&lt;-</span> <span class="fu">get_implantation</span><span class="op">(</span><span class="va">panel_ech</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Check implantation characteristics</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Implantation sample size:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ech_baseline</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Available variables:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">ech_baseline</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use in baseline analysis</span></span></span>
-<span class="r-in"><span><span class="va">baseline_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="workflow.html">workflow</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  survey <span class="op">=</span> <span class="va">ech_baseline</span>,</span></span>
-<span class="r-in"><span>  <span class="fu">svymean</span><span class="op">(</span><span class="op">~</span><span class="va">activity_rate</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  estimation_type <span class="op">=</span> <span class="st">"baseline"</span></span></span>
+<span class="r-in"><span><span class="va">fu</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, w <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  edition <span class="op">=</span> <span class="st">"2023_01"</span>, type <span class="op">=</span> <span class="st">"test"</span>, psu <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Compare with follow-up</span></span></span>
-<span class="r-in"><span><span class="va">followup_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_follow_up.html">get_follow_up</a></span><span class="op">(</span><span class="va">panel_ech</span>, index <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="va"><a href="RotativePanelSurvey.html">RotativePanelSurvey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  implantation <span class="op">=</span> <span class="va">impl</span>, follow_up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">fu</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"test"</span>, default_engine <span class="op">=</span> <span class="st">"data.table"</span>,</span></span>
+<span class="r-in"><span>  steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, recipes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, workflows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, design <span class="op">=</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_implantation</span><span class="op">(</span><span class="va">panel</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Type:</span> TEST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Edition:</span> 2023</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Periodicity:</span> Annual</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Engine:</span> data.table</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Design:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Design: Not initialized (lazy initialization - will be created when needed)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Steps:</span> None</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">Recipes:</span> None </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

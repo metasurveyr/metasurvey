@@ -710,8 +710,8 @@ kubectl apply -f k8s/aws-api.yaml
 ## Deploying on Azure (AKS)
 
 For production on Azure, use
-[AKS](https://azure.microsoft.com/services/kubernetes-service/) with
-CosmosDB (MongoDB API) as the managed database.
+[AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/)
+with CosmosDB (MongoDB API) as the managed database.
 
 ### 1. Create the AKS cluster
 
@@ -980,9 +980,7 @@ their own database.
 For production deployments with Terraform modules (AWS/Azure/GCP), Helm
 charts, and CI/CD pipelines, see the infrastructure repository:
 
-<https://github.com/metasurveyr/metasurvey-infra>
-
-It includes:
+The infrastructure repository will include:
 
 - Terraform modules for managed databases (RDS, DocumentDB/CosmosDB,
   Cloud SQL, Memorystore)

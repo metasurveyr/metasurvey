@@ -37,8 +37,9 @@ Create and manipulate Survey objects
   : Check if all steps are baked
 - [`survey_to_data_frame()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.md)
   : survey_to_data_frame
-- [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md)
-  : survey_to_data.table
+- [`survey_to_datatable()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.md)
+  [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.md)
+  : Convert survey to data.table
 - [`survey_to_tibble()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_tibble.md)
   : survey_to_tibble
 
@@ -152,6 +153,8 @@ Data lineage and audit trails
   : Compare two provenance objects
 - [`print(`*`<metasurvey_provenance>`*`)`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance.md)
   : Print provenance information
+- [`print(`*`<metasurvey_provenance_diff>`*`)`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance_diff.md)
+  : Print provenance diff
 - [`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md)
   : Save a RecipeWorkflow to a JSON file
 - [`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md)

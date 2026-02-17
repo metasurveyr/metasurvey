@@ -187,7 +187,7 @@ application connects to. It can point to a self-hosted instance.
 ## Next steps
 
 - **[API and Database
-  Reference](https://metasurveyr.github.io/metasurvey/articles/api-database.md)**
+  Reference](https://metasurveyr.github.io/metasurvey/articles/api-database.html)**
   – Technical details about the API endpoints and MongoDB schema
 - **[Creating and Sharing
   Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.md)**

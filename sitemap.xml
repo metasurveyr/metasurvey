@@ -146,6 +146,7 @@
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/print.Recipe.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/print.RecipeWorkflow.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance.html</loc></url>
+<url><loc>https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance_diff.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/provenance.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/provenance_diff.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.html</loc></url>
@@ -186,8 +187,8 @@
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/steps_to_recipe.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/strip_stata_comments.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/survey_empty.html</loc></url>
-<url><loc>https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.html</loc></url>
+<url><loc>https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/survey_to_tibble.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/translate_stata_expr.html</loc></url>
 <url><loc>https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.html</loc></url>

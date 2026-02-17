@@ -107,8 +107,7 @@ r
 
 # \donttest{
 # Recipe with steps using local data
-library(data.table)
-dt <- data.table(
+dt <- data.table::data.table(
   id = 1:50, age = sample(18:65, 50, TRUE),
   income = runif(50, 1000, 5000), w = runif(50, 0.5, 2)
 )

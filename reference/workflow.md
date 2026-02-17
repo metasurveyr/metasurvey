@@ -27,8 +27,9 @@ workflow(svy, ..., estimation_type = "monthly")
 
 - estimation_type:
 
-  Type of estimation that determines which weight to use. Options:
-  "monthly", "quarterly", "annual", or vector with multiple types
+  Type of estimation (default `"monthly"`) that determines which weight
+  to use. Options: `"monthly"`, `"quarterly"`, `"annual"`, or vector
+  with multiple types
 
 ## Value
 
@@ -107,6 +108,7 @@ result <- workflow(
   survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
+#> Warning: CV may not be useful for negative statistics
 
 # \donttest{
 # ECH example with domain estimations

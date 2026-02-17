@@ -68,8 +68,7 @@ Other recipes:
 
 ``` r
 # \donttest{
-library(data.table)
-dt <- data.table(
+dt <- data.table::data.table(
   id = 1:20, age = sample(18:65, 20, TRUE),
   w = runif(20, 0.5, 2)
 )

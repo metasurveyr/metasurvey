@@ -112,6 +112,15 @@ cat_design_type(svy_simple, "annual")
 
 # View metadata
 get_metadata(svy_simple)
+#> Type: API
+#> Edition: 2000
+#> Periodicity: Annual
+#> Engine: data.table
+#> Design: 
+#>   Design: Not initialized (lazy initialization - will be created when needed)
+#> 
+#> Steps: None
+#> Recipes: None
 ```
 
 ### Multiple Weight Types
@@ -354,13 +363,15 @@ You can use
 to visualize the dependency graph between steps:
 
 ``` r
-# Requires the visNetwork package
 svy_viz <- step_compute(svy_simple,
   api_diff = api00 - api99,
   high_growth = ifelse(api00 - api99 > 50, 1L, 0L)
 )
 view_graph(svy_viz, init_step = "Load API data")
 ```
+
+The interactive DAG is not rendered in this vignette to keep the package
+size small. Run the code above in your R session to explore it.
 
 ### Quality Assessment
 

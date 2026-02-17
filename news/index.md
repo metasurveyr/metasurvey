@@ -1,5 +1,93 @@
 # Changelog
 
+## metasurvey 0.0.21
+
+### Bug fixes
+
+- `validate_weight()` now shows available columns when weight is not
+  found.
+- `validate_replicate()` now lists missing replicate ID columns in the
+  error.
+- [`set_use_copy()`](https://metasurveyr.github.io/metasurvey/reference/set_use_copy.md)
+  and
+  [`set_lazy_processing()`](https://metasurveyr.github.io/metasurvey/reference/set_lazy_processing.md)
+  reject non-scalar logical input.
+
+### Internal
+
+- Step functions (`step_join`, `step_remove`, `step_rename`,
+  `step_validate`, `step_filter`) now return `invisible(out)` per R
+  convention for side-effect functions.
+- Added `@rdname provenance` to S3 method documentation.
+- Removed unused [`stats::median`](https://rdrr.io/r/stats/median.html)
+  and [`stats::quantile`](https://rdrr.io/r/stats/quantile.html)
+  imports.
+- Use fully qualified
+  [`stats::confint()`](https://rdrr.io/r/stats/confint.html) in
+  `cat_estimation.svyratio`.
+- Added edge case tests: double bake idempotency, filter-then-compute
+  chain, `provenance_diff` print output.
+
+## metasurvey 0.0.20
+
+### Breaking changes
+
+- [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.md)
+  is deprecated in favor of
+  [`survey_to_datatable()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_datatable.md)
+  (avoids non-standard dots in function names). The old function still
+  works with a deprecation warning.
+
+### New features
+
+- `metasurvey_msg()` internal helper wraps
+  [`message()`](https://rdrr.io/r/base/message.html) behind
+  `options(metasurvey.verbose = FALSE)` for silent operation in scripts.
+- All HTTP requests (ANDA, API client, Shiny) now send a
+  `metasurvey/<version>` User-Agent header.
+- `read_file()` now gives an actionable install hint when the required
+  reader package is missing (e.g., `haven` for `.dta` files).
+
+### Bug fixes
+
+- Added `call. = FALSE` to all
+  [`stop()`](https://rdrr.io/r/base/stop.html) and
+  [`warning()`](https://rdrr.io/r/base/warning.html) calls for cleaner
+  error tracebacks without internal call stack noise.
+- Fixed `&` vs `&&` in `compute()` and `cat_estimation()` — single `&`
+  would evaluate both sides even when the first was FALSE.
+- [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md)
+  now uses [`cat()`](https://rdrr.io/r/base/cat.html) instead of
+  [`message()`](https://rdrr.io/r/base/message.html), making output
+  testable with `expect_output()` and suppressible with
+  [`capture.output()`](https://rdrr.io/r/utils/capture.output.html).
+- Removed `.onAttach()` startup message (package loads silently).
+
+### Documentation
+
+- Fixed all broken URLs flagged by CRAN: updated Azure AKS and INE
+  Uruguay redirects, removed dead Railway API and metasurvey-infra
+  links.
+- Included `api-database` vignette in build (was excluded via
+  `.Rbuildignore`, causing broken cross-vignette file URI references).
+- Reduced vignette tarball from 10.6 MB to 3.7 MB by disabling
+  `visNetwork` widget rendering (`eval = FALSE`).
+- Replaced `\dontrun{}` examples in
+  [`get_implantation()`](https://metasurveyr.github.io/metasurvey/reference/get_implantation.md)
+  and
+  [`get_follow_up()`](https://metasurveyr.github.io/metasurvey/reference/get_follow_up.md)
+  with runnable examples using test data.
+- Added runnable examples for
+  [`provenance_to_json()`](https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.md)
+  and
+  [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md).
+- Added `@family transpiler` cross-references to all transpiler
+  functions.
+- Documented default parameter values across all `step_*` and tidy API
+  functions.
+- Added `print.metasurvey_provenance_diff` man page.
+- Removed unused `digest` from Suggests.
+
 ## metasurvey 0.0.19
 
 ### New features

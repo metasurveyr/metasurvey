@@ -306,7 +306,10 @@ You can visualize the transformation pipeline as a directed graph:
 view_graph(svy, init_step = "Load ECH 2023")
 ```
 
-This produces an interactive graph showing:
+The interactive DAG is not rendered in this vignette to keep the package
+size small. Run
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+in your R session to get an interactive graph showing:
 
 - Data sources and joins
 - Transformation steps
@@ -607,7 +610,7 @@ Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.md).
 The sample data used in this vignette comes from the *Encuesta Continua
 de Hogares* (ECH) 2023, published by Uruguay’s Instituto Nacional de
 Estadistica (INE). The full microdata is available at
-[www.ine.gub.uy](https://www.ine.gub.uy).
+[INE](https://www.gub.uy/instituto-nacional-estadistica/).
 
 The **[ech](https://calcita.github.io/ech/)** package by Gabriela
 Mathieu and Richard Detomasi was an important inspiration for
@@ -658,7 +661,7 @@ Now that you understand the basics, you can explore these guides:
 
 Instituto Nacional de Estadística (INE). 2023. *Encuesta Continua de
 Hogares: Metodología y Documentación*. Instituto Nacional de Estadística
-(INE), Uruguay. <https://www.ine.gub.uy/encuesta-continua-de-hogares1>.
+(INE), Uruguay. <https://www.gub.uy/instituto-nacional-estadistica/>.
 
 Lumley, Thomas. 2004. “Analysis of Complex Survey Samples.” *Journal of
 Statistical Software* 9 (1): 1–19.

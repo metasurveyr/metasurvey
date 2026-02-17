@@ -113,6 +113,15 @@ cat_design_type(svy_simple, "annual")
 
 # View metadata
 get_metadata(svy_simple)
+#> Type: API
+#> Edition: 2000
+#> Periodicity: Annual
+#> Engine: data.table
+#> Design: 
+#>   Design: Not initialized (lazy initialization - will be created when needed)
+#> 
+#> Steps: None
+#> Recipes: None
 ```
 
 ### Múltiples tipos de ponderadores

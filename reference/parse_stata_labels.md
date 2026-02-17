@@ -20,6 +20,14 @@ parse_stata_labels(lines)
 A list with var_labels (named list) and val_labels (named list of named
 lists)
 
+## See also
+
+Other transpiler:
+[`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md),
+[`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md),
+[`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md),
+[`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
+
 ## Examples
 
 ``` r

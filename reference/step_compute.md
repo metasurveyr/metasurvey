@@ -48,9 +48,9 @@ step_compute(
 
 - .level:
 
-  For RotativePanelSurvey objects, specifies the level where
-  computations are applied: "implantation", "follow_up", "quarter",
-  "month", or "auto"
+  For RotativePanelSurvey objects (default `"auto"`), specifies the
+  level where computations are applied: `"implantation"`, `"follow_up"`,
+  `"quarter"`, `"month"`, or `"auto"`
 
 - use_copy:
 

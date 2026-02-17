@@ -471,7 +471,7 @@ mapping of common operations:
 The sample data used in this vignette comes from the *Encuesta Continua
 de Hogares* (ECH) 2023, published by Uruguay’s Instituto Nacional de
 Estadistica (INE). The full microdata is available at
-[www.ine.gub.uy](https://www.ine.gub.uy).
+[INE](https://www.gub.uy/instituto-nacional-estadistica/).
 
 The **[ech](https://calcita.github.io/ech/)** package by Gabriela
 Mathieu and Richard Detomasi was an important inspiration for

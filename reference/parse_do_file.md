@@ -25,6 +25,14 @@ parse_do_file(do_file, encoding = "latin1")
 A list of StataCommand lists, each with fields: cmd, args, if_clause,
 options, raw_line, line_num, capture
 
+## See also
+
+Other transpiler:
+[`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md),
+[`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md),
+[`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md),
+[`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
+
 ## Examples
 
 ``` r

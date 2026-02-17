@@ -27,5 +27,32 @@ JSON string (invisibly if `path` is provided).
 
 Other provenance:
 [`print.metasurvey_provenance()`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance.md),
+[`print.metasurvey_provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance_diff.md),
 [`provenance()`](https://metasurveyr.github.io/metasurvey/reference/provenance.md),
 [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md)
+
+## Examples
+
+``` r
+svy <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = rep(1, 5)),
+  edition = "2023", type = "test",
+  engine = "data.table", weight = add_weight(annual = "w")
+)
+prov <- provenance(svy)
+provenance_to_json(prov)
+#> {
+#>   "source": {
+#>     "path": null,
+#>     "timestamp": "2026-02-17T15:22:49",
+#>     "initial_n": 5,
+#>     "hash": null
+#>   },
+#>   "steps": [],
+#>   "environment": {
+#>     "metasurvey_version": "0.0.21",
+#>     "r_version": "4.5.2",
+#>     "survey_version": "4.4.8"
+#>   }
+#> } 
+```

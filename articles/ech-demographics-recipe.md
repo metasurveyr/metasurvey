@@ -210,9 +210,13 @@ show variable dependencies:
 view_graph(svy)
 ```
 
-With only 7 nodes the graph is clean and navigable. Compare that with a
-transpiled recipe where the DAG can have 100+ nodes – still useful for
-auditing, but much harder to read at a glance.
+The interactive DAG is not rendered in this vignette to keep the package
+size small. Run
+[`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
+in your R session to explore it. With only 7 nodes the graph is clean
+and navigable. Compare that with a transpiled recipe where the DAG can
+have 100+ nodes – still useful for auditing, but much harder to read at
+a glance.
 
 For static output we can inspect the step list:
 
@@ -349,13 +353,13 @@ cat(readLines(f, n = 15), sep = "\n")
 #>   "description": "Harmonized demographics: sex, age group, relationship, education level, and geographic area.",
 #>   "topic": "demographics",
 #>   "doi": {},
-#>   "id": "r_1771306084_663",
+#>   "id": "r_1771341812_663",
 #>   "version": "1.0.0",
 #>   "downloads": 0,
 #>   "categories": [],
 #>   "certification": {
 #>     "level": "community",
-#>     "certified_at": "2026-02-17 05:28:04.37729"
+#>     "certified_at": "2026-02-17 15:23:32.626803"
 ```
 
 ## Applying to a new edition

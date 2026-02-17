@@ -12,7 +12,8 @@ rank_workflows(n = NULL)
 
 - n:
 
-  Integer. Maximum number to return, or NULL for all.
+  Integer or `NULL` (default `NULL`). Maximum number to return, or
+  `NULL` for all.
 
 ## Value
 

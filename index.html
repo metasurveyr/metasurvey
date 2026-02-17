@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,15 +105,10 @@
 </tr>
 <tr class="even">
 <td><strong>REST API</strong></td>
-<td><a href="https://metasurvey-api-production.up.railway.app" class="external-link">metasurvey-api-production.up.railway.app</a></td>
-<td>Plumber API backed by MongoDB Atlas for publishing and discovering recipes</td>
+<td><a href="https://metasurveyr.github.io/metasurvey/articles/api-database.html">API reference</a></td>
+<td>Plumber API backed by MongoDB for publishing and discovering recipes (<a href="https://metasurveyr.github.io/metasurvey/articles/self-hosting.html">self-hosting guide</a>)</td>
 </tr>
 <tr class="odd">
-<td><strong>API Docs</strong></td>
-<td><a href="https://metasurvey-api-production.up.railway.app/__docs__/" class="external-link">metasurvey-api-production.up.railway.app/__docs__/</a></td>
-<td>Swagger/OpenAPI interactive documentation</td>
-</tr>
-<tr class="even">
 <td><strong>pkgdown site</strong></td>
 <td><a href="https://metasurveyr.github.io/metasurvey/">metasurveyr.github.io/metasurvey</a></td>
 <td>Full package documentation and vignettes</td>
@@ -137,7 +132,7 @@
 <li>
 <strong>Replicate weights</strong>: bootstrap replicate configuration via <code><a href="reference/add_replicate.html">add_replicate()</a></code> for robust variance with <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">survey::svrepdesign</a></code>.</li>
 <li>
-<strong>Recipe registry</strong>: publish, search and discover recipes and workflows through the <a href="https://metasurvey-api-production.up.railway.app/__docs__/" class="external-link">REST API</a> or a local JSON registry.</li>
+<strong>Recipe registry</strong>: publish, search and discover recipes and workflows through a self-hosted REST API or a local JSON registry.</li>
 <li>
 <strong>Shiny app</strong>: <a href="https://metasurvey-shiny-production.up.railway.app" class="external-link">interactive recipe and workflow explorer</a> with <code><a href="reference/explore_recipes.html">explore_recipes()</a></code>.</li>
 <li>
@@ -302,7 +297,7 @@
 <div class="section level2">
 <h2 id="full-example-ech-panel-with-bootstrap-replicate-weights">Full example: ECH panel with bootstrap replicate weights<a class="anchor" aria-label="anchor" href="#full-example-ech-panel-with-bootstrap-replicate-weights"></a>
 </h2>
-<p>This example uses the rotating panel from Uruguay’s <a href="https://www.ine.gub.uy/encuesta-continua-de-hogares" class="external-link"><em>Encuesta Continua de Hogares</em></a> (ECH) with bootstrap replicate weights. First, download the example data:</p>
+<p>This example uses the rotating panel from Uruguay’s <a href="https://www.gub.uy/instituto-nacional-estadistica/" class="external-link"><em>Encuesta Continua de Hogares</em></a> (ECH) with bootstrap replicate weights. First, download the example data:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">download_example_ech</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">zip_url</span> <span class="op">&lt;-</span> <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
@@ -441,9 +436,14 @@
 <hr>
 </div>
 <div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
+<p>Please see <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> for guidelines on how to contribute to metasurvey.</p>
+</div>
+<div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
 </h2>
-<p>Please note that the metasurvey project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project you agree to abide by its terms.</p>
+<p>Please note that the metasurvey project is released with a <a href="https://github.com/metasurveyr/metasurvey/blob/main/CODE_OF_CONDUCT.md" class="external-link">Contributor Code of Conduct</a>. By contributing to this project you agree to abide by its terms.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -492,6 +492,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://www.repostatus.org/#active" class="external-link"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-maturing-blue.svg" alt="Lifecycle: maturing"></a></li>
 <li><a href="https://CRAN.R-project.org/package=metasurvey" class="external-link"><img src="https://www.r-pkg.org/badges/version/metasurvey" alt="CRAN status"></a></li>
 <li><a href="https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml" class="external-link"><img src="https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main" alt="pkgdown"></a></li>

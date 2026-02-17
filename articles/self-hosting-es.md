@@ -714,8 +714,8 @@ kubectl apply -f k8s/aws-api.yaml
 ## Despliegue en Azure (AKS)
 
 Para produccion en Azure se usa
-[AKS](https://azure.microsoft.com/services/kubernetes-service/) con
-CosmosDB (API MongoDB) como base de datos gestionada.
+[AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/)
+con CosmosDB (API MongoDB) como base de datos gestionada.
 
 ### 1. Crear el cluster AKS
 
@@ -985,9 +985,7 @@ mantener su propia base de datos.
 Para despliegues de produccion con modulos Terraform (AWS/Azure/GCP),
 Helm charts y pipelines CI/CD, ver el repositorio de infraestructura:
 
-<https://github.com/metasurveyr/metasurvey-infra>
-
-Incluye:
+El repositorio de infraestructura incluira:
 
 - Modulos Terraform para bases de datos gestionadas (RDS,
   DocumentDB/CosmosDB, Cloud SQL, Memorystore)
@@ -999,7 +997,7 @@ Incluye:
 ## Proximos pasos
 
 - **[Referencia de la API y Base de
-  Datos](https://metasurveyr.github.io/metasurvey/articles/api-database-es.md)**
+  Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.html)**
   – Documentacion completa de endpoints, esquema MongoDB y autenticacion
 - **[Creacion y publicacion de
   recetas](https://metasurveyr.github.io/metasurvey/articles/recipes-es.md)**

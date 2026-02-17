@@ -15,7 +15,7 @@ of files) can be automatically transpiled vs require manual review."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,6 +74,14 @@ of files) can be automatically transpiled vs require manual review.</p>
     <p>A data.frame with columns: file, total_commands, translated,
 skipped, manual_review, coverage_pct</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other transpiler:
+<code><a href="parse_do_file.html">parse_do_file()</a></code>,
+<code><a href="parse_stata_labels.html">parse_stata_labels()</a></code>,
+<code><a href="transpile_stata.html">transpile_stata()</a></code>,
+<code><a href="transpile_stata_module.html">transpile_stata_module()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -82,8 +90,8 @@ skipped, manual_review, coverage_pct</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gen x = 1"</span>, <span class="st">"replace x = 2 if y == 3"</span>, <span class="st">"drop z"</span><span class="op">)</span>, <span class="va">tf</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">transpile_coverage</span><span class="op">(</span><span class="va">tf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  file                                path total_commands</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 file1e2f2eedb5ac.do /tmp/Rtmp1hUMFK/file1e2f2eedb5ac.do              2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               TOTAL /tmp/Rtmp1hUMFK/file1e2f2eedb5ac.do              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 file1e4e7a5de882.do /tmp/RtmpglJzIl/file1e4e7a5de882.do              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               TOTAL /tmp/RtmpglJzIl/file1e4e7a5de882.do              2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   translated skipped manual_review coverage_pct</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          2       0             0          100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2          2       0             0          100</span>

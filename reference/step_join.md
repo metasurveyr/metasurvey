@@ -51,7 +51,7 @@ step_join(
 
 - comment:
 
-  Optional description for the step
+  Optional description for the step (default `"Join step"`).
 
 - use_copy:
 
@@ -59,11 +59,12 @@ step_join(
 
 - lazy:
 
-  Internal. Whether to delay execution.
+  Internal. Whether to delay execution (default
+  [`lazy_default()`](https://metasurveyr.github.io/metasurvey/reference/lazy_default.md)).
 
 - record:
 
-  Internal. Whether to record the step.
+  Internal. Whether to record the step (default `TRUE`).
 
 ## Value
 
