@@ -51,9 +51,9 @@ test_that("transpile_stata works on gen_replace_expr fixture", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  # Expression RHS should produce step_compute chain (not step_recode)
+  # Expression RHS should produce step_compute with bc_edu (not step_recode)
   compute_steps <- grep("step_compute.*bc_edu", result$steps, value = TRUE)
-  expect_true(length(compute_steps) >= 2)
+  expect_true(length(compute_steps) >= 1)
   # Should use fifelse for conditional updates
   fifelse_steps <- grep("fifelse", result$steps, value = TRUE)
   expect_true(length(fifelse_steps) >= 1)
@@ -77,7 +77,7 @@ test_that("transpile_stata works on mvencode fixture", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  expect_true(length(result$steps) >= 4)
+  expect_true(length(result$steps) >= 1)
   # All should be step_compute with fifelse(is.na)
   for (step in result$steps) {
     expect_match(step, "step_compute")
@@ -91,7 +91,7 @@ test_that("transpile_stata works on egen_by fixture", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  expect_true(length(result$steps) >= 2)
+  expect_true(length(result$steps) >= 1)
   # Should have .by parameter
   by_steps <- grep("\\.by\\s*=", result$steps, value = TRUE)
   expect_true(length(by_steps) >= 1)
@@ -103,7 +103,7 @@ test_that("transpile_stata works on destring fixture", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  expect_true(length(result$steps) >= 2)
+  expect_true(length(result$steps) >= 1)
   # Should convert to as.numeric
   numeric_steps <- grep("as.numeric", result$steps, value = TRUE)
   expect_true(length(numeric_steps) >= 1)
@@ -139,6 +139,101 @@ test_that("optimize_steps collapses consecutive removes", {
   result <- optimize_steps(steps)
   expect_length(result, 2)
   expect_match(result[1], "a.*b.*c.*d")
+})
+
+# ── optimize_steps: step_compute collapsing ──────────────────────────────────
+
+test_that("optimize_steps collapses independent consecutive step_compute", {
+  steps <- c(
+    "step_compute(svy, a = x + 1)",
+    "step_compute(svy, b = y * 2)"
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 1)
+  expect_match(result[1], "a = x \\+ 1")
+  expect_match(result[1], "b = y \\* 2")
+})
+
+test_that("optimize_steps preserves dependent step_compute calls", {
+  steps <- c(
+    "step_compute(svy, a = x + 1)",
+    "step_compute(svy, b = a * 2)"
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 2)
+})
+
+test_that("optimize_steps splits chain at dependency boundary", {
+  steps <- c(
+    "step_compute(svy, a = x + 1)",
+    "step_compute(svy, b = y + 1)",
+    "step_compute(svy, c = a + b)"
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 2)
+  # First step collapses a and b (independent)
+  expect_match(result[1], "a = x \\+ 1")
+  expect_match(result[1], "b = y \\+ 1")
+  # Second step has c (depends on a and b)
+  expect_match(result[2], "c = a \\+ b")
+})
+
+test_that("optimize_steps collapses step_compute with same .by", {
+  steps <- c(
+    'step_compute(svy, a = mean(x), .by = "g")',
+    'step_compute(svy, b = sum(y), .by = "g")'
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 1)
+  expect_match(result[1], "a = mean\\(x\\)")
+  expect_match(result[1], "b = sum\\(y\\)")
+  expect_match(result[1], '\\.by = "g"')
+})
+
+test_that("optimize_steps does not collapse step_compute with different .by", {
+  steps <- c(
+    'step_compute(svy, a = mean(x), .by = "g1")',
+    'step_compute(svy, b = sum(y), .by = "g2")'
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 2)
+})
+
+test_that("optimize_steps does not collapse step_compute with/without .by", {
+  steps <- c(
+    "step_compute(svy, a = x + 1)",
+    'step_compute(svy, b = sum(y), .by = "g")'
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 2)
+})
+
+test_that("optimize_steps single step_compute unchanged", {
+  steps <- c("step_compute(svy, a = x + 1)")
+  result <- optimize_steps(steps)
+  expect_length(result, 1)
+  expect_equal(result[1], steps[1])
+})
+
+test_that("optimize_steps does not collapse step_compute across other step types", {
+  steps <- c(
+    "step_compute(svy, a = 1)",
+    'step_rename(svy, edad = "age")',
+    "step_compute(svy, b = 2)"
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 3)
+})
+
+test_that("optimize_steps handles complex step_compute expressions", {
+  steps <- c(
+    "step_compute(svy, x = data.table::fifelse(age > 18, income / 1000, 0))",
+    "step_compute(svy, y = as.integer(status %in% c(1, 2, 3)))"
+  )
+  result <- optimize_steps(steps)
+  expect_length(result, 1)
+  expect_match(result[1], "fifelse")
+  expect_match(result[1], "as\\.integer")
 })
 
 test_that("extract_output_vars finds created variables", {
@@ -239,9 +334,11 @@ test_that("recode with variable range expands to multiple variables", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  # recode suma1-suma4 (.=0) should produce 4 steps (one per variable)
-  recode_na_steps <- grep("is.na.*suma", result$steps, value = TRUE)
-  expect_true(length(recode_na_steps) >= 4)
+  # recode suma1-suma4 (.=0) should reference all 4 suma variables
+  all_steps <- paste(result$steps, collapse = " ")
+  for (v in paste0("suma", 1:4)) {
+    expect_match(all_steps, v)
+  }
 })
 
 test_that("mvencode with variable range expands to individual steps", {
@@ -250,9 +347,11 @@ test_that("mvencode with variable range expands to individual steps", {
   )
   skip_if_not(file.exists(fixture))
   result <- transpile_stata(fixture)
-  # mvencode suma1-suma4, mv(0) should produce 4 mvencode steps
-  mv_steps <- grep("fifelse\\(is.na\\(suma", result$steps, value = TRUE)
-  expect_true(length(mv_steps) >= 4)
+  # mvencode suma1-suma4, mv(0) should reference all 4 suma variables
+  all_steps <- paste(result$steps, collapse = " ")
+  for (v in paste0("suma", 1:4)) {
+    expect_match(all_steps, paste0("is.na\\(", v, "\\)"))
+  }
 })
 
 # ── Task 10: fifelse type coercion ──────────────────────────────────────────
