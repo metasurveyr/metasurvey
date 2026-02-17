@@ -2,6 +2,13 @@
 
 ## metasurvey 0.0.21
 
+### New features
+
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  now supports `convey` package functions (`svygini`, `svyatk`,
+  `svyarpr`, `svyfgt`, etc.) for poverty and inequality estimation with
+  proper standard errors and CVs.
+
 ### Bug fixes
 
 - `validate_weight()` now shows available columns when weight is not

@@ -53,6 +53,8 @@ Real-world examples with ECH data
   R](https://metasurveyr.github.io/metasurvey/articles/ech-case-study.md):
 - [International Survey
   Compatibility](https://metasurveyr.github.io/metasurvey/articles/international-surveys.md):
+- [Poverty and Inequality with
+  convey](https://metasurveyr.github.io/metasurvey/articles/convey-inequality.md):
 
 ### Español
 
