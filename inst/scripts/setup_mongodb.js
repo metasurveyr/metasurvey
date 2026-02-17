@@ -257,13 +257,86 @@ db.indicators.createIndex(
   { name: "indicators_text_search" }
 );
 
+// --- stars ---
+try {
+  db.createCollection("stars", {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["user", "target_type", "target_id", "value", "created_at", "updated_at"],
+        properties: {
+          user:        { bsonType: "string" },
+          target_type: { enum: ["recipe", "workflow"] },
+          target_id:   { bsonType: "string" },
+          value:       { bsonType: ["int", "double"], minimum: 1, maximum: 5 },
+          created_at:  { bsonType: "string" },
+          updated_at:  { bsonType: "string" }
+        }
+      }
+    }
+  });
+  print("[OK] stars");
+} catch (e) {
+  if (e.codeName === "NamespaceExists") {
+    print("[SKIP] stars — already exists");
+  } else {
+    print("[ERROR] stars: " + e.message);
+  }
+}
+
+db.stars.createIndex(
+  { "user": 1, "target_type": 1, "target_id": 1 },
+  { unique: true, name: "stars_user_target" }
+);
+db.stars.createIndex(
+  { "target_type": 1, "target_id": 1 },
+  { name: "stars_target" }
+);
+
+// --- comments ---
+try {
+  db.createCollection("comments", {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["id", "user", "user_name", "target_type", "target_id", "text", "created_at"],
+        properties: {
+          id:          { bsonType: "string" },
+          user:        { bsonType: "string" },
+          user_name:   { bsonType: "string" },
+          target_type: { enum: ["recipe", "workflow"] },
+          target_id:   { bsonType: "string" },
+          text:        { bsonType: "string", minLength: 1, maxLength: 2000 },
+          created_at:  { bsonType: "string" }
+        }
+      }
+    }
+  });
+  print("[OK] comments");
+} catch (e) {
+  if (e.codeName === "NamespaceExists") {
+    print("[SKIP] comments — already exists");
+  } else {
+    print("[ERROR] comments: " + e.message);
+  }
+}
+
+db.comments.createIndex({ "id": 1 }, { unique: true });
+db.comments.createIndex(
+  { "target_type": 1, "target_id": 1, "created_at": 1 },
+  { name: "comments_target_date" }
+);
+
+// --- backlinks index on recipes.depends_on_recipes ---
+db.recipes.createIndex({ "depends_on_recipes": 1 });
+
 print("[OK] All indexes created");
 
 // ---------------------------------------------------------------------------
 // 3. Summary
 // ---------------------------------------------------------------------------
 print("\n=== Summary ===");
-["users", "recipes", "workflows", "anda_variables", "indicators"].forEach(function(c) {
+["users", "recipes", "workflows", "anda_variables", "indicators", "stars", "comments"].forEach(function(c) {
   var count = db[c].countDocuments({});
   var idxCount = db[c].getIndexes().length;
   print("  " + c + ": " + count + " docs, " + idxCount + " indexes");

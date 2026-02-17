@@ -567,7 +567,7 @@ test_that("api_request errors on unsupported HTTP method", {
 
   options(metasurvey.api_token = NULL)
   configure_api("http://test.local")
-  expect_error(api_request("test", method = "DELETE"), "Unsupported HTTP method")
+  expect_error(api_request("test", method = "PATCH"), "Unsupported HTTP method")
 })
 
 test_that("api_request adds Bearer token when available", {
@@ -872,4 +872,188 @@ test_that("api_track_download dispatches correctly", {
   expect_silent(api_track_download("recipe", "r1"))
   expect_silent(api_track_download("workflow", "w1"))
   expect_warning(api_track_download("unknown", "x1"), "Unknown type")
+})
+
+# ── Stars ────────────────────────────────────────────────────────────────────
+
+test_that("api_star_recipe validates value range", {
+  expect_error(api_star_recipe("r1", 0), "between 1 and 5")
+  expect_error(api_star_recipe("r1", 6), "between 1 and 5")
+  expect_error(api_star_recipe("r1", NA), "between 1 and 5")
+})
+
+test_that("api_star_recipe calls PUT with correct endpoint", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "recipes/r_123/star")
+      expect_equal(method, "PUT")
+      expect_equal(body$value, 4L)
+      list(ok = TRUE)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_star_recipe("r_123", 4)
+  expect_true(result$ok)
+})
+
+test_that("api_get_recipe_stars calls GET", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "recipes/r_123/stars")
+      expect_equal(method, "GET")
+      list(average = 4.2, count = 10, user_value = 5)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe_stars("r_123")
+  expect_equal(result$average, 4.2)
+  expect_equal(result$count, 10)
+})
+
+test_that("api_star_workflow validates value range", {
+  expect_error(api_star_workflow("w1", 0), "between 1 and 5")
+  expect_error(api_star_workflow("w1", 6), "between 1 and 5")
+})
+
+test_that("api_star_workflow calls PUT with correct endpoint", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "workflows/w_123/star")
+      expect_equal(method, "PUT")
+      list(ok = TRUE)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_star_workflow("w_123", 3)
+  expect_true(result$ok)
+})
+
+test_that("api_get_workflow_stars calls GET", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      list(average = 3.5, count = 7)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_workflow_stars("w_123")
+  expect_equal(result$average, 3.5)
+})
+
+# ── Comments ────────────────────────────────────────────────────────────────
+
+test_that("api_comment_recipe validates text", {
+  expect_error(api_comment_recipe("r1", ""), "between 1 and 2000")
+  expect_error(
+    api_comment_recipe("r1", paste(rep("x", 2001), collapse = "")),
+    "between 1 and 2000"
+  )
+})
+
+test_that("api_comment_recipe calls POST", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "recipes/r_123/comments")
+      expect_equal(method, "POST")
+      expect_equal(body$text, "Great recipe!")
+      list(ok = TRUE, id = "c_1")
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_comment_recipe("r_123", "Great recipe!")
+  expect_true(result$ok)
+})
+
+test_that("api_get_recipe_comments returns list", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      list(comments = list(
+        list(id = "c_1", user = "test@test.com", text = "Hello")
+      ))
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe_comments("r_123")
+  expect_length(result, 1)
+  expect_equal(result[[1]]$text, "Hello")
+})
+
+test_that("api_comment_workflow validates text", {
+  expect_error(api_comment_workflow("w1", ""), "between 1 and 2000")
+})
+
+test_that("api_delete_comment calls DELETE", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "comments/c_123")
+      expect_equal(method, "DELETE")
+      list(ok = TRUE)
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_delete_comment("c_123")
+  expect_true(result$ok)
+})
+
+# ── Dependents ──────────────────────────────────────────────────────────────
+
+test_that("api_get_recipe_dependents returns list", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      expect_equal(endpoint, "recipes/r_123/dependents")
+      list(dependents = list(
+        list(id = "r_456", name = "Child recipe", user = "test@test.com")
+      ))
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe_dependents("r_123")
+  expect_length(result, 1)
+  expect_equal(result[[1]]$name, "Child recipe")
+})
+
+test_that("api_get_recipe_dependents returns empty on no dependents", {
+  old_url <- getOption("metasurvey.api_url")
+  on.exit(options(metasurvey.api_url = old_url))
+
+  local_mocked_bindings(
+    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+      list(dependents = list())
+    }
+  )
+
+  configure_api("http://test.local")
+  result <- api_get_recipe_dependents("r_123")
+  expect_length(result, 0)
 })

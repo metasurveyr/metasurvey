@@ -129,6 +129,14 @@ db_anda <- mongolite::mongo(
   collection = "anda_variables",
   db = DATABASE, url = MONGO_URI
 )
+db_stars <- mongolite::mongo(
+  collection = "stars",
+  db = DATABASE, url = MONGO_URI
+)
+db_comments <- mongolite::mongo(
+  collection = "comments",
+  db = DATABASE, url = MONGO_URI
+)
 if (ENABLE_INDICATORS) {
   db_indicators <- mongolite::mongo(
     collection = "indicators",
@@ -832,6 +840,179 @@ function(req, res, id) {
   )
 }
 
+#* Rate a recipe (1-5). Requires authentication.
+#* Creates or updates the user's rating for this recipe.
+#* @tag Recipes
+#* @put /recipes/<id>/star
+#* @response 200 Returns {ok, value}.
+#* @response 401 Unauthorized.
+function(req, res, id) {
+  auth_err <- require_auth(req, res)
+  if (!is.null(auth_err)) return(auth_err)
+
+  body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
+  value <- as.integer(body$value)
+  if (is.na(value) || value < 1L || value > 5L) {
+    res$status <- 400L
+    return(list(error = "value must be an integer between 1 and 5"))
+  }
+
+  now <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  tryCatch(
+    {
+      db_stars$update(
+        query = toJSON(list(
+          user = req$user$sub,
+          target_type = "recipe",
+          target_id = id
+        ), auto_unbox = TRUE),
+        update = toJSON(list(
+          `$set` = list(value = value, updated_at = now),
+          `$setOnInsert` = list(
+            user = req$user$sub,
+            target_type = "recipe",
+            target_id = id,
+            created_at = now
+          )
+        ), auto_unbox = TRUE),
+        upsert = TRUE
+      )
+      list(ok = TRUE, value = value)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Get star summary for a recipe.
+#* Returns average rating, count, and the current
+#* user's rating if authenticated.
+#* @tag Recipes
+#* @get /recipes/<id>/stars
+#* @response 200 Returns {average, count, user_value}.
+function(req, res, id) {
+  tryCatch(
+    {
+      query <- toJSON(list(
+        target_type = "recipe", target_id = id
+      ), auto_unbox = TRUE)
+      all_stars <- db_stars$find(query, fields = '{"value": 1, "user": 1, "_id": 0}')
+      count <- nrow(all_stars)
+      average <- if (count > 0) round(mean(all_stars$value), 2) else 0
+
+      user_value <- NULL
+      token <- sub("^Bearer\\s+", "", req$HTTP_AUTHORIZATION %||% "")
+      if (nzchar(token)) {
+        user <- tryCatch(decode_token(token), error = function(e) NULL)
+        if (!is.null(user)) {
+          user_row <- all_stars[all_stars$user == user$sub, ]
+          if (nrow(user_row) > 0) user_value <- user_row$value[1]
+        }
+      }
+
+      list(average = average, count = count, user_value = user_value)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Add a comment to a recipe. Requires authentication.
+#* @tag Recipes
+#* @post /recipes/<id>/comments
+#* @response 200 Returns {ok, comment}.
+#* @response 401 Unauthorized.
+function(req, res, id) {
+  auth_err <- require_auth(req, res)
+  if (!is.null(auth_err)) return(auth_err)
+
+  body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
+  text <- trimws(body$text %||% "")
+  if (!nzchar(text)) {
+    res$status <- 400L
+    return(list(error = "text is required"))
+  }
+  if (nchar(text) > 2000L) {
+    res$status <- 400L
+    return(list(error = "text must be 2000 characters or fewer"))
+  }
+
+  now <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  comment_id <- paste0("c_", as.integer(Sys.time()), "_", sample(999, 1))
+
+  comment <- list(
+    id = comment_id,
+    user = req$user$sub,
+    user_name = req$user$name,
+    target_type = "recipe",
+    target_id = id,
+    text = text,
+    created_at = now
+  )
+
+  tryCatch(
+    {
+      db_comments$insert(toJSON(comment, auto_unbox = TRUE, null = "null"))
+      list(ok = TRUE, comment = comment)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* List comments for a recipe, sorted by date ascending.
+#* @tag Recipes
+#* @get /recipes/<id>/comments
+#* @response 200 Returns {comments}.
+function(req, res, id) {
+  tryCatch(
+    {
+      query <- toJSON(list(
+        target_type = "recipe", target_id = id
+      ), auto_unbox = TRUE)
+      comments <- db_comments$find(
+        query,
+        sort = '{"created_at": 1}',
+        fields = '{"_id": 0}'
+      )
+      list(comments = comments)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Get recipes that depend on this recipe (backlinks).
+#* @tag Recipes
+#* @get /recipes/<id>/dependents
+#* @response 200 Returns {dependents}.
+function(req, res, id) {
+  tryCatch(
+    {
+      query <- toJSON(list(
+        depends_on_recipes = id
+      ), auto_unbox = TRUE)
+      deps <- db_recipes$find(
+        query,
+        fields = '{"_id": 0, "id": 1, "name": 1, "user": 1, "edition": 1, "survey_type": 1}'
+      )
+      list(dependents = deps)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
 # ==============================================================================
 # WORKFLOWS
 # ==============================================================================
@@ -1011,6 +1192,187 @@ function(req, res, id) {
         query = toJSON(list(id = id), auto_unbox = TRUE),
         update = '{"$inc": {"downloads": 1}}'
       )
+      list(ok = TRUE)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Rate a workflow (1-5). Requires authentication.
+#* @tag Workflows
+#* @put /workflows/<id>/star
+#* @response 200 Returns {ok, value}.
+function(req, res, id) {
+  auth_err <- require_auth(req, res)
+  if (!is.null(auth_err)) return(auth_err)
+
+  body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
+  value <- as.integer(body$value)
+  if (is.na(value) || value < 1L || value > 5L) {
+    res$status <- 400L
+    return(list(error = "value must be an integer between 1 and 5"))
+  }
+
+  now <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  tryCatch(
+    {
+      db_stars$update(
+        query = toJSON(list(
+          user = req$user$sub,
+          target_type = "workflow",
+          target_id = id
+        ), auto_unbox = TRUE),
+        update = toJSON(list(
+          `$set` = list(value = value, updated_at = now),
+          `$setOnInsert` = list(
+            user = req$user$sub,
+            target_type = "workflow",
+            target_id = id,
+            created_at = now
+          )
+        ), auto_unbox = TRUE),
+        upsert = TRUE
+      )
+      list(ok = TRUE, value = value)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Get star summary for a workflow.
+#* @tag Workflows
+#* @get /workflows/<id>/stars
+#* @response 200 Returns {average, count, user_value}.
+function(req, res, id) {
+  tryCatch(
+    {
+      query <- toJSON(list(
+        target_type = "workflow", target_id = id
+      ), auto_unbox = TRUE)
+      all_stars <- db_stars$find(query, fields = '{"value": 1, "user": 1, "_id": 0}')
+      count <- nrow(all_stars)
+      average <- if (count > 0) round(mean(all_stars$value), 2) else 0
+
+      user_value <- NULL
+      token <- sub("^Bearer\\s+", "", req$HTTP_AUTHORIZATION %||% "")
+      if (nzchar(token)) {
+        user <- tryCatch(decode_token(token), error = function(e) NULL)
+        if (!is.null(user)) {
+          user_row <- all_stars[all_stars$user == user$sub, ]
+          if (nrow(user_row) > 0) user_value <- user_row$value[1]
+        }
+      }
+
+      list(average = average, count = count, user_value = user_value)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Add a comment to a workflow. Requires authentication.
+#* @tag Workflows
+#* @post /workflows/<id>/comments
+#* @response 200 Returns {ok, comment}.
+function(req, res, id) {
+  auth_err <- require_auth(req, res)
+  if (!is.null(auth_err)) return(auth_err)
+
+  body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
+  text <- trimws(body$text %||% "")
+  if (!nzchar(text)) {
+    res$status <- 400L
+    return(list(error = "text is required"))
+  }
+  if (nchar(text) > 2000L) {
+    res$status <- 400L
+    return(list(error = "text must be 2000 characters or fewer"))
+  }
+
+  now <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  comment_id <- paste0("c_", as.integer(Sys.time()), "_", sample(999, 1))
+
+  comment <- list(
+    id = comment_id,
+    user = req$user$sub,
+    user_name = req$user$name,
+    target_type = "workflow",
+    target_id = id,
+    text = text,
+    created_at = now
+  )
+
+  tryCatch(
+    {
+      db_comments$insert(toJSON(comment, auto_unbox = TRUE, null = "null"))
+      list(ok = TRUE, comment = comment)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* List comments for a workflow, sorted by date ascending.
+#* @tag Workflows
+#* @get /workflows/<id>/comments
+#* @response 200 Returns {comments}.
+function(req, res, id) {
+  tryCatch(
+    {
+      query <- toJSON(list(
+        target_type = "workflow", target_id = id
+      ), auto_unbox = TRUE)
+      comments <- db_comments$find(
+        query,
+        sort = '{"created_at": 1}',
+        fields = '{"_id": 0}'
+      )
+      list(comments = comments)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+# ==============================================================================
+# COMMENTS (cross-type)
+# ==============================================================================
+
+#* Delete a comment. Only the author can delete their own comments.
+#* @tag Comments
+#* @delete /comments/<comment_id>
+#* @response 200 Returns {ok}.
+#* @response 401 Unauthorized.
+#* @response 403 Forbidden — not the comment author.
+function(req, res, comment_id) {
+  auth_err <- require_auth(req, res)
+  if (!is.null(auth_err)) return(auth_err)
+
+  tryCatch(
+    {
+      query <- toJSON(list(id = comment_id), auto_unbox = TRUE)
+      existing <- db_comments$find(query, fields = '{"user": 1, "_id": 0}')
+      if (nrow(existing) == 0) {
+        res$status <- 404L
+        return(list(error = "Comment not found"))
+      }
+      if (existing$user[1] != req$user$sub) {
+        res$status <- 403L
+        return(list(error = "You can only delete your own comments"))
+      }
+      db_comments$remove(query)
       list(ok = TRUE)
     },
     error = function(e) {
