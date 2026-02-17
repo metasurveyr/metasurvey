@@ -1,5 +1,10 @@
 # metasurvey 0.0.21
 
+## New features
+* `workflow()` now supports `convey` package functions (`svygini`, `svyatk`,
+  `svyarpr`, `svyfgt`, etc.) for poverty and inequality estimation with
+  proper standard errors and CVs.
+
 ## Bug fixes
 * `validate_weight()` now shows available columns when weight is not found.
 * `validate_replicate()` now lists missing replicate ID columns in the error.
