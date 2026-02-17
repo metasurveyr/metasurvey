@@ -17,6 +17,21 @@ Invisibly returns \code{x}.
 \description{
 Print provenance diff
 }
+\examples{
+s1 <- survey_empty("ech", "2022")
+s1 <- set_data(s1, data.table::data.table(age = 18:65))
+s1 <- step_compute(s1, age2 = age * 2)
+s1 <- bake_steps(s1)
+
+s2 <- survey_empty("ech", "2023")
+s2 <- set_data(s2, data.table::data.table(age = 20:70))
+s2 <- step_compute(s2, age2 = age * 2)
+s2 <- bake_steps(s2)
+
+diff_result <- provenance_diff(provenance(s1), provenance(s2))
+print(diff_result)
+
+}
 \seealso{
 Other provenance: 
 \code{\link{print.metasurvey_provenance}()},

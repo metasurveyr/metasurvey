@@ -17,6 +17,14 @@ Invisibly returns \code{x}.
 \description{
 Print provenance information
 }
+\examples{
+s <- survey_empty("ech", "2023")
+s <- set_data(s, data.table::data.table(age = 18:65))
+s <- step_compute(s, age2 = age * 2)
+s <- bake_steps(s)
+print(provenance(s))
+
+}
 \seealso{
 Other provenance: 
 \code{\link{print.metasurvey_provenance_diff}()},
