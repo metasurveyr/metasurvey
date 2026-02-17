@@ -53,26 +53,26 @@ shiny_api_request <- function(method,
     )
   }
 
+  req <- httr2::request(url)
+  req <- httr2::req_headers(req, !!!as.list(headers))
+  req <- httr2::req_timeout(req, 10)
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+
   resp <- tryCatch(
     {
       if (method == "GET") {
-        httr::GET(
-          url,
-          httr::add_headers(.headers = headers),
-          httr::timeout(10)
-        )
+        httr2::req_perform(req)
       } else {
-        httr::POST(
-          url,
-          body = jsonlite::toJSON(
+        req <- httr2::req_body_raw(
+          req,
+          jsonlite::toJSON(
             body,
             auto_unbox = TRUE,
             null = "null"
           ),
-          httr::add_headers(.headers = headers),
-          encode = "raw",
-          httr::timeout(10)
+          type = "application/json"
         )
+        httr2::req_perform(req)
       }
     },
     error = function(e) NULL
@@ -81,11 +81,8 @@ shiny_api_request <- function(method,
   if (is.null(resp)) {
     return(list(ok = FALSE, error = "Connection failed"))
   }
-  if (resp$status_code >= 400) {
-    txt <- httr::content(
-      resp, "text",
-      encoding = "UTF-8"
-    )
+  if (httr2::resp_status(resp) >= 400) {
+    txt <- httr2::resp_body_string(resp)
     parsed <- tryCatch(
       jsonlite::fromJSON(
         txt,
@@ -96,11 +93,11 @@ shiny_api_request <- function(method,
     return(list(
       ok = FALSE,
       error = parsed$error %||% txt,
-      status = resp$status_code
+      status = httr2::resp_status(resp)
     ))
   }
   parsed <- jsonlite::fromJSON(
-    httr::content(resp, "text", encoding = "UTF-8"),
+    httr2::resp_body_string(resp),
     simplifyVector = FALSE
   )
   parsed$ok <- TRUE
