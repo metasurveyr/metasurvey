@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install R packages
-RUN R -e "install.packages(c('shiny', 'bslib', 'bsicons', 'htmltools', 'httr', 'jsonlite', 'digest', 'remotes', 'jose', 'data.table', 'crayon', 'bit64', 'survey', 'glue', 'lifecycle', 'R6'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages(c('shiny', 'bslib', 'bsicons', 'htmltools', 'httr2', 'jsonlite', 'digest', 'remotes', 'data.table', 'cli', 'survey', 'glue', 'lifecycle', 'R6'), repos='https://cloud.r-project.org')"
 
 # Optional: visNetwork for pipeline graphs
 RUN R -e "install.packages('visNetwork', repos='https://cloud.r-project.org')"
