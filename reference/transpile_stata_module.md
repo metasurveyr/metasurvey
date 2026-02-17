@@ -1,5 +1,7 @@
 # Transpile and group do-files by thematic module
 
+**\[experimental\]**
+
 Processes all do-files in a year directory and groups them into thematic
 Recipe objects (demographics, income, etc.).
 

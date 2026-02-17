@@ -316,6 +316,23 @@ for the full reference.
 
 ------------------------------------------------------------------------
 
+## Related work
+
+| Package                                               | Focus                             | metasurvey adds                                        |
+|-------------------------------------------------------|-----------------------------------|--------------------------------------------------------|
+| [survey](https://cran.r-project.org/package=survey)   | Sampling designs and estimation   | Lazy step pipeline, recipe system, rotating panels     |
+| [srvyr](https://cran.r-project.org/package=srvyr)     | dplyr-style interface to survey   | Portable recipes, workflow registry, panel support     |
+| [recipes](https://cran.r-project.org/package=recipes) | Feature engineering for modelling | Survey-aware steps, complex designs, community sharing |
+| [eph](https://cran.r-project.org/package=eph)         | Argentina’s EPH survey            | Survey-agnostic: works with any household survey       |
+| [targets](https://cran.r-project.org/package=targets) | General pipeline orchestration    | Domain-specific steps, built-in survey semantics       |
+
+metasurvey is **not** a wrapper around `survey`. It adds a
+reproducibility layer (steps, recipes, workflows) that is
+survey-agnostic: the same pipeline processes ECH, EPH, CASEN, PNAD-C,
+CPS, ENIGH, or DHS data without survey-specific code.
+
+------------------------------------------------------------------------
+
 ## Citation
 
 To cite metasurvey in publications use:

@@ -17,8 +17,8 @@
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Reproducible Survey Data Processing with Step Pipelines">
-<meta name="description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
-<meta property="og:description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
+<meta name="description" content="Provides a step-based pipeline for reproducible survey data processing, building on the survey package for complex sampling designs. Supports rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
+<meta property="og:description" content="Provides a step-based pipeline for reproducible survey data processing, building on the survey package for complex sampling designs. Supports rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
 <meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg">
 <!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="">
 <script src="ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
@@ -422,6 +422,51 @@
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/api-database.html">API and database</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/self-hosting.html">Self-hosting guide</a></li>
 </ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="related-work">Related work<a class="anchor" aria-label="anchor" href="#related-work"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="27%">
+<col width="21%">
+<col width="51%">
+</colgroup>
+<thead><tr class="header">
+<th>Package</th>
+<th>Focus</th>
+<th>metasurvey adds</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/package=survey" class="external-link">survey</a></td>
+<td>Sampling designs and estimation</td>
+<td>Lazy step pipeline, recipe system, rotating panels</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/package=srvyr" class="external-link">srvyr</a></td>
+<td>dplyr-style interface to survey</td>
+<td>Portable recipes, workflow registry, panel support</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/package=recipes" class="external-link">recipes</a></td>
+<td>Feature engineering for modelling</td>
+<td>Survey-aware steps, complex designs, community sharing</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/package=eph" class="external-link">eph</a></td>
+<td>Argentina’s EPH survey</td>
+<td>Survey-agnostic: works with any household survey</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/package=targets" class="external-link">targets</a></td>
+<td>General pipeline orchestration</td>
+<td>Domain-specific steps, built-in survey semantics</td>
+</tr>
+</tbody>
+</table>
+<p>metasurvey is <strong>not</strong> a wrapper around <code>survey</code>. It adds a reproducibility layer (steps, recipes, workflows) that is survey-agnostic: the same pipeline processes ECH, EPH, CASEN, PNAD-C, CPS, ENIGH, or DHS data without survey-specific code.</p>
 <hr>
 </div>
 <div class="section level2">

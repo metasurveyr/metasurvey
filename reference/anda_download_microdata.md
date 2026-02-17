@@ -1,8 +1,14 @@
 # Download ECH microdata from ANDA5
 
+**\[experimental\]**
+
 Downloads microdata files for a given ECH edition from INE Uruguay's
 ANDA5 catalog. Automatically accepts the terms of use, parses available
 resources, and downloads the appropriate file.
+
+For editions \>= 2022, ANDA provides separate files for implantation,
+monthly follow-ups, and bootstrap replicate weights. Use the `resource`
+parameter to select which file to download.
 
 ## Usage
 
@@ -71,12 +77,6 @@ file(s), ready to pass to
 [`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md)
 or
 [`data.table::fread()`](https://rdrr.io/pkg/data.table/man/fread.html).
-
-## Details
-
-For editions \>= 2022, ANDA provides separate files for implantation,
-monthly follow-ups, and bootstrap replicate weights. Use the `resource`
-parameter to select which file to download.
 
 ## See also
 

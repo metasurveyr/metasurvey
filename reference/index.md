@@ -295,20 +295,21 @@ REST client for the recipe registry
 INE Uruguay ANDA catalog metadata
 
 - [`anda_variables()`](https://metasurveyr.github.io/metasurvey/reference/anda_variables.md)
-  : Query ANDA variable metadata from the API
+  **\[experimental\]** : Query ANDA variable metadata from the API
 - [`anda_download_microdata()`](https://metasurveyr.github.io/metasurvey/reference/anda_download_microdata.md)
-  : Download ECH microdata from ANDA5
+  **\[experimental\]** : Download ECH microdata from ANDA5
 
 ## STATA Transpiler
 
 Convert STATA do-files to metasurvey recipes
 
 - [`transpile_stata()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata.md)
-  : Transpile a STATA .do file to metasurvey steps
+  **\[experimental\]** : Transpile a STATA .do file to metasurvey steps
 - [`transpile_stata_module()`](https://metasurveyr.github.io/metasurvey/reference/transpile_stata_module.md)
-  : Transpile and group do-files by thematic module
+  **\[experimental\]** : Transpile and group do-files by thematic module
 - [`transpile_coverage()`](https://metasurveyr.github.io/metasurvey/reference/transpile_coverage.md)
-  : Analyze transpilation coverage for STATA do-files
+  **\[experimental\]** : Analyze transpilation coverage for STATA
+  do-files
 - [`parse_do_file()`](https://metasurveyr.github.io/metasurvey/reference/parse_do_file.md)
   : Parse a STATA .do file into structured commands
 - [`parse_stata_labels()`](https://metasurveyr.github.io/metasurvey/reference/parse_stata_labels.md)

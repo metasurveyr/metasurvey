@@ -1,5 +1,7 @@
 # Query ANDA variable metadata from the API
 
+**\[experimental\]**
+
 Fetches variable metadata (labels, types, value labels) from the
 metasurvey API's ANDA endpoint.
 

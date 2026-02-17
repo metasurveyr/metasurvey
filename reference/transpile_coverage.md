@@ -1,5 +1,7 @@
 # Analyze transpilation coverage for STATA do-files
 
+**\[experimental\]**
+
 Reports what percentage of commands in a .do file (or directory of
 files) can be automatically transpiled vs require manual review.
 
@@ -39,11 +41,11 @@ Other transpiler:
 tf <- tempfile(fileext = ".do")
 writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 transpile_coverage(tf)
-#>                file                              path total_commands translated
-#> 1 file1e324057bf.do /tmp/RtmpIeUnyO/file1e324057bf.do              2          2
-#> 2             TOTAL /tmp/RtmpIeUnyO/file1e324057bf.do              2          2
-#>   skipped manual_review coverage_pct
-#> 1       0             0          100
-#> 2       0             0          100
+#>                  file                                path total_commands
+#> 1 file1e2c3ae72c68.do /tmp/RtmpD3FlmY/file1e2c3ae72c68.do              2
+#> 2               TOTAL /tmp/RtmpD3FlmY/file1e2c3ae72c68.do              2
+#>   translated skipped manual_review coverage_pct
+#> 1          2       0             0          100
+#> 2          2       0             0          100
 # }
 ```

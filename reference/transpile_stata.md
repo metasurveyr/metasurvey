@@ -1,5 +1,7 @@
 # Transpile a STATA .do file to metasurvey steps
 
+**\[experimental\]**
+
 Parses a STATA .do file and translates its commands into metasurvey step
 call strings suitable for use in Recipe objects.
 
