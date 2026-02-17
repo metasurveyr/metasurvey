@@ -167,7 +167,7 @@ WorkflowRegistry <- R6::R6Class(
     print = function(...) {
       s <- self$stats()
       cat(
-        crayon::bold("WorkflowRegistry"),
+        cli::style_bold("WorkflowRegistry"),
         paste0("(", s$total, " workflows)\n")
       )
       if (length(s$by_survey_type) > 0) {

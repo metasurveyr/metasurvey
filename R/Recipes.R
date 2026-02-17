@@ -1043,51 +1043,47 @@ print.Recipe <- function(x, ...) {
   doc_info <- x$doc()
 
   # Header
-  cat(crayon::bold(crayon::blue(paste0(
+  cat(cli::style_bold(cli::col_blue(paste0(
     "\n\u2500\u2500 Recipe: ", x$name, " \u2500\u2500\n"
   ))))
 
   # Metadata
-  cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
+  cat(cli::col_silver("Author:  "), x$user, "\n", sep = "")
   ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
-  cat(crayon::silver("Survey:  "),
-    x$survey_type, " / ", ed_str, "\n",
-    sep = ""
-  )
-  cat(crayon::silver("Version: "), x$version, "\n", sep = "")
+  cat(cli::col_silver("Survey:  "),
+    x$survey_type, " / ", ed_str, "\n", sep = "")
+  cat(cli::col_silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
-    cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
+    cat(cli::col_silver("Topic:   "), x$topic, "\n", sep = "")
   }
   if (!is.null(x$doi)) {
-    cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
+    cat(cli::col_silver("DOI:     "), x$doi, "\n", sep = "")
   }
   if (!is.null(x$description) && nzchar(x$description)) {
-    cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+    cat(cli::col_silver("Description: "), x$description, "\n", sep = "")
   }
   # Certification badge
   cert_label <- switch(x$certification$level,
-    "community" = crayon::yellow("community"),
-    "reviewed" = crayon::cyan("reviewed"),
-    "official" = crayon::green("official"),
+    "community" = cli::col_yellow("community"),
+    "reviewed" = cli::col_cyan("reviewed"),
+    "official" = cli::col_green("official"),
     x$certification$level
   )
-  cat(crayon::silver("Certification: "), cert_label, "\n", sep = "")
+  cat(cli::col_silver("Certification: "), cert_label, "\n", sep = "")
   # Downloads
   if (x$downloads > 0) {
-    cat(crayon::silver("Downloads: "), x$downloads, "\n", sep = "")
+    cat(cli::col_silver("Downloads: "), x$downloads, "\n", sep = "")
   }
   # Categories
   if (length(x$categories) > 0) {
     cat_names <- vapply(x$categories, function(c) c$name, character(1))
-    cat(crayon::silver("Categories: "),
-      paste(cat_names, collapse = ", "), "\n",
-      sep = ""
-    )
+    cat(cli::col_silver("Categories: "),
+      paste(cat_names, collapse = ", "), "\n", sep = "")
   }
 
   # Input variables
   if (length(doc_info$input_variables) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Requires (",
       length(doc_info$input_variables),
       " variables) \u2500\u2500\n"
@@ -1097,7 +1093,7 @@ print.Recipe <- function(x, ...) {
 
   # Pipeline
   if (length(doc_info$pipeline) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Pipeline (",
       length(doc_info$pipeline),
       " steps) \u2500\u2500\n"
@@ -1128,7 +1124,7 @@ print.Recipe <- function(x, ...) {
 
   # Output variables
   if (length(doc_info$output_variables) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Produces (",
       length(doc_info$output_variables),
       " variables) \u2500\u2500\n"
@@ -1169,7 +1165,7 @@ print.Recipe <- function(x, ...) {
   }
 
   if (length(doc_info$pipeline) == 0 && length(x$steps) > 0) {
-    cat(crayon::silver(paste0("\n  (", length(x$steps), " steps)\n")))
+    cat(cli::col_silver(paste0("\n  (", length(x$steps), " steps)\n")))
   }
 
   cat("\n")

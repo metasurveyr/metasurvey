@@ -133,7 +133,7 @@ RecipeUser <- R6::R6Class(
         "institution" = "Institution"
       )
       cat(
-        crayon::bold(self$name),
+        cli::style_bold(self$name),
         paste0("(", type_label, ")"), "\n"
       )
       if (!is.null(self$email)) cat("  Email:", self$email, "\n")
@@ -147,12 +147,12 @@ RecipeUser <- R6::R6Class(
         )
       }
       if (!is.null(self$url)) cat("  URL:", self$url, "\n")
-      if (self$verified) cat("  ", crayon::green("Verified"), "\n")
+      if (self$verified) cat("  ", cli::col_green("Verified"), "\n")
       if (self$review_status != "approved") {
         status_col <- if (self$review_status == "pending") {
-          crayon::yellow
+          cli::col_yellow
         } else {
-          crayon::red
+          cli::col_red
         }
         cat(
           "  ",

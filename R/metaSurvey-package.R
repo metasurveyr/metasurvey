@@ -133,8 +133,6 @@
 #' @importFrom lifecycle deprecated
 #' @importFrom glue glue
 #' @importFrom R6 R6Class
-#' @importFrom httr POST
-#' @importFrom httr GET
 ## usethis namespace: end
 NULL
 
