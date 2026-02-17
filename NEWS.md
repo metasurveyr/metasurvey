@@ -1,3 +1,23 @@
+# metasurvey 0.0.19
+
+## New features
+* `step_filter()`: new step type for row-level filtering within the pipeline.
+  Multiple conditions are AND-combined. Supports `.by` for within-group
+  filtering, lazy evaluation, and RotativePanelSurvey dispatch.
+* `provenance()`: lightweight data lineage tracking. Surveys now record source
+  file, load timestamp, initial row count, and per-step history (type, N
+  before/after, duration). Workflow results carry provenance as an attribute.
+  Includes `provenance_to_json()` for audit trails and `provenance_diff()` for
+  cross-edition comparison.
+* `workflow_table()`: publication-quality formatted tables from `workflow()`
+  results using `gt`. Features confidence intervals, CV quality classification
+  with color coding, `compare_by` for side-by-side edition comparison,
+  locale-aware formatting ("en"/"es"), and provenance-based source notes.
+  Falls back to `knitr::kable()` if `gt` is not installed.
+
+## Dependencies
+* Added `gt` (>= 0.10.0) to Suggests.
+
 # metasurvey 0.0.18
 
 ## New features

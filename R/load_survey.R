@@ -563,6 +563,13 @@ load_survey.data.table <- function(...) {
     recipes = .args$recipes %||% NULL
   )
 
+  # Record source path in provenance
+  if (!is.null(.args$path) && !is.null(Survey$provenance)) {
+    Survey$provenance$source$path <- normalizePath(
+      .args$path, mustWork = FALSE
+    )
+  }
+
   if (.args$bake %||% FALSE) {
     return(bake_recipes(Survey))
   } else {

@@ -34,7 +34,8 @@ Other workflows:
 \code{\link{reproduce_workflow}()},
 \code{\link{save_workflow}()},
 \code{\link{workflow}()},
-\code{\link{workflow_from_list}()}
+\code{\link{workflow_from_list}()},
+\code{\link{workflow_table}()}
 }
 \concept{workflows}
 \keyword{workflow}

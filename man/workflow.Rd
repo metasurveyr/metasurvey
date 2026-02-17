@@ -94,7 +94,8 @@ Other workflows:
 \code{\link{read_workflow}()},
 \code{\link{reproduce_workflow}()},
 \code{\link{save_workflow}()},
-\code{\link{workflow_from_list}()}
+\code{\link{workflow_from_list}()},
+\code{\link{workflow_table}()}
 }
 \concept{workflows}
 \keyword{survey}
