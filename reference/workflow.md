@@ -86,7 +86,8 @@ Other workflows:
 [`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md),
 [`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
 [`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md),
-[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md),
+[`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md)
 
 ## Examples
 

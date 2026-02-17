@@ -48,8 +48,7 @@ tf <- tempfile(fileext = ".do")
 writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
 result <- transpile_stata(tf)
 result$steps
-#> [1] "step_compute(svy, age2 = edad^2)"                                   
-#> [2] "step_compute(svy, sexo = data.table::fifelse(is.na(sexo), 1, sexo))"
+#> [1] "step_compute(svy, age2 = edad^2, sexo = data.table::fifelse(is.na(sexo), 1, sexo))"
 result$stats
 #> $translated
 #> [1] 2

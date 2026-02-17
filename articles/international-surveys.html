@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.17</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>International Survey Compatibility</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.17/vignettes/international-surveys.Rmd" class="external-link"><code>vignettes/international-surveys.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/international-surveys.Rmd" class="external-link"><code>vignettes/international-surveys.Rmd</code></a></small>
       <div class="d-none name"><code>international-surveys.Rmd</code></div>
     </div>
 
@@ -613,13 +613,7 @@ Model datasets (no authentication needed) are available at <a href="https://dhsp
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_dhs</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">children</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         stat    value        se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;    &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: children 2.769343 0.0758253 0.02738025      2.620729</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      2.917958</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>DHS data requires registration at <a href="https://dhsprogram.com" class="external-link uri">https://dhsprogram.com</a>. The <code>rdhs</code> package
 handles API authentication. Weights (v005) must be divided by 1,000,000
 before use.</p>

@@ -24,6 +24,7 @@ Invisibly, the API response with the assigned ID.
 
 Other api-recipes:
 [`api_get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe.md),
+[`api_get_recipe_dependents()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_dependents.md),
 [`api_list_recipes()`](https://metasurveyr.github.io/metasurvey/reference/api_list_recipes.md)
 
 ## Examples

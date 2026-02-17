@@ -32,7 +32,8 @@ Other workflows:
 [`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md),
 [`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
 [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md),
-[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md),
+[`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md)
 
 ## Examples
 
@@ -44,5 +45,5 @@ wf <- RecipeWorkflow$new(
 )
 f <- tempfile(fileext = ".json")
 save_workflow(wf, f)
-#> Workflow saved to /tmp/Rtmpn1ln28/file1ddd758d7a3.json
+#> Workflow saved to /tmp/Rtmp1hUMFK/file1e2f7a37d6b6.json
 ```

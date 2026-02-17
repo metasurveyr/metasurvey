@@ -54,6 +54,7 @@ List of Recipe objects
 
 Other api-recipes:
 [`api_get_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe.md),
+[`api_get_recipe_dependents()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_dependents.md),
 [`api_publish_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_publish_recipe.md)
 
 ## Examples

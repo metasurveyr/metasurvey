@@ -437,12 +437,6 @@ workflow(
   survey::svymean(~children, na.rm = TRUE),
   estimation_type = "annual"
 )
-#>                         stat    value        se         cv confint_lower
-#>                       <char>    <num>     <num>      <num>         <num>
-#> 1: survey::svymean: children 2.769343 0.0758253 0.02738025      2.620729
-#>    confint_upper
-#>            <num>
-#> 1:      2.917958
 ```
 
 DHS data requires registration at <https://dhsprogram.com>. The `rdhs`

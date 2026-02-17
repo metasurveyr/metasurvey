@@ -22,8 +22,8 @@ transformations that is:
 
 The pipeline has three levels:
 
-1.  **Steps** – individual transformations (compute, recode, rename,
-    remove, join)
+1.  **Steps** – individual transformations (compute, recode, filter,
+    rename, remove, join, validate)
 2.  **Recipes** – reusable collections of steps bundled with metadata
 3.  **Workflows** – statistical estimates (`svymean`, `svytotal`,
     `svyby`) that produce the final tables
@@ -189,6 +189,21 @@ svy <- step_recode(svy, gender,
 )
 ```
 
+### Filtering rows
+
+Use
+[`step_filter()`](https://metasurveyr.github.io/metasurvey/reference/step_filter.md)
+to subset rows based on logical conditions. Multiple conditions are
+combined with AND. Like other steps, filters are lazy by default.
+
+``` r
+# Keep only working-age individuals (14+)
+svy <- step_filter(svy,
+  e27 >= 14,
+  comment = "Working-age population only"
+)
+```
+
 ### Renaming and removing variables
 
 Rename variables for clarity or consistency:
@@ -251,17 +266,17 @@ head(get_data(svy), 3)
 #>     <int> <int> <int> <int> <int> <int>     <char>    <int> <int> <int> <int>
 #> 1:      1     1 34561     1  2023     1 Montevideo        2    26     1     6
 #> 2:      1     1 34561     2  2023     1 Montevideo        2    45     7     6
-#> 3:      1     1 34561     3  2023     1 Montevideo        2     7     4     1
-#>    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO ht11_thousands employed
-#>       <int>     <int>   <num>   <int> <int>          <num>    <num>
-#> 1:        2         0 55429.6       0    57        55.4296        1
-#> 2:        4         0 55429.6       0    57        55.4296        0
-#> 3:        1         0 55429.6       0    57        55.4296        0
+#> 3:      1     1 34678     1  2023     1 Montevideo        1    48     1     6
+#>    POBPCOAC SUBEMPLEO     HT11 pobre06 W_ANO ht11_thousands employed
+#>       <int>     <int>    <num>   <int> <int>          <num>    <num>
+#> 1:        2         0  55429.6       0    57        55.4296        1
+#> 2:        4         0  55429.6       0    57        55.4296        0
+#> 3:        2         0 152958.8       0    54       152.9588        1
 #>    labor_status      age_group gender poverty_line region_name poverty_line.y
 #>          <char>         <fctr> <char>        <num>      <char>          <num>
 #> 1:     Employed Mature (45-64) Female        19000  Montevideo          19000
 #> 2:   Unemployed Mature (45-64) Female        19000  Montevideo          19000
-#> 3:         <NA> Mature (45-64) Female        19000  Montevideo          19000
+#> 3:     Employed Mature (45-64)   Male        19000  Montevideo          19000
 #>    region_name.y
 #>           <char>
 #> 1:    Montevideo
@@ -274,7 +289,7 @@ The step history is preserved for documentation and reproducibility:
 ``` r
 steps <- get_steps(svy)
 length(steps) # Number of transformation steps
-#> [1] 8
+#> [1] 9
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
@@ -322,10 +337,10 @@ result <- workflow(
 result
 #>                     stat    value       se         cv confint_lower
 #>                   <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5
+#> 1: survey::svymean: HT11 110389.3 4076.154 0.03692528      102400.1
 #>    confint_upper
 #>            <num>
-#> 1:      114677.7
+#> 1:      118378.4
 ```
 
 The output includes:
@@ -352,18 +367,18 @@ results <- workflow(
 results
 #>                                       stat        value           se         cv
 #>                                     <char>        <num>        <num>      <num>
-#> 1:                   survey::svymean: HT11 1.078691e+05 3.473836e+03 0.03220417
-#> 2:              survey::svytotal: employed 1.426200e+04 7.557046e+02 0.05298728
-#> 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.609582e-02 0.04700614
-#> 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551231e-02 0.06608301
-#> 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.308848e-02 0.22267760
+#> 1:                   survey::svymean: HT11 1.103893e+05 4.076154e+03 0.03692528
+#> 2:              survey::svytotal: employed 1.426200e+04 6.756206e+02 0.04737208
+#> 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.610113e-02 0.04701571
+#> 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551750e-02 0.06609646
+#> 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.309115e-02 0.22272291
 #>    confint_lower confint_upper
 #>            <num>         <num>
-#> 1:  1.010605e+05  1.146777e+05
-#> 2:  1.278085e+04  1.574315e+04
-#> 3:  5.040108e-01  6.063045e-01
-#> 4:  3.360614e-01  4.360678e-01
-#> 5:  3.312478e-02  8.443069e-02
+#> 1:  1.024001e+05  1.183784e+05
+#> 2:  1.293781e+04  1.558619e+04
+#> 3:  5.040004e-01  6.063149e-01
+#> 4:  3.360512e-01  4.360780e-01
+#> 5:  3.311956e-02  8.443591e-02
 ```
 
 ### Domain estimation
@@ -382,12 +397,12 @@ income_by_gender <- workflow(
 income_by_gender
 #>                                   stat    value       se         cv
 #>                                 <char>    <num>    <num>      <num>
-#> 1: survey::svyby: HT11 [gender=Female] 108403.8 5008.205 0.04619954
-#> 2:   survey::svyby: HT11 [gender=Male] 107283.9 4783.662 0.04458883
+#> 1: survey::svyby: HT11 [gender=Female] 111107.9 5955.676 0.05360263
+#> 2:   survey::svyby: HT11 [gender=Male] 109608.9 5519.291 0.05035439
 #>    confint_lower confint_upper gender
 #>            <num>         <num> <char>
-#> 1:      98587.87      118219.7 Female
-#> 2:      97908.07      116659.7   Male
+#> 1:      99434.99      122780.8 Female
+#> 2:      98791.31      120426.5   Male
 ```
 
 ## Quality assessment
@@ -416,7 +431,7 @@ cv_percentage <- results$cv[1] * 100
 quality <- evaluate_cv(cv_percentage)
 
 cat("CV:", round(cv_percentage, 2), "%\n")
-#> CV: 3.22 %
+#> CV: 3.69 %
 cat("Quality:", quality, "\n")
 #> Quality: Excellent
 ```

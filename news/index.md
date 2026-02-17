@@ -1,5 +1,80 @@
 # Changelog
 
+## metasurvey 0.0.19
+
+### New features
+
+- [`step_filter()`](https://metasurveyr.github.io/metasurvey/reference/step_filter.md):
+  new step type for row-level filtering within the pipeline. Multiple
+  conditions are AND-combined. Supports `.by` for within-group
+  filtering, lazy evaluation, and RotativePanelSurvey dispatch.
+- [`provenance()`](https://metasurveyr.github.io/metasurvey/reference/provenance.md):
+  lightweight data lineage tracking. Surveys now record source file,
+  load timestamp, initial row count, and per-step history (type, N
+  before/after, duration). Workflow results carry provenance as an
+  attribute. Includes
+  [`provenance_to_json()`](https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.md)
+  for audit trails and
+  [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md)
+  for cross-edition comparison.
+- [`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md):
+  publication-quality formatted tables from
+  [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  results using `gt`. Features confidence intervals, CV quality
+  classification with color coding, `compare_by` for side-by-side
+  edition comparison, locale-aware formatting (“en”/“es”), and
+  provenance-based source notes. Falls back to
+  [`knitr::kable()`](https://rdrr.io/pkg/knitr/man/kable.html) if `gt`
+  is not installed.
+
+### Bug fixes
+
+- Fixed stars and comments not persisting to MongoDB: the plumber API
+  star/comment endpoints used `if (!is.null(auth_err))` to check
+  authentication, but `require_auth()` always returns non-NULL (user
+  object on success, error list on failure). The endpoints returned the
+  JWT payload immediately without ever reaching the database write.
+  Fixed all 5 affected endpoints (recipe star, recipe comment, workflow
+  star, workflow comment, delete comment) and added `result$ok` checks
+  in Shiny modules so errors are reported instead of silently swallowed.
+
+### Dependencies
+
+- Added `gt` (\>= 0.10.0) to Suggests.
+
+## metasurvey 0.0.18
+
+### New features
+
+- [`step_validate()`](https://metasurveyr.github.io/metasurvey/reference/step_validate.md):
+  declarative data validation step that checks invariants without
+  mutating data. Supports row-level logical expressions, named checks,
+  `.min_n`, and `.action = "stop"` or `"warn"`.
+- Stars and comments API: users can rate (1-5) and comment on recipes
+  and workflows. New R functions:
+  [`api_star_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_star_recipe.md),
+  [`api_get_recipe_stars()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_stars.md),
+  [`api_comment_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_comment_recipe.md),
+  [`api_get_recipe_comments()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_comments.md),
+  [`api_delete_comment()`](https://metasurveyr.github.io/metasurvey/reference/api_delete_comment.md),
+  [`api_get_recipe_dependents()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_dependents.md),
+  and workflow equivalents.
+- Backlinks: `GET /recipes/:id/dependents` returns recipes that depend
+  on a given recipe via `depends_on_recipes`.
+- Shiny app: star rating widget, comment section, and dependents panel
+  in recipe and workflow detail modals.
+
+### Performance
+
+- `optimize_steps()` now collapses consecutive independent
+  [`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md)
+  calls into single calls with dependency analysis, reducing transpiled
+  step counts.
+
+### Bug fixes
+
+- Fixed DHS vignette chunk failing when external URL is unreachable.
+
 ## metasurvey 0.0.17
 
 ### New features

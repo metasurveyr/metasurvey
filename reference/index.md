@@ -50,12 +50,16 @@ Lazy transformations on surveys
   : Create computation steps for survey variables
 - [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md)
   : Create recoding steps for categorical variables
+- [`step_filter()`](https://metasurveyr.github.io/metasurvey/reference/step_filter.md)
+  : Filter rows from survey data
 - [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md)
   : Rename variables in survey data (step)
 - [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md)
   : Remove variables from survey data (step)
 - [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md)
   : Join external data into survey (step)
+- [`step_validate()`](https://metasurveyr.github.io/metasurvey/reference/step_validate.md)
+  : Validate data during the step pipeline
 - [`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
   : Execute all pending steps
 
@@ -128,11 +132,26 @@ Survey estimation workflows
 
 - [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
   : Execute estimation workflow for surveys
+- [`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md)
+  : Create publication-quality table from workflow results
 - [`RecipeWorkflow-class`](https://metasurveyr.github.io/metasurvey/reference/RecipeWorkflow-class.md)
   [`RecipeWorkflow`](https://metasurveyr.github.io/metasurvey/reference/RecipeWorkflow-class.md)
   : RecipeWorkflow R6 class
 - [`evaluate_cv()`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md)
   : Evaluate estimation with Coefficient of Variation
+
+## Provenance
+
+Data lineage and audit trails
+
+- [`provenance()`](https://metasurveyr.github.io/metasurvey/reference/provenance.md)
+  : Get provenance from a survey or workflow result
+- [`provenance_to_json()`](https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.md)
+  : Export provenance to JSON
+- [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md)
+  : Compare two provenance objects
+- [`print(`*`<metasurvey_provenance>`*`)`](https://metasurveyr.github.io/metasurvey/reference/print.metasurvey_provenance.md)
+  : Print provenance information
 - [`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md)
   : Save a RecipeWorkflow to a JSON file
 - [`read_workflow()`](https://metasurveyr.github.io/metasurvey/reference/read_workflow.md)
@@ -247,6 +266,26 @@ REST client for the recipe registry
   : Publish a workflow
 - [`api_get_anda_variables()`](https://metasurveyr.github.io/metasurvey/reference/api_get_anda_variables.md)
   : Get ANDA variable metadata from the API
+- [`api_star_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_star_recipe.md)
+  : Rate a recipe
+- [`api_get_recipe_stars()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_stars.md)
+  : Get star summary for a recipe
+- [`api_comment_recipe()`](https://metasurveyr.github.io/metasurvey/reference/api_comment_recipe.md)
+  : Add a comment to a recipe
+- [`api_get_recipe_comments()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_comments.md)
+  : Get comments for a recipe
+- [`api_get_recipe_dependents()`](https://metasurveyr.github.io/metasurvey/reference/api_get_recipe_dependents.md)
+  : Get recipes that depend on a recipe
+- [`api_star_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_star_workflow.md)
+  : Rate a workflow
+- [`api_get_workflow_stars()`](https://metasurveyr.github.io/metasurvey/reference/api_get_workflow_stars.md)
+  : Get star summary for a workflow
+- [`api_comment_workflow()`](https://metasurveyr.github.io/metasurvey/reference/api_comment_workflow.md)
+  : Add a comment to a workflow
+- [`api_get_workflow_comments()`](https://metasurveyr.github.io/metasurvey/reference/api_get_workflow_comments.md)
+  : Get comments for a workflow
+- [`api_delete_comment()`](https://metasurveyr.github.io/metasurvey/reference/api_delete_comment.md)
+  : Delete a comment
 
 ## ANDA
 

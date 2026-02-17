@@ -468,9 +468,7 @@ cat("Manual:    ", result$stats$manual_review, "\n")
 # Print the generated steps
 for (s in result$steps) cat(s, "\n")
 #> step_rename(svy, hh_id = "id", person_id = "nper") 
-#> step_compute(svy, weight_yr = pesoano) 
-#> step_compute(svy, weight_qt = pesotri) 
-#> step_compute(svy, sex = q01) 
+#> step_compute(svy, weight_yr = pesoano, weight_qt = pesotri, sex = q01) 
 #> step_recode(svy, relationship,
 #>     q05 == 1 ~ "1",
 #>     q05 == 2 ~ "2",
@@ -478,26 +476,9 @@ for (s in result$steps) cat(s, "\n")
 #>     q05 == 6 ~ "4",
 #>     q05 == 7 ~ "5",
 #>     .default = "-9") 
-#> step_compute(svy, area = NA) 
-#> step_compute(svy, area = data.table::fifelse(region == 1, 1, area)) 
-#> step_compute(svy, area = data.table::fifelse(region == 2, 2, area)) 
-#> step_compute(svy, area = data.table::fifelse(region == 3, 3, area)) 
-#> step_compute(svy, edu_compat = q20) 
-#> step_compute(svy, edu_compat = data.table::fifelse(q20 == 2, 2, edu_compat)) 
-#> step_compute(svy, edu_compat = data.table::fifelse(q20 == 3, -9, edu_compat)) 
-#> step_compute(svy, edu_compat = data.table::fifelse(q20 == 4, 3, edu_compat)) 
-#> step_compute(svy, edu_compat = data.table::fifelse(q20 == 5, 4, edu_compat)) 
-#> step_compute(svy, max_age = max(edad, na.rm = TRUE), .by = "hh_id") 
-#> step_compute(svy, n_members = sum(!is.na(person_id)), .by = "hh_id") 
-#> step_compute(svy, contrib1 = 0) 
-#> step_compute(svy, contrib1 = data.table::fifelse(provider == 1, amount, contrib1)) 
-#> step_compute(svy, contrib2 = 0) 
-#> step_compute(svy, contrib2 = data.table::fifelse(provider == 2, amount, contrib2)) 
-#> step_compute(svy, contrib3 = 0) 
-#> step_compute(svy, contrib3 = data.table::fifelse(provider == 3, amount, contrib3)) 
-#> step_compute(svy, contrib1 = data.table::fifelse(is.na(contrib1), 0, contrib1)) 
-#> step_compute(svy, contrib2 = data.table::fifelse(is.na(contrib2), 0, contrib2)) 
-#> step_compute(svy, contrib3 = data.table::fifelse(is.na(contrib3), 0, contrib3)) 
+#> step_compute(svy, area = NA, area = data.table::fifelse(region == 1, 1, area), area = data.table::fifelse(region == 2, 2, area), area = data.table::fifelse(region == 3, 3, area), edu_compat = q20, edu_compat = data.table::fifelse(q20 == 2, 2, edu_compat), edu_compat = data.table::fifelse(q20 == 3, -9, edu_compat), edu_compat = data.table::fifelse(q20 == 4, 3, edu_compat), edu_compat = data.table::fifelse(q20 == 5, 4, edu_compat)) 
+#> step_compute(svy, max_age = max(edad, na.rm = TRUE), n_members = sum(!is.na(person_id)), .by = "hh_id") 
+#> step_compute(svy, contrib1 = 0, contrib1 = data.table::fifelse(provider == 1, amount, contrib1), contrib2 = 0, contrib2 = data.table::fifelse(provider == 2, amount, contrib2), contrib3 = 0, contrib3 = data.table::fifelse(provider == 3, amount, contrib3), contrib1 = data.table::fifelse(is.na(contrib1), 0, contrib1), contrib2 = data.table::fifelse(is.na(contrib2), 0, contrib2), contrib3 = data.table::fifelse(is.na(contrib3), 0, contrib3)) 
 #> step_remove(svy, region, q01, q05, q20)
 ```
 

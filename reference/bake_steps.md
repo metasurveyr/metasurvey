@@ -35,10 +35,12 @@ implantation and all follow-up surveys.
 Other steps:
 [`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md),
 [`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md),
+[`step_filter()`](https://metasurveyr.github.io/metasurvey/reference/step_filter.md),
 [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
 [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
 [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
 [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md),
+[`step_validate()`](https://metasurveyr.github.io/metasurvey/reference/step_validate.md),
 [`view_graph()`](https://metasurveyr.github.io/metasurvey/reference/view_graph.md)
 
 ## Examples

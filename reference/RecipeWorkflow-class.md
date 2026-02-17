@@ -58,7 +58,8 @@ Other workflows:
 [`reproduce_workflow()`](https://metasurveyr.github.io/metasurvey/reference/reproduce_workflow.md),
 [`save_workflow()`](https://metasurveyr.github.io/metasurvey/reference/save_workflow.md),
 [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md),
-[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md)
+[`workflow_from_list()`](https://metasurveyr.github.io/metasurvey/reference/workflow_from_list.md),
+[`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md)
 
 ## Public fields
 

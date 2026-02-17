@@ -15,11 +15,18 @@ The output of
 [`sessionInfo()`](https://rdrr.io/r/utils/sessionInfo.html). - A minimal
 dataset or use `make_test_survey()` from the test helpers.
 
-## Feature requests
+## Feature requests and improvements
 
-Open an issue describing the use case and expected API. If the feature
-relates to a specific survey (ECH, EPH, EAII), include the relevant
-variable names and edition.
+**Use [GitHub
+Discussions](https://github.com/orgs/metasurveyr/discussions)** to
+propose new features, improvements, and ideas. Post in the “Ideas”
+category with a clear description of the problem and your proposed
+solution. If the feature relates to a specific survey (ECH, EPH, EAII),
+include the relevant variable names and edition.
+
+The metasurvey team reviews discussions and decides which ideas get
+prioritized for implementation. Issues are reserved for confirmed bugs —
+the team manages their prioritization.
 
 ## Pull requests
 

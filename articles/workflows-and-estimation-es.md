@@ -383,6 +383,120 @@ for (i in seq_len(nrow(estimates))) {
 #> survey::svymean: high_growth : 12.4 % CV - Good
 ```
 
+## Provenance: Linaje de datos
+
+Cada objeto `Survey` registra metadatos de **provenance**: de donde
+vinieron los datos, que steps se aplicaron, cuantas filas sobrevivieron
+a cada paso y que versiones de R y metasurvey se utilizaron. Esto
+permite rastrear cualquier estimacion hasta los datos originales.
+
+``` r
+# El provenance se completa automaticamente despues de bake_steps()
+prov <- provenance(svy_full)
+prov
+#> ── Data Provenance ─────────────────────────────────────────────────────────────
+#> Loaded: 2026-02-17T05:29:12 
+#> Initial rows: 200 
+#> 
+#> Environment:
+#>   metasurvey: 0.0.19 
+#>   R: 4.5.2 
+#>   survey: 4.4.8
+```
+
+El provenance tambien se adjunta a los resultados de
+[`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md),
+de modo que siempre es posible inspeccionar el linaje completo de una
+estimacion:
+
+``` r
+prov_wf <- provenance(estimates)
+cat("metasurvey version:", prov_wf$environment$metasurvey_version, "\n")
+#> metasurvey version: 0.0.19
+cat("Steps applied:", length(prov_wf$steps), "\n")
+#> Steps applied: 0
+```
+
+Para pistas de auditoria, se exporta el provenance a JSON:
+
+``` r
+provenance_to_json(prov, "audit_trail.json")
+```
+
+Para comparar dos ejecuciones (por ejemplo, diferentes ediciones), se
+utiliza
+[`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md):
+
+``` r
+diff <- provenance_diff(prov_2022, prov_2023)
+diff$steps_changed
+diff$n_final_changed
+```
+
+## Tablas de calidad publicacion
+
+[`workflow_table()`](https://metasurveyr.github.io/metasurvey/reference/workflow_table.md)
+formatea los resultados de estimacion como tablas listas para publicar
+usando el paquete `gt`. Agrega intervalos de confianza, clasificacion de
+calidad del CV con colores y notas al pie basadas en el provenance.
+
+``` r
+workflow_table(estimates)
+```
+
+| Survey Estimation Results                  |          |       |          |          |        |           |
+|--------------------------------------------|----------|-------|----------|----------|--------|-----------|
+| Statistic                                  | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
+| :svymean: api_growth                       | 32.89    | 2.158 | 28.66    | 37.12    | 6.6    | Very good |
+| :svymean: high_growth                      | 0.29     | 0.036 | 0.22     | 0.37     | 12.4   | Good      |
+| metasurvey 0.0.19 \| CI: 95% \| 2026-02-17 |          |       |          |          |        |           |
+
+Se puede personalizar la salida:
+
+``` r
+# Locale en espaniol, ocultar SE, titulo personalizado
+workflow_table(
+  estimates,
+  locale = "es",
+  show_se = FALSE,
+  title = "Indicadores de crecimiento API",
+  subtitle = "Escuelas de California, 2000"
+)
+```
+
+| Indicadores de crecimiento API             |          |          |          |        |           |
+|--------------------------------------------|----------|----------|----------|--------|-----------|
+| Escuelas de California, 2000               |          |          |          |        |           |
+| Statistic                                  | Estimate | CI Lower | CI Upper | CV (%) | Quality   |
+| :svymean: api_growth                       | 32,89    | 28,66    | 37,12    | 6,6    | Very good |
+| :svymean: high_growth                      | 0,29     | 0,22     | 0,37     | 12,4   | Good      |
+| metasurvey 0.0.19 \| CI: 95% \| 2026-02-17 |          |          |          |        |           |
+
+Para estimaciones por dominio, la tabla detecta automaticamente las
+columnas de grupo:
+
+``` r
+workflow_table(by_school)
+```
+
+| Survey Estimation Results                  |       |          |        |          |          |        |           |
+|--------------------------------------------|-------|----------|--------|----------|----------|--------|-----------|
+| Statistic                                  | stype | Estimate | SE     | CI Lower | CI Upper | CV (%) | Quality   |
+| :svyby: api00                              | E     | 674.43   | 12.493 | 649.94   | 698.92   | 1.9    | Excellent |
+| :svyby: api00                              | H     | 625.82   | 15.341 | 595.75   | 655.89   | 2.5    | Excellent |
+| :svyby: api00                              | M     | 636.60   | 16.502 | 604.26   | 668.94   | 2.6    | Excellent |
+| metasurvey 0.0.19 \| CI: 95% \| 2026-02-17 |       |          |        |          |          |        |           |
+
+Se exporta a cualquier formato soportado por
+[`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html):
+
+``` r
+tbl <- workflow_table(estimates)
+gt::gtsave(tbl, "estimates.html")
+gt::gtsave(tbl, "estimates.docx")
+gt::gtsave(tbl, "estimates.png")
+```
+
 ## Proximos pasos
 
 - **[Creacion y publicacion de

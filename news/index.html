@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.17</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,9 +41,49 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.17/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.19" id="metasurvey-0019">metasurvey 0.0.19<a class="anchor" aria-label="anchor" href="#metasurvey-0019"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-0-19">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-19"></a></h3>
+<ul><li>
+<code><a href="../reference/step_filter.html">step_filter()</a></code>: new step type for row-level filtering within the pipeline. Multiple conditions are AND-combined. Supports <code>.by</code> for within-group filtering, lazy evaluation, and RotativePanelSurvey dispatch.</li>
+<li>
+<code><a href="../reference/provenance.html">provenance()</a></code>: lightweight data lineage tracking. Surveys now record source file, load timestamp, initial row count, and per-step history (type, N before/after, duration). Workflow results carry provenance as an attribute. Includes <code><a href="../reference/provenance_to_json.html">provenance_to_json()</a></code> for audit trails and <code><a href="../reference/provenance_diff.html">provenance_diff()</a></code> for cross-edition comparison.</li>
+<li>
+<code><a href="../reference/workflow_table.html">workflow_table()</a></code>: publication-quality formatted tables from <code><a href="../reference/workflow.html">workflow()</a></code> results using <code>gt</code>. Features confidence intervals, CV quality classification with color coding, <code>compare_by</code> for side-by-side edition comparison, locale-aware formatting (“en”/“es”), and provenance-based source notes. Falls back to <code><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">knitr::kable()</a></code> if <code>gt</code> is not installed.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-19">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-19"></a></h3>
+<ul><li>Fixed stars and comments not persisting to MongoDB: the plumber API star/comment endpoints used <code>if (!is.null(auth_err))</code> to check authentication, but <code>require_auth()</code> always returns non-NULL (user object on success, error list on failure). The endpoints returned the JWT payload immediately without ever reaching the database write. Fixed all 5 affected endpoints (recipe star, recipe comment, workflow star, workflow comment, delete comment) and added <code>result$ok</code> checks in Shiny modules so errors are reported instead of silently swallowed.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="dependencies-0-0-19">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-0-19"></a></h3>
+<ul><li>Added <code>gt</code> (&gt;= 0.10.0) to Suggests.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.18" id="metasurvey-0018">metasurvey 0.0.18<a class="anchor" aria-label="anchor" href="#metasurvey-0018"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-0-18">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-18"></a></h3>
+<ul><li>
+<code><a href="../reference/step_validate.html">step_validate()</a></code>: declarative data validation step that checks invariants without mutating data. Supports row-level logical expressions, named checks, <code>.min_n</code>, and <code>.action = "stop"</code> or <code>"warn"</code>.</li>
+<li>Stars and comments API: users can rate (1-5) and comment on recipes and workflows. New R functions: <code><a href="../reference/api_star_recipe.html">api_star_recipe()</a></code>, <code><a href="../reference/api_get_recipe_stars.html">api_get_recipe_stars()</a></code>, <code><a href="../reference/api_comment_recipe.html">api_comment_recipe()</a></code>, <code><a href="../reference/api_get_recipe_comments.html">api_get_recipe_comments()</a></code>, <code><a href="../reference/api_delete_comment.html">api_delete_comment()</a></code>, <code><a href="../reference/api_get_recipe_dependents.html">api_get_recipe_dependents()</a></code>, and workflow equivalents.</li>
+<li>Backlinks: <code>GET /recipes/:id/dependents</code> returns recipes that depend on a given recipe via <code>depends_on_recipes</code>.</li>
+<li>Shiny app: star rating widget, comment section, and dependents panel in recipe and workflow detail modals.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-0-0-18">Performance<a class="anchor" aria-label="anchor" href="#performance-0-0-18"></a></h3>
+<ul><li>
+<code>optimize_steps()</code> now collapses consecutive independent <code><a href="../reference/step_compute.html">step_compute()</a></code> calls into single calls with dependency analysis, reducing transpiled step counts.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-18">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-18"></a></h3>
+<ul><li>Fixed DHS vignette chunk failing when external URL is unreachable.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.17" id="metasurvey-0017">metasurvey 0.0.17<a class="anchor" aria-label="anchor" href="#metasurvey-0017"></a></h2>
 <div class="section level3">

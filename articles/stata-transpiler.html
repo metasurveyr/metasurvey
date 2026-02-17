@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.17</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Transpiling STATA do-files to metasurvey Recipes</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.17/vignettes/stata-transpiler.Rmd" class="external-link"><code>vignettes/stata-transpiler.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/stata-transpiler.Rmd" class="external-link"><code>vignettes/stata-transpiler.Rmd</code></a></small>
       <div class="d-none name"><code>stata-transpiler.Rmd</code></div>
     </div>
 
@@ -575,9 +575,7 @@ pipelines.</p>
 <code class="sourceCode R"><span><span class="co"># Print the generated steps</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">s</span> <span class="kw">in</span> <span class="va">result</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">s</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; step_rename(svy, hh_id = "id", person_id = "nper") </span></span>
-<span><span class="co">#&gt; step_compute(svy, weight_yr = pesoano) </span></span>
-<span><span class="co">#&gt; step_compute(svy, weight_qt = pesotri) </span></span>
-<span><span class="co">#&gt; step_compute(svy, sex = q01) </span></span>
+<span><span class="co">#&gt; step_compute(svy, weight_yr = pesoano, weight_qt = pesotri, sex = q01) </span></span>
 <span><span class="co">#&gt; step_recode(svy, relationship,</span></span>
 <span><span class="co">#&gt;     q05 == 1 ~ "1",</span></span>
 <span><span class="co">#&gt;     q05 == 2 ~ "2",</span></span>
@@ -585,26 +583,9 @@ pipelines.</p>
 <span><span class="co">#&gt;     q05 == 6 ~ "4",</span></span>
 <span><span class="co">#&gt;     q05 == 7 ~ "5",</span></span>
 <span><span class="co">#&gt;     .default = "-9") </span></span>
-<span><span class="co">#&gt; step_compute(svy, area = NA) </span></span>
-<span><span class="co">#&gt; step_compute(svy, area = data.table::fifelse(region == 1, 1, area)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, area = data.table::fifelse(region == 2, 2, area)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, area = data.table::fifelse(region == 3, 3, area)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, edu_compat = q20) </span></span>
-<span><span class="co">#&gt; step_compute(svy, edu_compat = data.table::fifelse(q20 == 2, 2, edu_compat)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, edu_compat = data.table::fifelse(q20 == 3, -9, edu_compat)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, edu_compat = data.table::fifelse(q20 == 4, 3, edu_compat)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, edu_compat = data.table::fifelse(q20 == 5, 4, edu_compat)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, max_age = max(edad, na.rm = TRUE), .by = "hh_id") </span></span>
-<span><span class="co">#&gt; step_compute(svy, n_members = sum(!is.na(person_id)), .by = "hh_id") </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib1 = 0) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib1 = data.table::fifelse(provider == 1, amount, contrib1)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib2 = 0) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib2 = data.table::fifelse(provider == 2, amount, contrib2)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib3 = 0) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib3 = data.table::fifelse(provider == 3, amount, contrib3)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib1 = data.table::fifelse(is.na(contrib1), 0, contrib1)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib2 = data.table::fifelse(is.na(contrib2), 0, contrib2)) </span></span>
-<span><span class="co">#&gt; step_compute(svy, contrib3 = data.table::fifelse(is.na(contrib3), 0, contrib3)) </span></span>
+<span><span class="co">#&gt; step_compute(svy, area = NA, area = data.table::fifelse(region == 1, 1, area), area = data.table::fifelse(region == 2, 2, area), area = data.table::fifelse(region == 3, 3, area), edu_compat = q20, edu_compat = data.table::fifelse(q20 == 2, 2, edu_compat), edu_compat = data.table::fifelse(q20 == 3, -9, edu_compat), edu_compat = data.table::fifelse(q20 == 4, 3, edu_compat), edu_compat = data.table::fifelse(q20 == 5, 4, edu_compat)) </span></span>
+<span><span class="co">#&gt; step_compute(svy, max_age = max(edad, na.rm = TRUE), n_members = sum(!is.na(person_id)), .by = "hh_id") </span></span>
+<span><span class="co">#&gt; step_compute(svy, contrib1 = 0, contrib1 = data.table::fifelse(provider == 1, amount, contrib1), contrib2 = 0, contrib2 = data.table::fifelse(provider == 2, amount, contrib2), contrib3 = 0, contrib3 = data.table::fifelse(provider == 3, amount, contrib3), contrib1 = data.table::fifelse(is.na(contrib1), 0, contrib1), contrib2 = data.table::fifelse(is.na(contrib2), 0, contrib2), contrib3 = data.table::fifelse(is.na(contrib3), 0, contrib3)) </span></span>
 <span><span class="co">#&gt; step_remove(svy, region, q01, q05, q20)</span></span></code></pre></div>
 </div>
 <div class="section level3">

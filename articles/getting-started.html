@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.17</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Getting Started with metasurvey</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.17/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="d-none name"><code>getting-started.Rmd</code></div>
     </div>
 
@@ -110,7 +110,7 @@ API where other researchers can discover and reuse them</li>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Steps</strong> – individual transformations (compute,
-recode, rename, remove, join)</li>
+recode, filter, rename, remove, join, validate)</li>
 <li>
 <strong>Recipes</strong> – reusable collections of steps bundled
 with metadata</li>
@@ -278,16 +278,29 @@ the first match applies.</p>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="filtering-rows">Filtering rows<a class="anchor" aria-label="anchor" href="#filtering-rows"></a>
+</h3>
+<p>Use <code><a href="../reference/step_filter.html">step_filter()</a></code> to subset rows based on logical
+conditions. Multiple conditions are combined with AND. Like other steps,
+filters are lazy by default.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Keep only working-age individuals (14+)</span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_filter.html">step_filter</a></span><span class="op">(</span><span class="va">svy</span>,</span>
+<span>  <span class="va">e27</span> <span class="op">&gt;=</span> <span class="fl">14</span>,</span>
+<span>  comment <span class="op">=</span> <span class="st">"Working-age population only"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="renaming-and-removing-variables">Renaming and removing variables<a class="anchor" aria-label="anchor" href="#renaming-and-removing-variables"></a>
 </h3>
 <p>Rename variables for clarity or consistency:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_rename.html">step_rename</a></span><span class="op">(</span><span class="va">svy</span>,</span>
 <span>  age <span class="op">=</span> <span class="va">e27</span>, <span class="co"># Rename e27 to age</span></span>
 <span>  sex_code <span class="op">=</span> <span class="va">e26</span> <span class="co"># Keep original as sex_code</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Remove variables that are no longer needed:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Remove intermediate calculations</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_remove.html">step_remove</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">working_age</span>, <span class="va">mean_income_dept</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -304,7 +317,7 @@ This is useful for adding:</p>
 <p>Note that real ECH microdata already includes <code>nom_dpto</code>
 and <code>region</code>. Here we demonstrate a join with a poverty-line
 lookup as an example:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Poverty lines by region (illustrative values in UYU, 2023)</span></span>
 <span><span class="va">poverty_lines</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  region <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
@@ -328,24 +341,24 @@ lookup as an example:</p>
 </h3>
 <p>Call <code><a href="../reference/bake_steps.html">bake_steps()</a></code> to execute all pending
 transformations:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    region  dpto    ID  nper  anio   mes   nom_dpto sex_code   age   e30 e51_2</span></span>
 <span><span class="co">#&gt;     &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;     &lt;char&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1:      1     1 34561     1  2023     1 Montevideo        2    26     1     6</span></span>
 <span><span class="co">#&gt; 2:      1     1 34561     2  2023     1 Montevideo        2    45     7     6</span></span>
-<span><span class="co">#&gt; 3:      1     1 34561     3  2023     1 Montevideo        2     7     4     1</span></span>
-<span><span class="co">#&gt;    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO ht11_thousands employed</span></span>
-<span><span class="co">#&gt;       &lt;int&gt;     &lt;int&gt;   &lt;num&gt;   &lt;int&gt; &lt;int&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        2         0 55429.6       0    57        55.4296        1</span></span>
-<span><span class="co">#&gt; 2:        4         0 55429.6       0    57        55.4296        0</span></span>
-<span><span class="co">#&gt; 3:        1         0 55429.6       0    57        55.4296        0</span></span>
+<span><span class="co">#&gt; 3:      1     1 34678     1  2023     1 Montevideo        1    48     1     6</span></span>
+<span><span class="co">#&gt;    POBPCOAC SUBEMPLEO     HT11 pobre06 W_ANO ht11_thousands employed</span></span>
+<span><span class="co">#&gt;       &lt;int&gt;     &lt;int&gt;    &lt;num&gt;   &lt;int&gt; &lt;int&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        2         0  55429.6       0    57        55.4296        1</span></span>
+<span><span class="co">#&gt; 2:        4         0  55429.6       0    57        55.4296        0</span></span>
+<span><span class="co">#&gt; 3:        2         0 152958.8       0    54       152.9588        1</span></span>
 <span><span class="co">#&gt;    labor_status      age_group gender poverty_line region_name poverty_line.y</span></span>
 <span><span class="co">#&gt;          &lt;char&gt;         &lt;fctr&gt; &lt;char&gt;        &lt;num&gt;      &lt;char&gt;          &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:     Employed Mature (45-64) Female        19000  Montevideo          19000</span></span>
 <span><span class="co">#&gt; 2:   Unemployed Mature (45-64) Female        19000  Montevideo          19000</span></span>
-<span><span class="co">#&gt; 3:         &lt;NA&gt; Mature (45-64) Female        19000  Montevideo          19000</span></span>
+<span><span class="co">#&gt; 3:     Employed Mature (45-64)   Male        19000  Montevideo          19000</span></span>
 <span><span class="co">#&gt;    region_name.y</span></span>
 <span><span class="co">#&gt;           &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1:    Montevideo</span></span>
@@ -353,10 +366,10 @@ transformations:</p>
 <span><span class="co">#&gt; 3:    Montevideo</span></span></code></pre></div>
 <p>The step history is preserved for documentation and
 reproducibility:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">steps</span><span class="op">)</span> <span class="co"># Number of transformation steps</span></span>
-<span><span class="co">#&gt; [1] 8</span></span>
+<span><span class="co">#&gt; [1] 9</span></span>
 <span></span>
 <span><span class="co"># View step details</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Step 1:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span></span>
@@ -369,10 +382,10 @@ reproducibility:</p>
 </h3>
 <p>You can visualize the transformation pipeline as a directed
 graph:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/view_graph.html">view_graph</a></span><span class="op">(</span><span class="va">svy</span>, init_step <span class="op">=</span> <span class="st">"Load ECH 2023"</span><span class="op">)</span></span></code></pre></div>
 <div id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:600px;" class="visNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":[1,2,3,4,5,6,7,8,9,10],"label":["Load ECH 2023","step_1 Compute: ht11_thousands, employed, working_age","step_2 Compute: mean_income_dept","step_3 Recode: labor_status","step_4 Recode: age_group","step_5 Recode: gender","step_6 Rename: age=e27, sex_code=e26","step_7 Remove: working_age, mean_income_dept","step_8 Join (left): region","Data: poverty_lines"],"title":["Load ECH 2023","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Basic labor force indicators<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(ht11_thousands = HT11/1000, employed = ifelse(POBPCOAC == 2, 1, 0), working_age = ifelse(e27 &gt;= 14, 1, 0))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Department-level income averages<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mean_income_dept = mean(HT11, na.rm = TRUE))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Labor force status - ILO standard<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>labor_status: list(POBPCOAC == 2 ~ \"Employed\", POBPCOAC %in% 3:5 ~ \"Unemployed\", POBPCOAC %in% 6:10 ~ \"Inactive\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Age groups for labor analysis<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>age_group: list(e27 &lt; 25 ~ \"Youth (14-24)\", e27 &lt; 45 ~ \"Adult (25-44)\", e27 &lt; 65 ~ \"Mature (45-64)\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Gender classification<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>gender: list(e26 == 1 ~ \"Male\", e26 == 2 ~ \"Female\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Rename variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mapping = c(age = \"e27\", sex_code = \"e26\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Remove variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(vars = c(\"working_age\", \"mean_income_dept\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Add poverty lines by region<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(x = structure(list(region = 1:3, poverty_line = c(19000, 12500, 11000), region_name = c(\"Montevideo\", \"Interior loc. &gt;= 5000\", \"Interior loc. &lt; 5000\")), row.names = c(NA, -3L), class = c(\"data.table\", \"data.frame\"), .internal.selfref = &lt;pointer: 0x5649a13acee0&gt;), by = \"region\", type = \"left\", suffixes = c(\"\", \".y\"))<\/div><\/div>","<div style='font-family: system-ui, sans-serif; padding: 10px 14px;'><div style='font-weight: 700; color: #2C3E50;'>External data.frame<\/div><div style='font-size: 12px; color: #6c757d; margin-top: 4px;'>poverty_lines<\/div><\/div>"],"group":["Load survey","compute","compute","recode","recode","recode","step_rename","step_remove","step_join","dataframe"]},"edges":{"from":[1,2,3,4,5,6,7,8,10],"to":[2,3,4,5,6,7,8,9,9]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"groups":{"Load survey":{"shape":"icon","icon":{"code":"f1c0","size":60,"color":"#2C3E50"},"font":{"size":16,"color":"#2C3E50","face":"bold","multi":true},"shadow":{"enabled":true,"size":8,"x":2,"y":2,"color":"rgba(44,62,80,.15)"}},"compute":{"shape":"icon","icon":{"code":"f1ec","size":50,"color":"#3498db"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(52,152,219,.2)"}},"recode":{"shape":"icon","icon":{"code":"f0e8","size":50,"color":"#9b59b6"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(155,89,182,.2)"}},"step_join":{"shape":"icon","icon":{"code":"f0c1","size":50,"color":"#1abc9c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(26,188,156,.2)"}},"step_remove":{"shape":"icon","icon":{"code":"f1f8","size":50,"color":"#e74c3c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(231,76,60,.2)"}},"step_rename":{"shape":"icon","icon":{"code":"f044","size":50,"color":"#e67e22"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(230,126,34,.2)"}},"useDefaultGroups":true,"dataframe":{"shape":"icon","icon":{"code":"f0ce","size":50,"color":"#95a5a6"},"font":{"size":14,"color":"#2c3e50"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(149,165,166,.2)"}}},"edges":{"width":2,"arrows":{"to":{"enabled":true,"scaleFactor":0.7,"type":"arrow"}},"color":{"color":"#bdc3c7","highlight":"#3498db","hover":"#3498db"},"smooth":{"enabled":true,"type":"curvedCW","roundness":0.1}},"layout":{"hierarchical":{"enabled":true,"levelSeparation":220,"nodeSpacing":140,"direction":"LR","sortMethod":"directed"}},"interaction":{"keyboard":true,"navigationButtons":true,"tooltipDelay":100,"hover":true,"zoomSpeed":1},"clickToUse":false},"groups":["Load survey","compute","recode","step_rename","step_remove","step_join","dataframe"],"width":"100%","height":"600px","idselection":{"enabled":true,"style":"font-family: system-ui, sans-serif; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid #dee2e6; background: #fff; color: #2C3E50;","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"#f8f9fa","iconsRedraw":true,"tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);","highlight":{"enabled":true,"hoverNearest":true,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.15,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":false,"main":{"text":"Step types","style":"font-family: system-ui, sans-serif; font-weight: 700; font-size: 14px; color: #2C3E50;"}}},"evals":[],"jsHooks":[]}</script><p>This produces an interactive graph showing:</p>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":[1,2,3,4,5,6,7,8,9,10,11],"label":["Load ECH 2023","step_1 Compute: ht11_thousands, employed, working_age","step_2 Compute: mean_income_dept","step_3 Recode: labor_status","step_4 Recode: age_group","step_5 Recode: gender","step_6 Filter: e27 >= 14","step_7 Rename: age=e27, sex_code=e26","step_8 Remove: working_age, mean_income_dept","step_9 Join (left): region","Data: poverty_lines"],"title":["Load ECH 2023","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Basic labor force indicators<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(ht11_thousands = HT11/1000, employed = ifelse(POBPCOAC == 2, 1, 0), working_age = ifelse(e27 &gt;= 14, 1, 0))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Department-level income averages<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mean_income_dept = mean(HT11, na.rm = TRUE))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Labor force status - ILO standard<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>labor_status: list(POBPCOAC == 2 ~ \"Employed\", POBPCOAC %in% 3:5 ~ \"Unemployed\", POBPCOAC %in% 6:10 ~ \"Inactive\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Age groups for labor analysis<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>age_group: list(e27 &lt; 25 ~ \"Youth (14-24)\", e27 &lt; 45 ~ \"Adult (25-44)\", e27 &lt; 65 ~ \"Mature (45-64)\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Gender classification<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>gender: list(e26 == 1 ~ \"Male\", e26 == 2 ~ \"Female\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Working-age population only<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(e27 &gt;= 14)<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Rename variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mapping = c(age = \"e27\", sex_code = \"e26\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Remove variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(vars = c(\"working_age\", \"mean_income_dept\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Add poverty lines by region<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(x = structure(list(region = 1:3, poverty_line = c(19000, 12500, 11000), region_name = c(\"Montevideo\", \"Interior loc. &gt;= 5000\", \"Interior loc. &lt; 5000\")), row.names = c(NA, -3L), class = c(\"data.table\", \"data.frame\"), .internal.selfref = &lt;pointer: 0x56248cbf9ee0&gt;), by = \"region\", type = \"left\", suffixes = c(\"\", \".y\"))<\/div><\/div>","<div style='font-family: system-ui, sans-serif; padding: 10px 14px;'><div style='font-weight: 700; color: #2C3E50;'>External data.frame<\/div><div style='font-size: 12px; color: #6c757d; margin-top: 4px;'>poverty_lines<\/div><\/div>"],"group":["Load survey","compute","compute","recode","recode","recode","filter","step_rename","step_remove","step_join","dataframe"]},"edges":{"from":[1,2,3,4,5,6,7,8,9,11],"to":[2,3,4,5,6,7,8,9,10,10]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"groups":{"Load survey":{"shape":"icon","icon":{"code":"f1c0","size":60,"color":"#2C3E50"},"font":{"size":16,"color":"#2C3E50","face":"bold","multi":true},"shadow":{"enabled":true,"size":8,"x":2,"y":2,"color":"rgba(44,62,80,.15)"}},"compute":{"shape":"icon","icon":{"code":"f1ec","size":50,"color":"#3498db"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(52,152,219,.2)"}},"recode":{"shape":"icon","icon":{"code":"f0e8","size":50,"color":"#9b59b6"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(155,89,182,.2)"}},"step_join":{"shape":"icon","icon":{"code":"f0c1","size":50,"color":"#1abc9c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(26,188,156,.2)"}},"step_remove":{"shape":"icon","icon":{"code":"f1f8","size":50,"color":"#e74c3c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(231,76,60,.2)"}},"step_rename":{"shape":"icon","icon":{"code":"f044","size":50,"color":"#e67e22"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(230,126,34,.2)"}},"validate":{"shape":"icon","icon":{"code":"f058","size":50,"color":"#27ae60"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(39,174,96,.2)"}},"useDefaultGroups":true,"dataframe":{"shape":"icon","icon":{"code":"f0ce","size":50,"color":"#95a5a6"},"font":{"size":14,"color":"#2c3e50"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(149,165,166,.2)"}}},"edges":{"width":2,"arrows":{"to":{"enabled":true,"scaleFactor":0.7,"type":"arrow"}},"color":{"color":"#bdc3c7","highlight":"#3498db","hover":"#3498db"},"smooth":{"enabled":true,"type":"curvedCW","roundness":0.1}},"layout":{"hierarchical":{"enabled":true,"levelSeparation":220,"nodeSpacing":140,"direction":"LR","sortMethod":"directed"}},"interaction":{"keyboard":true,"navigationButtons":true,"tooltipDelay":100,"hover":true,"zoomSpeed":1},"clickToUse":false},"groups":["Load survey","compute","recode","filter","step_rename","step_remove","step_join","dataframe"],"width":"100%","height":"600px","idselection":{"enabled":true,"style":"font-family: system-ui, sans-serif; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid #dee2e6; background: #fff; color: #2C3E50;","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"#f8f9fa","iconsRedraw":true,"tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);","highlight":{"enabled":true,"hoverNearest":true,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.15,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":false,"main":{"text":"Step types","style":"font-family: system-ui, sans-serif; font-weight: 700; font-size: 14px; color: #2C3E50;"}}},"evals":[],"jsHooks":[]}</script><p>This produces an interactive graph showing:</p>
 <ul>
 <li>Data sources and joins</li>
 <li>Transformation steps</li>
@@ -393,7 +406,7 @@ with standard errors and coefficients of variation.</p>
 <div class="section level3">
 <h3 id="basic-estimates">Basic estimates<a class="anchor" aria-label="anchor" href="#basic-estimates"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate mean household income</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
@@ -404,10 +417,10 @@ with standard errors and coefficients of variation.</p>
 <span><span class="va">result</span></span>
 <span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
 <span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11 110389.3 4076.154 0.03692528      102400.1</span></span>
 <span><span class="co">#&gt;    confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      118378.4</span></span></code></pre></div>
 <p>The output includes:</p>
 <ul>
 <li>
@@ -426,7 +439,7 @@ with standard errors and coefficients of variation.</p>
 <h3 id="multiple-estimates">Multiple estimates<a class="anchor" aria-label="anchor" href="#multiple-estimates"></a>
 </h3>
 <p>You can compute several statistics in a single call:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -438,25 +451,25 @@ with standard errors and coefficients of variation.</p>
 <span><span class="va">results</span></span>
 <span><span class="co">#&gt;                                       stat        value           se         cv</span></span>
 <span><span class="co">#&gt;                                     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:                   survey::svymean: HT11 1.078691e+05 3.473836e+03 0.03220417</span></span>
-<span><span class="co">#&gt; 2:              survey::svytotal: employed 1.426200e+04 7.557046e+02 0.05298728</span></span>
-<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.609582e-02 0.04700614</span></span>
-<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551231e-02 0.06608301</span></span>
-<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.308848e-02 0.22267760</span></span>
+<span><span class="co">#&gt; 1:                   survey::svymean: HT11 1.103893e+05 4.076154e+03 0.03692528</span></span>
+<span><span class="co">#&gt; 2:              survey::svytotal: employed 1.426200e+04 6.756206e+02 0.04737208</span></span>
+<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.610113e-02 0.04701571</span></span>
+<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551750e-02 0.06609646</span></span>
+<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.309115e-02 0.22272291</span></span>
 <span><span class="co">#&gt;    confint_lower confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  1.010605e+05  1.146777e+05</span></span>
-<span><span class="co">#&gt; 2:  1.278085e+04  1.574315e+04</span></span>
-<span><span class="co">#&gt; 3:  5.040108e-01  6.063045e-01</span></span>
-<span><span class="co">#&gt; 4:  3.360614e-01  4.360678e-01</span></span>
-<span><span class="co">#&gt; 5:  3.312478e-02  8.443069e-02</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  1.024001e+05  1.183784e+05</span></span>
+<span><span class="co">#&gt; 2:  1.293781e+04  1.558619e+04</span></span>
+<span><span class="co">#&gt; 3:  5.040004e-01  6.063149e-01</span></span>
+<span><span class="co">#&gt; 4:  3.360512e-01  4.360780e-01</span></span>
+<span><span class="co">#&gt; 5:  3.311956e-02  8.443591e-02</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="domain-estimation">Domain estimation<a class="anchor" aria-label="anchor" href="#domain-estimation"></a>
 </h3>
 <p>Compute estimates for subpopulations using
 <code><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">survey::svyby()</a></code>:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean income by gender</span></span>
 <span><span class="va">income_by_gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
@@ -467,12 +480,12 @@ with standard errors and coefficients of variation.</p>
 <span><span class="va">income_by_gender</span></span>
 <span><span class="co">#&gt;                                   stat    value       se         cv</span></span>
 <span><span class="co">#&gt;                                 &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: HT11 [gender=Female] 108403.8 5008.205 0.04619954</span></span>
-<span><span class="co">#&gt; 2:   survey::svyby: HT11 [gender=Male] 107283.9 4783.662 0.04458883</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: HT11 [gender=Female] 111107.9 5955.676 0.05360263</span></span>
+<span><span class="co">#&gt; 2:   survey::svyby: HT11 [gender=Male] 109608.9 5519.291 0.05035439</span></span>
 <span><span class="co">#&gt;    confint_lower confint_upper gender</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:      98587.87      118219.7 Female</span></span>
-<span><span class="co">#&gt; 2:      97908.07      116659.7   Male</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      99434.99      122780.8 Female</span></span>
+<span><span class="co">#&gt; 2:      98791.31      120426.5   Male</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -527,13 +540,13 @@ Following the INE Uruguay guidelines <span class="citation">(<a href="#ref-ine20
 </tbody>
 </table>
 <p>Use <code><a href="../reference/evaluate_cv.html">evaluate_cv()</a></code> to classify estimate quality:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check quality of mean income estimate</span></span>
 <span><span class="va">cv_percentage</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">cv</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span><span class="va">quality</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluate_cv.html">evaluate_cv</a></span><span class="op">(</span><span class="va">cv_percentage</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"CV:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cv_percentage</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; CV: 3.22 %</span></span>
+<span><span class="co">#&gt; CV: 3.69 %</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Quality:"</span>, <span class="va">quality</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Quality: Excellent</span></span></code></pre></div>
 <p>For official statistics, always report:</p>
@@ -562,7 +575,7 @@ can be:</p>
 <h3 id="creating-a-recipe">Creating a Recipe<a class="anchor" aria-label="anchor" href="#creating-a-recipe"></a>
 </h3>
 <p>Create a recipe from the steps you have developed:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert current steps to a recipe</span></span>
 <span><span class="va">labor_recipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steps_to_recipe.html">steps_to_recipe</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"ECH Labor Force Indicators"</span>,</span>
@@ -581,7 +594,7 @@ can be:</p>
 <span><span class="va">labor_recipe</span><span class="op">$</span><span class="va">name</span></span>
 <span><span class="co">#&gt; [1] "ECH Labor Force Indicators"</span></span></code></pre></div>
 <p>Or you can define a recipe from scratch:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">minimal_recipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recipe.html">recipe</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Basic Demographics - ECH"</span>,</span>
 <span>  user <span class="op">=</span> <span class="st">"analyst"</span>,</span>
@@ -609,7 +622,7 @@ can be:</p>
 </h3>
 <p>Once published, anyone can retrieve a recipe by ID and apply it to
 their data:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get a recipe by ID from the API (requires server)</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_get_recipe.html">api_get_recipe</a></span><span class="op">(</span><span class="st">"ech_labor_001"</span><span class="op">)</span></span>
 <span></span>
@@ -621,7 +634,7 @@ their data:</p>
 <h3 id="recipe-documentation">Recipe documentation<a class="anchor" aria-label="anchor" href="#recipe-documentation"></a>
 </h3>
 <p>Recipes automatically document their transformations:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="va">labor_recipe</span><span class="op">$</span><span class="fu">doc</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">doc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "meta"             "input_variables"  "output_variables" "pipeline"</span></span>
@@ -641,7 +654,7 @@ their data:</p>
 </h2>
 <p>metasurvey provides global settings that can be adjusted to suit your
 workflow:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check current lazy-processing setting</span></span>
 <span><span class="fu"><a href="../reference/lazy_default.html">lazy_default</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># TRUE = steps recorded but not executed immediately</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -654,7 +667,7 @@ workflow:</p>
 <span><span class="fu"><a href="../reference/show_engines.html">show_engines</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># "data.table", "dplyr", etc.</span></span>
 <span><span class="co">#&gt; [1] "data.table" "tidyverse"  "dplyr"</span></span></code></pre></div>
 <p>You can modify settings for the current session:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Disable lazy evaluation (execute steps immediately)</span></span>
 <span><span class="fu"><a href="../reference/set_lazy_processing.html">set_lazy_processing</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -673,7 +686,7 @@ the community of researchers working with surveys. If you have built a
 useful processing pipeline, you can publish it so that others can find
 and reuse it. The package connects to a public API where recipes and
 workflows are stored:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Browse existing recipes (requires API server)</span></span>
 <span><span class="va">ech_recipes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_list_recipes.html">api_list_recipes</a></span><span class="op">(</span>survey_type <span class="op">=</span> <span class="st">"ech"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ech_recipes</span><span class="op">)</span></span>

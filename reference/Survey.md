@@ -154,6 +154,11 @@ Other survey-objects:
 
   Logical flag for lazy design initialization.
 
+- `provenance`:
+
+  Data lineage metadata (see
+  [`provenance()`](https://metasurveyr.github.io/metasurvey/reference/provenance.md)).
+
 ## Active bindings
 
 - `design_active`:
