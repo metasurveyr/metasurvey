@@ -188,6 +188,7 @@ articles:
   contents:
   - shiny-explorer
   - api-database
+  - self-hosting
 - title: "STATA Transpiler"
   desc: "Convert STATA do-files to metasurvey recipes"
   contents:
@@ -212,3 +213,4 @@ articles:
   - stata-transpiler-es
   - ech-demographics-recipe-es
   - international-surveys-es
+  - self-hosting-es
