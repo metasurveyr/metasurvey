@@ -15,6 +15,16 @@
   locale-aware formatting ("en"/"es"), and provenance-based source notes.
   Falls back to `knitr::kable()` if `gt` is not installed.
 
+## Bug fixes
+* Fixed stars and comments not persisting to MongoDB: the plumber API
+  star/comment endpoints used `if (!is.null(auth_err))` to check
+  authentication, but `require_auth()` always returns non-NULL (user
+  object on success, error list on failure). The endpoints returned the
+  JWT payload immediately without ever reaching the database write.
+  Fixed all 5 affected endpoints (recipe star, recipe comment, workflow
+  star, workflow comment, delete comment) and added `result$ok` checks
+  in Shiny modules so errors are reported instead of silently swallowed.
+
 ## Dependencies
 * Added `gt` (>= 0.10.0) to Suggests.
 
