@@ -203,18 +203,22 @@ Recipe <- R6Class("Recipe",
         data_source = self$data_source,
         categories = lapply(self$categories, function(c) c$to_list()),
         certification = self$certification$to_list(),
-        user_info = if (!is.null(self$user_info))
-          self$user_info$to_list() else NULL,
+        user_info = if (!is.null(self$user_info)) {
+          self$user_info$to_list()
+        } else {
+          NULL
+        },
         doc = list(
           input_variables = doc_info$input_variables,
           output_variables = doc_info$output_variables,
           pipeline = doc_info$pipeline
         ),
         steps = unname(lapply(self$steps, function(s) {
-          if (is.character(s))
+          if (is.character(s)) {
             paste(s, collapse = " ")
-          else
+          } else {
             paste(deparse(s), collapse = " ")
+          }
         })),
         labels = self$labels,
         metasurvey_version = as.character(utils::packageVersion("metasurvey"))
@@ -236,8 +240,11 @@ Recipe <- R6Class("Recipe",
         topic = self$topic,
         doi = self$doi,
         id = self$id,
-        categories = if (length(cat_names) > 0)
-          paste(cat_names, collapse = ", ") else NULL,
+        categories = if (length(cat_names) > 0) {
+          paste(cat_names, collapse = ", ")
+        } else {
+          NULL
+        },
         certification = self$certification$level,
         version = self$version,
         downloads = self$downloads
@@ -312,10 +319,10 @@ Recipe <- R6Class("Recipe",
           meta = meta,
           input_variables =
             private$.cached_doc$input_variables %||%
-            character(0),
+              character(0),
           output_variables =
             private$.cached_doc$output_variables %||%
-            character(0),
+              character(0),
           pipeline = private$.cached_doc$pipeline %||% list()
         ))
       }
@@ -421,16 +428,22 @@ metadata_recipe <- function() {
 #' \donttest{
 #' # Recipe with steps using local data
 #' library(data.table)
-#' dt <- data.table(id = 1:50, age = sample(18:65, 50, TRUE),
-#'                  income = runif(50, 1000, 5000), w = runif(50, 0.5, 2))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-#'                   psu = NULL, engine = "data.table",
-#'                   weight = add_weight(annual = "w"))
+#' dt <- data.table(
+#'   id = 1:50, age = sample(18:65, 50, TRUE),
+#'   income = runif(50, 1000, 5000), w = runif(50, 0.5, 2)
+#' )
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "demo",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
 #' svy <- svy |>
 #'   step_compute(income_cat = ifelse(income > 3000, "high", "low")) |>
 #'   step_recode(age_group, age < 30 ~ "young", .default = "adult")
-#' r2 <- recipe(name = "Demo", user = "test", svy = svy,
-#'             description = "Demo recipe", steps = get_steps(svy))
+#' r2 <- recipe(
+#'   name = "Demo", user = "test", svy = svy,
+#'   description = "Demo recipe", steps = get_steps(svy)
+#' )
 #' r2
 #' }
 #'
@@ -578,8 +591,11 @@ save_recipe <- function(recipe, file) {
     downloads = recipe$downloads,
     categories = lapply(recipe$categories, function(c) c$to_list()),
     certification = recipe$certification$to_list(),
-    user_info = if (!is.null(recipe$user_info))
-      recipe$user_info$to_list() else NULL,
+    user_info = if (!is.null(recipe$user_info)) {
+      recipe$user_info$to_list()
+    } else {
+      NULL
+    },
     doc = list(
       input_variables = doc_info$input_variables,
       output_variables = doc_info$output_variables,
@@ -860,9 +876,11 @@ get_recipe <- function(
   # Check if recipes should be skipped (offline mode)
   if (isTRUE(getOption("metasurvey.skip_recipes", FALSE))) {
     warning(
-      paste0("Recipe API is disabled ",
+      paste0(
+        "Recipe API is disabled ",
         "(metasurvey.skip_recipes = TRUE). ",
-        "Returning NULL."),
+        "Returning NULL."
+      ),
       call. = FALSE
     )
     return(NULL)
@@ -918,11 +936,15 @@ get_recipe <- function(
 #' @examples
 #' \donttest{
 #' library(data.table)
-#' dt <- data.table(id = 1:20, age = sample(18:65, 20, TRUE),
-#'                  w = runif(20, 0.5, 2))
-#' svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-#'                   psu = NULL, engine = "data.table",
-#'                   weight = add_weight(annual = "w"))
+#' dt <- data.table(
+#'   id = 1:20, age = sample(18:65, 20, TRUE),
+#'   w = runif(20, 0.5, 2)
+#' )
+#' svy <- Survey$new(
+#'   data = dt, edition = "2023", type = "demo",
+#'   psu = NULL, engine = "data.table",
+#'   weight = add_weight(annual = "w")
+#' )
 #' svy <- step_compute(svy, age2 = age^2)
 #' my_recipe <- steps_to_recipe(
 #'   name = "age_vars", user = "analyst",
@@ -1021,47 +1043,47 @@ print.Recipe <- function(x, ...) {
   doc_info <- x$doc()
 
   # Header
-  cat(crayon::bold(crayon::blue(paste0(
+  cat(cli::style_bold(cli::col_blue(paste0(
     "\n\u2500\u2500 Recipe: ", x$name, " \u2500\u2500\n"
   ))))
 
   # Metadata
-  cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
+  cat(cli::col_silver("Author:  "), x$user, "\n", sep = "")
   ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
-  cat(crayon::silver("Survey:  "),
+  cat(cli::col_silver("Survey:  "),
     x$survey_type, " / ", ed_str, "\n", sep = "")
-  cat(crayon::silver("Version: "), x$version, "\n", sep = "")
+  cat(cli::col_silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
-    cat(crayon::silver("Topic:   "), x$topic, "\n", sep = "")
+    cat(cli::col_silver("Topic:   "), x$topic, "\n", sep = "")
   }
   if (!is.null(x$doi)) {
-    cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
+    cat(cli::col_silver("DOI:     "), x$doi, "\n", sep = "")
   }
   if (!is.null(x$description) && nzchar(x$description)) {
-    cat(crayon::silver("Description: "), x$description, "\n", sep = "")
+    cat(cli::col_silver("Description: "), x$description, "\n", sep = "")
   }
   # Certification badge
   cert_label <- switch(x$certification$level,
-    "community" = crayon::yellow("community"),
-    "reviewed" = crayon::cyan("reviewed"),
-    "official" = crayon::green("official"),
+    "community" = cli::col_yellow("community"),
+    "reviewed" = cli::col_cyan("reviewed"),
+    "official" = cli::col_green("official"),
     x$certification$level
   )
-  cat(crayon::silver("Certification: "), cert_label, "\n", sep = "")
+  cat(cli::col_silver("Certification: "), cert_label, "\n", sep = "")
   # Downloads
   if (x$downloads > 0) {
-    cat(crayon::silver("Downloads: "), x$downloads, "\n", sep = "")
+    cat(cli::col_silver("Downloads: "), x$downloads, "\n", sep = "")
   }
   # Categories
   if (length(x$categories) > 0) {
     cat_names <- vapply(x$categories, function(c) c$name, character(1))
-    cat(crayon::silver("Categories: "),
+    cat(cli::col_silver("Categories: "),
       paste(cat_names, collapse = ", "), "\n", sep = "")
   }
 
   # Input variables
   if (length(doc_info$input_variables) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Requires (",
       length(doc_info$input_variables),
       " variables) \u2500\u2500\n"
@@ -1071,7 +1093,7 @@ print.Recipe <- function(x, ...) {
 
   # Pipeline
   if (length(doc_info$pipeline) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Pipeline (",
       length(doc_info$pipeline),
       " steps) \u2500\u2500\n"
@@ -1102,7 +1124,7 @@ print.Recipe <- function(x, ...) {
 
   # Output variables
   if (length(doc_info$output_variables) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Produces (",
       length(doc_info$output_variables),
       " variables) \u2500\u2500\n"
@@ -1136,13 +1158,14 @@ print.Recipe <- function(x, ...) {
           doc_info$output_variables,
           collapse = ", "
         ),
-        "\n", sep = ""
+        "\n",
+        sep = ""
       )
     }
   }
 
   if (length(doc_info$pipeline) == 0 && length(x$steps) > 0) {
-    cat(crayon::silver(paste0("\n  (", length(x$steps), " steps)\n")))
+    cat(cli::col_silver(paste0("\n  (", length(x$steps), " steps)\n")))
   }
 
   cat("\n")

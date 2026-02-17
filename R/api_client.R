@@ -153,30 +153,30 @@ api_request <- function(endpoint, method = "GET",
     headers <- c(headers, "Authorization" = paste("Bearer", token))
   }
 
+  # Build request
+  req <- httr2::request(url)
+  req <- httr2::req_headers(req, !!!as.list(headers))
+  req <- httr2::req_timeout(req, 15)
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+
   # Dispatch
   resp <- switch(method,
-    GET = httr::GET(
-      url,
-      httr::add_headers(.headers = headers),
-      httr::timeout(15)
-    ),
-    POST = httr::POST(
-      url,
-      body = jsonlite::toJSON(
-        body,
-        auto_unbox = TRUE, null = "null"
-      ),
-      httr::add_headers(.headers = headers),
-      encode = "raw",
-      httr::timeout(15)
-    ),
+    GET = httr2::req_perform(req),
+    POST = {
+      req <- httr2::req_body_raw(
+        req,
+        jsonlite::toJSON(body, auto_unbox = TRUE, null = "null"),
+        type = "application/json"
+      )
+      httr2::req_perform(req)
+    },
     stop("Unsupported HTTP method: ", method, call. = FALSE)
   )
 
   # Parse
-  txt <- httr::content(resp, "text", encoding = "UTF-8")
+  txt <- httr2::resp_body_string(resp)
 
-  if (httr::status_code(resp) >= 400) {
+  if (httr2::resp_status(resp) >= 400) {
     parsed <- tryCatch(
       jsonlite::fromJSON(txt, simplifyVector = FALSE),
       error = function(e) NULL
@@ -184,10 +184,10 @@ api_request <- function(endpoint, method = "GET",
     msg <- if (!is.null(parsed$error) && is.character(parsed$error)) {
       substr(parsed$error, 1, 200)
     } else {
-      paste("HTTP", httr::status_code(resp))
+      paste("HTTP", httr2::resp_status(resp))
     }
     stop(
-      "API error (", httr::status_code(resp), "): ",
+      "API error (", httr2::resp_status(resp), "): ",
       msg,
       call. = FALSE
     )

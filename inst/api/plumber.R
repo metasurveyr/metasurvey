@@ -246,8 +246,8 @@ function(req, res, name, email, password,
   }
 
   if (user_type == "institutional_member" &&
-      (is.null(institution) ||
-       !nzchar(institution))) {
+    (is.null(institution) ||
+      !nzchar(institution))) {
     res$status <- 400L
     return(list(error = "institution is required for institutional_member"))
   }

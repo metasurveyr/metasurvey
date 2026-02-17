@@ -503,34 +503,37 @@ test_that(".anda_find_data_file falls back to XLSX when no CSV/SAV", {
 
 test_that("anda_fetch_ddi errors on non-200 response", {
   local_mocked_bindings(
-    GET = function(...) {
-      structure(list(status_code = 404L), class = "response")
+    req_perform = function(req, ...) {
+      structure(list(
+        status_code = 404L,
+        body = raw(0),
+        headers = list()
+      ), class = "httr2_response")
     },
-    status_code = function(resp) resp$status_code,
-    write_disk = function(...) list(),
-    config = function(...) list(),
-    timeout = function(...) list(),
-    .package = "httr"
+    resp_status = function(resp, ...) 404L,
+    .package = "httr2"
   )
   expect_error(anda_fetch_ddi(999), "Failed to download DDI")
 })
 
 test_that("anda_catalog_search returns data.frame on success", {
+  mock_body <- jsonlite::toJSON(list(result = list(rows = list(
+    list(id = 735, title = "ECH 2023", year_start = "2023", year_end = "2023"),
+    list(id = 767, title = "ECH 2024", year_start = "2024", year_end = "2024")
+  ))), auto_unbox = TRUE)
   local_mocked_bindings(
-    GET = function(...) {
+    req_perform = function(req, ...) {
       structure(list(
         status_code = 200L,
-        content = list(result = list(rows = list(
-          list(id = 735, title = "ECH 2023", year_start = "2023", year_end = "2023"),
-          list(id = 767, title = "ECH 2024", year_start = "2024", year_end = "2024")
-        )))
-      ), class = "response")
+        body = charToRaw(mock_body),
+        headers = list()
+      ), class = "httr2_response")
     },
-    status_code = function(resp) resp$status_code,
-    content = function(resp, ...) resp$content,
-    config = function(...) list(),
-    timeout = function(...) list(),
-    .package = "httr"
+    resp_status = function(resp, ...) 200L,
+    resp_body_json = function(resp, ...) {
+      jsonlite::fromJSON(rawToChar(resp$body), simplifyVector = FALSE)
+    },
+    .package = "httr2"
   )
   result <- anda_catalog_search("ECH")
   expect_true(is.data.frame(result))
@@ -540,30 +543,37 @@ test_that("anda_catalog_search returns data.frame on success", {
 
 test_that("anda_catalog_search errors on non-200", {
   local_mocked_bindings(
-    GET = function(...) {
-      structure(list(status_code = 500L), class = "response")
+    req_perform = function(req, ...) {
+      structure(list(
+        status_code = 500L,
+        body = raw(0),
+        headers = list()
+      ), class = "httr2_response")
     },
-    status_code = function(resp) resp$status_code,
-    config = function(...) list(),
-    timeout = function(...) list(),
-    .package = "httr"
+    resp_status = function(resp, ...) 500L,
+    .package = "httr2"
   )
   expect_error(anda_catalog_search("ECH"), "catalog search failed")
 })
 
 test_that("anda_catalog_search returns empty df when no results", {
+  mock_body <- jsonlite::toJSON(
+    list(result = list(rows = list())),
+    auto_unbox = TRUE
+  )
   local_mocked_bindings(
-    GET = function(...) {
+    req_perform = function(req, ...) {
       structure(list(
         status_code = 200L,
-        content = list(result = list(rows = list()))
-      ), class = "response")
+        body = charToRaw(mock_body),
+        headers = list()
+      ), class = "httr2_response")
     },
-    status_code = function(resp) resp$status_code,
-    content = function(resp, ...) resp$content,
-    config = function(...) list(),
-    timeout = function(...) list(),
-    .package = "httr"
+    resp_status = function(resp, ...) 200L,
+    resp_body_json = function(resp, ...) {
+      jsonlite::fromJSON(rawToChar(resp$body), simplifyVector = FALSE)
+    },
+    .package = "httr2"
   )
   result <- anda_catalog_search("nonexistent")
   expect_true(is.data.frame(result))

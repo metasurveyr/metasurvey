@@ -26,21 +26,19 @@ anda_fetch_ddi <- function(catalog_id,
     dest_file <- tempfile(fileext = ".xml")
   }
 
-  resp <- httr::GET(
-    url,
-    httr::config(
-      ssl_verifypeer = getOption(
-        "metasurvey.ssl_verify", TRUE
-      )
-    ),
-    httr::write_disk(dest_file, overwrite = TRUE),
-    httr::timeout(60)
+  req <- httr2::request(url)
+  req <- httr2::req_options(
+    req,
+    ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
   )
+  req <- httr2::req_timeout(req, 60)
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+  resp <- httr2::req_perform(req, path = dest_file)
 
-  if (httr::status_code(resp) != 200) {
+  if (httr2::resp_status(resp) != 200) {
     stop(
       "Failed to download DDI from ANDA5 (catalog_id=", catalog_id,
-      "): HTTP ", httr::status_code(resp)
+      "): HTTP ", httr2::resp_status(resp)
     )
   }
 
@@ -61,24 +59,21 @@ anda_catalog_search <- function(keyword = "ECH",
                                 limit = 50) {
   url <- paste0(base_url, "/index.php/api/catalog/search")
 
-  resp <- httr::GET(
-    url,
-    query = list(
-      sk = keyword, ps = limit, format = "json"
-    ),
-    httr::config(
-      ssl_verifypeer = getOption(
-        "metasurvey.ssl_verify", TRUE
-      )
-    ),
-    httr::timeout(30)
+  req <- httr2::request(url)
+  req <- httr2::req_url_query(req, sk = keyword, ps = limit, format = "json")
+  req <- httr2::req_options(
+    req,
+    ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
   )
+  req <- httr2::req_timeout(req, 30)
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+  resp <- httr2::req_perform(req)
 
-  if (httr::status_code(resp) != 200) {
-    stop("ANDA5 catalog search failed: HTTP ", httr::status_code(resp))
+  if (httr2::resp_status(resp) != 200) {
+    stop("ANDA5 catalog search failed: HTTP ", httr2::resp_status(resp))
   }
 
-  body <- httr::content(resp, as = "parsed", type = "application/json")
+  body <- httr2::resp_body_json(resp)
   rows <- body$result$rows %||% list()
 
   if (length(rows) == 0) {
@@ -289,27 +284,25 @@ anda_download_microdata <- function(edition,
     base_url, "/index.php/catalog/",
     catalog_id, "/get-microdata"
   )
-  resp <- httr::POST(
-    accept_url,
-    body = list(accept = "1"),
-    encode = "form",
-    httr::config(
-      ssl_verifypeer = getOption(
-        "metasurvey.ssl_verify", TRUE
-      )
-    ),
-    httr::timeout(30)
+  req <- httr2::request(accept_url)
+  req <- httr2::req_body_form(req, accept = "1")
+  req <- httr2::req_options(
+    req,
+    ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
   )
+  req <- httr2::req_timeout(req, 30)
+  req <- httr2::req_error(req, is_error = function(resp) FALSE)
+  resp <- httr2::req_perform(req)
 
-  if (httr::status_code(resp) != 200) {
+  if (httr2::resp_status(resp) != 200) {
     stop(
       "Failed to access microdata page: HTTP ",
-      httr::status_code(resp)
+      httr2::resp_status(resp)
     )
   }
 
   # Parse all resources with their titles and IDs
-  page_html <- httr::content(resp, as = "text", encoding = "UTF-8")
+  page_html <- httr2::resp_body_string(resp)
   resources <- .anda_parse_resources(page_html, catalog_id)
 
   if (nrow(resources) == 0) {
@@ -333,21 +326,19 @@ anda_download_microdata <- function(edition,
     )
 
     message("  Downloading: ", title)
-    dl_resp <- httr::GET(
-      dl_url,
-      httr::config(
-        ssl_verifypeer = getOption(
-          "metasurvey.ssl_verify", TRUE
-        )
-      ),
-      httr::write_disk(dest_raw, overwrite = TRUE),
-      httr::timeout(300)
+    dl_req <- httr2::request(dl_url)
+    dl_req <- httr2::req_options(
+      dl_req,
+      ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
     )
+    dl_req <- httr2::req_timeout(dl_req, 300)
+    dl_req <- httr2::req_error(dl_req, is_error = function(resp) FALSE)
+    dl_resp <- httr2::req_perform(dl_req, path = dest_raw)
 
-    if (httr::status_code(dl_resp) != 200) {
+    if (httr2::resp_status(dl_resp) != 200) {
       stop(
         "Failed to download '", title,
-        "': HTTP ", httr::status_code(dl_resp)
+        "': HTTP ", httr2::resp_status(dl_resp)
       )
     }
 

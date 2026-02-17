@@ -1042,10 +1042,10 @@ s3_object_path <- function(recipe, edition_str) {
         )
       } else {
         rep_path <- paste0(
-        '<span class="code-string">',
-        '"path/to/replicate_weights"',
-        '</span>'
-      )
+          '<span class="code-string">',
+          '"path/to/replicate_weights"',
+          "</span>"
+        )
       }
       rep_id_str <- paste0(
         'c(<span class="code-string">',
@@ -1072,12 +1072,12 @@ s3_object_path <- function(recipe, edition_str) {
         entry$variable %||% "W",
         '"</span>,\n',
         "    replicate_path = ", rep_path, ",\n",
-        '    replicate_pattern = ',
+        "    replicate_pattern = ",
         '<span class="code-string">"',
         entry$replicate_pattern %||% "wr[0-9]+",
         '"</span>,\n',
         "    replicate_id = ", rep_id_str, ",\n",
-        '    replicate_type = ',
+        "    replicate_type = ",
         '<span class="code-string">"',
         entry$replicate_type %||% "bootstrap",
         '"</span>\n',
@@ -1107,9 +1107,9 @@ recipe_code_snippet <- function(recipe) {
     lines,
     '<span class="code-comment"># Get recipe from registry</span>',
     paste0(
-      'recipe &lt;- ',
+      "recipe &lt;- ",
       '<span class="code-func">',
-      'api_get_recipe</span>(',
+      "api_get_recipe</span>(",
       '<span class="code-string">"',
       rid, '"</span>)'
     )
@@ -1119,9 +1119,9 @@ recipe_code_snippet <- function(recipe) {
     for (i in seq_along(dep_recipes)) {
       lines <- c(lines, paste0(
         "dep_", i,
-        ' &lt;- ',
+        " &lt;- ",
         '<span class="code-func">',
-        'api_get_recipe</span>(',
+        "api_get_recipe</span>(",
         '<span class="code-string">"',
         dep_recipes[i],
         '"</span>)'
@@ -1135,14 +1135,14 @@ recipe_code_snippet <- function(recipe) {
     weight_name <- if (as.integer(edition_str) >= 2022) "W_ANO" else "pesoano"
     weight_code <- paste0(
       '<span class="code-func">',
-      'add_weight</span>(annual = ',
+      "add_weight</span>(annual = ",
       '<span class="code-string">"',
       weight_name, '"</span>)'
     )
   } else {
     weight_code <- paste0(
       '<span class="code-func">',
-      'add_weight</span>(annual = ',
+      "add_weight</span>(annual = ",
       '<span class="code-string">',
       '"weight"</span>)'
     )
@@ -1154,23 +1154,23 @@ recipe_code_snippet <- function(recipe) {
       lines,
       paste0(
         '<span class="code-comment">',
-        '# Load ECH microdata from ANDA',
-        ' and apply recipe</span>'
+        "# Load ECH microdata from ANDA",
+        " and apply recipe</span>"
       ),
       'svy &lt;- <span class="code-func">load_survey</span>(',
       paste0(
         '  <span class="code-func">',
-        'anda_download_microdata</span>(',
+        "anda_download_microdata</span>(",
         '<span class="code-string">"',
         edition_str, '"</span>),'
       ),
       paste0(
-        '  svy_type    = ',
+        "  svy_type    = ",
         '<span class="code-string">"',
         stype, '"</span>,'
       ),
       paste0(
-        '  svy_edition = ',
+        "  svy_edition = ",
         '<span class="code-string">"',
         edition_str, '"</span>,'
       ),
@@ -1181,12 +1181,12 @@ recipe_code_snippet <- function(recipe) {
       lines,
       paste0(
         '<span class="code-comment">',
-        '# Load survey with recipe</span>'
+        "# Load survey with recipe</span>"
       ),
       paste0(
-        'svy &lt;- ',
+        "svy &lt;- ",
         '<span class="code-func">',
-        'load_survey</span>('
+        "load_survey</span>("
       ),
       paste0(
         '  <span class="code-string">',
@@ -1194,12 +1194,12 @@ recipe_code_snippet <- function(recipe) {
         edition_str, '.csv"</span>,'
       ),
       paste0(
-        '  svy_type    = ',
+        "  svy_type    = ",
         '<span class="code-string">"',
         stype, '"</span>,'
       ),
       paste0(
-        '  svy_edition = ',
+        "  svy_edition = ",
         '<span class="code-string">"',
         edition_str, '"</span>,'
       ),
@@ -1245,16 +1245,16 @@ workflow_code_snippet <- function(wf) {
   if (length(recipe_ids) > 0) {
     lines <- c(lines, paste0(
       '<span class="code-comment">',
-      '# Get recipes from registry',
-      '</span>'
+      "# Get recipes from registry",
+      "</span>"
     ))
     for (i in seq_along(recipe_ids)) {
       rvar <- paste0("r", i)
       lines <- c(lines, paste0(
         rvar,
-        ' &lt;- ',
+        " &lt;- ",
         '<span class="code-func">',
-        'api_get_recipe</span>(',
+        "api_get_recipe</span>(",
         '<span class="code-string">"',
         recipe_ids[i], '"</span>)'
       ))
@@ -1271,17 +1271,21 @@ workflow_code_snippet <- function(wf) {
     if (tolower(stype) == "ech") {
       weight_name <- if (
         as.integer(edition) >= 2022
-      ) "W_ANO" else "pesoano"
+      ) {
+        "W_ANO"
+      } else {
+        "pesoano"
+      }
       weight_code <- paste0(
         '<span class="code-func">',
-        'add_weight</span>(annual = ',
+        "add_weight</span>(annual = ",
         '<span class="code-string">"',
         weight_name, '"</span>)'
       )
     } else {
       weight_code <- paste0(
         '<span class="code-func">',
-        'add_weight</span>(annual = ',
+        "add_weight</span>(annual = ",
         '<span class="code-string">',
         '"weight"</span>)'
       )
@@ -1294,27 +1298,27 @@ workflow_code_snippet <- function(wf) {
       lines,
       paste0(
         '<span class="code-comment">',
-        '# Load ECH microdata from ANDA',
-        ' and apply recipes</span>'
+        "# Load ECH microdata from ANDA",
+        " and apply recipes</span>"
       ),
       paste0(
-        'svy &lt;- ',
+        "svy &lt;- ",
         '<span class="code-func">',
-        'load_survey</span>('
+        "load_survey</span>("
       ),
       paste0(
         '  <span class="code-func">',
-        'anda_download_microdata</span>(',
+        "anda_download_microdata</span>(",
         '<span class="code-string">"',
         edition, '"</span>),'
       ),
       paste0(
-        '  svy_type    = ',
+        "  svy_type    = ",
         '<span class="code-string">"',
         stype, '"</span>,'
       ),
       paste0(
-        '  svy_edition = ',
+        "  svy_edition = ",
         '<span class="code-string">"',
         edition, '"</span>,'
       ),
@@ -1328,12 +1332,12 @@ workflow_code_snippet <- function(wf) {
       lines,
       paste0(
         '<span class="code-comment">',
-        '# Load survey with recipes</span>'
+        "# Load survey with recipes</span>"
       ),
       paste0(
-        'svy &lt;- ',
+        "svy &lt;- ",
         '<span class="code-func">',
-        'load_survey</span>('
+        "load_survey</span>("
       ),
       paste0(
         '  <span class="code-string">',
@@ -1341,12 +1345,12 @@ workflow_code_snippet <- function(wf) {
         edition, '.csv"</span>,'
       ),
       paste0(
-        '  svy_type    = ',
+        "  svy_type    = ",
         '<span class="code-string">"',
         stype, '"</span>,'
       ),
       paste0(
-        '  svy_edition = ',
+        "  svy_edition = ",
         '<span class="code-string">"',
         edition, '"</span>,'
       ),
@@ -1558,7 +1562,7 @@ recipe_detail_ui <- function(
   # Description
   desc_section <- if (
     !is.null(recipe$description) &&
-    nzchar(recipe$description)) {
+      nzchar(recipe$description)) {
     htmltools::tags$div(
       style = "padding: 1.25rem 0;",
       htmltools::tags$p(
@@ -1590,7 +1594,8 @@ recipe_detail_ui <- function(
           class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
           bsicons::bs_icon(
-            "database", size = ".75rem"
+            "database",
+            size = ".75rem"
           ),
           " INE Uruguay (ANDA5)"
         ),
@@ -1638,7 +1643,8 @@ recipe_detail_ui <- function(
           class = "var-chip var-chip-input",
           style = "font-size: .78rem;",
           bsicons::bs_icon(
-            "database", size = ".75rem"
+            "database",
+            size = ".75rem"
           ),
           paste0(" ", ds$provider %||% "")
         ),
@@ -1717,9 +1723,8 @@ recipe_detail_ui <- function(
   n_steps <- length(doc$pipeline)
   graph_section <- if (
     n_steps > 0 &&
-    has_visnetwork &&
-    !is.null(ns)) {
-
+      has_visnetwork &&
+      !is.null(ns)) {
     disclaimer <- if (n_steps > 20) {
       htmltools::tags$div(
         class = "graph-disclaimer",
@@ -1782,7 +1787,11 @@ recipe_detail_ui <- function(
       )
       dot_suffix <- if (
         base_type %in% valid_types
-      ) base_type else "default"
+      ) {
+        base_type
+      } else {
+        "default"
+      }
       dot_cls <- paste0(
         "step-dot step-dot-", dot_suffix
       )
@@ -1796,11 +1805,15 @@ recipe_detail_ui <- function(
       }
       comment_txt <- if (
         is.list(step$comment)
-      ) step$comment[[1]] else step$comment
+      ) {
+        step$comment[[1]]
+      } else {
+        step$comment
+      }
       comment_html <- if (
         !is.null(comment_txt) &&
-        length(comment_txt) == 1 &&
-        nzchar(comment_txt)) {
+          length(comment_txt) == 1 &&
+          nzchar(comment_txt)) {
         htmltools::tags$div(
           style = paste0(
             "font-size:.75rem;",
@@ -1814,11 +1827,15 @@ recipe_detail_ui <- function(
       # Expression / formula display
       expr_txt <- if (
         is.list(step$expression)
-      ) step$expression[[1]] else step$expression
+      ) {
+        step$expression[[1]]
+      } else {
+        step$expression
+      }
       expr_html <- if (
         !is.null(expr_txt) &&
-        length(expr_txt) == 1 &&
-        nzchar(expr_txt)) {
+          length(expr_txt) == 1 &&
+          nzchar(expr_txt)) {
         htmltools::tags$div(
           style = paste0(
             "font-family:'JetBrains Mono',",
@@ -2044,7 +2061,9 @@ recipe_detail_ui <- function(
       outputs <- unlist(step$outputs)
       inf_type <- if (
         is.list(step$inferred_type)
-      ) step$inferred_type[[1]] else {
+      ) {
+        step$inferred_type[[1]]
+      } else {
         step$inferred_type
       }
       if (length(outputs) > 0 && !is.null(inf_type)) {
@@ -2172,7 +2191,11 @@ recipe_pipeline_graph <- function(recipe) {
     s$comment <- if (is.list(s$comment)) s$comment[[1]] else s$comment
     s$inferred_type <- if (
       is.list(s$inferred_type)
-    ) s$inferred_type[[1]] else s$inferred_type
+    ) {
+      s$inferred_type[[1]]
+    } else {
+      s$inferred_type
+    }
     s$index <- if (is.list(s$index)) {
       as.integer(s$index[[1]])
     } else {
@@ -2307,11 +2330,17 @@ recipe_pipeline_graph <- function(recipe) {
 
     outputs_str <- if (length(s$outputs) > 0) {
       paste(s$outputs, collapse = ", ")
-    } else ""
+    } else {
+      ""
+    }
     comment_str <- if (
       !is.null(s$comment) &&
-      nzchar(s$comment)
-    ) s$comment else ""
+        nzchar(s$comment)
+    ) {
+      s$comment
+    } else {
+      ""
+    }
     expr_str <- if (is.list(s$expression)) {
       s$expression[[1]]
     } else {
@@ -2472,7 +2501,11 @@ recipe_pipeline_graph <- function(recipe) {
       formula_str <- wf$formula %||% ""
       by_str <- if (
         !is.null(wf$by) && nzchar(wf$by)
-      ) paste0(" by ", wf$by) else ""
+      ) {
+        paste0(" by ", wf$by)
+      } else {
+        ""
+      }
       desc_str <- wf$description %||% ""
 
       add_node(data.frame(

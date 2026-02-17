@@ -36,8 +36,8 @@ RecipeCertification <- R6::R6Class(
                           certified_at = NULL) {
       valid_levels <- c("community", "reviewed", "official")
       if (is.null(level) ||
-          !is.character(level) ||
-          !(level %in% valid_levels)) {
+        !is.character(level) ||
+        !(level %in% valid_levels)) {
         stop(
           "level must be one of: ",
           paste(valid_levels, collapse = ", ")
@@ -57,7 +57,7 @@ RecipeCertification <- R6::R6Class(
       if (level == "reviewed") {
         if (is.null(certified_by) || !inherits(certified_by, "RecipeUser") ||
           !certified_by$user_type %in%
-          c("institutional_member", "institution")) {
+            c("institutional_member", "institution")) {
           stop(
             "reviewed certification requires a ",
             "RecipeUser of type 'institutional_member' ",
@@ -115,11 +115,11 @@ RecipeCertification <- R6::R6Class(
     #' @param ... Additional arguments (not used)
     print = function(...) {
       badge <- switch(self$level,
-        "community" = crayon::yellow("community"),
-        "reviewed" = crayon::cyan("reviewed"),
-        "official" = crayon::green("official")
+        "community" = cli::col_yellow("community"),
+        "reviewed" = cli::col_cyan("reviewed"),
+        "official" = cli::col_green("official")
       )
-      cat(crayon::bold("Certification:"), badge, "\n")
+      cat(cli::style_bold("Certification:"), badge, "\n")
       if (!is.null(self$certified_by)) {
         cat("  Certified by:", self$certified_by$name, "\n")
       }

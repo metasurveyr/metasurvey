@@ -22,6 +22,7 @@
 ^\.Rproj\.user$
 ^\.claude$
 ^\.codeviz$
+^\.env\.example$
 ^\.git$
 ^\.github$
 ^\.lintr$
@@ -36,6 +37,7 @@
 ^devcontainer\.json$
 ^do_files_iecon$
 ^doc$
+^docker-compose\.yml$
 ^docs$
 ^engine\.json$
 ^example-data$
@@ -58,7 +60,9 @@
 ^renv$
 ^renv\.lock$
 ^revdep$
+^ropensci-presubmission-plan\.md$
 ^slides$
+^summary_iecon\.md$
 ^temp$
 ^test\.json$
 ^test_.*\.R$
@@ -67,6 +71,15 @@
 ^vignettes/api-database\.Rmd$
 ^vignettes/shiny-explorer-es\.Rmd$
 ^vignettes/shiny-explorer\.Rmd$
+^vignettes/complex-designs-es\.Rmd$
+^vignettes/ech-case-study-es\.Rmd$
+^vignettes/ech-demographics-recipe-es\.Rmd$
+^vignettes/getting-started-es\.Rmd$
+^vignettes/international-surveys-es\.Rmd$
+^vignettes/panel-analysis-es\.Rmd$
+^vignettes/recipes-es\.Rmd$
+^vignettes/stata-transpiler-es\.Rmd$
+^vignettes/workflows-and-estimation-es\.Rmd$
 ^summary_iecon\.md$
 ^ropensci-presubmission-plan\.md$
 ^\.env\.example$

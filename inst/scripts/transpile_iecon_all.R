@@ -40,26 +40,33 @@ for (yr in YEARS) {
     next
   }
 
-  tryCatch({
-    recipes <- transpile_stata_module(year_dir, yr, user = "iecon")
-    n_steps <- sum(vapply(recipes, function(r) length(r$steps), integer(1)))
-    total_steps <- total_steps + n_steps
+  tryCatch(
+    {
+      recipes <- transpile_stata_module(year_dir, yr, user = "iecon")
+      n_steps <- sum(vapply(recipes, function(r) length(r$steps), integer(1)))
+      total_steps <- total_steps + n_steps
 
-    for (module_name in names(recipes)) {
-      rec <- recipes[[module_name]]
-      key <- rec$id
-      all_recipes[[key]] <- rec
+      for (module_name in names(recipes)) {
+        rec <- recipes[[module_name]]
+        key <- rec$id
+        all_recipes[[key]] <- rec
+      }
+
+      cat(sprintf(
+        "  [OK]   %d — %d modules, %d steps\n",
+        yr, length(recipes), n_steps
+      ))
+    },
+    error = function(e) {
+      cat(sprintf("  [ERR]  %d — %s\n", yr, e$message))
     }
-
-    cat(sprintf("  [OK]   %d — %d modules, %d steps\n",
-                yr, length(recipes), n_steps))
-  }, error = function(e) {
-    cat(sprintf("  [ERR]  %d — %s\n", yr, e$message))
-  })
+  )
 }
 
-cat(sprintf("\nTotal: %d recipes, %d steps\n",
-            length(all_recipes), total_steps))
+cat(sprintf(
+  "\nTotal: %d recipes, %d steps\n",
+  length(all_recipes), total_steps
+))
 
 # ── Load existing seed recipes (hand-written) ─────────────────────────────
 existing <- jsonlite::fromJSON(SEED_FILE, simplifyVector = FALSE)
@@ -105,8 +112,10 @@ transpiled_lists <- lapply(all_recipes, function(rec) {
 
 # ── Merge and write ───────────────────────────────────────────────────────
 merged <- c(existing_clean, unname(transpiled_lists))
-cat(sprintf("Merged total: %d recipes (%d hand-written + %d transpiled)\n",
-            length(merged), length(existing_clean), length(transpiled_lists)))
+cat(sprintf(
+  "Merged total: %d recipes (%d hand-written + %d transpiled)\n",
+  length(merged), length(existing_clean), length(transpiled_lists)
+))
 
 jsonlite::write_json(
   merged,

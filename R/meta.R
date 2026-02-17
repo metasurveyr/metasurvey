@@ -10,9 +10,7 @@ metadata_args <- function() {
   )
 }
 
-#' @importFrom glue glue glue_col
-#' @importFrom crayon green
-#' @importFrom crayon red
+#' @importFrom glue glue
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(
@@ -20,9 +18,7 @@ metadata_args <- function() {
   )
 }
 
-#' @importFrom glue glue glue_col
-#' @importFrom crayon green
-#' @importFrom crayon red
+#' @importFrom glue glue
 
 .onLoad <- function(libname, pkgname) {
   default_engine()

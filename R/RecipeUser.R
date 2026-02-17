@@ -22,7 +22,8 @@
 #' user <- recipe_user("Juan Perez", email = "juan@example.com")
 #' inst <- recipe_user("IECON", type = "institution")
 #' member <- recipe_user(
-#'   "Maria", type = "institutional_member",
+#'   "Maria",
+#'   type = "institutional_member",
 #'   institution = inst
 #' )
 #'
@@ -60,8 +61,8 @@ RecipeUser <- R6::R6Class(
       }
       valid_types <- c("individual", "institutional_member", "institution")
       if (is.null(user_type) ||
-          !is.character(user_type) ||
-          !(user_type %in% valid_types)) {
+        !is.character(user_type) ||
+        !(user_type %in% valid_types)) {
         stop(
           "user_type must be one of: ",
           paste(valid_types, collapse = ", ")
@@ -132,7 +133,7 @@ RecipeUser <- R6::R6Class(
         "institution" = "Institution"
       )
       cat(
-        crayon::bold(self$name),
+        cli::style_bold(self$name),
         paste0("(", type_label, ")"), "\n"
       )
       if (!is.null(self$email)) cat("  Email:", self$email, "\n")
@@ -146,12 +147,12 @@ RecipeUser <- R6::R6Class(
         )
       }
       if (!is.null(self$url)) cat("  URL:", self$url, "\n")
-      if (self$verified) cat("  ", crayon::green("Verified"), "\n")
+      if (self$verified) cat("  ", cli::col_green("Verified"), "\n")
       if (self$review_status != "approved") {
         status_col <- if (self$review_status == "pending") {
-          crayon::yellow
+          cli::col_yellow
         } else {
-          crayon::red
+          cli::col_red
         }
         cat(
           "  ",
