@@ -43,7 +43,10 @@ Other recipes:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-svy <- add_recipe(svy, my_recipe)
-} # }
+svy <- survey_empty(type = "ech", edition = "2023")
+r <- recipe(
+  name = "Example", user = "test",
+  svy = svy, description = "Example"
+)
+svy <- add_recipe(svy, r)
 ```

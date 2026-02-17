@@ -39,8 +39,10 @@ infraestructura.
 
 ``` r
 # Install from GitHub
-# devtools::install_github("metaSurveyR/metasurvey")
+devtools::install_github("metaSurveyR/metasurvey")
+```
 
+``` r
 library(metasurvey)
 library(data.table)
 ```
@@ -48,53 +50,39 @@ library(data.table)
 ## Creacion de un objeto Survey
 
 Un objeto `Survey` agrupa los microdatos con metadatos sobre pesos,
-edicion y tipo de encuesta. Comenzaremos con un ejemplo sencillo usando
-datos simulados que imitan la estructura de la Encuesta Continua de
-Hogares (ECH) de Uruguay.
+edicion y tipo de encuesta. Utilizamos una muestra de microdatos reales
+de la *Encuesta Continua de Hogares* (ECH) 2023, publicada por el
+Instituto Nacional de Estadistica (INE) de Uruguay.
 
-La ECH es una encuesta de hogares de panel rotativo realizada por el
-Instituto Nacional de Estadistica (INE) de Uruguay. Las variables clave
+La ECH es una encuesta de hogares de panel rotativo. Las variables clave
 incluyen:
 
 - **e27**: Edad en anios
 - **e26**: Sexo (1 = Hombre, 2 = Mujer)
-- **e51**: Nivel educativo (escala codificada 1-14)
+- **e30**: Parentesco con el jefe de hogar (1-14)
 - **POBPCOAC**: Condicion de actividad
+  - 1 = Menor de 14
   - 2 = Ocupado
   - 3-5 = Desocupado
-  - 6-8 = Inactivo
-- **ht11**: Ingreso del hogar
-- **pesoano**: Factor de expansion anual (peso)
+  - 6-10 = Inactivo
+  - 11 = No aplica
+- **HT11**: Ingreso del hogar (pesos uruguayos)
+- **W_ANO**: Factor de expansion anual (peso)
 
 ``` r
 library(metasurvey)
 library(data.table)
 
-set.seed(42)
-n <- 200
+# Cargar muestra de microdatos reales de la ECH 2023 (200 hogares, ~500 personas)
+dt <- fread(system.file("extdata", "ech_2023_sample.csv", package = "metasurvey"))
 
-# Simulate ECH-like microdata
-dt <- data.table(
-  numero = 1:n, # Household ID
-  e27 = sample(18:80, n, replace = TRUE), # Age
-  e26 = sample(c(1, 2), n, replace = TRUE), # Sex
-  ht11 = round(runif(n, 5000, 80000)), # Household income (Uruguayan pesos)
-  POBPCOAC = sample(c(2, 3, 4, 5, 6), n,
-    replace = TRUE,
-    prob = c(0.55, 0.03, 0.02, 0.03, 0.37)
-  ), # Labor status
-  dpto = sample(1:19, n, replace = TRUE), # Department
-  pesoano = round(runif(n, 0.5, 3.0), 4) # Annual weight
-)
-
-# Create Survey object
+# Crear objeto Survey
 svy <- Survey$new(
   data    = dt,
   edition = "2023",
   type    = "ech",
-  psu     = NULL, # No PSU for simple random sample
-  engine  = "data.table", # Fast data manipulation
-  weight  = add_weight(annual = "pesoano")
+  engine  = "data.table",
+  weight  = add_weight(annual = "W_ANO")
 )
 ```
 
@@ -108,11 +96,16 @@ Es posible inspeccionar los datos en cualquier momento:
 
 ``` r
 head(get_data(svy), 3)
-#>    numero   e27   e26  ht11 POBPCOAC  dpto pesoano
-#>     <int> <int> <num> <num>    <num> <int>   <num>
-#> 1:      1    66     2 36408        2     5  1.9904
-#> 2:      2    54     1 70945        2    10  1.2100
-#> 3:      3    18     1 13099        2    12  0.6380
+#>       ID  nper  anio   mes region  dpto   nom_dpto   e26   e27   e30 e51_2
+#>    <int> <int> <int> <int>  <int> <int>     <char> <int> <int> <int> <int>
+#> 1: 34561     1  2023     1      1     1 Montevideo     2    26     1     6
+#> 2: 34561     2  2023     1      1     1 Montevideo     2    45     7     6
+#> 3: 34561     3  2023     1      1     1 Montevideo     2     7     4     1
+#>    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO
+#>       <int>     <int>   <num>   <int> <int>
+#> 1:        2         0 55429.6       0    57
+#> 2:        4         0 55429.6       0    57
+#> 3:        1         0 55429.6       0    57
 ```
 
 ## Trabajo con Steps
@@ -140,7 +133,7 @@ para crear variables derivadas. El paquete automaticamente:
 ``` r
 svy <- step_compute(svy,
   # Convert income to thousands for readability
-  ht11_thousands = ht11 / 1000,
+  ht11_thousands = HT11 / 1000,
 
   # Create employment indicator following ILO definitions
   employed = ifelse(POBPCOAC == 2, 1, 0),
@@ -157,7 +150,7 @@ Es posible agrupar calculos usando el parametro `.by` (similar a
 ``` r
 # Calculate mean household income per department
 svy <- step_compute(svy,
-  mean_income_dept = mean(ht11, na.rm = TRUE),
+  mean_income_dept = mean(HT11, na.rm = TRUE),
   .by = "dpto",
   comment = "Department-level income averages"
 )
@@ -174,9 +167,9 @@ coincidencia es la que se aplica.
 ``` r
 # Recode labor force status (POBPCOAC) into meaningful categories
 svy <- step_recode(svy, labor_status,
-  POBPCOAC == 2 ~ "Employed", # Ocupado
-  POBPCOAC %in% 3:5 ~ "Unemployed", # Desocupado
-  POBPCOAC %in% 6:8 ~ "Inactive", # Inactivo
+  POBPCOAC == 2 ~ "Employed",
+  POBPCOAC %in% 3:5 ~ "Unemployed",
+  POBPCOAC %in% 6:10 ~ "Inactive",
   .default = "Not classified",
   comment = "Labor force status - ILO standard"
 )
@@ -229,24 +222,22 @@ para unir datos de referencia externos. Esto es util para agregar:
 - Tipos de cambio o deflactores
 - Benchmarks o metas externas
 
+Los microdatos reales de la ECH ya incluyen `nom_dpto` y `region`. Aqui
+demostramos un join con lineas de pobreza como ejemplo:
+
 ``` r
-# Department names and regions
-department_info <- data.table(
-  dpto = 1:19,
-  dpto_name = c(
-    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
-    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-    "Maldonado", "Paysandú", "Río Negro", "Rivera", "Rocha",
-    "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"
-  ),
-  region = c("Montevideo", rep("Interior", 18))
+# Lineas de pobreza por region (valores ilustrativos en UYU, 2023)
+poverty_lines <- data.table(
+  region = 1:3,
+  poverty_line = c(19000, 12500, 11000),
+  region_name = c("Montevideo", "Interior loc. >= 5000", "Interior loc. < 5000")
 )
 
 svy <- step_join(svy,
-  department_info,
-  by = "dpto",
+  poverty_lines,
+  by = "region",
   type = "left",
-  comment = "Add department names and regions"
+  comment = "Add poverty lines by region"
 )
 ```
 
@@ -261,21 +252,26 @@ para ejecutar todas las transformaciones pendientes:
 ``` r
 svy <- bake_steps(svy)
 head(get_data(svy), 3)
-#>     dpto numero   age sex_code  ht11 POBPCOAC pesoano ht11_thousands employed
-#>    <int>  <int> <int>    <num> <num>    <num>   <num>          <num>    <num>
-#> 1:     1      9    66        1 48617        2  2.2527         48.617        1
-#> 2:     1     39    47        1 74100        2  2.6680         74.100        1
-#> 3:     1     52    21        2 35551        2  1.6245         35.551        1
-#>    labor_status      age_group gender  dpto_name     region dpto_name.y
-#>          <char>         <fctr> <char>     <char>     <char>      <char>
-#> 1:     Employed           <NA>   Male Montevideo Montevideo  Montevideo
-#> 2:     Employed Mature (45-64)   Male Montevideo Montevideo  Montevideo
-#> 3:     Employed Mature (45-64) Female Montevideo Montevideo  Montevideo
-#>      region.y
-#>        <char>
-#> 1: Montevideo
-#> 2: Montevideo
-#> 3: Montevideo
+#>    region  dpto    ID  nper  anio   mes   nom_dpto sex_code   age   e30 e51_2
+#>     <int> <int> <int> <int> <int> <int>     <char>    <int> <int> <int> <int>
+#> 1:      1     1 34561     1  2023     1 Montevideo        2    26     1     6
+#> 2:      1     1 34561     2  2023     1 Montevideo        2    45     7     6
+#> 3:      1     1 34561     3  2023     1 Montevideo        2     7     4     1
+#>    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO ht11_thousands employed
+#>       <int>     <int>   <num>   <int> <int>          <num>    <num>
+#> 1:        2         0 55429.6       0    57        55.4296        1
+#> 2:        4         0 55429.6       0    57        55.4296        0
+#> 3:        1         0 55429.6       0    57        55.4296        0
+#>    labor_status      age_group gender poverty_line region_name poverty_line.y
+#>          <char>         <fctr> <char>        <num>      <char>          <num>
+#> 1:     Employed Mature (45-64) Female        19000  Montevideo          19000
+#> 2:   Unemployed Mature (45-64) Female        19000  Montevideo          19000
+#> 3:         <NA> Mature (45-64) Female        19000  Montevideo          19000
+#>    region_name.y
+#>           <char>
+#> 1:    Montevideo
+#> 2:    Montevideo
+#> 3:    Montevideo
 ```
 
 El historial de steps se preserva para documentacion y reproducibilidad:
@@ -283,12 +279,12 @@ El historial de steps se preserva para documentacion y reproducibilidad:
 ``` r
 steps <- get_steps(svy)
 length(steps) # Number of transformation steps
-#> [1] 11
+#> [1] 8
 
 # View step details
 cat("Step 1:", steps[[1]]$name, "\n")
 #> Step 1: step_1 Compute: ht11_thousands, employed, working_age
-cat("Comment:", steps[[1]]$comments, "\n")
+cat("Comment:", steps[[1]]$comment, "\n")
 #> Comment: Basic labor force indicators
 ```
 
@@ -326,14 +322,17 @@ variacion.
 # Estimate mean household income
 result <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~HT11, na.rm = TRUE),
   estimation_type = "annual"
 )
 
 result
-#>                     stat    value       se       cv confint_lower confint_upper
-#>                   <char>    <num>    <num>    <num>         <num>         <num>
-#> 1: survey::svymean: ht11 39774.23 1622.948 0.040804      36593.31      42955.15
+#>                     stat    value       se         cv confint_lower
+#>                   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5
+#>    confint_upper
+#>            <num>
+#> 1:      114677.7
 ```
 
 La salida incluye:
@@ -351,7 +350,7 @@ Es posible calcular varias estadisticas en una sola llamada:
 ``` r
 results <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE), # Mean income
+  survey::svymean(~HT11, na.rm = TRUE), # Mean income
   survey::svytotal(~employed, na.rm = TRUE), # Total employed
   survey::svymean(~labor_status, na.rm = TRUE), # Employment distribution
   estimation_type = "annual"
@@ -360,18 +359,18 @@ results <- workflow(
 results
 #>                                       stat        value           se         cv
 #>                                     <char>        <num>        <num>      <num>
-#> 1:                   survey::svymean: ht11 3.977423e+04 1.622948e+03 0.04080400
-#> 2:              survey::svytotal: employed 2.020862e+02 1.351243e+01 0.06686469
-#> 3:   survey::svymean: labor_statusEmployed 5.665880e-01 3.788473e-02 0.06686469
-#> 4:   survey::svymean: labor_statusInactive 3.748725e-01 3.721431e-02 0.09927192
-#> 5: survey::svymean: labor_statusUnemployed 5.853947e-02 1.680764e-02 0.28711634
+#> 1:                   survey::svymean: HT11 1.078691e+05 3.473836e+03 0.03220417
+#> 2:              survey::svytotal: employed 1.426200e+04 7.557046e+02 0.05298728
+#> 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.609582e-02 0.04700614
+#> 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551231e-02 0.06608301
+#> 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.308848e-02 0.22267760
 #>    confint_lower confint_upper
 #>            <num>         <num>
-#> 1:  3.659331e+04  4.295515e+04
-#> 2:  1.756023e+02  2.285701e+02
-#> 3:  4.923353e-01  6.408407e-01
-#> 4:  3.019338e-01  4.478112e-01
-#> 5:  2.559710e-02  9.148183e-02
+#> 1:  1.010605e+05  1.146777e+05
+#> 2:  1.278085e+04  1.574315e+04
+#> 3:  5.040108e-01  6.063045e-01
+#> 4:  3.360614e-01  4.360678e-01
+#> 5:  3.312478e-02  8.443069e-02
 ```
 
 ### Estimacion por dominios
@@ -383,19 +382,19 @@ Se calculan estimaciones para subpoblaciones usando
 # Mean income by gender
 income_by_gender <- workflow(
   list(svy),
-  survey::svyby(~ht11, ~gender, survey::svymean, na.rm = TRUE),
+  survey::svyby(~HT11, ~gender, survey::svymean, na.rm = TRUE),
   estimation_type = "annual"
 )
 
 income_by_gender
-#>      stat     value    se         cv confint_lower confint_upper
-#>    <char>     <num> <num>      <num>         <num>         <num>
-#> 1: Female        NA    NA 0.05715728      33165.86      41534.22
-#> 2:   Male        NA    NA 0.05677403      37150.72      46453.82
-#> 3: Female 37350.039    NA 0.05715728            NA            NA
-#> 4:   Male 41802.272    NA 0.05677403            NA            NA
-#> 5: Female  2134.827    NA 0.05715728            NA            NA
-#> 6:   Male  2373.283    NA 0.05677403            NA            NA
+#>                                   stat    value       se         cv
+#>                                 <char>    <num>    <num>      <num>
+#> 1: survey::svyby: HT11 [gender=Female] 108403.8 5008.205 0.04619954
+#> 2:   survey::svyby: HT11 [gender=Male] 107283.9 4783.662 0.04458883
+#>    confint_lower confint_upper gender
+#>            <num>         <num> <char>
+#> 1:      98587.87      118219.7 Female
+#> 2:      97908.07      116659.7   Male
 ```
 
 ## Evaluacion de calidad
@@ -424,7 +423,7 @@ cv_percentage <- results$cv[1] * 100
 quality <- evaluate_cv(cv_percentage)
 
 cat("CV:", round(cv_percentage, 2), "%\n")
-#> CV: 4.08 %
+#> CV: 3.22 %
 cat("Quality:", quality, "\n")
 #> Quality: Excellent
 ```
@@ -476,10 +475,10 @@ O se puede definir una receta desde cero:
 
 ``` r
 minimal_recipe <- recipe(
-  name = "Basic Demographics",
+  name = "Basic Demographics - ECH",
   user = "analyst",
   svy = survey_empty(type = "ech", edition = "2023"),
-  description = "Basic demographic recoding",
+  description = "Basic demographic recoding for ECH microdata",
   topic = "demographics",
 
   # Define steps inline
@@ -491,7 +490,7 @@ minimal_recipe <- recipe(
   ),
   step_recode(
     age_group,
-    e27 < 18 ~ "Minor",
+    e27 < 14 ~ "Child",
     e27 < 65 ~ "Adult",
     .default = "Senior"
   )
@@ -504,7 +503,7 @@ Una vez publicada, cualquier persona puede recuperar una receta por ID y
 aplicarla a sus datos:
 
 ``` r
-# Obtener una receta por ID desde la API
+# Obtener una receta por ID desde la API (requiere servidor)
 r <- api_get_recipe("ech_labor_001")
 
 # Aplicar a una nueva encuesta
@@ -523,7 +522,7 @@ names(doc)
 
 # Input variables required
 doc$input_variables
-#> [1] "ht11"     "POBPCOAC" "e27"      "e26"      "dpto"
+#> [1] "HT11"     "POBPCOAC" "e27"      "e26"      "region"
 
 # Output variables created
 doc$output_variables
@@ -573,17 +572,17 @@ que otros lo encuentren y reutilicen. El paquete se conecta a una API
 publica donde se almacenan recipes y workflows:
 
 ``` r
-# Browse existing recipes (no login required)
+# Buscar recipes existentes (requiere servidor API)
 ech_recipes <- api_list_recipes(survey_type = "ech")
 length(ech_recipes)
 
-# Search for something specific
+# Buscar algo especifico
 labor <- api_list_recipes(search = "labor")
 
-# To publish your own, create an account first
+# Para publicar, crear una cuenta primero
 api_register("Your Name", "you@example.com", "password")
 
-# Then publish
+# Luego publicar
 api_publish_recipe(labor_recipe)
 ```
 
@@ -596,15 +595,29 @@ tengan respaldo real.
 Para mas detalles, consultar [Creacion y comparticion de
 Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.md).
 
+## Datos y agradecimientos
+
+Los datos de ejemplo utilizados en esta vinieta provienen de la
+*Encuesta Continua de Hogares* (ECH) 2023, publicada por el Instituto
+Nacional de Estadistica (INE) de Uruguay. Los microdatos completos estan
+disponibles en [www.ine.gub.uy](https://www.ine.gub.uy).
+
+El paquete **[ech](https://calcita.github.io/ech/)** de Gabriela Mathieu
+y Richard Detomasi fue una inspiracion importante para metasurvey.
+Mientras que `ech` provee funciones listas para usar para calcular
+indicadores socioeconomicos, metasurvey toma un enfoque diferente:
+proporciona una capa de metaprogramacion que permite a los usuarios
+definir, compartir y reproducir sus propios pipelines de procesamiento.
+
 ## Paquetes relacionados
 
 metasurvey es parte de un ecosistema creciente de paquetes de R para el
 analisis de encuestas de hogares en America Latina:
 
 - **[ech](https://calcita.github.io/ech/)** – Funciones para el calculo
-  de indicadores socioeconomicos con la ECH de Uruguay. Provee funciones
-  listas para usar sobre pobreza, ingresos, educacion e indicadores de
-  empleo.
+  de indicadores socioeconomicos con la ECH de Uruguay (Mathieu &
+  Detomasi). Provee funciones listas para usar sobre pobreza, ingresos,
+  educacion e indicadores de empleo.
 - **[eph](https://docs.ropensci.org/eph/)** – Herramientas para trabajar
   con la Encuesta Permanente de Hogares de Argentina. Publicado en
   rOpenSci. Cubre descarga de datos, construccion de paneles y calculo

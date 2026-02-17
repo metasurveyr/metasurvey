@@ -10,7 +10,8 @@ survey_empty(
   type = NULL,
   weight = NULL,
   engine = NULL,
-  psu = NULL
+  psu = NULL,
+  strata = NULL
 )
 ```
 
@@ -36,6 +37,10 @@ survey_empty(
 
   PSU variable or formula (optional)
 
+- strata:
+
+  Stratification variable name (optional)
+
 ## Value
 
 Survey object
@@ -48,6 +53,10 @@ Other survey-objects:
 [`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md),
 [`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
 [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+[`has_design()`](https://metasurveyr.github.io/metasurvey/reference/has_design.md),
+[`has_recipes()`](https://metasurveyr.github.io/metasurvey/reference/has_recipes.md),
+[`has_steps()`](https://metasurveyr.github.io/metasurvey/reference/has_steps.md),
+[`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md),
 [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
 [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
 [`survey_to_data_frame()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.md),

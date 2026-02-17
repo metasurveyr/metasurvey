@@ -5,7 +5,7 @@ include operations such as recoding variables, computing
 new variables, or validating dependencies."><meta property="og:description" content="The Step class is used to define and manage
 individual steps in a survey workflow. Each step can
 include operations such as recoding variables, computing
-new variables, or validating dependencies."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+new variables, or validating dependencies."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -19,7 +19,7 @@ new variables, or validating dependencies."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ new variables, or validating dependencies."><meta property="og:image" content="h
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Step Class Represents a step in a survey workflow.</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Step Class Represents a step in a survey workflow.</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/Step.R" class="external-link"><code>R/Step.R</code></a></small>
       <div class="d-none name"><code>Step.Rd</code></div>
     </div>
@@ -101,8 +101,8 @@ operations.</p></dd>
 
 
 <dt><code>svy_before</code></dt>
-<dd><p>The survey object before the step is
-applied.</p></dd>
+<dd><p>Deprecated. Always NULL to prevent memory
+retention chains. Kept for backwards compatibility.</p></dd>
 
 
 <dt><code>default_engine</code></dt>
@@ -115,7 +115,7 @@ processing the step.</p></dd>
 depends on.</p></dd>
 
 
-<dt><code>comments</code></dt>
+<dt><code>comment</code></dt>
 <dd><p>Comments or notes about the step.</p></dd>
 
 
@@ -149,9 +149,9 @@ has been executed.</p></dd>
 <span>  <span class="va">svy_before</span>,</span>
 <span>  <span class="va">default_engine</span>,</span>
 <span>  <span class="va">depends_on</span>,</span>
-<span>  comments <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  comment <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bake <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="../reference/lazy_default.html">lazy_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  comment <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  comments <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -190,8 +190,8 @@ step.</p></dd>
 
 
 <dt><code>svy_before</code></dt>
-<dd><p>The survey object before the step
-is applied.</p></dd>
+<dd><p>Deprecated. Ignored (always set to
+NULL) to prevent memory retention chains.</p></dd>
 
 
 <dt><code>default_engine</code></dt>
@@ -204,7 +204,7 @@ processing the step.</p></dd>
 depends on.</p></dd>
 
 
-<dt><code>comments</code></dt>
+<dt><code>comment</code></dt>
 <dd><p>Comments or notes about the step.</p></dd>
 
 
@@ -213,9 +213,8 @@ depends on.</p></dd>
 step has been executed.</p></dd>
 
 
-<dt><code>comment</code></dt>
-<dd><p>Optional alias of <code>comments</code> for
-backwards compatibility.</p></dd>
+<dt><code>comments</code></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>comment</code> instead.</p></dd>
 
 
 </dl><p></p></div>
@@ -258,7 +257,7 @@ backwards compatibility.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bake: FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     call: call</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clone: function (deep = FALSE) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     comments: Compute step</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     comment: Compute step</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     default_engine: data.table</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     depends_on: age</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     edition: 2023</span>
@@ -267,7 +266,7 @@ backwards compatibility.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name: step_1 Compute: age2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     new_var: age2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     survey_type: test</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     svy_before: Survey, R6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     svy_before: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     type: compute</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>

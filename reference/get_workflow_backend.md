@@ -23,7 +23,5 @@ Other backends:
 ## Examples
 
 ``` r
-# \donttest{
 backend <- get_workflow_backend()
-# }
 ```

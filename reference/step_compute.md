@@ -11,9 +11,10 @@ step_compute(
   svy = NULL,
   ...,
   .by = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Compute step",
-  .level = "auto"
+  .level = "auto",
+  use_copy = deprecated()
 )
 ```
 
@@ -34,7 +35,7 @@ step_compute(
   Vector of variables to group computations by. The system automatically
   validates these variables exist before execution
 
-- use_copy:
+- .copy:
 
   Logical indicating whether to create a copy of the object before
   applying transformations. Defaults to
@@ -51,6 +52,10 @@ step_compute(
   computations are applied: "implantation", "follow_up", "quarter",
   "month", or "auto"
 
+- use_copy:
+
+  **\[deprecated\]** Use `.copy` instead.
+
 ## Value
 
 Same type of input object (`Survey` or `RotativePanelSurvey`) with new
@@ -58,44 +63,29 @@ computed variables and the step added to the history
 
 ## Details
 
-**CORE ENGINE FEATURES**:
+**Lazy evaluation (default):** By default, steps are recorded but **not
+executed** until
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+is called. This allows building a full pipeline before materializing any
+changes. Set `options(metasurvey.lazy_processing = FALSE)` to apply
+steps immediately.
 
-**1. Automatic Expression Processing:**
+**Expression processing:** Expressions are evaluated using data.table's
+`:=` operator. Variable dependencies are detected automatically via
+[`all.vars()`](https://rdrr.io/r/base/allnames.html). Missing variables
+are caught before execution.
 
-- All expressions are evaluated using R's native evaluation
+**Grouped computations:** Use `.by` to compute aggregated values (e.g.,
+group means) that are automatically joined back to the data.
 
-- Dependency detection using variable name analysis
+For RotativePanelSurvey objects, `.level` controls where computations
+are applied:
 
-- Runtime validation prevents errors
+- `"auto"` (default): applies to both implantation and follow-ups
 
-**2. Enhanced Error Prevention:**
+- `"implantation"`: household/dwelling level only
 
-- Missing variables detected before execution
-
-- Type checking when possible
-
-- Precise error locations with context
-
-**3. Performance Benefits:**
-
-- Direct evaluation for minimal overhead
-
-- Efficient data.table operations
-
-- Optimized for large survey datasets
-
-For RotativePanelSurvey objects, validation ensures computations are
-compatible with the specified hierarchical level:
-
-- "implantation": Household/dwelling level computations
-
-- "follow_up": Individual/person level computations
-
-- "quarter": Quarterly aggregated computations
-
-- "month": Monthly aggregated computations
-
-- "auto": Automatically detects appropriate level
+- `"follow_up"`: individual/person level only
 
 ## See also
 

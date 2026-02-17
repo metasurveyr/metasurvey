@@ -7,11 +7,12 @@ when baked.
 
 ``` r
 step_remove(
-  svy = survey_empty(),
+  svy,
   ...,
   vars = NULL,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Remove variables",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -29,28 +30,51 @@ step_remove(
 
 - vars:
 
-  Character vector of variable names to remove.
+  Character vector of variable names to remove. Alternative to `...` for
+  programmatic use.
 
-- use_copy:
+- .copy:
 
-  Whether to operate on a copy (default: use_copy_default())
+  Whether to operate on a copy (default:
+  [`use_copy_default()`](https://metasurveyr.github.io/metasurvey/reference/use_copy_default.md))
 
 - comment:
 
-  Optional description for the step
+  Descriptive text for the step for documentation and traceability.
+  Defaults to "Remove variables"
+
+- use_copy:
+
+  **\[deprecated\]** Use `.copy` instead.
 
 - lazy:
 
-  Logical, whether to delay execution.
+  Internal. Whether to delay execution.
 
 - record:
 
-  Logical, whether to record the step.
+  Internal. Whether to record the step.
 
 ## Value
 
 Survey object with the specified variables removed (or queued for
 removal).
+
+## Details
+
+**Lazy evaluation (default):** By default, steps are recorded but **not
+executed** until
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+is called.
+
+Variables can be specified in two ways:
+
+- **Unquoted names:** `step_remove(svy, age, income)`
+
+- **Character vector:** `step_remove(svy, vars = c("age", "income"))`
+
+Variables that don't exist in the data produce a warning (not an error),
+allowing pipelines to be robust to missing columns.
 
 ## See also
 

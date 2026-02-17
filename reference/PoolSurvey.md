@@ -100,7 +100,15 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+s1 <- Survey$new(
+  data = data.table::data.table(id = 1:3, w = 1),
+  edition = "2023", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
+)
+s2 <- Survey$new(
+  data = data.table::data.table(id = 4:6, w = 1),
+  edition = "2023", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
+)
 pool <- PoolSurvey$new(list(annual = list("group1" = list(s1, s2))))
-} # }
 ```

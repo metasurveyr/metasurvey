@@ -12,6 +12,7 @@ load_panel_survey(
   svy_type,
   svy_weight_implantation,
   svy_weight_follow_up,
+  svy_strata = NULL,
   ...
 )
 ```
@@ -45,6 +46,11 @@ load_panel_survey(
   List with survey follow_up weights information specifing periodicity
   and the name of the weight variable. Recomended to use the helper
   function add_weight().
+
+- svy_strata:
+
+  Stratification variable name (character or NULL). Passed to
+  Survey\$new(strata = ...).
 
 - ...:
 

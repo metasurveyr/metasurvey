@@ -3,7 +3,7 @@
 that can be applied to surveys in a reproducible manner. Recipes allow
 documenting, sharing, and reusing data processing workflows."><meta property="og:description" content="Creates a Recipe object that encapsulates a sequence of data transformations
 that can be applied to surveys in a reproducible manner. Recipes allow
-documenting, sharing, and reusing data processing workflows."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+documenting, sharing, and reusing data processing workflows."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -17,7 +17,7 @@ documenting, sharing, and reusing data processing workflows."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ documenting, sharing, and reusing data processing workflows."><meta property="og
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Create a survey data transformation recipe</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Create a survey data transformation recipe</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/Recipes.R" class="external-link"><code>R/Recipes.R</code></a></small>
       <div class="d-none name"><code>recipe.Rd</code></div>
     </div>
@@ -131,22 +131,45 @@ versions for different editions</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Certification: </span><span style="color: #BBBB00;">community</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Recipe with steps</span></span></span>
-<span class="r-in"><span><span class="va">r2</span> <span class="op">&lt;-</span> <span class="fu">recipe</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"Labor Market ECH"</span>,</span></span>
-<span class="r-in"><span>  user <span class="op">=</span> <span class="st">"Labor Team"</span>,</span></span>
-<span class="r-in"><span>  svy <span class="op">=</span> <span class="fu"><a href="survey_empty.html">survey_empty</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"ech"</span>, edition <span class="op">=</span> <span class="st">"2023"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  description <span class="op">=</span> <span class="st">"Full labor market analysis"</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="step_recode.html">step_recode</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">labor_status</span>,</span></span>
-<span class="r-in"><span>    <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Employed"</span>,</span></span>
-<span class="r-in"><span>    <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="st">"Unemployed"</span>,</span></span>
-<span class="r-in"><span>    .default <span class="op">=</span> <span class="st">"Other"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="step_compute.html">step_compute</a></span><span class="op">(</span>activity_rate <span class="op">=</span> <span class="va">active</span> <span class="op">/</span> <span class="va">total</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Recipe with steps using local data</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">18</span><span class="op">:</span><span class="fl">65</span>, <span class="fl">50</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  income <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">1000</span>, <span class="fl">5000</span><span class="op">)</span>, w <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">0.5</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">dt</span>, edition <span class="op">=</span> <span class="st">"2023"</span>, type <span class="op">=</span> <span class="st">"demo"</span>,</span></span>
+<span class="r-in"><span>  psu <span class="op">=</span> <span class="cn">NULL</span>, engine <span class="op">=</span> <span class="st">"data.table"</span>,</span></span>
+<span class="r-in"><span>  weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va">svy</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="step_compute.html">step_compute</a></span><span class="op">(</span>income_cat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">income</span> <span class="op">&gt;</span> <span class="fl">3000</span>, <span class="st">"high"</span>, <span class="st">"low"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">age_group</span>, <span class="va">age</span> <span class="op">&lt;</span> <span class="fl">30</span> <span class="op">~</span> <span class="st">"young"</span>, .default <span class="op">=</span> <span class="st">"adult"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r2</span> <span class="op">&lt;-</span> <span class="fu">recipe</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"Demo"</span>, user <span class="op">=</span> <span class="st">"test"</span>, svy <span class="op">=</span> <span class="va">svy</span>,</span></span>
+<span class="r-in"><span>  description <span class="op">=</span> <span class="st">"Demo recipe"</span>, steps <span class="op">=</span> <span class="fu"><a href="get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r2</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">── Recipe: Demo ──</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Author:  </span>test</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Survey:  </span>demo / 2023</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Version: </span>1.0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Description: </span>Demo recipe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Certification: </span><span style="color: #BBBB00;">community</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">── Requires (2 variables) ──</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   income, age</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">── Pipeline (2 steps) ──</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1. [compute] -&gt; income_cat  "Compute step"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2. [recode] -&gt; age_group  "Recode step"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB; font-weight: bold;">── Produces (2 variables) ──</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age_group [categorical], income_cat [numeric]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

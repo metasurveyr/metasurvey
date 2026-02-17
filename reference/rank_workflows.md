@@ -48,7 +48,8 @@ Other tidy-api:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 top5 <- rank_workflows(n = 5)
-} # }
+length(top5)
+#> [1] 0
 ```

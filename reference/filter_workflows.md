@@ -66,8 +66,8 @@ Other tidy-api:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 ech_wf <- filter_workflows(survey_type = "ech")
-for_recipe <- filter_workflows(recipe_id = "recipe_001")
-} # }
+length(ech_wf)
+#> [1] 0
 ```

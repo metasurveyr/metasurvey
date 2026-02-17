@@ -13,6 +13,7 @@ load_survey(
   svy_edition = NULL,
   svy_weight = NULL,
   svy_psu = NULL,
+  svy_strata = NULL,
   ...,
   bake = FALSE,
   recipes = NULL
@@ -58,6 +59,12 @@ load_survey(
 - svy_psu:
 
   Primary sampling unit (PSU) variable as string
+
+- svy_strata:
+
+  Stratification variable name as string (optional). Used in
+  [`survey::svydesign()`](https://rdrr.io/pkg/survey/man/svydesign.html)
+  for stratified sampling designs.
 
 - ...:
 

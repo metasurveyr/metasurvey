@@ -5,7 +5,7 @@ METASURVEY_API_URL environment variable, and
 the token via METASURVEY_TOKEN."><meta property="og:description" content="Set API base URL and optionally load stored credentials.
 The URL can also be set via the
 METASURVEY_API_URL environment variable, and
-the token via METASURVEY_TOKEN."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+the token via METASURVEY_TOKEN."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -19,7 +19,7 @@ the token via METASURVEY_TOKEN."><meta property="og:image" content="https://meta
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ the token via METASURVEY_TOKEN."><meta property="og:image" content="https://meta
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Configure metasurvey API</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Configure metasurvey API</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/api_client.R" class="external-link"><code>R/api_client.R</code></a></small>
       <div class="d-none name"><code>configure_api.Rd</code></div>
     </div>
@@ -88,9 +88,10 @@ the token via <code>METASURVEY_TOKEN</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">configure_api</span><span class="op">(</span>url <span class="op">=</span> <span class="st">"https://metasurvey-api.example.com"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> API configured: https://metasurvey-api.example.com</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

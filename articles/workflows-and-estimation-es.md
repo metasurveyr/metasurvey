@@ -124,17 +124,16 @@ api_by_type <- workflow(
 )
 
 api_by_type
-#>      stat     value    se         cv confint_lower confint_upper
-#>    <fctr>     <num> <num>      <num>         <num>         <num>
-#> 1:      E   1.00000    NA 0.01852443      649.9433      698.9167
-#> 2:      H   2.00000    NA 0.02451309      595.7526      655.8874
-#> 3:      M   3.00000    NA 0.02592270      604.2559      668.9441
-#> 4:      E 674.43000    NA 0.01852443            NA            NA
-#> 5:      H 625.82000    NA 0.02451309            NA            NA
-#> 6:      M 636.60000    NA 0.02592270            NA            NA
-#> 7:      E  12.49343    NA 0.01852443            NA            NA
-#> 8:      H  15.34078    NA 0.02451309            NA            NA
-#> 9:      M  16.50239    NA 0.02592270            NA            NA
+#>                              stat  value       se         cv confint_lower
+#>                            <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  stype
+#>            <num> <fctr>
+#> 1:      698.9167      E
+#> 2:      655.8874      H
+#> 3:      668.9441      M
 ```
 
 ``` r
@@ -146,14 +145,14 @@ enroll_by_award <- workflow(
 )
 
 enroll_by_award
-#>      stat     value    se         cv confint_lower confint_upper
-#>    <fctr>     <num> <num>      <num>         <num>         <num>
-#> 1:     No   1.00000    NA 0.07908366      614.8177      840.3740
-#> 2:    Yes   2.00000    NA 0.04902590      470.4960      570.5269
-#> 3:     No 727.59582    NA 0.07908366            NA            NA
-#> 4:    Yes 520.51143    NA 0.04902590            NA            NA
-#> 5:     No  57.54094    NA 0.07908366            NA            NA
-#> 6:    Yes  25.51854    NA 0.04902590            NA            NA
+#>                                  stat    value       se         cv
+#>                                <char>    <num>    <num>      <num>
+#> 1:  survey::svyby: enroll [awards=No] 727.5958 57.54094 0.07908366
+#> 2: survey::svyby: enroll [awards=Yes] 520.5114 25.51854 0.04902590
+#>    confint_lower confint_upper awards
+#>            <num>         <num> <fctr>
+#> 1:      614.8177      840.3740     No
+#> 2:      470.4960      570.5269    Yes
 ```
 
 ## Evaluacion de la calidad
@@ -358,17 +357,16 @@ by_school <- workflow(
 )
 
 by_school
-#>      stat     value    se         cv confint_lower confint_upper
-#>    <fctr>     <num> <num>      <num>         <num>         <num>
-#> 1:      E   1.00000    NA 0.01852443      649.9433      698.9167
-#> 2:      H   2.00000    NA 0.02451309      595.7526      655.8874
-#> 3:      M   3.00000    NA 0.02592270      604.2559      668.9441
-#> 4:      E 674.43000    NA 0.01852443            NA            NA
-#> 5:      H 625.82000    NA 0.02451309            NA            NA
-#> 6:      M 636.60000    NA 0.02592270            NA            NA
-#> 7:      E  12.49343    NA 0.01852443            NA            NA
-#> 8:      H  15.34078    NA 0.02451309            NA            NA
-#> 9:      M  16.50239    NA 0.02592270            NA            NA
+#>                              stat  value       se         cv confint_lower
+#>                            <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  stype
+#>            <num> <fctr>
+#> 1:      698.9167      E
+#> 2:      655.8874      H
+#> 3:      668.9441      M
 ```
 
 ``` r

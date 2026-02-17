@@ -27,6 +27,14 @@ Create and manipulate Survey objects
   : get_metadata
 - [`get_steps()`](https://metasurveyr.github.io/metasurvey/reference/get_steps.md)
   : get_steps
+- [`has_steps()`](https://metasurveyr.github.io/metasurvey/reference/has_steps.md)
+  : Check if survey has steps
+- [`has_recipes()`](https://metasurveyr.github.io/metasurvey/reference/has_recipes.md)
+  : Check if survey has recipes
+- [`has_design()`](https://metasurveyr.github.io/metasurvey/reference/has_design.md)
+  : Check if survey has a design
+- [`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md)
+  : Check if all steps are baked
 - [`survey_to_data_frame()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data_frame.md)
   : survey_to_data_frame
 - [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md)

@@ -33,10 +33,5 @@ Other backends:
 ## Examples
 
 ``` r
-# \donttest{
 set_workflow_backend("local", path = tempfile(fileext = ".json"))
-# }
-if (FALSE) { # \dontrun{
-set_workflow_backend("api")
-} # }
 ```

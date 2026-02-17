@@ -7,7 +7,26 @@ integrates with the
 designed for **complex sampling designs** and **recurring estimations**
 over time (rotating panels, repeated cross-sections).
 
-### Key features
+> If you find this useful, please consider giving us a ⭐ [star on
+> GitHub](https://github.com/metasurveyr/metasurvey) — it helps others
+> discover the project!
+
+------------------------------------------------------------------------
+
+## Live services
+
+The full stack is deployed and publicly available:
+
+| Service             | URL                                                                                                                  | Description                                                                         |
+|---------------------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| **Recipe Explorer** | [metasurvey-shiny-production.up.railway.app](https://metasurvey-shiny-production.up.railway.app)                     | Interactive Shiny app to browse, search and inspect community recipes and workflows |
+| **REST API**        | [metasurvey-api-production.up.railway.app](https://metasurvey-api-production.up.railway.app)                         | Plumber API backed by MongoDB Atlas for publishing and discovering recipes          |
+| **API Docs**        | [metasurvey-api-production.up.railway.app/\_\_docs\_\_/](https://metasurvey-api-production.up.railway.app/__docs__/) | Swagger/OpenAPI interactive documentation                                           |
+| **pkgdown site**    | [metasurveyr.github.io/metasurvey](https://metasurveyr.github.io/metasurvey/)                                        | Full package documentation and vignettes                                            |
+
+------------------------------------------------------------------------
+
+## Key features
 
 - **Steps**: lazy transformation pipeline (`step_compute`,
   `step_recode`, `step_rename`, `step_remove`, `step_join`) executed via
@@ -28,9 +47,61 @@ over time (rotating panels, repeated cross-sections).
   for robust variance with
   [`survey::svrepdesign`](https://rdrr.io/pkg/survey/man/svrepdesign.html).
 - **Recipe registry**: publish, search and discover recipes and
-  workflows through a REST API or a local JSON registry.
-- **Shiny app**: interactive recipe and workflow explorer with
+  workflows through the [REST
+  API](https://metasurvey-api-production.up.railway.app/__docs__/) or a
+  local JSON registry.
+- **Shiny app**: [interactive recipe and workflow
+  explorer](https://metasurvey-shiny-production.up.railway.app) with
   [`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md).
+- **STATA transpiler**: convert `.do` files into reproducible Recipe
+  objects.
+
+------------------------------------------------------------------------
+
+## Works with any household survey
+
+The step pipeline and workflow system are survey-agnostic. The same
+verbs process Argentina’s EPH, Chile’s CASEN, Brazil’s PNAD-C, the US
+CPS, Mexico’s ENIGH, or DHS data from 90+ countries.
+
+|                                                   | EPH | CASEN | PNAD-C | CPS | ENIGH | DHS |
+|---------------------------------------------------|:---:|:-----:|:------:|:---:|:-----:|:---:|
+| Steps (compute / recode / rename / remove / join) | ✅  |  ✅   |   ✅   | ✅  |  ✅   | ✅  |
+| Weights (`add_weight`)                            | ✅  |  ✅   |   ✅   | ✅  |  ✅   | ✅  |
+| Stratified + cluster designs                      | ✅  |  ✅   |   ✅   |  –  |  ✅   | ✅  |
+| Replicate weights (`add_replicate`)               |  –  |   –   |   ✅   | ✅  |   –   |  –  |
+| Rotating panels (`RotativePanelSurvey`)           | ✅  |   –   |   ✅   | ✅  |   –   |  –  |
+| Recipes & workflows                               | ✅  |  ✅   |   ✅   | ✅  |  ✅   | ✅  |
+
+``` r
+# Same pipeline, different surveys ─────────────────────────
+
+# Argentina (eph)
+eph_svy <- Survey$new(
+  data = as.data.table(eph::get_microdata(2023, 3)),
+  edition = "2023-T3", type = "eph", psu = NULL,
+  engine = "data.table", weight = add_weight(quarterly = "PONDERA")
+)
+
+# Chile (casen)
+casen_svy <- Survey$new(
+  data = as.data.table(casen::descargar_casen_github(2017)),
+  edition = "2017", type = "casen", psu = "varunit",
+  engine = "data.table", weight = add_weight(annual = "expr")
+)
+
+# Both use the exact same verbs
+process <- function(svy) {
+  svy |>
+    step_recode(employed, labor_status == 1 ~ 1L, .default = 0L,
+                comment = "Binary employment indicator") |>
+    bake_steps()
+}
+```
+
+See
+[`vignette("international-surveys")`](https://metasurveyr.github.io/metasurvey/articles/international-surveys.md)
+for reproducible examples with all seven surveys.
 
 ------------------------------------------------------------------------
 
@@ -176,10 +247,51 @@ with robust variance.
 
 ------------------------------------------------------------------------
 
+## STATA transpiler
+
+Many research groups maintain decades of STATA `.do` files that process
+household survey microdata. The metasurvey transpiler converts these
+scripts into reproducible Recipe objects.
+
+``` r
+library(metasurvey)
+
+# Transpile a .do file to metasurvey steps
+result <- transpile_stata("demographics.do")
+result$steps[1:3]
+#> [1] "step_rename(svy, hh_id = \"id\", person_id = \"nper\")"
+#> [2] "step_compute(svy, weight_yr = pesoano)"
+#> [3] "step_compute(svy, sex = e26)"
+
+# Transpile an entire year directory into separate recipes
+recipes <- transpile_stata_module(
+  year_dir = "do_files/2022",
+  year = 2022,
+  user = "research_team",
+  output_dir = "recipes/"
+)
+
+# Check coverage before migrating
+transpile_coverage("do_files/")
+```
+
+Supported STATA patterns: `gen`/`replace` chains, `recode`, `egen` with
+by-groups, `foreach`/`forvalues` loops, `mvencode`, `destring`,
+`rename`, `drop`/`keep`, variable and value labels, `inrange`/`inlist`
+expressions, and variable ranges.
+
+See
+[`vignette("stata-transpiler")`](https://metasurveyr.github.io/metasurvey/articles/stata-transpiler.md)
+for the full reference.
+
+------------------------------------------------------------------------
+
 ## Documentation
 
 - [Getting
   started](https://metasurveyr.github.io/metasurvey/articles/getting-started.html)
+- [International survey
+  compatibility](https://metasurveyr.github.io/metasurvey/articles/international-surveys.html)
 - [Recipes](https://metasurveyr.github.io/metasurvey/articles/recipes.html)
 - [Workflows and
   estimation](https://metasurveyr.github.io/metasurvey/articles/workflows-and-estimation.html)
@@ -189,7 +301,34 @@ with robust variance.
   panels](https://metasurveyr.github.io/metasurvey/articles/panel-analysis.html)
 - [Case study:
   ECH](https://metasurveyr.github.io/metasurvey/articles/ech-case-study.html)
+- [STATA
+  transpiler](https://metasurveyr.github.io/metasurvey/articles/stata-transpiler.html)
+- [ECH demographics
+  recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.html)
 - [Interactive
   explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html)
 - [API and
   database](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
+
+------------------------------------------------------------------------
+
+## Citation
+
+To cite metasurvey in publications use:
+
+``` r
+citation("metasurvey")
+```
+
+> Loprete M, da Silva N, Machado F (2025). *metasurvey: Reproducible
+> Survey Data Processing with Step Pipelines*. R package,
+> <https://github.com/metasurveyr/metasurvey>.
+
+------------------------------------------------------------------------
+
+## Code of Conduct
+
+Please note that the metasurvey project is released with a [Contributor
+Code of
+Conduct](https://metasurveyr.github.io/metasurvey/CODE_OF_CONDUCT.md).
+By contributing to this project you agree to abide by its terms.

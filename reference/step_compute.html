@@ -5,7 +5,7 @@ prevention. All computations are validated before
 execution."><meta property="og:description" content="This function uses optimized expression evaluation
 with automatic dependency detection and error
 prevention. All computations are validated before
-execution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+execution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -19,7 +19,7 @@ execution."><meta property="og:image" content="https://metasurveyr.github.io/met
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ execution."><meta property="og:image" content="https://metasurveyr.github.io/met
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Create computation steps for survey variables</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Create computation steps for survey variables</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/steps.R" class="external-link"><code>R/steps.R</code></a></small>
       <div class="d-none name"><code>step_compute.Rd</code></div>
     </div>
@@ -64,9 +64,10 @@ execution.</p>
 <span>  svy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  .by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  use_copy <span class="op">=</span> <span class="fu"><a href="use_copy_default.html">use_copy_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  .copy <span class="op">=</span> <span class="fu"><a href="use_copy_default.html">use_copy_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Compute step"</span>,</span>
-<span>  .level <span class="op">=</span> <span class="st">"auto"</span></span>
+<span>  .level <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  use_copy <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,7 +93,7 @@ by. The system automatically validates these
 variables exist before execution</p></dd>
 
 
-<dt id="arg-use-copy">use_copy<a class="anchor" aria-label="anchor" href="#arg-use-copy"></a></dt>
+<dt id="arg--copy">.copy<a class="anchor" aria-label="anchor" href="#arg--copy"></a></dt>
 <dd><p>Logical indicating whether to create
 a copy of the object before applying
 transformations. Defaults to <code><a href="use_copy_default.html">use_copy_default()</a></code></p></dd>
@@ -110,6 +111,10 @@ specifies the level where computations are
 applied: "implantation", "follow_up", "quarter",
 "month", or "auto"</p></dd>
 
+
+<dt id="arg-use-copy">use_copy<a class="anchor" aria-label="anchor" href="#arg-use-copy"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>.copy</code> instead.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -118,22 +123,20 @@ with new computed variables and the step added to the history</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>CORE ENGINE FEATURES</strong>:</p>
-<p><strong>1. Automatic Expression Processing:</strong></p><ul><li><p>All expressions are evaluated using R's native evaluation</p></li>
-<li><p>Dependency detection using variable name analysis</p></li>
-<li><p>Runtime validation prevents errors</p></li>
-</ul><p><strong>2. Enhanced Error Prevention:</strong></p><ul><li><p>Missing variables detected before execution</p></li>
-<li><p>Type checking when possible</p></li>
-<li><p>Precise error locations with context</p></li>
-</ul><p><strong>3. Performance Benefits:</strong></p><ul><li><p>Direct evaluation for minimal overhead</p></li>
-<li><p>Efficient data.table operations</p></li>
-<li><p>Optimized for large survey datasets</p></li>
-</ul><p>For RotativePanelSurvey objects, validation ensures computations
-are compatible with the specified hierarchical level:</p><ul><li><p>"implantation": Household/dwelling level computations</p></li>
-<li><p>"follow_up": Individual/person level computations</p></li>
-<li><p>"quarter": Quarterly aggregated computations</p></li>
-<li><p>"month": Monthly aggregated computations</p></li>
-<li><p>"auto": Automatically detects appropriate level</p></li>
+    <p><strong>Lazy evaluation (default):</strong> By default, steps are recorded but
+<strong>not executed</strong> until <code><a href="bake_steps.html">bake_steps()</a></code> is called. This allows building
+a full pipeline before materializing any changes. Set
+<code>options(metasurvey.lazy_processing = FALSE)</code> to apply steps immediately.</p>
+<p><strong>Expression processing:</strong>
+Expressions are evaluated using data.table's <code>:=</code> operator.
+Variable dependencies are detected automatically via <code><a href="https://rdrr.io/r/base/allnames.html" class="external-link">all.vars()</a></code>.
+Missing variables are caught before execution.</p>
+<p><strong>Grouped computations:</strong> Use <code>.by</code> to compute aggregated values
+(e.g., group means) that are automatically joined back to the data.</p>
+<p>For RotativePanelSurvey objects, <code>.level</code> controls where computations
+are applied:</p><ul><li><p><code>"auto"</code> (default): applies to both implantation and follow-ups</p></li>
+<li><p><code>"implantation"</code>: household/dwelling level only</p></li>
+<li><p><code>"follow_up"</code>: individual/person level only</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>ECH Case Study: From STATA to R</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>ECH Case Study: From STATA to R</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/ech-case-study.Rmd" class="external-link"><code>vignettes/ech-case-study.Rmd</code></a></small>
@@ -142,27 +142,27 @@ age, and relationship to head of household:</p>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>* edad</span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>g bc_pe3 = e27</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>* parentesco</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>* parentesco (e30 <span class="kw">in</span> ECH 2023, was e31 <span class="kw">in</span> earlier editions)</span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>g bc_pe4 = -9</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 1 <span class="kw">if</span> e31 == 1</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 2 <span class="kw">if</span> e31 == 2</span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 3 <span class="kw">if</span> e31 == 3 | e31 == 4 | e31 == 5</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 4 <span class="kw">if</span> e31 == 7 | e31 == 8</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 5 <span class="kw">if</span> e31 == 6 | e31 == 9 | e31 == 10 | e31 == 11 | e31 == 12</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 6 <span class="kw">if</span> e31 == 13</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 7 <span class="kw">if</span> e31 == 14</span></code></pre></div>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 1 <span class="kw">if</span> e30 == 1</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 2 <span class="kw">if</span> e30 == 2</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 3 <span class="kw">if</span> e30 == 3 | e30 == 4 | e30 == 5</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 4 <span class="kw">if</span> e30 == 7 | e30 == 8</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 5 <span class="kw">if</span> e30 == 6 | e30 == 9 | e30 == 10 | e30 == 11 | e30 == 12</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 6 <span class="kw">if</span> e30 == 13</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="kw">replace</span> bc_pe4 = 7 <span class="kw">if</span> e30 == 14</span></code></pre></div>
 <p>The metasurvey equivalent:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_rename.html">step_rename</a></span><span class="op">(</span><span class="va">svy</span>, sex <span class="op">=</span> <span class="va">e26</span>, age <span class="op">=</span> <span class="va">e27</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">relationship</span>,</span>
-<span>  <span class="va">e31</span> <span class="op">==</span> <span class="fl">1</span>                <span class="op">~</span> <span class="st">"Head"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op">==</span> <span class="fl">2</span>                <span class="op">~</span> <span class="st">"Spouse"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span>            <span class="op">~</span> <span class="st">"Child"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">8</span><span class="op">)</span>        <span class="op">~</span> <span class="st">"Parent"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>     <span class="op">~</span> <span class="st">"Other relative"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op">==</span> <span class="fl">13</span>               <span class="op">~</span> <span class="st">"Domestic service"</span>,</span>
-<span>  <span class="va">e31</span> <span class="op">==</span> <span class="fl">14</span>               <span class="op">~</span> <span class="st">"Non-relative"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op">==</span> <span class="fl">1</span>                <span class="op">~</span> <span class="st">"Head"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op">==</span> <span class="fl">2</span>                <span class="op">~</span> <span class="st">"Spouse"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span>            <span class="op">~</span> <span class="st">"Child"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">8</span><span class="op">)</span>        <span class="op">~</span> <span class="st">"Parent"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">9</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>     <span class="op">~</span> <span class="st">"Other relative"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op">==</span> <span class="fl">13</span>               <span class="op">~</span> <span class="st">"Domestic service"</span>,</span>
+<span>  <span class="va">e30</span> <span class="op">==</span> <span class="fl">14</span>               <span class="op">~</span> <span class="st">"Non-relative"</span>,</span>
 <span>  .default <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Relationship to head of household"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -214,56 +214,37 @@ age, and relationship to head of household:</p>
 </table>
 </div>
 <div class="section level2">
-<h2 id="simulating-ech-like-data">Simulating ECH-like data<a class="anchor" aria-label="anchor" href="#simulating-ech-like-data"></a>
+<h2 id="loading-real-ech-microdata">Loading real ECH microdata<a class="anchor" aria-label="anchor" href="#loading-real-ech-microdata"></a>
 </h2>
-<p>For this vignette we simulate data that replicates the structure of a
-real ECH microdata file. The simulated variables follow the same naming
-conventions and value ranges used by the INE.</p>
+<p>We use a sample of real microdata from the ECH 2023, published by the
+INE. The sample contains 200 households (~500 persons) with the key
+variables needed for labor market analysis.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2023</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
-<span></span>
-<span><span class="va">ech_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  numero <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
-<span>  nper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">100</span><span class="op">)</span>,</span>
-<span>  e26 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  e27 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">90</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  e31 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, <span class="va">n</span>,</span>
-<span>    replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="fl">0.20</span>, <span class="fl">0.15</span>, <span class="fl">0.25</span>, <span class="fl">0.05</span>, <span class="fl">0.03</span>,</span>
-<span>      <span class="fl">0.02</span>, <span class="fl">0.03</span>, <span class="fl">0.02</span>, <span class="fl">0.02</span>, <span class="fl">0.01</span>,</span>
-<span>      <span class="fl">0.01</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.15</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  pobpcoac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span>, <span class="va">n</span>,</span>
-<span>    replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.03</span>, <span class="fl">0.02</span>, <span class="fl">0.02</span>, <span class="fl">0.30</span>, <span class="fl">0.13</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  e51 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  ht11 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">5000</span>, <span class="fl">120000</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  dpto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">19</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  pesoano <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="co"># Load real ECH 2023 sample</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ech_2023_sample.csv"</span>, package <span class="op">=</span> <span class="st">"metasurvey"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  data    <span class="op">=</span> <span class="va">ech_sim</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  edition <span class="op">=</span> <span class="st">"2023"</span>,</span>
 <span>  type    <span class="op">=</span> <span class="st">"ech"</span>,</span>
-<span>  psu     <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  engine  <span class="op">=</span> <span class="st">"data.table"</span>,</span>
-<span>  weight  <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pesoano"</span><span class="op">)</span></span>
+<span>  weight  <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"W_ANO"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    numero  nper   e26   e27   e31 pobpcoac   e51   ht11  dpto pesoano</span></span>
-<span><span class="co">#&gt;     &lt;int&gt; &lt;int&gt; &lt;num&gt; &lt;int&gt; &lt;int&gt;    &lt;num&gt; &lt;int&gt;  &lt;num&gt; &lt;int&gt;   &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1     1     1    60     1        2    14 116378     5  0.6996</span></span>
-<span><span class="co">#&gt; 2:      1     2     2     5     1        7    10  48407    11  0.7896</span></span>
-<span><span class="co">#&gt; 3:      1     3     1     0     1        2     7 103278     4  1.5015</span></span></code></pre></div>
+<span><span class="co">#&gt;       ID  nper  anio   mes region  dpto   nom_dpto   e26   e27   e30 e51_2</span></span>
+<span><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;char&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: 34561     1  2023     1      1     1 Montevideo     2    26     1     6</span></span>
+<span><span class="co">#&gt; 2: 34561     2  2023     1      1     1 Montevideo     2    45     7     6</span></span>
+<span><span class="co">#&gt; 3: 34561     3  2023     1      1     1 Montevideo     2     7     4     1</span></span>
+<span><span class="co">#&gt;    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO</span></span>
+<span><span class="co">#&gt;       &lt;int&gt;     &lt;int&gt;   &lt;num&gt;   &lt;int&gt; &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:        2         0 55429.6       0    57</span></span>
+<span><span class="co">#&gt; 2:        4         0 55429.6       0    57</span></span>
+<span><span class="co">#&gt; 3:        1         0 55429.6       0    57</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="step-1-demographic-variables">Step 1: Demographic variables<a class="anchor" aria-label="anchor" href="#step-1-demographic-variables"></a>
@@ -297,25 +278,27 @@ variables:</p>
 <p>The <code>POBPCOAC</code> variable (Population by activity status) is
 the central labor status classification in the ECH. INE codes:</p>
 <ul>
+<li>1 = Under 14</li>
 <li>2 = Employed</li>
 <li>3-5 = Unemployed (various subcategories)</li>
-<li>6-7 = Inactive</li>
+<li>6-10 = Inactive</li>
+<li>11 = Not applicable</li>
 </ul>
 <p>This replicates the standard ILO labor force framework:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">labor_status</span>,</span>
-<span>  <span class="va">pobpcoac</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Employed"</span>,</span>
-<span>  <span class="va">pobpcoac</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="st">"Unemployed"</span>,</span>
-<span>  <span class="va">pobpcoac</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">6</span><span class="op">:</span><span class="fl">7</span> <span class="op">~</span> <span class="st">"Inactive"</span>,</span>
+<span>  <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Employed"</span>,</span>
+<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="st">"Unemployed"</span>,</span>
+<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">6</span><span class="op">:</span><span class="fl">10</span> <span class="op">~</span> <span class="st">"Inactive"</span>,</span>
 <span>  .default <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"ILO labor force status from POBPCOAC"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create binary indicators</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>,</span>
-<span>  employed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">pobpcoac</span> <span class="op">==</span> <span class="fl">2</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
-<span>  unemployed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">pobpcoac</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
-<span>  active <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">pobpcoac</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>  employed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>  unemployed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
+<span>  active <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
 <span>  working_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">e27</span> <span class="op">&gt;=</span> <span class="fl">14</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Labor force binary indicators"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -327,33 +310,30 @@ the central labor status classification in the ECH. INE codes:</p>
 ECH data:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>,</span>
-<span>  income_pc <span class="op">=</span> <span class="va">ht11</span> <span class="op">/</span> <span class="fl">5</span>,</span>
-<span>  income_thousands <span class="op">=</span> <span class="va">ht11</span> <span class="op">/</span> <span class="fl">1000</span>,</span>
-<span>  log_income <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">ht11</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  income_pc <span class="op">=</span> <span class="va">HT11</span> <span class="op">/</span> <span class="va">nper</span>,</span>
+<span>  income_thousands <span class="op">=</span> <span class="va">HT11</span> <span class="op">/</span> <span class="fl">1000</span>,</span>
+<span>  log_income <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">HT11</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Income transformations"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="step-4-geographic-classification">Step 4: Geographic classification<a class="anchor" aria-label="anchor" href="#step-4-geographic-classification"></a>
 </h2>
+<p>The real ECH microdata already includes <code>nom_dpto</code>
+(department name) and <code>region</code> (1-3). We demonstrate a join
+with poverty lines by region:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dept_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  dpto <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">19</span>,</span>
-<span>  department <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Montevideo"</span>, <span class="st">"Artigas"</span>, <span class="st">"Canelones"</span>, <span class="st">"Cerro Largo"</span>,</span>
-<span>    <span class="st">"Colonia"</span>, <span class="st">"Durazno"</span>, <span class="st">"Flores"</span>, <span class="st">"Florida"</span>, <span class="st">"Lavalleja"</span>,</span>
-<span>    <span class="st">"Maldonado"</span>, <span class="st">"Paysandu"</span>, <span class="st">"Rio Negro"</span>, <span class="st">"Rivera"</span>, <span class="st">"Rocha"</span>,</span>
-<span>    <span class="st">"Salto"</span>, <span class="st">"San Jose"</span>, <span class="st">"Soriano"</span>, <span class="st">"Tacuarembo"</span>,</span>
-<span>    <span class="st">"Treinta y Tres"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Montevideo"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Interior"</span>, <span class="fl">18</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">poverty_lines</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  region <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
+<span>  poverty_line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19000</span>, <span class="fl">12500</span>, <span class="fl">11000</span><span class="op">)</span>,</span>
+<span>  region_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Montevideo"</span>, <span class="st">"Interior loc. &gt;= 5000"</span>, <span class="st">"Interior loc. &lt; 5000"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_join.html">step_join</a></span><span class="op">(</span><span class="va">svy</span>,</span>
-<span>  <span class="va">dept_names</span>,</span>
-<span>  by <span class="op">=</span> <span class="st">"dpto"</span>,</span>
+<span>  <span class="va">poverty_lines</span>,</span>
+<span>  by <span class="op">=</span> <span class="st">"region"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"left"</span>,</span>
-<span>  comment <span class="op">=</span> <span class="st">"Department names and region classification"</span></span>
+<span>  comment <span class="op">=</span> <span class="st">"Add poverty lines by region"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -384,8 +364,8 @@ ECH data:</p>
 <span><span class="co">#&gt; <span style="color: #555555;">Description: </span>Standard labor market indicators for the ECH. Includes demographic recoding, ILO labor classification, income transformations, and geographic joins.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Certification: </span><span style="color: #BBBB00;">community</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Requires (5 variables) ──</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  e26, e27, pobpcoac, ht11, dpto</span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Requires (6 variables) ──</span></span></span>
+<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  e26, e27, POBPCOAC, HT11, nper, region</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Pipeline (6 steps) ──</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  1. [recode] -&gt; sex  "Sex: 1=Male, 2=Female (INE e26)"</span></span>
@@ -393,7 +373,7 @@ ECH data:</p>
 <span><span class="co">#&gt;   3. [recode] -&gt; labor_status  "ILO labor force status from POBPCOAC"</span></span>
 <span><span class="co">#&gt;   4. [compute] -&gt; employed, unemployed, active, working_age  "Labor force binary indicators"</span></span>
 <span><span class="co">#&gt;   5. [compute] -&gt; income_pc, income_thousands, log_income  "Income transformations"</span></span>
-<span><span class="co">#&gt;   6. [step_join] -&gt; (no output)  "Department names and region classification"</span></span>
+<span><span class="co">#&gt;   6. [step_join] -&gt; (no output)  "Add poverty lines by region"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Produces (10 variables) ──</span></span></span>
 <span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  sex [categorical], age_group [categorical], labor_status [categorical], employed [numeric], unemployed [numeric], active [numeric], working_age [numeric], income_pc [numeric], income_thousands [numeric], log_income [numeric]</span></span></code></pre></div>
@@ -405,7 +385,7 @@ ECH data:</p>
 <span></span>
 <span><span class="co"># What variables does the recipe need?</span></span>
 <span><span class="va">doc</span><span class="op">$</span><span class="va">input_variables</span></span>
-<span><span class="co">#&gt; [1] "e26"      "e27"      "pobpcoac" "ht11"     "dpto"</span></span>
+<span><span class="co">#&gt; [1] "e26"      "e27"      "POBPCOAC" "HT11"     "nper"     "region"</span></span>
 <span></span>
 <span><span class="co"># What variables does it create?</span></span>
 <span><span class="va">doc</span><span class="op">$</span><span class="va">output_variables</span></span>
@@ -436,17 +416,17 @@ ECH data:</p>
 <code class="sourceCode R"><span><span class="co"># Mean household income</span></span>
 <span><span class="va">result_income</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_income</span></span>
 <span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
 <span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: ht11 60742.91 1631.918 0.02686598      57544.41</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
 <span><span class="co">#&gt;    confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      63941.41</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Employment rate (proportion employed among total population)</span></span>
 <span><span class="va">result_employment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -458,31 +438,33 @@ ECH data:</p>
 <span><span class="va">result_employment</span></span>
 <span><span class="co">#&gt;                         stat     value         se         cv confint_lower</span></span>
 <span><span class="co">#&gt;                       &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: employed 0.5778099 0.02386869 0.04130891     0.5310281</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: employed 0.4422188 0.02343197 0.05298728      0.396293</span></span>
 <span><span class="co">#&gt;    confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.6245916</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     0.4881447</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="domain-estimation">Domain estimation<a class="anchor" aria-label="anchor" href="#domain-estimation"></a>
 </h3>
 <p>Compute estimates by subpopulation:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Mean income by region</span></span>
+<code class="sourceCode R"><span><span class="co"># Mean income by region name</span></span>
 <span><span class="va">income_region</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">svyby</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, <span class="op">~</span><span class="va">region</span>, <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">svyby</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, <span class="op">~</span><span class="va">region_name</span>, <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">income_region</span></span>
-<span><span class="co">#&gt;          stat     value    se        cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;        &lt;char&gt;     &lt;num&gt; &lt;num&gt;     &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   Interior        NA    NA 0.0275355      57568.21      64136.44</span></span>
-<span><span class="co">#&gt; 2: Montevideo        NA    NA 0.1223059      44632.89      72778.09</span></span>
-<span><span class="co">#&gt; 3:   Interior 60852.322    NA 0.0275355            NA            NA</span></span>
-<span><span class="co">#&gt; 4: Montevideo 58705.489    NA 0.1223059            NA            NA</span></span>
-<span><span class="co">#&gt; 5:   Interior  1675.599    NA 0.0275355            NA            NA</span></span>
-<span><span class="co">#&gt; 6: Montevideo  7180.028    NA 0.1223059            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                                                       stat     value       se</span></span>
+<span><span class="co">#&gt;                                                     &lt;char&gt;     &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  survey::svyby: HT11 [region_name=Interior loc. &lt; 5000]  90397.57 4632.957</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: HT11 [region_name=Interior loc. &gt;= 5000] 103877.64 5949.558</span></span>
+<span><span class="co">#&gt; 3:            survey::svyby: HT11 [region_name=Montevideo] 118302.36 5412.484</span></span>
+<span><span class="co">#&gt;            cv confint_lower confint_upper           region_name</span></span>
+<span><span class="co">#&gt;         &lt;num&gt;         &lt;num&gt;         &lt;num&gt;                &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.05125091      81317.14       99478.0  Interior loc. &lt; 5000</span></span>
+<span><span class="co">#&gt; 2: 0.05727467      92216.72      115538.6 Interior loc. &gt;= 5000</span></span>
+<span><span class="co">#&gt; 3: 0.04575127     107694.09      128910.6            Montevideo</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Employment by sex</span></span>
 <span><span class="va">employment_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -492,14 +474,14 @@ ECH data:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">employment_sex</span></span>
-<span><span class="co">#&gt;      stat      value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;char&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Female         NA    NA 0.06019825     0.4912161     0.6226354</span></span>
-<span><span class="co">#&gt; 2:   Male         NA    NA 0.05644886     0.5343696     0.6673221</span></span>
-<span><span class="co">#&gt; 3: Female 0.55692572    NA 0.06019825            NA            NA</span></span>
-<span><span class="co">#&gt; 4:   Male 0.60084583    NA 0.05644886            NA            NA</span></span>
-<span><span class="co">#&gt; 5: Female 0.03352595    NA 0.06019825            NA            NA</span></span>
-<span><span class="co">#&gt; 6:   Male 0.03391706    NA 0.05644886            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                                    stat     value         se         cv</span></span>
+<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: employed [sex=Female] 0.3824018 0.03146234 0.08227562</span></span>
+<span><span class="co">#&gt; 2:   survey::svyby: employed [sex=Male] 0.5076963 0.03449008 0.06793446</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper    sex</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.3207367     0.4440669 Female</span></span>
+<span><span class="co">#&gt; 2:     0.4400970     0.5752956   Male</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="quality-assessment">Quality assessment<a class="anchor" aria-label="anchor" href="#quality-assessment"></a>
@@ -507,7 +489,7 @@ ECH data:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">employed</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
@@ -520,67 +502,35 @@ ECH data:</p>
 <span>    <span class="fu"><a href="../reference/evaluate_cv.html">evaluate_cv</a></span><span class="op">(</span><span class="va">cv_pct</span><span class="op">)</span>, <span class="st">"\n"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co">#&gt; survey::svymean: ht11 : 2.7 % CV - Excellent </span></span>
-<span><span class="co">#&gt; survey::svymean: employed : 4.1 % CV - Excellent</span></span></code></pre></div>
+<span><span class="co">#&gt; survey::svymean: HT11 : 3.2 % CV - Excellent </span></span>
+<span><span class="co">#&gt; survey::svymean: employed : 5.3 % CV - Very good</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="reproducibility-same-recipe-different-edition">Reproducibility: same recipe, different edition<a class="anchor" aria-label="anchor" href="#reproducibility-same-recipe-different-edition"></a>
 </h2>
-<p>The power of recipes lies in applying them unchanged to new data.
-Here we simulate a “2024 edition” with the same structure:</p>
+<p>The power of recipes lies in applying them unchanged to new data. In
+a real workflow, you would load a different edition of the ECH and apply
+the same recipe:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span>
-<span><span class="va">ech_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  numero <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
-<span>  nper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">100</span><span class="op">)</span>,</span>
-<span>  e26 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  e27 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">90</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  e31 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, <span class="va">n</span>,</span>
-<span>    replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="fl">0.20</span>, <span class="fl">0.15</span>, <span class="fl">0.25</span>, <span class="fl">0.05</span>, <span class="fl">0.03</span>,</span>
-<span>      <span class="fl">0.02</span>, <span class="fl">0.03</span>, <span class="fl">0.02</span>, <span class="fl">0.02</span>, <span class="fl">0.01</span>,</span>
-<span>      <span class="fl">0.01</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.15</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  pobpcoac <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span>, <span class="va">n</span>,</span>
-<span>    replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.03</span>, <span class="fl">0.02</span>, <span class="fl">0.02</span>, <span class="fl">0.30</span>, <span class="fl">0.13</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  e51 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  ht11 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">5500</span>, <span class="fl">130000</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  dpto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">19</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  pesoano <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Load ECH 2024 microdata (requires external data file)</span></span>
+<span><span class="va">svy_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="st">"ECH_2024.csv"</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"ech"</span>, edition <span class="op">=</span> <span class="st">"2024"</span>,</span>
+<span>  weight <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"W_ANO"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">svy_2024</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">ech_2024</span>, edition <span class="op">=</span> <span class="st">"2024"</span>, type <span class="op">=</span> <span class="st">"ech"</span>,</span>
-<span>  psu <span class="op">=</span> <span class="cn">NULL</span>, engine <span class="op">=</span> <span class="st">"data.table"</span>,</span>
-<span>  weight <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pesoano"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Apply the same recipe</span></span>
+<span><span class="co"># Apply the exact same recipe</span></span>
 <span><span class="va">svy_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_recipe.html">add_recipe</a></span><span class="op">(</span><span class="va">svy_2024</span>, <span class="va">ech_recipe</span><span class="op">)</span></span>
 <span><span class="va">svy_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bake_recipes.html">bake_recipes</a></span><span class="op">(</span><span class="va">svy_2024</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Estimate</span></span>
+<span><span class="co"># Estimate with consistent methodology</span></span>
 <span><span class="va">result_2024</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_2024</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">employed</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result_2024</span></span>
-<span><span class="co">#&gt;                         stat        value           se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     survey::svymean: ht11 7.177680e+04 1.702000e+03 0.02371240  6.844094e+04</span></span>
-<span><span class="co">#&gt; 2: survey::svymean: employed 5.234533e-01 2.410369e-02 0.04604745  4.762109e-01</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  7.511266e+04</span></span>
-<span><span class="co">#&gt; 2:  5.706957e-01</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Same recipe, different data, consistent methodology.</p>
 </div>
 <div class="section level2">
@@ -681,6 +631,19 @@ self-documenting (via <code>doc()</code>), self-validating (via
 portable object.</p></li>
 </ol>
 </div>
+</div>
+<div class="section level2">
+<h2 id="data-and-acknowledgments">Data and acknowledgments<a class="anchor" aria-label="anchor" href="#data-and-acknowledgments"></a>
+</h2>
+<p>The sample data used in this vignette comes from the <em>Encuesta
+Continua de Hogares</em> (ECH) 2023, published by Uruguay’s Instituto
+Nacional de Estadistica (INE). The full microdata is available at <a href="https://www.ine.gub.uy" class="external-link">www.ine.gub.uy</a>.</p>
+<p>The <strong><a href="https://calcita.github.io/ech/" class="external-link">ech</a></strong>
+package by Gabriela Mathieu and Richard Detomasi was an important
+inspiration for metasurvey. While <code>ech</code> provides ready-to-use
+functions for computing ECH indicators, metasurvey takes a different
+approach: it lets users define, share, and reproduce their own
+processing pipelines as recipes.</p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

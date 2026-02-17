@@ -37,7 +37,12 @@ Other workflows:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-save_workflow(wf, "my_workflow.json")
-} # }
+wf <- RecipeWorkflow$new(
+  name = "Example", description = "Test",
+  survey_type = "ech", edition = "2023",
+  recipe_ids = "r_001", estimation_type = "svymean"
+)
+f <- tempfile(fileext = ".json")
+save_workflow(wf, f)
+#> Workflow saved to /tmp/RtmpNdlq0Q/file4f4943e64ea3.json
 ```

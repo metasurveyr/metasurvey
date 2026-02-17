@@ -42,7 +42,8 @@ Other tidy-api:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 all <- list_workflows()
-} # }
+length(all)
+#> [1] 0
 ```

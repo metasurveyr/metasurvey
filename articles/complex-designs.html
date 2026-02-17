@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,10 +69,11 @@
 
 
 
-
+<script src="complex-designs_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="complex-designs_files/vis-9.1.0/vis-network.min.css" rel="stylesheet">
+<script src="complex-designs_files/vis-9.1.0/vis-network.min.js"></script><script src="complex-designs_files/visNetwork-binding-2.1.4/visNetwork.js"></script><link href="complex-designs_files/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Survey Designs and Validation</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Survey Designs and Validation</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/complex-designs.Rmd" class="external-link"><code>vignettes/complex-designs.Rmd</code></a></small>
@@ -132,9 +133,58 @@ stratification:</p>
 <span><span class="co">#&gt; [1] "\n  Design: Not initialized (lazy initialization - will be created when needed)\n"</span></span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="stratified-cluster-design">Stratified Cluster Design<a class="anchor" aria-label="anchor" href="#stratified-cluster-design"></a>
+</h3>
+<p>Many national surveys use stratified multi-stage sampling. Pass
+<code>strata</code> and <code>psu</code> to
+<code>Survey$new()</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dt_clus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="va">apiclus1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">svy_strat_clus</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  data    <span class="op">=</span> <span class="va">dt_strat</span>,</span>
+<span>  edition <span class="op">=</span> <span class="st">"2000"</span>,</span>
+<span>  type    <span class="op">=</span> <span class="st">"api"</span>,</span>
+<span>  psu     <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  strata  <span class="op">=</span> <span class="st">"stype"</span>,</span>
+<span>  engine  <span class="op">=</span> <span class="st">"data.table"</span>,</span>
+<span>  weight  <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pw"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/cat_design.html">cat_design</a></span><span class="op">(</span><span class="va">svy_strat_clus</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "\n  Design: Not initialized (lazy initialization - will be created when needed)\n"</span></span></code></pre></div>
+<p>Cross-validate with the <code>survey</code> package:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">design_strat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>, strata <span class="op">=</span> <span class="op">~</span><span class="va">stype</span>, weights <span class="op">=</span> <span class="op">~</span><span class="va">pw</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">dt_strat</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">direct_strat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, <span class="va">design_strat</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">wf_strat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_strat_clus</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Direct estimate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">direct_strat</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Direct estimate: 662.29</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Workflow estimate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">wf_strat</span><span class="op">$</span><span class="va">value</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Workflow estimate: 662.29</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Match:"</span>, <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/all.equal-methods.html" class="external-link">all.equal</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">direct_strat</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="va">wf_strat</span><span class="op">$</span><span class="va">value</span>,</span>
+<span>  tolerance <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Match: TRUE</span></span></code></pre></div>
+<p>For real-world examples of stratified cluster designs with CASEN,
+PNADc, ENIGH, and DHS data, see
+<code><a href="../articles/international-surveys.html">vignette("international-surveys")</a></code>.</p>
+</div>
+<div class="section level3">
 <h3 id="design-inspection">Design Inspection<a class="anchor" aria-label="anchor" href="#design-inspection"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check design type</span></span>
 <span><span class="fu"><a href="../reference/cat_design_type.html">cat_design_type</a></span><span class="op">(</span><span class="va">svy_simple</span>, <span class="st">"annual"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "None"</span></span>
@@ -148,7 +198,7 @@ stratification:</p>
 <p>Many surveys provide different weights depending on the analysis
 period (for example, annual vs. monthly). metasurvey associates
 periodicity labels with weight columns:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">dt_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">dt_strat</span><span class="op">)</span></span>
 <span><span class="va">dt_multi</span><span class="op">[</span>, <span class="va">pw_monthly</span> <span class="op">:=</span> <span class="va">pw</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">.N</span>, <span class="fl">0.9</span>, <span class="fl">1.1</span><span class="op">)</span><span class="op">]</span></span>
@@ -186,8 +236,8 @@ periodicity labels with weight columns:</p>
 <p>For surveys that provide bootstrap replicates (such as Uruguay’s
 ECH), use <code><a href="../reference/add_replicate.html">add_replicate()</a></code> inside
 <code><a href="../reference/add_weight.html">add_weight()</a></code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># This example requires external files</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Requires external bootstrap replicate CSV files</span></span>
 <span><span class="va">svy_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/load_survey.html">load_survey</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="st">"data/main_survey.csv"</span>,</span>
 <span>  svy_type <span class="op">=</span> <span class="st">"ech"</span>,</span>
@@ -215,7 +265,7 @@ automatically uses them for variance estimation via
 </h3>
 <p>metasurvey uses <code>data.table</code> by default for fast data
 manipulation:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Current engine</span></span>
 <span><span class="fu"><a href="../reference/get_engine.html">get_engine</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "data.table"</span></span>
@@ -230,7 +280,7 @@ manipulation:</p>
 <p>By default, steps are recorded but not executed until
 <code><a href="../reference/bake_steps.html">bake_steps()</a></code> is called. This allows validations to be
 performed before execution:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check current setting</span></span>
 <span><span class="fu"><a href="../reference/lazy_default.html">lazy_default</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -243,7 +293,7 @@ performed before execution:</p>
 </h3>
 <p>You can control whether step operations modify the data in-place or
 work on copies:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Current setting</span></span>
 <span><span class="fu"><a href="../reference/use_copy_default.html">use_copy_default</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -259,7 +309,7 @@ work on copies:</p>
 <h3 id="design-based-variance">Design-Based Variance<a class="anchor" aria-label="anchor" href="#design-based-variance"></a>
 </h3>
 <p>Standard variance estimation using the sampling design:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_simple</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -282,7 +332,7 @@ work on copies:</p>
 </h3>
 <p>Estimates for subpopulations can be computed using
 <code><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">survey::svyby()</a></code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">domain_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_simple</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">svyby</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, <span class="op">~</span><span class="va">stype</span>, <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -290,22 +340,21 @@ work on copies:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">domain_results</span></span>
-<span><span class="co">#&gt;      stat     value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;fctr&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      E   1.00000    NA 0.01852443      649.9433      698.9167</span></span>
-<span><span class="co">#&gt; 2:      H   2.00000    NA 0.02451309      595.7526      655.8874</span></span>
-<span><span class="co">#&gt; 3:      M   3.00000    NA 0.02592270      604.2559      668.9441</span></span>
-<span><span class="co">#&gt; 4:      E 674.43000    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 5:      H 625.82000    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 6:      M 636.60000    NA 0.02592270            NA            NA</span></span>
-<span><span class="co">#&gt; 7:      E  12.49343    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 8:      H  15.34078    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 9:      M  16.50239    NA 0.02592270            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="ratios">Ratios<a class="anchor" aria-label="anchor" href="#ratios"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ratio_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_simple</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyratio.html" class="external-link">svyratio</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, <span class="op">~</span><span class="va">api99</span><span class="op">)</span>,</span>
@@ -329,7 +378,7 @@ work on copies:</p>
 </h3>
 <p>When building complex pipelines, it is useful to verify each step
 independently:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Step 1: Compute new variable</span></span>
 <span><span class="va">svy_v</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy_simple</span>,</span>
 <span>  api_diff <span class="op">=</span> <span class="va">api00</span> <span class="op">-</span> <span class="va">api99</span>,</span>
@@ -346,7 +395,7 @@ independently:</p>
 </h3>
 <p>You can compare metasurvey <code><a href="../reference/workflow.html">workflow()</a></code> results with
 direct calls to the <code>survey</code> package:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Method 1: Direct survey package</span></span>
 <span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/svydesign.html" class="external-link">svydesign</a></span><span class="op">(</span>id <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>, weights <span class="op">=</span> <span class="op">~</span><span class="va">pw</span>, data <span class="op">=</span> <span class="va">dt_strat</span><span class="op">)</span></span>
 <span><span class="va">direct_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, <span class="va">design</span><span class="op">)</span></span>
@@ -374,20 +423,22 @@ direct calls to the <code>survey</code> package:</p>
 </h3>
 <p>You can use <code><a href="../reference/view_graph.html">view_graph()</a></code> to visualize the dependency
 graph between steps:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Requires the visNetwork package</span></span>
 <span><span class="va">svy_viz</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy_simple</span>,</span>
 <span>  api_diff <span class="op">=</span> <span class="va">api00</span> <span class="op">-</span> <span class="va">api99</span>,</span>
 <span>  high_growth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">api00</span> <span class="op">-</span> <span class="va">api99</span> <span class="op">&gt;</span> <span class="fl">50</span>, <span class="fl">1L</span>, <span class="fl">0L</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/view_graph.html">view_graph</a></span><span class="op">(</span><span class="va">svy_viz</span>, init_step <span class="op">=</span> <span class="st">"Load API data"</span><span class="op">)</span></span></code></pre></div>
+<div id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:600px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":[1,2],"label":["Load API data","step_1 Compute: api_diff, high_growth"],"title":["Load API data","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Compute step<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(api_diff = api00 - api99, high_growth = ifelse(api00 - api99 &gt; 50, 1L, 0L))<\/div><\/div>"],"group":["Load survey","compute"]},"edges":{"from":[1],"to":[2]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"groups":{"Load survey":{"shape":"icon","icon":{"code":"f1c0","size":60,"color":"#2C3E50"},"font":{"size":16,"color":"#2C3E50","face":"bold","multi":true},"shadow":{"enabled":true,"size":8,"x":2,"y":2,"color":"rgba(44,62,80,.15)"}},"compute":{"shape":"icon","icon":{"code":"f1ec","size":50,"color":"#3498db"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(52,152,219,.2)"}},"recode":{"shape":"icon","icon":{"code":"f0e8","size":50,"color":"#9b59b6"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(155,89,182,.2)"}},"step_join":{"shape":"icon","icon":{"code":"f0c1","size":50,"color":"#1abc9c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(26,188,156,.2)"}},"step_remove":{"shape":"icon","icon":{"code":"f1f8","size":50,"color":"#e74c3c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(231,76,60,.2)"}},"step_rename":{"shape":"icon","icon":{"code":"f044","size":50,"color":"#e67e22"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(230,126,34,.2)"}},"useDefaultGroups":true,"dataframe":{"shape":"icon","icon":{"code":"f0ce","size":50,"color":"#95a5a6"},"font":{"size":14,"color":"#2c3e50"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(149,165,166,.2)"}}},"edges":{"width":2,"arrows":{"to":{"enabled":true,"scaleFactor":0.7,"type":"arrow"}},"color":{"color":"#bdc3c7","highlight":"#3498db","hover":"#3498db"},"smooth":{"enabled":true,"type":"curvedCW","roundness":0.1}},"layout":{"hierarchical":{"enabled":true,"levelSeparation":220,"nodeSpacing":140,"direction":"LR","sortMethod":"directed"}},"interaction":{"keyboard":true,"navigationButtons":true,"tooltipDelay":100,"hover":true,"zoomSpeed":1},"clickToUse":false},"groups":["Load survey","compute"],"width":"100%","height":"600px","idselection":{"enabled":true,"style":"font-family: system-ui, sans-serif; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid #dee2e6; background: #fff; color: #2C3E50;","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"#f8f9fa","iconsRedraw":true,"tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);","highlight":{"enabled":true,"hoverNearest":true,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.15,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":false,"main":{"text":"Step types","style":"font-family: system-ui, sans-serif; font-weight: 700; font-size: 14px; color: #2C3E50;"}}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div class="section level3">
 <h3 id="quality-assessment">Quality Assessment<a class="anchor" aria-label="anchor" href="#quality-assessment"></a>
 </h3>
 <p>You can assess the quality of estimates using the coefficient of
 variation:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results_quality</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_simple</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">api00</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
@@ -410,7 +461,7 @@ variation:</p>
 <h3 id="recipe-validation">Recipe Validation<a class="anchor" aria-label="anchor" href="#recipe-validation"></a>
 </h3>
 <p>You can verify that recipes and their steps are consistent:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create steps and recipe</span></span>
 <span><span class="va">svy_rt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy_simple</span>, api_diff <span class="op">=</span> <span class="va">api00</span> <span class="op">-</span> <span class="va">api99</span><span class="op">)</span></span>
 <span></span>
@@ -459,7 +510,7 @@ published values or direct calls to the <code>survey</code> package</li>
 <strong>CV thresholds</strong> – flag estimates with high
 coefficients of variation</li>
 </ol>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">validate_pipeline</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">svy</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span>  <span class="va">checks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>

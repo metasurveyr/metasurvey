@@ -366,12 +366,10 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 wf <- RecipeWorkflow$new(
   name = "Labor workflow", description = "Unemployment rate",
   user = "test", survey_type = "ech", edition = "2023",
   estimation_type = "annual", recipe_ids = "r_001",
   calls = list("svymean(~desocupado, na.rm = TRUE)")
 )
-} # }
 ```

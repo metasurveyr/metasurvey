@@ -50,6 +50,59 @@ cat_design(svy_simple)
 #> [1] "\n  Design: Not initialized (lazy initialization - will be created when needed)\n"
 ```
 
+### Stratified Cluster Design
+
+Many national surveys use stratified multi-stage sampling. Pass `strata`
+and `psu` to `Survey$new()`:
+
+``` r
+dt_clus <- data.table(apiclus1)
+
+svy_strat_clus <- Survey$new(
+  data    = dt_strat,
+  edition = "2000",
+  type    = "api",
+  psu     = NULL,
+  strata  = "stype",
+  engine  = "data.table",
+  weight  = add_weight(annual = "pw")
+)
+
+cat_design(svy_strat_clus)
+#> [1] "\n  Design: Not initialized (lazy initialization - will be created when needed)\n"
+```
+
+Cross-validate with the `survey` package:
+
+``` r
+design_strat <- svydesign(
+  id = ~1, strata = ~stype, weights = ~pw,
+  data = dt_strat
+)
+direct_strat <- svymean(~api00, design_strat)
+
+wf_strat <- workflow(
+  list(svy_strat_clus),
+  survey::svymean(~api00, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+cat("Direct estimate:", round(coef(direct_strat), 2), "\n")
+#> Direct estimate: 662.29
+cat("Workflow estimate:", round(wf_strat$value, 2), "\n")
+#> Workflow estimate: 662.29
+cat("Match:", all.equal(
+  as.numeric(coef(direct_strat)),
+  wf_strat$value,
+  tolerance = 1e-6
+), "\n")
+#> Match: TRUE
+```
+
+For real-world examples of stratified cluster designs with CASEN, PNADc,
+ENIGH, and DHS data, see
+[`vignette("international-surveys")`](https://metasurveyr.github.io/metasurvey/articles/international-surveys.md).
+
 ### Design Inspection
 
 ``` r
@@ -109,7 +162,7 @@ inside
 [`add_weight()`](https://metasurveyr.github.io/metasurvey/reference/add_weight.md):
 
 ``` r
-# This example requires external files
+# Requires external bootstrap replicate CSV files
 svy_boot <- load_survey(
   path = "data/main_survey.csv",
   svy_type = "ech",
@@ -214,17 +267,16 @@ domain_results <- workflow(
 )
 
 domain_results
-#>      stat     value    se         cv confint_lower confint_upper
-#>    <fctr>     <num> <num>      <num>         <num>         <num>
-#> 1:      E   1.00000    NA 0.01852443      649.9433      698.9167
-#> 2:      H   2.00000    NA 0.02451309      595.7526      655.8874
-#> 3:      M   3.00000    NA 0.02592270      604.2559      668.9441
-#> 4:      E 674.43000    NA 0.01852443            NA            NA
-#> 5:      H 625.82000    NA 0.02451309            NA            NA
-#> 6:      M 636.60000    NA 0.02592270            NA            NA
-#> 7:      E  12.49343    NA 0.01852443            NA            NA
-#> 8:      H  15.34078    NA 0.02451309            NA            NA
-#> 9:      M  16.50239    NA 0.02592270            NA            NA
+#>                              stat  value       se         cv confint_lower
+#>                            <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  stype
+#>            <num> <fctr>
+#> 1:      698.9167      E
+#> 2:      655.8874      H
+#> 3:      668.9441      M
 ```
 
 ### Ratios

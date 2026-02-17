@@ -45,7 +45,7 @@ You can load example data or point to your own files:
 ``` r
 library(metasurvey)
 
-# Load ECH 2022 with example data
+# Load ECH 2022 with example data (downloads from GitHub)
 ech_2022 <- load_survey(
   load_survey_example("ech", "ech_2022"),
   svy_type    = "ech",
@@ -53,7 +53,7 @@ ech_2022 <- load_survey(
   svy_weight  = add_weight(annual = "pesoano")
 )
 
-# Or load with existing recipes from the registry
+# Or load with existing recipes from the registry (requires API server)
 ech_2022 <- load_survey(
   load_survey_example("ech", "ech_2022"),
   svy_type    = "ech",
@@ -297,7 +297,7 @@ In practice, you can load a survey and apply published recipes in a
 single call:
 
 ``` r
-# Load ECH 2023 and apply the labor recipe from the registry
+# Load ECH 2023 and apply the labor recipe from the registry (requires API)
 ech_2023 <- load_survey(
   load_survey_example("ech", "ech_2023"),
   svy_type    = "ech",

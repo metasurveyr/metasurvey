@@ -6,16 +6,6 @@ Survey R6 class
 
 ## Format
 
-An R6 class with public fields: `data`, `edition`, `type`,
-`periodicity`, `default_engine`, `weight`, `steps`, `recipes`,
-`workflows`, `design`; and methods such as `initialize()`,
-[`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
-[`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
-`add_step()`,
-[`add_recipe()`](https://metasurveyr.github.io/metasurvey/reference/add_recipe.md),
-`bake()`, [`head()`](https://rdrr.io/r/utils/head.html),
-[`str()`](https://rdrr.io/r/utils/str.html), `update_design()`.
-
 An R6 class generator (R6ClassGenerator)
 
 ## Value
@@ -31,53 +21,12 @@ steps/recipes/workflows, and utilities to manage them.
 Only copies the data; reuses design objects and other metadata. Much
 faster than clone(deep=TRUE) but design objects are shared.
 
-## Methods
-
-- initialize(data, edition, type, psu, engine, weight, design, steps,
-  recipes):
-
-  Create a Survey object
-
-- get_data(), get_edition(), get_type():
-
-  Basic accessors
-
-- set_data(), set_edition(), set_type(), set_weight():
-
-  Mutators
-
-- add_step(step), add_recipe(recipe), add_workflow(wf):
-
-  Pipeline management
-
-- bake():
-
-  Bake associated recipes
-
-## Active bindings
-
-- design_active:
-
-  Recompute design on-demand from current data and weights.
-
 ## Main methods
 
-- \$new(data, edition, type, psu, engine, weight, design = NULL, steps =
-  NULL, recipes = list()):
+- \$new(data, edition, type, psu, strata, engine, weight, design = NULL,
+  steps = NULL, recipes = list()):
 
   Constructor.
-
-- \$get_data():
-
-  Return data.
-
-- \$get_edition():
-
-  Return edition.
-
-- \$get_type():
-
-  Return type.
 
 - \$set_data(data):
 
@@ -101,11 +50,11 @@ faster than clone(deep=TRUE) but design objects are shared.
 
 - \$add_step(step):
 
-  Add a step and update design.
+  Add a step and invalidate design.
 
-- \$add_recipe(recipe, bake = lazy_default()):
+- \$add_recipe(recipe):
 
-  Add a recipe.
+  Add a recipe (validates type and dependencies).
 
 - \$add_workflow(workflow):
 
@@ -115,21 +64,17 @@ faster than clone(deep=TRUE) but design objects are shared.
 
   Apply recipes and return updated Survey.
 
-- \$head():
+- \$ensure_design():
 
-  Return data head.
-
-- \$str():
-
-  Structure of data.
-
-- \$set_design(design):
-
-  Set design.
+  Lazily initialize the sampling design.
 
 - \$update_design():
 
   Update design variables with current data.
+
+- \$shallow_clone():
+
+  Efficient copy (shares design, copies data).
 
 ## See also
 
@@ -143,6 +88,10 @@ Other survey-objects:
 [`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md),
 [`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
 [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+[`has_design()`](https://metasurveyr.github.io/metasurvey/reference/has_design.md),
+[`has_recipes()`](https://metasurveyr.github.io/metasurvey/reference/has_recipes.md),
+[`has_steps()`](https://metasurveyr.github.io/metasurvey/reference/has_steps.md),
+[`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md),
 [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
 [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
 [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
@@ -197,6 +146,10 @@ Other survey-objects:
 
   Primary Sampling Unit specification (formula or character).
 
+- `strata`:
+
+  Stratification variable name (character or NULL).
+
 - `design_initialized`:
 
   Logical flag for lazy design initialization.
@@ -205,8 +158,7 @@ Other survey-objects:
 
 - `design_active`:
 
-  Active binding that recomputes design on-demand from current data and
-  weights.
+  Deprecated. Use `ensure_design()` instead.
 
 ## Methods
 
@@ -265,6 +217,7 @@ Create a Survey object
       edition,
       type,
       psu = NULL,
+      strata = NULL,
       engine,
       weight,
       design = NULL,
@@ -289,6 +242,10 @@ Create a Survey object
 - `psu`:
 
   PSU variable or formula (optional)
+
+- `strata`:
+
+  Stratification variable name (optional)
 
 - `engine`:
 
@@ -418,7 +375,7 @@ Print summarized metadata to console
 
 ### Method `add_step()`
 
-Add a step and update design
+Add a step and invalidate design
 
 #### Usage
 

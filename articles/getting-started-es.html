@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,10 +69,11 @@
 
 
 
-
+<script src="getting-started-es_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="getting-started-es_files/vis-9.1.0/vis-network.min.css" rel="stylesheet">
+<script src="getting-started-es_files/vis-9.1.0/vis-network.min.js"></script><script src="getting-started-es_files/visNetwork-binding-2.1.4/visNetwork.js"></script><link href="getting-started-es_files/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Primeros pasos con metasurvey (ES)</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Primeros pasos con metasurvey (ES)</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/getting-started-es.Rmd" class="external-link"><code>vignettes/getting-started-es.Rmd</code></a></small>
@@ -129,83 +130,75 @@ metasurvey se encarga de la infraestructura.</p>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install from GitHub</span></span>
-<span><span class="co"># devtools::install_github("metaSurveyR/metasurvey")</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"metaSurveyR/metasurvey"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="creacion-de-un-objeto-survey">Creacion de un objeto Survey<a class="anchor" aria-label="anchor" href="#creacion-de-un-objeto-survey"></a>
 </h2>
 <p>Un objeto <code>Survey</code> agrupa los microdatos con metadatos
-sobre pesos, edicion y tipo de encuesta. Comenzaremos con un ejemplo
-sencillo usando datos simulados que imitan la estructura de la Encuesta
-Continua de Hogares (ECH) de Uruguay.</p>
-<p>La ECH es una encuesta de hogares de panel rotativo realizada por el
-Instituto Nacional de Estadistica (INE) de Uruguay. Las variables clave
-incluyen:</p>
+sobre pesos, edicion y tipo de encuesta. Utilizamos una muestra de
+microdatos reales de la <em>Encuesta Continua de Hogares</em> (ECH)
+2023, publicada por el Instituto Nacional de Estadistica (INE) de
+Uruguay.</p>
+<p>La ECH es una encuesta de hogares de panel rotativo. Las variables
+clave incluyen:</p>
 <ul>
 <li>
 <strong>e27</strong>: Edad en anios</li>
 <li>
 <strong>e26</strong>: Sexo (1 = Hombre, 2 = Mujer)</li>
 <li>
-<strong>e51</strong>: Nivel educativo (escala codificada 1-14)</li>
+<strong>e30</strong>: Parentesco con el jefe de hogar (1-14)</li>
 <li>
 <strong>POBPCOAC</strong>: Condicion de actividad
 <ul>
+<li>1 = Menor de 14</li>
 <li>2 = Ocupado</li>
 <li>3-5 = Desocupado</li>
-<li>6-8 = Inactivo</li>
+<li>6-10 = Inactivo</li>
+<li>11 = No aplica</li>
 </ul>
 </li>
 <li>
-<strong>ht11</strong>: Ingreso del hogar</li>
+<strong>HT11</strong>: Ingreso del hogar (pesos uruguayos)</li>
 <li>
-<strong>pesoano</strong>: Factor de expansion anual (peso)</li>
+<strong>W_ANO</strong>: Factor de expansion anual (peso)</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="co"># Cargar muestra de microdatos reales de la ECH 2023 (200 hogares, ~500 personas)</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ech_2023_sample.csv"</span>, package <span class="op">=</span> <span class="st">"metasurvey"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Simulate ECH-like microdata</span></span>
-<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  numero <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="co"># Household ID</span></span>
-<span>  e27 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">18</span><span class="op">:</span><span class="fl">80</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Age</span></span>
-<span>  e26 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Sex</span></span>
-<span>  ht11 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">5000</span>, <span class="fl">80000</span><span class="op">)</span><span class="op">)</span>, <span class="co"># Household income (Uruguayan pesos)</span></span>
-<span>  POBPCOAC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span>, <span class="va">n</span>,</span>
-<span>    replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.55</span>, <span class="fl">0.03</span>, <span class="fl">0.02</span>, <span class="fl">0.03</span>, <span class="fl">0.37</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>, <span class="co"># Labor status</span></span>
-<span>  dpto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">19</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Department</span></span>
-<span>  pesoano <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span> <span class="co"># Annual weight</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create Survey object</span></span>
+<span><span class="co"># Crear objeto Survey</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  data    <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  edition <span class="op">=</span> <span class="st">"2023"</span>,</span>
 <span>  type    <span class="op">=</span> <span class="st">"ech"</span>,</span>
-<span>  psu     <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># No PSU for simple random sample</span></span>
-<span>  engine  <span class="op">=</span> <span class="st">"data.table"</span>, <span class="co"># Fast data manipulation</span></span>
-<span>  weight  <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"pesoano"</span><span class="op">)</span></span>
+<span>  engine  <span class="op">=</span> <span class="st">"data.table"</span>,</span>
+<span>  weight  <span class="op">=</span> <span class="fu"><a href="../reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"W_ANO"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>La funcion <code><a href="../reference/add_weight.html">add_weight()</a></code> mapea etiquetas de periodicidad
 (por ejemplo, “annual”, “monthly”) a los nombres de las columnas de
 pesos en los datos. Esto permite que la misma receta funcione con
 distintas ediciones de la encuesta.</p>
 <p>Es posible inspeccionar los datos en cualquier momento:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    numero   e27   e26  ht11 POBPCOAC  dpto pesoano</span></span>
-<span><span class="co">#&gt;     &lt;int&gt; &lt;int&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt; &lt;int&gt;   &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1    66     2 36408        2     5  1.9904</span></span>
-<span><span class="co">#&gt; 2:      2    54     1 70945        2    10  1.2100</span></span>
-<span><span class="co">#&gt; 3:      3    18     1 13099        2    12  0.6380</span></span></code></pre></div>
+<span><span class="co">#&gt;       ID  nper  anio   mes region  dpto   nom_dpto   e26   e27   e30 e51_2</span></span>
+<span><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;char&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: 34561     1  2023     1      1     1 Montevideo     2    26     1     6</span></span>
+<span><span class="co">#&gt; 2: 34561     2  2023     1      1     1 Montevideo     2    45     7     6</span></span>
+<span><span class="co">#&gt; 3: 34561     3  2023     1      1     1 Montevideo     2     7     4     1</span></span>
+<span><span class="co">#&gt;    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO</span></span>
+<span><span class="co">#&gt;       &lt;int&gt;     &lt;int&gt;   &lt;num&gt;   &lt;int&gt; &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:        2         0 55429.6       0    57</span></span>
+<span><span class="co">#&gt; 2:        4         0 55429.6       0    57</span></span>
+<span><span class="co">#&gt; 3:        1         0 55429.6       0    57</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="trabajo-con-steps">Trabajo con Steps<a class="anchor" aria-label="anchor" href="#trabajo-con-steps"></a>
@@ -230,10 +223,10 @@ derivadas. El paquete automaticamente:</p>
 <li>Detecta dependencias entre steps</li>
 <li>Optimiza las expresiones para mejorar el rendimiento</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>,</span>
 <span>  <span class="co"># Convert income to thousands for readability</span></span>
-<span>  ht11_thousands <span class="op">=</span> <span class="va">ht11</span> <span class="op">/</span> <span class="fl">1000</span>,</span>
+<span>  ht11_thousands <span class="op">=</span> <span class="va">HT11</span> <span class="op">/</span> <span class="fl">1000</span>,</span>
 <span></span>
 <span>  <span class="co"># Create employment indicator following ILO definitions</span></span>
 <span>  employed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -244,10 +237,10 @@ derivadas. El paquete automaticamente:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Es posible agrupar calculos usando el parametro <code>.by</code>
 (similar a <code>data.table</code>):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate mean household income per department</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">svy</span>,</span>
-<span>  mean_income_dept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  mean_income_dept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  .by <span class="op">=</span> <span class="st">"dpto"</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Department-level income averages"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -259,12 +252,12 @@ derivadas. El paquete automaticamente:</p>
 categoricas a partir de condiciones. Las condiciones se evaluan
 <strong>de arriba hacia abajo</strong>, y la primera coincidencia es la
 que se aplica.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Recode labor force status (POBPCOAC) into meaningful categories</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">labor_status</span>,</span>
-<span>  <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Employed"</span>, <span class="co"># Ocupado</span></span>
-<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="st">"Unemployed"</span>, <span class="co"># Desocupado</span></span>
-<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">6</span><span class="op">:</span><span class="fl">8</span> <span class="op">~</span> <span class="st">"Inactive"</span>, <span class="co"># Inactivo</span></span>
+<span>  <span class="va">POBPCOAC</span> <span class="op">==</span> <span class="fl">2</span> <span class="op">~</span> <span class="st">"Employed"</span>,</span>
+<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span> <span class="op">~</span> <span class="st">"Unemployed"</span>,</span>
+<span>  <span class="va">POBPCOAC</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">6</span><span class="op">:</span><span class="fl">10</span> <span class="op">~</span> <span class="st">"Inactive"</span>,</span>
 <span>  .default <span class="op">=</span> <span class="st">"Not classified"</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Labor force status - ILO standard"</span></span>
 <span><span class="op">)</span></span>
@@ -292,13 +285,13 @@ que se aplica.</p>
 <h3 id="renombrar-y-eliminar-variables">Renombrar y eliminar variables<a class="anchor" aria-label="anchor" href="#renombrar-y-eliminar-variables"></a>
 </h3>
 <p>Se renombran variables para mayor claridad o consistencia:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_rename.html">step_rename</a></span><span class="op">(</span><span class="va">svy</span>,</span>
 <span>  age <span class="op">=</span> <span class="va">e27</span>, <span class="co"># Rename e27 to age</span></span>
 <span>  sex_code <span class="op">=</span> <span class="va">e26</span> <span class="co"># Keep original as sex_code</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Se eliminan variables que ya no son necesarias:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Remove intermediate calculations</span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_remove.html">step_remove</a></span><span class="op">(</span><span class="va">svy</span>, <span class="va">working_age</span>, <span class="va">mean_income_dept</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -312,24 +305,22 @@ externos. Esto es util para agregar:</p>
 <li>Tipos de cambio o deflactores</li>
 <li>Benchmarks o metas externas</li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Department names and regions</span></span>
-<span><span class="va">department_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  dpto <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">19</span>,</span>
-<span>  dpto_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Montevideo"</span>, <span class="st">"Artigas"</span>, <span class="st">"Canelones"</span>, <span class="st">"Cerro Largo"</span>,</span>
-<span>    <span class="st">"Colonia"</span>, <span class="st">"Durazno"</span>, <span class="st">"Flores"</span>, <span class="st">"Florida"</span>, <span class="st">"Lavalleja"</span>,</span>
-<span>    <span class="st">"Maldonado"</span>, <span class="st">"Paysandú"</span>, <span class="st">"Río Negro"</span>, <span class="st">"Rivera"</span>, <span class="st">"Rocha"</span>,</span>
-<span>    <span class="st">"Salto"</span>, <span class="st">"San José"</span>, <span class="st">"Soriano"</span>, <span class="st">"Tacuarembó"</span>, <span class="st">"Treinta y Tres"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Montevideo"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Interior"</span>, <span class="fl">18</span><span class="op">)</span><span class="op">)</span></span>
+<p>Los microdatos reales de la ECH ya incluyen <code>nom_dpto</code> y
+<code>region</code>. Aqui demostramos un join con lineas de pobreza como
+ejemplo:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Lineas de pobreza por region (valores ilustrativos en UYU, 2023)</span></span>
+<span><span class="va">poverty_lines</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  region <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
+<span>  poverty_line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19000</span>, <span class="fl">12500</span>, <span class="fl">11000</span><span class="op">)</span>,</span>
+<span>  region_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Montevideo"</span>, <span class="st">"Interior loc. &gt;= 5000"</span>, <span class="st">"Interior loc. &lt; 5000"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step_join.html">step_join</a></span><span class="op">(</span><span class="va">svy</span>,</span>
-<span>  <span class="va">department_info</span>,</span>
-<span>  by <span class="op">=</span> <span class="st">"dpto"</span>,</span>
+<span>  <span class="va">poverty_lines</span>,</span>
+<span>  by <span class="op">=</span> <span class="st">"region"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"left"</span>,</span>
-<span>  comment <span class="op">=</span> <span class="st">"Add department names and regions"</span></span>
+<span>  comment <span class="op">=</span> <span class="st">"Add poverty lines by region"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -341,35 +332,40 @@ externos. Esto es util para agregar:</p>
 </h3>
 <p>Se llama a <code><a href="../reference/bake_steps.html">bake_steps()</a></code> para ejecutar todas las
 transformaciones pendientes:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     dpto numero   age sex_code  ht11 POBPCOAC pesoano ht11_thousands employed</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;    &lt;num&gt; &lt;num&gt;    &lt;num&gt;   &lt;num&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1      9    66        1 48617        2  2.2527         48.617        1</span></span>
-<span><span class="co">#&gt; 2:     1     39    47        1 74100        2  2.6680         74.100        1</span></span>
-<span><span class="co">#&gt; 3:     1     52    21        2 35551        2  1.6245         35.551        1</span></span>
-<span><span class="co">#&gt;    labor_status      age_group gender  dpto_name     region dpto_name.y</span></span>
-<span><span class="co">#&gt;          &lt;char&gt;         &lt;fctr&gt; &lt;char&gt;     &lt;char&gt;     &lt;char&gt;      &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     Employed           &lt;NA&gt;   Male Montevideo Montevideo  Montevideo</span></span>
-<span><span class="co">#&gt; 2:     Employed Mature (45-64)   Male Montevideo Montevideo  Montevideo</span></span>
-<span><span class="co">#&gt; 3:     Employed Mature (45-64) Female Montevideo Montevideo  Montevideo</span></span>
-<span><span class="co">#&gt;      region.y</span></span>
-<span><span class="co">#&gt;        &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: Montevideo</span></span>
-<span><span class="co">#&gt; 2: Montevideo</span></span>
-<span><span class="co">#&gt; 3: Montevideo</span></span></code></pre></div>
+<span><span class="co">#&gt;    region  dpto    ID  nper  anio   mes   nom_dpto sex_code   age   e30 e51_2</span></span>
+<span><span class="co">#&gt;     &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;     &lt;char&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:      1     1 34561     1  2023     1 Montevideo        2    26     1     6</span></span>
+<span><span class="co">#&gt; 2:      1     1 34561     2  2023     1 Montevideo        2    45     7     6</span></span>
+<span><span class="co">#&gt; 3:      1     1 34561     3  2023     1 Montevideo        2     7     4     1</span></span>
+<span><span class="co">#&gt;    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO ht11_thousands employed</span></span>
+<span><span class="co">#&gt;       &lt;int&gt;     &lt;int&gt;   &lt;num&gt;   &lt;int&gt; &lt;int&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        2         0 55429.6       0    57        55.4296        1</span></span>
+<span><span class="co">#&gt; 2:        4         0 55429.6       0    57        55.4296        0</span></span>
+<span><span class="co">#&gt; 3:        1         0 55429.6       0    57        55.4296        0</span></span>
+<span><span class="co">#&gt;    labor_status      age_group gender poverty_line region_name poverty_line.y</span></span>
+<span><span class="co">#&gt;          &lt;char&gt;         &lt;fctr&gt; &lt;char&gt;        &lt;num&gt;      &lt;char&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     Employed Mature (45-64) Female        19000  Montevideo          19000</span></span>
+<span><span class="co">#&gt; 2:   Unemployed Mature (45-64) Female        19000  Montevideo          19000</span></span>
+<span><span class="co">#&gt; 3:         &lt;NA&gt; Mature (45-64) Female        19000  Montevideo          19000</span></span>
+<span><span class="co">#&gt;    region_name.y</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    Montevideo</span></span>
+<span><span class="co">#&gt; 2:    Montevideo</span></span>
+<span><span class="co">#&gt; 3:    Montevideo</span></span></code></pre></div>
 <p>El historial de steps se preserva para documentacion y
 reproducibilidad:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">steps</span><span class="op">)</span> <span class="co"># Number of transformation steps</span></span>
-<span><span class="co">#&gt; [1] 11</span></span>
+<span><span class="co">#&gt; [1] 8</span></span>
 <span></span>
 <span><span class="co"># View step details</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Step 1:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Step 1: step_1 Compute: ht11_thousands, employed, working_age</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Comment:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">comments</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Comment:"</span>, <span class="va">steps</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">comment</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Comment: Basic labor force indicators</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -377,9 +373,10 @@ reproducibilidad:</p>
 </h3>
 <p>Es posible visualizar el pipeline de transformacion como un grafo
 dirigido:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/view_graph.html">view_graph</a></span><span class="op">(</span><span class="va">svy</span>, init_step <span class="op">=</span> <span class="st">"Load ECH 2023"</span><span class="op">)</span></span></code></pre></div>
-<p>Esto genera un grafo interactivo que muestra:</p>
+<div id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:100%;height:600px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":[1,2,3,4,5,6,7,8,9,10],"label":["Load ECH 2023","step_1 Compute: ht11_thousands, employed, working_age","step_2 Compute: mean_income_dept","step_3 Recode: labor_status","step_4 Recode: age_group","step_5 Recode: gender","step_6 Rename: age=e27, sex_code=e26","step_7 Remove: working_age, mean_income_dept","step_8 Join (left): region","Data: poverty_lines"],"title":["Load ECH 2023","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Basic labor force indicators<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(ht11_thousands = HT11/1000, employed = ifelse(POBPCOAC == 2, 1, 0), working_age = ifelse(e27 &gt;= 14, 1, 0))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Department-level income averages<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mean_income_dept = mean(HT11, na.rm = TRUE))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Labor force status - ILO standard<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>labor_status: list(POBPCOAC == 2 ~ \"Employed\", POBPCOAC %in% 3:5 ~ \"Unemployed\", POBPCOAC %in% 6:10 ~ \"Inactive\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Age groups for labor analysis<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>age_group: list(e27 &lt; 25 ~ \"Youth (14-24)\", e27 &lt; 45 ~ \"Adult (25-44)\", e27 &lt; 65 ~ \"Mature (45-64)\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Gender classification<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>gender: list(e26 == 1 ~ \"Male\", e26 == 2 ~ \"Female\")<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Rename variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(mapping = c(age = \"e27\", sex_code = \"e26\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Remove variables<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(vars = c(\"working_age\", \"mean_income_dept\"))<\/div><\/div>","<div style='font-family: system-ui, -apple-system, sans-serif; padding: 10px 14px; max-width: 340px;'><div style='font-weight: 700; font-size: 13px; color: #2C3E50; margin-bottom: 6px; border-bottom: 2px solid #eee; padding-bottom: 6px;'>Add poverty lines by region<\/div><div style='font-family: SFMono-Regular, Consolas, monospace; font-size: 11px; color: #6c757d; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; line-height: 1.5; white-space: pre-wrap;'>list(x = structure(list(region = 1:3, poverty_line = c(19000, 12500, 11000), region_name = c(\"Montevideo\", \"Interior loc. &gt;= 5000\", \"Interior loc. &lt; 5000\")), row.names = c(NA, -3L), class = c(\"data.table\", \"data.frame\"), .internal.selfref = &lt;pointer: 0x55943d54fee0&gt;), by = \"region\", type = \"left\", suffixes = c(\"\", \".y\"))<\/div><\/div>","<div style='font-family: system-ui, sans-serif; padding: 10px 14px;'><div style='font-weight: 700; color: #2C3E50;'>External data.frame<\/div><div style='font-size: 12px; color: #6c757d; margin-top: 4px;'>poverty_lines<\/div><\/div>"],"group":["Load survey","compute","compute","recode","recode","recode","step_rename","step_remove","step_join","dataframe"]},"edges":{"from":[1,2,3,4,5,6,7,8,10],"to":[2,3,4,5,6,7,8,9,9]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"groups":{"Load survey":{"shape":"icon","icon":{"code":"f1c0","size":60,"color":"#2C3E50"},"font":{"size":16,"color":"#2C3E50","face":"bold","multi":true},"shadow":{"enabled":true,"size":8,"x":2,"y":2,"color":"rgba(44,62,80,.15)"}},"compute":{"shape":"icon","icon":{"code":"f1ec","size":50,"color":"#3498db"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(52,152,219,.2)"}},"recode":{"shape":"icon","icon":{"code":"f0e8","size":50,"color":"#9b59b6"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(155,89,182,.2)"}},"step_join":{"shape":"icon","icon":{"code":"f0c1","size":50,"color":"#1abc9c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(26,188,156,.2)"}},"step_remove":{"shape":"icon","icon":{"code":"f1f8","size":50,"color":"#e74c3c"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(231,76,60,.2)"}},"step_rename":{"shape":"icon","icon":{"code":"f044","size":50,"color":"#e67e22"},"font":{"size":14,"color":"#2c3e50","face":"bold"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(230,126,34,.2)"}},"useDefaultGroups":true,"dataframe":{"shape":"icon","icon":{"code":"f0ce","size":50,"color":"#95a5a6"},"font":{"size":14,"color":"#2c3e50"},"shadow":{"enabled":true,"size":6,"x":2,"y":2,"color":"rgba(149,165,166,.2)"}}},"edges":{"width":2,"arrows":{"to":{"enabled":true,"scaleFactor":0.7,"type":"arrow"}},"color":{"color":"#bdc3c7","highlight":"#3498db","hover":"#3498db"},"smooth":{"enabled":true,"type":"curvedCW","roundness":0.1}},"layout":{"hierarchical":{"enabled":true,"levelSeparation":220,"nodeSpacing":140,"direction":"LR","sortMethod":"directed"}},"interaction":{"keyboard":true,"navigationButtons":true,"tooltipDelay":100,"hover":true,"zoomSpeed":1},"clickToUse":false},"groups":["Load survey","compute","recode","step_rename","step_remove","step_join","dataframe"],"width":"100%","height":"600px","idselection":{"enabled":true,"style":"font-family: system-ui, sans-serif; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid #dee2e6; background: #fff; color: #2C3E50;","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"#f8f9fa","iconsRedraw":true,"tooltipStay":300,"tooltipStyle":"position: fixed;visibility:hidden;padding: 5px;white-space: nowrap;font-family: verdana;font-size:14px;font-color:#000000;background-color: #f5f4ed;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;border: 1px solid #808074;box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);","highlight":{"enabled":true,"hoverNearest":true,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"},"legend":{"width":0.15,"useGroups":true,"position":"right","ncol":1,"stepX":100,"stepY":100,"zoom":false,"main":{"text":"Step types","style":"font-family: system-ui, sans-serif; font-weight: 700; font-size: 14px; color: #2C3E50;"}}},"evals":[],"jsHooks":[]}</script><p>Esto genera un grafo interactivo que muestra:</p>
 <ul>
 <li>Fuentes de datos y uniones</li>
 <li>Steps de transformacion</li>
@@ -400,18 +397,21 @@ un <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()
 <div class="section level3">
 <h3 id="estimaciones-basicas">Estimaciones basicas<a class="anchor" aria-label="anchor" href="#estimaciones-basicas"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate mean household income</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span></span>
-<span><span class="co">#&gt;                     stat    value       se       cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: ht11 39774.23 1622.948 0.040804      36593.31      42955.15</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
+<span><span class="co">#&gt;    confint_upper</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
 <p>La salida incluye:</p>
 <ul>
 <li>
@@ -431,10 +431,10 @@ categoricas)</li>
 <h3 id="estimaciones-multiples">Estimaciones multiples<a class="anchor" aria-label="anchor" href="#estimaciones-multiples"></a>
 </h3>
 <p>Es posible calcular varias estadisticas en una sola llamada:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Mean income</span></span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Mean income</span></span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svytotal</a></span><span class="op">(</span><span class="op">~</span><span class="va">employed</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Total employed</span></span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">labor_status</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># Employment distribution</span></span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
@@ -443,41 +443,41 @@ categoricas)</li>
 <span><span class="va">results</span></span>
 <span><span class="co">#&gt;                                       stat        value           se         cv</span></span>
 <span><span class="co">#&gt;                                     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:                   survey::svymean: ht11 3.977423e+04 1.622948e+03 0.04080400</span></span>
-<span><span class="co">#&gt; 2:              survey::svytotal: employed 2.020862e+02 1.351243e+01 0.06686469</span></span>
-<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed 5.665880e-01 3.788473e-02 0.06686469</span></span>
-<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive 3.748725e-01 3.721431e-02 0.09927192</span></span>
-<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed 5.853947e-02 1.680764e-02 0.28711634</span></span>
+<span><span class="co">#&gt; 1:                   survey::svymean: HT11 1.078691e+05 3.473836e+03 0.03220417</span></span>
+<span><span class="co">#&gt; 2:              survey::svytotal: employed 1.426200e+04 7.557046e+02 0.05298728</span></span>
+<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.609582e-02 0.04700614</span></span>
+<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551231e-02 0.06608301</span></span>
+<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.308848e-02 0.22267760</span></span>
 <span><span class="co">#&gt;    confint_lower confint_upper</span></span>
 <span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  3.659331e+04  4.295515e+04</span></span>
-<span><span class="co">#&gt; 2:  1.756023e+02  2.285701e+02</span></span>
-<span><span class="co">#&gt; 3:  4.923353e-01  6.408407e-01</span></span>
-<span><span class="co">#&gt; 4:  3.019338e-01  4.478112e-01</span></span>
-<span><span class="co">#&gt; 5:  2.559710e-02  9.148183e-02</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:  1.010605e+05  1.146777e+05</span></span>
+<span><span class="co">#&gt; 2:  1.278085e+04  1.574315e+04</span></span>
+<span><span class="co">#&gt; 3:  5.040108e-01  6.063045e-01</span></span>
+<span><span class="co">#&gt; 4:  3.360614e-01  4.360678e-01</span></span>
+<span><span class="co">#&gt; 5:  3.312478e-02  8.443069e-02</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="estimacion-por-dominios">Estimacion por dominios<a class="anchor" aria-label="anchor" href="#estimacion-por-dominios"></a>
 </h3>
 <p>Se calculan estimaciones para subpoblaciones usando
 <code><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">survey::svyby()</a></code>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean income by gender</span></span>
 <span><span class="va">income_by_gender</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span>
-<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">svyby</a></span><span class="op">(</span><span class="op">~</span><span class="va">ht11</span>, <span class="op">~</span><span class="va">gender</span>, <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/svyby.html" class="external-link">svyby</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, <span class="op">~</span><span class="va">gender</span>, <span class="fu">survey</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">income_by_gender</span></span>
-<span><span class="co">#&gt;      stat     value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;char&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Female        NA    NA 0.05715728      33165.86      41534.22</span></span>
-<span><span class="co">#&gt; 2:   Male        NA    NA 0.05677403      37150.72      46453.82</span></span>
-<span><span class="co">#&gt; 3: Female 37350.039    NA 0.05715728            NA            NA</span></span>
-<span><span class="co">#&gt; 4:   Male 41802.272    NA 0.05677403            NA            NA</span></span>
-<span><span class="co">#&gt; 5: Female  2134.827    NA 0.05715728            NA            NA</span></span>
-<span><span class="co">#&gt; 6:   Male  2373.283    NA 0.05677403            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                                   stat    value       se         cv</span></span>
+<span><span class="co">#&gt;                                 &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: HT11 [gender=Female] 108403.8 5008.205 0.04619954</span></span>
+<span><span class="co">#&gt; 2:   survey::svyby: HT11 [gender=Male] 107283.9 4783.662 0.04458883</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper gender</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      98587.87      118219.7 Female</span></span>
+<span><span class="co">#&gt; 2:      97908.07      116659.7   Male</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -533,13 +533,13 @@ Estadística (INE) 2023</a>)</span>:</p>
 </table>
 <p>Se utiliza <code><a href="../reference/evaluate_cv.html">evaluate_cv()</a></code> para clasificar la calidad de
 las estimaciones:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check quality of mean income estimate</span></span>
 <span><span class="va">cv_percentage</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">cv</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="fl">100</span></span>
 <span><span class="va">quality</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluate_cv.html">evaluate_cv</a></span><span class="op">(</span><span class="va">cv_percentage</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"CV:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cv_percentage</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; CV: 4.08 %</span></span>
+<span><span class="co">#&gt; CV: 3.22 %</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Quality:"</span>, <span class="va">quality</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Quality: Excellent</span></span></code></pre></div>
 <p>Para estadisticas oficiales, siempre se debe reportar:</p>
@@ -568,7 +568,7 @@ que puede ser:</p>
 <h3 id="creacion-de-una-recipe">Creacion de una Recipe<a class="anchor" aria-label="anchor" href="#creacion-de-una-recipe"></a>
 </h3>
 <p>Se crea una receta a partir de los steps desarrollados:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert current steps to a recipe</span></span>
 <span><span class="va">labor_recipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/steps_to_recipe.html">steps_to_recipe</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"ECH Labor Force Indicators"</span>,</span>
@@ -587,12 +587,12 @@ que puede ser:</p>
 <span><span class="va">labor_recipe</span><span class="op">$</span><span class="va">name</span></span>
 <span><span class="co">#&gt; [1] "ECH Labor Force Indicators"</span></span></code></pre></div>
 <p>O se puede definir una receta desde cero:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">minimal_recipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recipe.html">recipe</a></span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"Basic Demographics"</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"Basic Demographics - ECH"</span>,</span>
 <span>  user <span class="op">=</span> <span class="st">"analyst"</span>,</span>
 <span>  svy <span class="op">=</span> <span class="fu"><a href="../reference/survey_empty.html">survey_empty</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"ech"</span>, edition <span class="op">=</span> <span class="st">"2023"</span><span class="op">)</span>,</span>
-<span>  description <span class="op">=</span> <span class="st">"Basic demographic recoding"</span>,</span>
+<span>  description <span class="op">=</span> <span class="st">"Basic demographic recoding for ECH microdata"</span>,</span>
 <span>  topic <span class="op">=</span> <span class="st">"demographics"</span>,</span>
 <span></span>
 <span>  <span class="co"># Define steps inline</span></span>
@@ -604,7 +604,7 @@ que puede ser:</p>
 <span>  <span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/step_recode.html">step_recode</a></span><span class="op">(</span></span>
 <span>    <span class="va">age_group</span>,</span>
-<span>    <span class="va">e27</span> <span class="op">&lt;</span> <span class="fl">18</span> <span class="op">~</span> <span class="st">"Minor"</span>,</span>
+<span>    <span class="va">e27</span> <span class="op">&lt;</span> <span class="fl">14</span> <span class="op">~</span> <span class="st">"Child"</span>,</span>
 <span>    <span class="va">e27</span> <span class="op">&lt;</span> <span class="fl">65</span> <span class="op">~</span> <span class="st">"Adult"</span>,</span>
 <span>    .default <span class="op">=</span> <span class="st">"Senior"</span></span>
 <span>  <span class="op">)</span></span>
@@ -615,8 +615,8 @@ que puede ser:</p>
 </h3>
 <p>Una vez publicada, cualquier persona puede recuperar una receta por
 ID y aplicarla a sus datos:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Obtener una receta por ID desde la API</span></span>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Obtener una receta por ID desde la API (requiere servidor)</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_get_recipe.html">api_get_recipe</a></span><span class="op">(</span><span class="st">"ech_labor_001"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Aplicar a una nueva encuesta</span></span>
@@ -627,14 +627,14 @@ ID y aplicarla a sus datos:</p>
 <h3 id="documentacion-de-recipes">Documentacion de Recipes<a class="anchor" aria-label="anchor" href="#documentacion-de-recipes"></a>
 </h3>
 <p>Las recetas documentan automaticamente sus transformaciones:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="va">labor_recipe</span><span class="op">$</span><span class="fu">doc</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">doc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "meta"             "input_variables"  "output_variables" "pipeline"</span></span>
 <span></span>
 <span><span class="co"># Input variables required</span></span>
 <span><span class="va">doc</span><span class="op">$</span><span class="va">input_variables</span></span>
-<span><span class="co">#&gt; [1] "ht11"     "POBPCOAC" "e27"      "e26"      "dpto"</span></span>
+<span><span class="co">#&gt; [1] "HT11"     "POBPCOAC" "e27"      "e26"      "region"</span></span>
 <span></span>
 <span><span class="co"># Output variables created</span></span>
 <span><span class="va">doc</span><span class="op">$</span><span class="va">output_variables</span></span>
@@ -647,7 +647,7 @@ ID y aplicarla a sus datos:</p>
 </h2>
 <p>metasurvey ofrece configuraciones globales que se pueden ajustar
 segun el flujo de trabajo:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check current lazy-processing setting</span></span>
 <span><span class="fu"><a href="../reference/lazy_default.html">lazy_default</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># TRUE = steps recorded but not executed immediately</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -660,7 +660,7 @@ segun el flujo de trabajo:</p>
 <span><span class="fu"><a href="../reference/show_engines.html">show_engines</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># "data.table", "dplyr", etc.</span></span>
 <span><span class="co">#&gt; [1] "data.table" "tidyverse"  "dplyr"</span></span></code></pre></div>
 <p>Se pueden modificar las configuraciones para la sesion actual:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Disable lazy evaluation (execute steps immediately)</span></span>
 <span><span class="fu"><a href="../reference/set_lazy_processing.html">set_lazy_processing</a></span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -679,18 +679,18 @@ en la comunidad de investigadores que trabajan con encuestas. Si se ha
 construido un pipeline de procesamiento util, es posible publicarlo para
 que otros lo encuentren y reutilicen. El paquete se conecta a una API
 publica donde se almacenan recipes y workflows:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Browse existing recipes (no login required)</span></span>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Buscar recipes existentes (requiere servidor API)</span></span>
 <span><span class="va">ech_recipes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_list_recipes.html">api_list_recipes</a></span><span class="op">(</span>survey_type <span class="op">=</span> <span class="st">"ech"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ech_recipes</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Search for something specific</span></span>
+<span><span class="co"># Buscar algo especifico</span></span>
 <span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/api_list_recipes.html">api_list_recipes</a></span><span class="op">(</span>search <span class="op">=</span> <span class="st">"labor"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># To publish your own, create an account first</span></span>
+<span><span class="co"># Para publicar, crear una cuenta primero</span></span>
 <span><span class="fu"><a href="../reference/api_register.html">api_register</a></span><span class="op">(</span><span class="st">"Your Name"</span>, <span class="st">"you@example.com"</span>, <span class="st">"password"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Then publish</span></span>
+<span><span class="co"># Luego publicar</span></span>
 <span><span class="fu"><a href="../reference/api_publish_recipe.html">api_publish_recipe</a></span><span class="op">(</span><span class="va">labor_recipe</span><span class="op">)</span></span></code></pre></div>
 <p>El ecosistema soporta tres niveles de certificacion (comunitaria,
 revisada, oficial) y tres tipos de cuenta (individual, miembro
@@ -701,6 +701,21 @@ tengan respaldo real.</p>
 comparticion de Recipes</a>.</p>
 </div>
 <div class="section level2">
+<h2 id="datos-y-agradecimientos">Datos y agradecimientos<a class="anchor" aria-label="anchor" href="#datos-y-agradecimientos"></a>
+</h2>
+<p>Los datos de ejemplo utilizados en esta vinieta provienen de la
+<em>Encuesta Continua de Hogares</em> (ECH) 2023, publicada por el
+Instituto Nacional de Estadistica (INE) de Uruguay. Los microdatos
+completos estan disponibles en <a href="https://www.ine.gub.uy" class="external-link">www.ine.gub.uy</a>.</p>
+<p>El paquete <strong><a href="https://calcita.github.io/ech/" class="external-link">ech</a></strong> de Gabriela
+Mathieu y Richard Detomasi fue una inspiracion importante para
+metasurvey. Mientras que <code>ech</code> provee funciones listas para
+usar para calcular indicadores socioeconomicos, metasurvey toma un
+enfoque diferente: proporciona una capa de metaprogramacion que permite
+a los usuarios definir, compartir y reproducir sus propios pipelines de
+procesamiento.</p>
+</div>
+<div class="section level2">
 <h2 id="paquetes-relacionados">Paquetes relacionados<a class="anchor" aria-label="anchor" href="#paquetes-relacionados"></a>
 </h2>
 <p>metasurvey es parte de un ecosistema creciente de paquetes de R para
@@ -709,8 +724,8 @@ el analisis de encuestas de hogares en America Latina:</p>
 <li>
 <strong><a href="https://calcita.github.io/ech/" class="external-link">ech</a></strong> –
 Funciones para el calculo de indicadores socioeconomicos con la ECH de
-Uruguay. Provee funciones listas para usar sobre pobreza, ingresos,
-educacion e indicadores de empleo.</li>
+Uruguay (Mathieu &amp; Detomasi). Provee funciones listas para usar
+sobre pobreza, ingresos, educacion e indicadores de empleo.</li>
 <li>
 <strong><a href="https://docs.ropensci.org/eph/" class="external-link">eph</a></strong> –
 Herramientas para trabajar con la Encuesta Permanente de Hogares de

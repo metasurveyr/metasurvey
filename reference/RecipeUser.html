@@ -3,7 +3,7 @@
 Supports three account types: individual,
 institutional_member, and institution."><meta property="og:description" content="User identity for the recipe ecosystem.
 Supports three account types: individual,
-institutional_member, and institution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+institutional_member, and institution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -17,7 +17,7 @@ institutional_member, and institution."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ institutional_member, and institution."><meta property="og:image" content="https
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>RecipeUser</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>RecipeUser</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/RecipeUser.R" class="external-link"><code>R/RecipeUser.R</code></a></small>
       <div class="d-none name"><code>RecipeUser.Rd</code></div>
     </div>
@@ -278,7 +278,8 @@ or "rejected".</p></dd>
 <span class="r-in"><span><span class="va">user</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_user.html">recipe_user</a></span><span class="op">(</span><span class="st">"Juan Perez"</span>, email <span class="op">=</span> <span class="st">"juan@example.com"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">inst</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_user.html">recipe_user</a></span><span class="op">(</span><span class="st">"IECON"</span>, type <span class="op">=</span> <span class="st">"institution"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">member</span> <span class="op">&lt;-</span> <span class="fu"><a href="recipe_user.html">recipe_user</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="st">"Maria"</span>, type <span class="op">=</span> <span class="st">"institutional_member"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"Maria"</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"institutional_member"</span>,</span></span>
 <span class="r-in"><span>  institution <span class="op">=</span> <span class="va">inst</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

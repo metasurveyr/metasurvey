@@ -49,7 +49,8 @@ Other tidy-api:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 results <- search_workflows("labor market")
-} # }
+length(results)
+#> [1] 0
 ```

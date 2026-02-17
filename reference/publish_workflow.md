@@ -36,8 +36,11 @@ Other workflows:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-set_workflow_backend("local", path = "workflows.json")
-publish_workflow(my_workflow)
-} # }
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
+wf <- RecipeWorkflow$new(
+  name = "Example", description = "Test",
+  survey_type = "ech", edition = "2023",
+  recipe_ids = "r_001", estimation_type = "svymean"
+)
+publish_workflow(wf)
 ```

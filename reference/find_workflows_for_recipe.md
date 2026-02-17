@@ -48,7 +48,8 @@ Other tidy-api:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+set_workflow_backend("local", path = tempfile(fileext = ".json"))
 wfs <- find_workflows_for_recipe("recipe_001")
-} # }
+length(wfs)
+#> [1] 0
 ```

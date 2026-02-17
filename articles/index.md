@@ -49,6 +49,8 @@ Real-world examples with ECH data
   Recipe](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.md):
 - [ECH Case Study: From STATA to
   R](https://metasurveyr.github.io/metasurvey/articles/ech-case-study.md):
+- [International Survey
+  Compatibility](https://metasurveyr.github.io/metasurvey/articles/international-surveys.md):
 
 ### Español
 
@@ -70,3 +72,9 @@ Documentación en español
   (ES)](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer-es.md):
 - [Referencia de la API y Base de Datos
   (ES)](https://metasurveyr.github.io/metasurvey/articles/api-database-es.md):
+- [Transpilando archivos .do de STATA a Recetas metasurvey
+  (ES)](https://metasurveyr.github.io/metasurvey/articles/stata-transpiler-es.md):
+- [Construyendo una Receta de Demografia ECH
+  (ES)](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe-es.md):
+- [Compatibilidad con encuestas internacionales
+  (ES)](https://metasurveyr.github.io/metasurvey/articles/international-surveys-es.md):

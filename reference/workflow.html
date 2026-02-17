@@ -3,7 +3,7 @@
 objects, applying functions from the R survey package with appropriate
 metadata. Automatically handles different survey types and periodicities."><meta property="og:description" content="This function executes a sequence of statistical estimations on Survey
 objects, applying functions from the R survey package with appropriate
-metadata. Automatically handles different survey types and periodicities."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+metadata. Automatically handles different survey types and periodicities."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -17,7 +17,7 @@ metadata. Automatically handles different survey types and periodicities."><meta
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ metadata. Automatically handles different survey types and periodicities."><meta
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Execute estimation workflow for surveys</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Execute estimation workflow for surveys</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/workflow.R" class="external-link"><code>R/workflow.R</code></a></small>
       <div class="d-none name"><code>workflow.Rd</code></div>
     </div>
@@ -57,16 +57,18 @@ metadata. Automatically handles different survey types and periodicities.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">workflow</span><span class="op">(</span><span class="va">survey</span>, <span class="va">...</span>, estimation_type <span class="op">=</span> <span class="st">"monthly"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">workflow</span><span class="op">(</span><span class="va">svy</span>, <span class="va">...</span>, estimation_type <span class="op">=</span> <span class="st">"monthly"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-survey">survey<a class="anchor" aria-label="anchor" href="#arg-survey"></a></dt>
-<dd><p>Survey object, list of Survey objects, or PoolSurvey. Must
-contain properly configured sample design</p></dd>
+<dl><dt id="arg-svy">svy<a class="anchor" aria-label="anchor" href="#arg-svy"></a></dt>
+<dd><p>A <strong>list</strong> of Survey objects, or a PoolSurvey.
+Even for a single survey, wrap it in <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>:
+<code>workflow(svy = list(my_survey), ...)</code>.
+Must contain properly configured sample design.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -134,11 +136,10 @@ pooling of multiple surveys.</p>
 <span class="r-in"><span>  weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">workflow</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  survey <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  svy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">x</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>CV may not be useful for negative statistics</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># ECH example with domain estimations</span></span></span>

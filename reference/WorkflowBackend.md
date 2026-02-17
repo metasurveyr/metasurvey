@@ -261,13 +261,8 @@ The objects of this class are cloneable with this method.
 
 ``` r
 if (FALSE) { # \dontrun{
-# Local backend
-backend <- WorkflowBackend$new("local", path = "workflows.json")
-backend$publish(my_workflow)
+# Local backend (internal class, use set_workflow_backend() instead)
+backend <- WorkflowBackend$new("local", path = tempfile(fileext = ".json"))
 backend$search("labor")
-
-# API backend (requires configure_api() first)
-configure_api("https://metasurvey-api.example.com")
-backend <- WorkflowBackend$new("api")
 } # }
 ```

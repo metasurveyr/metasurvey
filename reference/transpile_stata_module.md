@@ -30,3 +30,13 @@ transpile_stata_module(year_dir, year, user = "iecon", output_dir = NULL)
 ## Value
 
 A named list of Recipe objects, one per thematic module
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Requires a directory of .do files organized by year
+recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
+names(recipes)
+} # }
+```

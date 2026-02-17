@@ -19,7 +19,7 @@
 <meta property="og:title" content="Reproducible Survey Data Processing with Step Pipelines">
 <meta name="description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
 <meta property="og:description" content="Wraps the survey package with R6 classes and a step-based pipeline for reproducible survey data processing. Supports complex sampling designs including rotating panels with bootstrap replicate weights, and provides a recipe system for sharing and reproducing data transformation workflows across survey editions.">
-<meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png">
+<meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg">
 <!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="">
 <script src="ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,15 +72,59 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="metasurvey">metasurvey<a class="anchor" aria-label="anchor" href="#metasurvey"></a>
+<img src="logo.svg" class="logo" alt=""><h1 id="metasurvey">metasurvey<a class="anchor" aria-label="anchor" href="#metasurvey"></a>
 </h1>
 </div>
 <!-- badges: start -->
 
 <p><strong>metasurvey</strong> is an R package for processing and analysing complex survey data using metaprogramming and reproducible pipelines. It integrates with the <a href="https://cran.r-project.org/package=survey" class="external-link"><code>survey</code></a> package and is designed for <strong>complex sampling designs</strong> and <strong>recurring estimations</strong> over time (rotating panels, repeated cross-sections).</p>
-<div class="section level3">
-<h3 id="key-features">Key features<a class="anchor" aria-label="anchor" href="#key-features"></a>
-</h3>
+<blockquote>
+<p>If you find this useful, please consider giving us a <span class="emoji" data-emoji="star">⭐</span> <a href="https://github.com/metasurveyr/metasurvey" class="external-link">star on GitHub</a> — it helps others discover the project!</p>
+</blockquote>
+<hr>
+<div class="section level2">
+<h2 id="live-services">Live services<a class="anchor" aria-label="anchor" href="#live-services"></a>
+</h2>
+<p>The full stack is deployed and publicly available:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="18%">
+<col width="48%">
+</colgroup>
+<thead><tr class="header">
+<th>Service</th>
+<th>URL</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>Recipe Explorer</strong></td>
+<td><a href="https://metasurvey-shiny-production.up.railway.app" class="external-link">metasurvey-shiny-production.up.railway.app</a></td>
+<td>Interactive Shiny app to browse, search and inspect community recipes and workflows</td>
+</tr>
+<tr class="even">
+<td><strong>REST API</strong></td>
+<td><a href="https://metasurvey-api-production.up.railway.app" class="external-link">metasurvey-api-production.up.railway.app</a></td>
+<td>Plumber API backed by MongoDB Atlas for publishing and discovering recipes</td>
+</tr>
+<tr class="odd">
+<td><strong>API Docs</strong></td>
+<td><a href="https://metasurvey-api-production.up.railway.app/__docs__/" class="external-link">metasurvey-api-production.up.railway.app/__docs__/</a></td>
+<td>Swagger/OpenAPI interactive documentation</td>
+</tr>
+<tr class="even">
+<td><strong>pkgdown site</strong></td>
+<td><a href="https://metasurveyr.github.io/metasurvey/">metasurveyr.github.io/metasurvey</a></td>
+<td>Full package documentation and vignettes</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="key-features">Key features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h2>
 <ul>
 <li>
 <strong>Steps</strong>: lazy transformation pipeline (<code>step_compute</code>, <code>step_recode</code>, <code>step_rename</code>, <code>step_remove</code>, <code>step_join</code>) executed via <code><a href="reference/bake_steps.html">bake_steps()</a></code>.</li>
@@ -93,17 +137,126 @@
 <li>
 <strong>Replicate weights</strong>: bootstrap replicate configuration via <code><a href="reference/add_replicate.html">add_replicate()</a></code> for robust variance with <code><a href="https://rdrr.io/pkg/survey/man/svrepdesign.html" class="external-link">survey::svrepdesign</a></code>.</li>
 <li>
-<strong>Recipe registry</strong>: publish, search and discover recipes and workflows through a REST API or a local JSON registry.</li>
+<strong>Recipe registry</strong>: publish, search and discover recipes and workflows through the <a href="https://metasurvey-api-production.up.railway.app/__docs__/" class="external-link">REST API</a> or a local JSON registry.</li>
 <li>
-<strong>Shiny app</strong>: interactive recipe and workflow explorer with <code><a href="reference/explore_recipes.html">explore_recipes()</a></code>.</li>
+<strong>Shiny app</strong>: <a href="https://metasurvey-shiny-production.up.railway.app" class="external-link">interactive recipe and workflow explorer</a> with <code><a href="reference/explore_recipes.html">explore_recipes()</a></code>.</li>
+<li>
+<strong>STATA transpiler</strong>: convert <code>.do</code> files into reproducible Recipe objects.</li>
 </ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="works-with-any-household-survey">Works with any household survey<a class="anchor" aria-label="anchor" href="#works-with-any-household-survey"></a>
+</h2>
+<p>The step pipeline and workflow system are survey-agnostic. The same verbs process Argentina’s EPH, Chile’s CASEN, Brazil’s PNAD-C, the US CPS, Mexico’s ENIGH, or DHS data from 90+ countries.</p>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th align="center">EPH</th>
+<th align="center">CASEN</th>
+<th align="center">PNAD-C</th>
+<th align="center">CPS</th>
+<th align="center">ENIGH</th>
+<th align="center">DHS</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Steps (compute / recode / rename / remove / join)</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+</tr>
+<tr class="even">
+<td>Weights (<code>add_weight</code>)</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+</tr>
+<tr class="odd">
+<td>Stratified + cluster designs</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center">–</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+</tr>
+<tr class="even">
+<td>Replicate weights (<code>add_replicate</code>)</td>
+<td align="center">–</td>
+<td align="center">–</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center">–</td>
+<td align="center">–</td>
+</tr>
+<tr class="odd">
+<td>Rotating panels (<code>RotativePanelSurvey</code>)</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center">–</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center">–</td>
+<td align="center">–</td>
+</tr>
+<tr class="even">
+<td>Recipes &amp; workflows</td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+<td align="center"><span class="emoji" data-emoji="white_check_mark">✅</span></td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Same pipeline, different surveys ─────────────────────────</span></span>
+<span></span>
+<span><span class="co"># Argentina (eph)</span></span>
+<span><span class="va">eph_svy</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu">as.data.table</span><span class="op">(</span><span class="fu">eph</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/eph/reference/get_microdata.html" class="external-link">get_microdata</a></span><span class="op">(</span><span class="fl">2023</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  edition <span class="op">=</span> <span class="st">"2023-T3"</span>, type <span class="op">=</span> <span class="st">"eph"</span>, psu <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>quarterly <span class="op">=</span> <span class="st">"PONDERA"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Chile (casen)</span></span>
+<span><span class="va">casen_svy</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Survey.html">Survey</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu">as.data.table</span><span class="op">(</span><span class="fu">casen</span><span class="fu">::</span><span class="fu">descargar_casen_github</span><span class="op">(</span><span class="fl">2017</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  edition <span class="op">=</span> <span class="st">"2017"</span>, type <span class="op">=</span> <span class="st">"casen"</span>, psu <span class="op">=</span> <span class="st">"varunit"</span>,</span>
+<span>  engine <span class="op">=</span> <span class="st">"data.table"</span>, weight <span class="op">=</span> <span class="fu"><a href="reference/add_weight.html">add_weight</a></span><span class="op">(</span>annual <span class="op">=</span> <span class="st">"expr"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Both use the exact same verbs</span></span>
+<span><span class="va">process</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">svy</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">svy</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="reference/step_recode.html">step_recode</a></span><span class="op">(</span><span class="va">employed</span>, <span class="va">labor_status</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1L</span>, .default <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>                comment <span class="op">=</span> <span class="st">"Binary employment indicator"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="reference/bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>See <code><a href="articles/international-surveys.html">vignette("international-surveys")</a></code> for reproducible examples with all seven surveys.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Development version from GitHub:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"metasurveyR/metasurvey"</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -111,7 +264,7 @@
 <div class="section level2">
 <h2 id="quick-example">Quick example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a survey with sample data</span></span>
@@ -148,7 +301,7 @@
 <h2 id="full-example-ech-panel-with-bootstrap-replicate-weights">Full example: ECH panel with bootstrap replicate weights<a class="anchor" aria-label="anchor" href="#full-example-ech-panel-with-bootstrap-replicate-weights"></a>
 </h2>
 <p>This example uses the rotating panel from Uruguay’s <a href="https://www.ine.gub.uy/encuesta-continua-de-hogares" class="external-link"><em>Encuesta Continua de Hogares</em></a> (ECH) with bootstrap replicate weights. First, download the example data:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">download_example_ech</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">zip_url</span> <span class="op">&lt;-</span> <span class="st">"https://informe-tfg.s3.us-east-2.amazonaws.com/example-data.zip"</span></span>
 <span>  <span class="va">dest_zip</span> <span class="op">&lt;-</span> <span class="st">"example-data.zip"</span></span>
@@ -167,7 +320,7 @@
 <span><span class="op">}</span></span>
 <span><span class="fu">download_example_ech</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>With the data downloaded:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span></span>
@@ -228,18 +381,66 @@
 <hr>
 </div>
 <div class="section level2">
+<h2 id="stata-transpiler">STATA transpiler<a class="anchor" aria-label="anchor" href="#stata-transpiler"></a>
+</h2>
+<p>Many research groups maintain decades of STATA <code>.do</code> files that process household survey microdata. The metasurvey transpiler converts these scripts into reproducible Recipe objects.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Transpile a .do file to metasurvey steps</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/transpile_stata.html">transpile_stata</a></span><span class="op">(</span><span class="st">"demographics.do"</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">steps</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] "step_rename(svy, hh_id = \"id\", person_id = \"nper\")"</span></span>
+<span><span class="co">#&gt; [2] "step_compute(svy, weight_yr = pesoano)"</span></span>
+<span><span class="co">#&gt; [3] "step_compute(svy, sex = e26)"</span></span>
+<span></span>
+<span><span class="co"># Transpile an entire year directory into separate recipes</span></span>
+<span><span class="va">recipes</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/transpile_stata_module.html">transpile_stata_module</a></span><span class="op">(</span></span>
+<span>  year_dir <span class="op">=</span> <span class="st">"do_files/2022"</span>,</span>
+<span>  year <span class="op">=</span> <span class="fl">2022</span>,</span>
+<span>  user <span class="op">=</span> <span class="st">"research_team"</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="st">"recipes/"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check coverage before migrating</span></span>
+<span><span class="fu"><a href="reference/transpile_coverage.html">transpile_coverage</a></span><span class="op">(</span><span class="st">"do_files/"</span><span class="op">)</span></span></code></pre></div>
+<p>Supported STATA patterns: <code>gen</code>/<code>replace</code> chains, <code>recode</code>, <code>egen</code> with by-groups, <code>foreach</code>/<code>forvalues</code> loops, <code>mvencode</code>, <code>destring</code>, <code>rename</code>, <code>drop</code>/<code>keep</code>, variable and value labels, <code>inrange</code>/<code>inlist</code> expressions, and variable ranges.</p>
+<p>See <code><a href="articles/stata-transpiler.html">vignette("stata-transpiler")</a></code> for the full reference.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/getting-started.html">Getting started</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/international-surveys.html">International survey compatibility</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/recipes.html">Recipes</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/workflows-and-estimation.html">Workflows and estimation</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/complex-designs.html">Complex designs</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/panel-analysis.html">Rotating panels</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/ech-case-study.html">Case study: ECH</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/stata-transpiler.html">STATA transpiler</a></li>
+<li><a href="https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe.html">ECH demographics recipe</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html">Interactive explorer</a></li>
 <li><a href="https://metasurveyr.github.io/metasurvey/articles/api-database.html">API and database</a></li>
 </ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>To cite metasurvey in publications use:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"metasurvey"</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p>Loprete M, da Silva N, Machado F (2025). <em>metasurvey: Reproducible Survey Data Processing with Step Pipelines</em>. R package, <a href="https://github.com/metasurveyr/metasurvey" class="external-link uri">https://github.com/metasurveyr/metasurvey</a>.</p>
+</blockquote>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
+</h2>
+<p>Please note that the metasurvey project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project you agree to abide by its terms.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -288,6 +489,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=metasurvey" class="external-link"><img src="https://www.r-pkg.org/badges/version/metasurvey" alt="CRAN status"></a></li>
 <li><a href="https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml" class="external-link"><img src="https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main" alt="pkgdown"></a></li>
 <li><a href="https://app.codecov.io/gh/metasurveyr/metasurvey?branch=main" class="external-link"><img src="https://codecov.io/gh/metasurveyr/metasurvey/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>

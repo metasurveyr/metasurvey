@@ -24,7 +24,8 @@ Other api-auth:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 api_logout()
-} # }
+#> Logged out.
+# }
 ```

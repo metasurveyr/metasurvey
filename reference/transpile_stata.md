@@ -39,3 +39,26 @@ A list with:
 - warnings: character vector of MANUAL_REVIEW items
 
 - stats: list with command counts
+
+## Examples
+
+``` r
+# \donttest{
+tf <- tempfile(fileext = ".do")
+writeLines(c("gen age2 = edad^2", "replace sexo = 1 if sexo == ."), tf)
+result <- transpile_stata(tf)
+result$steps
+#> [1] "step_compute(svy, age2 = edad^2)"                                   
+#> [2] "step_compute(svy, sexo = data.table::fifelse(is.na(sexo), 1, sexo))"
+result$stats
+#> $translated
+#> [1] 2
+#> 
+#> $skipped
+#> [1] 0
+#> 
+#> $manual_review
+#> [1] 0
+#> 
+# }
+```

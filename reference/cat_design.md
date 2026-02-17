@@ -48,6 +48,10 @@ Other survey-objects:
 [`cat_design_type()`](https://metasurveyr.github.io/metasurvey/reference/cat_design_type.md),
 [`get_data()`](https://metasurveyr.github.io/metasurvey/reference/get_data.md),
 [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md),
+[`has_design()`](https://metasurveyr.github.io/metasurvey/reference/has_design.md),
+[`has_recipes()`](https://metasurveyr.github.io/metasurvey/reference/has_recipes.md),
+[`has_steps()`](https://metasurveyr.github.io/metasurvey/reference/has_steps.md),
+[`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md),
 [`set_data()`](https://metasurveyr.github.io/metasurvey/reference/set_data.md),
 [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
 [`survey_to_data.table()`](https://metasurveyr.github.io/metasurvey/reference/survey_to_data.table.md),
@@ -57,12 +61,15 @@ Other survey-objects:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Display design for survey with multiple estimation types
-ech_survey <- load_survey("ech_2023.dta",
-  svy_type = "ech",
-  svy_edition = "2023"
+# \donttest{
+library(data.table)
+dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "demo",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
 )
-cat_design(ech_survey)
-} # }
+cat_design(svy)
+#> [1] "\n  Design: Not initialized (lazy initialization - will be created when needed)\n"
+# }
 ```

@@ -1,5 +1,214 @@
 # Changelog
 
+## metasurvey 0.0.15
+
+### New features
+
+- Added `strata` parameter to `Survey$new()`,
+  [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md),
+  [`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md),
+  and
+  [`load_panel_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_panel_survey.md)
+  for stratified sampling designs. Passed to
+  `survey::svydesign(strata = ...)`.
+- New vignette: “International Survey Compatibility” (EN + ES) with
+  reproducible examples for ECH, EPH, CASEN, PNADc, CPS, ENIGH, and DHS.
+
+### Documentation
+
+- Eliminated `eval=FALSE` from all vignettes — chunks now use
+  conditional eval or markdown code blocks for non-runnable examples.
+- Improved man page examples: replaced `\dontrun{}` with `\donttest{}`
+  and runnable local-data examples for `cat_design`, `bake_recipes`,
+  `recipe`, `steps_to_recipe`, `transpile_stata`, `parse_do_file`, and
+  others.
+- Added stratified cluster design section to complex-designs vignette.
+- Rewrote README with live service links (Shiny explorer, REST API),
+  CRAN status badge, and GitHub star call-to-action.
+
+### Internal
+
+- Expanded test suite to 2810 tests covering strata support, edge cases
+  in STATA transpiler, API client, panel surveys, and recipe system.
+- Added `pak` and survey-related packages to Suggests for vignette
+  builds.
+
+## metasurvey 0.0.14
+
+### Breaking changes
+
+- `Step$comments` field renamed to `Step$comment`. The old name still
+  works as a legacy alias but will be removed in a future version.
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  first parameter renamed from `survey` to `svy` for consistency.
+  Positional usage is unchanged.
+- `Survey$set_weight()` no longer emits `message("Setting weight")`.
+- [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md)
+  `.name_step` parameter is deprecated; use `comment` instead.
+
+### New features
+
+- `use_copy` parameter in all step functions (`step_compute`,
+  `step_recode`, `step_join`, `step_remove`, `step_rename`) is
+  deprecated in favour of `.copy`, following dplyr’s dot-prefix
+  convention for secondary arguments.
+- Added survey state predicates:
+  [`has_steps()`](https://metasurveyr.github.io/metasurvey/reference/has_steps.md),
+  [`has_recipes()`](https://metasurveyr.github.io/metasurvey/reference/has_recipes.md),
+  [`is_baked()`](https://metasurveyr.github.io/metasurvey/reference/is_baked.md),
+  [`has_design()`](https://metasurveyr.github.io/metasurvey/reference/has_design.md).
+- [`step_recode()`](https://metasurveyr.github.io/metasurvey/reference/step_recode.md),
+  [`step_join()`](https://metasurveyr.github.io/metasurvey/reference/step_join.md),
+  [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md),
+  [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md)
+  no longer default `svy` to
+  [`survey_empty()`](https://metasurveyr.github.io/metasurvey/reference/survey_empty.md);
+  the survey argument is now required.
+- [`extract_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/extract_time_pattern.md)
+  now recognises quarter/trimester editions (`"2023-T3"`, `"2023-Q1"`),
+  parsed as `Quarterly` periodicity.
+
+### Bug fixes
+
+- Fixed
+  [`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
+  crash when `svy_edition` is `NA`.
+- Fixed `shallow_clone()` re-running
+  [`validate_time_pattern()`](https://metasurveyr.github.io/metasurvey/reference/validate_time_pattern.md)
+  on already-parsed editions, causing cascading NULL → NA → crash.
+- Fixed
+  [`get_metadata()`](https://metasurveyr.github.io/metasurvey/reference/get_metadata.md)
+  crash when edition is NULL or NA.
+- Fixed `cat_estimation.svyby()` producing wrong output: margins index
+  was integer (not column name), SE column `"se"` was missed by grep,
+  and [`cv()`](https://rdrr.io/pkg/survey/man/surveysummary.html)
+  data.frame was not handled. Output now shows group labels in the
+  `stat` column (e.g. `svyby: x [sexo=1]`).
+- Mixed estimation types (`svymean` + `svyby`) no longer fail on
+  `rbindlist` due to mismatched columns.
+- Fixed
+  [`set_engine()`](https://metasurveyr.github.io/metasurvey/reference/set_engine.md)
+  logic bug where `identical(.engine, show_engines())` compared string
+  vs vector, silently failing.
+- Fixed vague `stop("Error in step")` in
+  [`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md)
+  validation — now reports which variables failed.
+- Removed dead dots-filtering code in
+  [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md)
+  and
+  [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md).
+
+### Dependencies
+
+- Removed unused `bit64` import (CRAN compliance).
+- Replaced `jose` dependency with
+  [`jsonlite::base64url_dec()`](https://jeroen.r-universe.dev/jsonlite/reference/base64.html)
+  for JWT decoding — one less hard dependency.
+- `design_active` active binding now delegates to `ensure_design()`,
+  removing duplicated design-building logic.
+
+### Documentation
+
+- All `step_*` functions now document lazy evaluation behavior in
+  `@details`.
+- Improved
+  [`step_remove()`](https://metasurveyr.github.io/metasurvey/reference/step_remove.md)
+  and
+  [`step_rename()`](https://metasurveyr.github.io/metasurvey/reference/step_rename.md)
+  roxygen with full `@details` sections matching
+  [`step_compute()`](https://metasurveyr.github.io/metasurvey/reference/step_compute.md)
+  depth.
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  `@param svy` now prominently documents the
+  [`list()`](https://rdrr.io/r/base/list.html) requirement.
+- Cleaned up Survey class roxygen: removed duplicate Methods sections.
+- Updated vignettes to use `Step$comment` instead of `Step$comments`.
+- Vignettes now use real ECH 2023 sample data instead of simulated data.
+- Fixed ECH variable names for 2023 edition (`e31` → `e30`).
+
+## metasurvey 0.0.12
+
+### Bug fixes
+
+- Fixed critical memory leak when chaining N steps: eliminated
+  `svy_before` retention chain that prevented GC from freeing N copies
+  of the data.table.
+- Fixed `bake_step` re-recording step_join/step_remove/step_rename
+  during bake, which caused duplicate steps.
+
+### Performance
+
+- [`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+  uses `shallow_clone()` instead of `clone(deep=TRUE)`, avoiding
+  duplication of the entire step chain on every bake.
+- `add_step()` invalidates design lazily instead of rebuilding
+  `svydesign` on every step addition.
+- Removed wasteful
+  [`copy()`](https://rdrr.io/pkg/data.table/man/copy.html) calls in
+  `step_compute` and `step_recode`.
+
+### Internal
+
+- Added 500+ tests: memory behavior (test-memory.R), expanded
+  integration pipelines (test-integration.R), and stress tests with 100
+  steps on 10k+ rows (test-stress.R, skipped on CRAN).
+
+## metasurvey 0.0.11
+
+### Documentation
+
+- Fixed examples across 12 R files for strict CRAN compliance: functions
+  requiring an API server, external files, or interactive sessions now
+  use `\dontrun{}` instead of `\donttest{}`.
+- Fixed `RecipeWorkflow` examples: corrected `recipe_ids` parameter
+  name, removed non-existent `variables` parameter.
+- Fixed `add_weight`/`add_replicate` examples: removed double-escaped
+  regex patterns, removed
+  [`load_survey()`](https://metasurveyr.github.io/metasurvey/reference/load_survey.md)
+  calls that depend on external files.
+- Made `set_workflow_backend`/`get_workflow_backend` examples runnable
+  without `\dontrun{}` wrapper.
+
+### Internal
+
+- Fixed GitHub Actions: added `main` to R-CMD-check PR triggers,
+  replaced `master` with `main` in test-coverage and pkgdown, removed
+  broken `setup-r-test.yml`.
+- Fixed deploy workflow: secrets passed via env vars instead of inline
+  shell interpolation, Railway CLI installed via npm with pinned
+  version.
+
+## metasurvey 0.0.10
+
+### New features
+
+- Docker deployment pipeline with GitHub Actions: builds and pushes
+  images to GHCR, deploys to Railway on push to main.
+- `docker-compose.yml` for local development (API + Shiny stack).
+
+### Bug fixes
+
+- `api_url()` no longer falls back to a hardcoded production URL;
+  returns NULL when no URL is configured via option or environment
+  variable.
+
+### Documentation
+
+- Replaced remaining `\dontrun{}` with `\donttest{}` across all exported
+  examples for CRAN compliance.
+- Added runnable examples for `RecipeWorkflow`, `save_workflow`,
+  `read_workflow`, `search_workflows`, `rank_workflows`,
+  `RecipeBackend`.
+- Added STATA transpiler usage section to README.
+- Added Spanish vignettes: `stata-transpiler-es`,
+  `ech-demographics-recipe-es`.
+
+### Internal
+
+- Updated API Dockerfile with curl-based healthcheck.
+- Updated Shiny Dockerfile: configurable `METASURVEY_REF` build arg,
+  added `jose` and `git` dependencies.
+
 ## metasurvey 0.0.9
 
 ### CRAN compliance

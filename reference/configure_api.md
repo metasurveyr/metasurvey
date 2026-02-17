@@ -32,7 +32,8 @@ Other api-auth:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 configure_api(url = "https://metasurvey-api.example.com")
-} # }
+#> API configured: https://metasurvey-api.example.com
+# }
 ```

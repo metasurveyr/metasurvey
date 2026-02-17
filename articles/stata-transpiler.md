@@ -413,8 +413,8 @@ library(metasurvey)
 
 # Write the example do-file to a temp location
 # Note: STATA macros use backtick-quote (`var') which we build with paste0
-bt <- "`"  # backtick
-sq <- "'"  # single quote
+bt <- "`" # backtick
+sq <- "'" # single quote
 do_lines <- c(
   "rename id hh_id",
   "rename nper person_id",
@@ -431,7 +431,7 @@ do_lines <- c(
   "replace area = 1 if region == 1",
   "replace area = 2 if region == 2",
   "replace area = 3 if region == 3",
-  'recode q20 (2=2) (3=-9) (4=3) (5=4), gen(edu_compat)',
+  "recode q20 (2=2) (3=-9) (4=3) (5=4), gen(edu_compat)",
   "bysort hh_id: egen max_age = max(edad)",
   "bysort hh_id: egen n_members = count(person_id)",
   "foreach i of numlist 1/3 {",

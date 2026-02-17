@@ -79,8 +79,10 @@ want, not the commands we need to type.
 
 ``` r
 svy <- svy |>
-  step_rename(hh_id = "id", person_id = "nper",
-              comment = "Standardize identifiers")
+  step_rename(
+    hh_id = "id", person_id = "nper",
+    comment = "Standardize identifiers"
+  )
 ```
 
 Nothing happened to the data yet:
@@ -105,7 +107,8 @@ svy <- svy |>
     e26 == 1 ~ "Male",
     e26 == 2 ~ "Female",
     .default = NA_character_,
-    comment = "Sex from e26")
+    comment = "Sex from e26"
+  )
 ```
 
 ### Age groups
@@ -117,13 +120,14 @@ write the same logic as a single recode with readable conditions:
 ``` r
 svy <- svy |>
   step_recode(age_group,
-    e27 >= 0  & e27 <= 13 ~ "Child",
+    e27 >= 0 & e27 <= 13 ~ "Child",
     e27 >= 14 & e27 <= 17 ~ "Adolescent",
     e27 >= 18 & e27 <= 29 ~ "Young adult",
     e27 >= 30 & e27 <= 64 ~ "Adult",
-    e27 >= 65             ~ "Elderly",
+    e27 >= 65 ~ "Elderly",
     .default = NA_character_,
-    comment = "Age groups from e27")
+    comment = "Age groups from e27"
+  )
 ```
 
 ### Relationship to head of household
@@ -131,13 +135,14 @@ svy <- svy |>
 ``` r
 svy <- svy |>
   step_recode(relationship,
-    e30 == 1              ~ "Head",
-    e30 == 2              ~ "Spouse",
-    e30 >= 3 & e30 <= 5   ~ "Child",
-    e30 == 6              ~ "Other relative",
-    e30 == 7              ~ "Non-relative",
+    e30 == 1 ~ "Head",
+    e30 == 2 ~ "Spouse",
+    e30 >= 3 & e30 <= 5 ~ "Child",
+    e30 == 6 ~ "Other relative",
+    e30 == 7 ~ "Non-relative",
     .default = "Unknown",
-    comment = "Relationship from e30")
+    comment = "Relationship from e30"
+  )
 ```
 
 ### Education level
@@ -145,12 +150,13 @@ svy <- svy |>
 ``` r
 svy <- svy |>
   step_recode(edu_level,
-    e51_2 == 0              ~ "None",
+    e51_2 == 0 ~ "None",
     e51_2 >= 1 & e51_2 <= 2 ~ "Primary",
     e51_2 >= 3 & e51_2 <= 4 ~ "Secondary",
     e51_2 >= 5 & e51_2 <= 6 ~ "Tertiary",
     .default = NA_character_,
-    comment = "Education level from e51_2")
+    comment = "Education level from e51_2"
+  )
 ```
 
 ### Geographic area
@@ -163,7 +169,8 @@ svy <- svy |>
     region_4 == 3 ~ "Urban <5k",
     region_4 == 4 ~ "Rural",
     .default = NA_character_,
-    comment = "Geographic area from region_4")
+    comment = "Geographic area from region_4"
+  )
 ```
 
 Notice that all our output variables have **meaningful labels** instead
@@ -176,7 +183,8 @@ scratch lets you choose the representation that makes analysis easier.
 ``` r
 svy <- svy |>
   step_remove(e26, e27, e30, e51_2, region_4,
-              comment = "Drop raw ECH variables")
+    comment = "Drop raw ECH variables"
+  )
 ```
 
 ## Inspecting the pipeline before execution
@@ -210,7 +218,7 @@ For static output we can inspect the step list:
 
 ``` r
 for (s in get_steps(svy)) {
-  cat(sprintf("[%s] %s\n", s$type, s$comments %||% ""))
+  cat(sprintf("[%s] %s\n", s$type, s$comment %||% ""))
 }
 #> [step_rename] Standardize identifiers
 #> [recode] Sex from e26
@@ -231,7 +239,7 @@ same pipeline on different data. We create the recipe **before** baking
 rec <- steps_to_recipe(
   name = "ECH Demographics (minimal)",
   user = "research_team",
-  svy  = svy,
+  svy = svy,
   steps = get_steps(svy),
   description = paste(
     "Harmonized demographics: sex, age group, relationship,",
@@ -291,8 +299,10 @@ svy <- bake_steps(svy)
 The data has the new columns with readable labels:
 
 ``` r
-head(get_data(svy)[, .(hh_id, person_id, sex, age_group, relationship,
-                        edu_level, area)])
+head(get_data(svy)[, .(
+  hh_id, person_id, sex, age_group, relationship,
+  edu_level, area
+)])
 #>    hh_id person_id    sex   age_group relationship edu_level       area
 #>    <int>     <int> <char>      <char>       <char>    <char>     <char>
 #> 1:     1         1 Female     Elderly Non-relative      None  Urban <5k
@@ -339,13 +349,13 @@ cat(readLines(f, n = 15), sep = "\n")
 #>   "description": "Harmonized demographics: sex, age group, relationship, education level, and geographic area.",
 #>   "topic": "demographics",
 #>   "doi": {},
-#>   "id": "r_1771229217_663",
+#>   "id": "r_1771288112_663",
 #>   "version": "1.0.0",
 #>   "downloads": 0,
 #>   "categories": [],
 #>   "certification": {
 #>     "level": "community",
-#>     "certified_at": "2026-02-16 08:06:57.259462"
+#>     "certified_at": "2026-02-17 00:28:32.198601"
 ```
 
 ## Applying to a new edition

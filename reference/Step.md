@@ -44,7 +44,8 @@ workflow.
 
 - `svy_before`:
 
-  The survey object before the step is applied.
+  Deprecated. Always NULL to prevent memory retention chains. Kept for
+  backwards compatibility.
 
 - `default_engine`:
 
@@ -54,7 +55,7 @@ workflow.
 
   A list of variables that the step depends on.
 
-- `comments`:
+- `comment`:
 
   Comments or notes about the step.
 
@@ -89,9 +90,9 @@ Create a new Step object
       svy_before,
       default_engine,
       depends_on,
-      comments = NULL,
+      comment = NULL,
       bake = !lazy_default(),
-      comment = NULL
+      comments = NULL
     )
 
 #### Arguments
@@ -127,7 +128,8 @@ Create a new Step object
 
 - `svy_before`:
 
-  The survey object before the step is applied.
+  Deprecated. Ignored (always set to NULL) to prevent memory retention
+  chains.
 
 - `default_engine`:
 
@@ -137,7 +139,7 @@ Create a new Step object
 
   A list of variables that the step depends on.
 
-- `comments`:
+- `comment`:
 
   Comments or notes about the step.
 
@@ -145,9 +147,9 @@ Create a new Step object
 
   A logical value indicating whether the step has been executed.
 
-- `comment`:
+- `comments`:
 
-  Optional alias of `comments` for backwards compatibility.
+  **\[deprecated\]** Use `comment` instead.
 
 ------------------------------------------------------------------------
 
@@ -183,7 +185,7 @@ get_steps(svy)
 #>     bake: FALSE
 #>     call: call
 #>     clone: function (deep = FALSE) 
-#>     comments: Compute step
+#>     comment: Compute step
 #>     default_engine: data.table
 #>     depends_on: age
 #>     edition: 2023
@@ -192,7 +194,7 @@ get_steps(svy)
 #>     name: step_1 Compute: age2
 #>     new_var: age2
 #>     survey_type: test
-#>     svy_before: Survey, R6
+#>     svy_before: NULL
 #>     type: compute
 #> 
 ```

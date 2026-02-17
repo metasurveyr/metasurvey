@@ -1,20 +1,20 @@
 # Join external data into survey (step)
 
 Creates a step that joins additional data into a Survey or
-RotativePanelSurvey. Works with a data.frame/data.table or another
-Survey as the right-hand side.
+RotativePanelSurvey.
 
 ## Usage
 
 ``` r
 step_join(
-  svy = survey_empty(),
+  svy,
   x,
   by = NULL,
   type = c("left", "inner", "right", "full"),
   suffixes = c("", ".y"),
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Join step",
+  use_copy = deprecated(),
   lazy = lazy_default(),
   record = TRUE
 )
@@ -45,7 +45,7 @@ step_join(
   Length-2 character vector of suffixes for conflicting columns from
   `svy` and `x` respectively. Defaults to c("", ".y")
 
-- use_copy:
+- .copy:
 
   Whether to operate on a copy (default: use_copy_default())
 
@@ -53,13 +53,17 @@ step_join(
 
   Optional description for the step
 
+- use_copy:
+
+  **\[deprecated\]** Use `.copy` instead.
+
 - lazy:
 
-  Logical, whether to delay execution.
+  Internal. Whether to delay execution.
 
 - record:
 
-  Logical, whether to record the step.
+  Internal. Whether to record the step.
 
 ## Value
 
@@ -69,12 +73,15 @@ implantation and every follow_up survey.
 
 ## Details
 
-- Supports left, inner, right, and full joins
+**Lazy evaluation (default):** By default, steps are recorded but **not
+executed** until
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+is called.
 
-- Allows named `by` mapping (e.g., c("id" = "code")) or simple vector
-
-- Avoids extra dependencies; resolves name conflicts by suffixing RHS
-  columns
+Supports left, inner, right, and full joins. Allows named `by` mapping
+(e.g., `c("id" = "code")`) or a simple character vector. Conflicting
+column names are resolved by appending `suffixes` to the right-hand side
+columns.
 
 ## See also
 

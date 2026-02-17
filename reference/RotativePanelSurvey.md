@@ -303,11 +303,19 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+impl <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023", type = "ech", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
+)
+fu1 <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023_01", type = "ech", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
+)
 panel <- RotativePanelSurvey$new(
-  implantation = impl_survey, follow_up = list(fu1, fu2),
+  implantation = impl, follow_up = list(fu1),
   type = "ech", default_engine = "data.table",
   steps = list(), recipes = list(), workflows = list(), design = NULL
 )
-} # }
 ```

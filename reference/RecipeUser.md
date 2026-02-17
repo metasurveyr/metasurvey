@@ -221,7 +221,8 @@ The objects of this class are cloneable with this method.
 user <- recipe_user("Juan Perez", email = "juan@example.com")
 inst <- recipe_user("IECON", type = "institution")
 member <- recipe_user(
-  "Maria", type = "institutional_member",
+  "Maria",
+  type = "institutional_member",
   institution = inst
 )
 ```

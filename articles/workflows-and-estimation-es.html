@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Flujos de Trabajo y Estimacion (ES)</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Flujos de Trabajo y Estimacion (ES)</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/workflows-and-estimation-es.Rmd" class="external-link"><code>vignettes/workflows-and-estimation-es.Rmd</code></a></small>
@@ -202,17 +202,16 @@ por subpoblaciones (dominios):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">api_by_type</span></span>
-<span><span class="co">#&gt;      stat     value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;fctr&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      E   1.00000    NA 0.01852443      649.9433      698.9167</span></span>
-<span><span class="co">#&gt; 2:      H   2.00000    NA 0.02451309      595.7526      655.8874</span></span>
-<span><span class="co">#&gt; 3:      M   3.00000    NA 0.02592270      604.2559      668.9441</span></span>
-<span><span class="co">#&gt; 4:      E 674.43000    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 5:      H 625.82000    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 6:      M 636.60000    NA 0.02592270            NA            NA</span></span>
-<span><span class="co">#&gt; 7:      E  12.49343    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 8:      H  15.34078    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 9:      M  16.50239    NA 0.02592270            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean enrollment by awards status</span></span>
 <span><span class="va">enroll_by_award</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -222,14 +221,14 @@ por subpoblaciones (dominios):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enroll_by_award</span></span>
-<span><span class="co">#&gt;      stat     value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;fctr&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     No   1.00000    NA 0.07908366      614.8177      840.3740</span></span>
-<span><span class="co">#&gt; 2:    Yes   2.00000    NA 0.04902590      470.4960      570.5269</span></span>
-<span><span class="co">#&gt; 3:     No 727.59582    NA 0.07908366            NA            NA</span></span>
-<span><span class="co">#&gt; 4:    Yes 520.51143    NA 0.04902590            NA            NA</span></span>
-<span><span class="co">#&gt; 5:     No  57.54094    NA 0.07908366            NA            NA</span></span>
-<span><span class="co">#&gt; 6:    Yes  25.51854    NA 0.04902590            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                                  stat    value       se         cv</span></span>
+<span><span class="co">#&gt;                                &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  survey::svyby: enroll [awards=No] 727.5958 57.54094 0.07908366</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: enroll [awards=Yes] 520.5114 25.51854 0.04902590</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper awards</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      614.8177      840.3740     No</span></span>
+<span><span class="co">#&gt; 2:      470.4960      570.5269    Yes</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="evaluacion-de-la-calidad">Evaluacion de la calidad<a class="anchor" aria-label="anchor" href="#evaluacion-de-la-calidad"></a>
@@ -461,17 +460,16 @@ API:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">by_school</span></span>
-<span><span class="co">#&gt;      stat     value    se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;    &lt;fctr&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      E   1.00000    NA 0.01852443      649.9433      698.9167</span></span>
-<span><span class="co">#&gt; 2:      H   2.00000    NA 0.02451309      595.7526      655.8874</span></span>
-<span><span class="co">#&gt; 3:      M   3.00000    NA 0.02592270      604.2559      668.9441</span></span>
-<span><span class="co">#&gt; 4:      E 674.43000    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 5:      H 625.82000    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 6:      M 636.60000    NA 0.02592270            NA            NA</span></span>
-<span><span class="co">#&gt; 7:      E  12.49343    NA 0.01852443            NA            NA</span></span>
-<span><span class="co">#&gt; 8:      H  15.34078    NA 0.02451309            NA            NA</span></span>
-<span><span class="co">#&gt; 9:      M  16.50239    NA 0.02592270            NA            NA</span></span></code></pre></div>
+<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 5. Assess quality</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">estimates</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>

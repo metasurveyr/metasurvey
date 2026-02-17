@@ -8,15 +8,17 @@ periodicities.
 ## Usage
 
 ``` r
-workflow(survey, ..., estimation_type = "monthly")
+workflow(svy, ..., estimation_type = "monthly")
 ```
 
 ## Arguments
 
-- survey:
+- svy:
 
-  Survey object, list of Survey objects, or PoolSurvey. Must contain
-  properly configured sample design
+  A **list** of Survey objects, or a PoolSurvey. Even for a single
+  survey, wrap it in [`list()`](https://rdrr.io/r/base/list.html):
+  `workflow(svy = list(my_survey), ...)`. Must contain properly
+  configured sample design.
 
 - ...:
 
@@ -100,11 +102,10 @@ svy <- Survey$new(
   weight = add_weight(annual = "w")
 )
 result <- workflow(
-  survey = list(svy),
+  svy = list(svy),
   survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
-#> Warning: CV may not be useful for negative statistics
 
 # \donttest{
 # ECH example with domain estimations

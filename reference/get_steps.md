@@ -48,7 +48,7 @@ get_steps(svy) # list of Step objects
 #>     bake: FALSE
 #>     call: call
 #>     clone: function (deep = FALSE) 
-#>     comments: Compute step
+#>     comment: Compute step
 #>     default_engine: data.table
 #>     depends_on: age
 #>     edition: 2023
@@ -57,7 +57,7 @@ get_steps(svy) # list of Step objects
 #>     name: step_1 Compute: age2
 #>     new_var: age2
 #>     survey_type: ech
-#>     svy_before: Survey, R6
+#>     svy_before: NULL
 #>     type: compute
 #> 
 ```

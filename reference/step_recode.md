@@ -8,16 +8,17 @@ efficient execution.
 
 ``` r
 step_recode(
-  svy = survey_empty(),
+  svy,
   new_var,
   ...,
   .default = NA_character_,
   .name_step = NULL,
   ordered = FALSE,
-  use_copy = use_copy_default(),
+  .copy = use_copy_default(),
   comment = "Recode step",
   .to_factor = FALSE,
-  .level = "auto"
+  .level = "auto",
+  use_copy = deprecated()
 )
 ```
 
@@ -45,15 +46,16 @@ step_recode(
 
 - .name_step:
 
-  Custom name for the step to identify it in the history. If not
-  provided, generated automatically with "Recode" prefix
+  **\[deprecated\]** Custom name for the step in the history. Now
+  auto-generated from the variable name. Use `comment` for user-facing
+  documentation instead.
 
 - ordered:
 
   Logical indicating whether the new variable should be an ordered
   factor. Defaults to FALSE
 
-- use_copy:
+- .copy:
 
   Logical indicating whether to create a copy of the object before
   applying transformations. Defaults to
@@ -74,6 +76,10 @@ step_recode(
   For RotativePanelSurvey objects, specifies the level where recoding is
   applied: "implantation", "follow_up", "quarter", "month", or "auto"
 
+- use_copy:
+
+  **\[deprecated\]** Use `.copy` instead.
+
 ## Value
 
 Same type of input object (`Survey` or `RotativePanelSurvey`) with the
@@ -81,48 +87,25 @@ new recoded variable and the step added to the history
 
 ## Details
 
-**CORE ENGINE FOR RECODING**:
+**Lazy evaluation (default):** By default, steps are recorded but **not
+executed** until
+[`bake_steps()`](https://metasurveyr.github.io/metasurvey/reference/bake_steps.md)
+is called. This allows building a full pipeline before materializing any
+changes.
 
-**1. Automatic Condition Processing:**
-
-- All LHS conditions are automatically analyzed
-
-- Static analysis of logical expressions
-
-- Dependency detection for all referenced variables
-
-- Optimization of conditional logic
-
-**2. Enhanced Condition Evaluation:**
-
-- Conditions evaluated in order
-
-- First matching condition determines assignment
-
-- Optimized short-circuit evaluation
-
-- Better error reporting with expression context
-
-**3. Performance Features:**
-
-- Direct evaluation using R's native conditional logic
-
-- Efficient execution for all condition types
-
-- Dependency validation prevents runtime errors
+**Condition evaluation:** Conditions are two-sided formulas evaluated in
+order. The first matching condition determines the assigned value. If no
+condition matches, `.default` is used.
 
 Condition examples:
 
-- Simple: `variable == 1`
+- Simple: `variable == 1 ~ "Yes"`
 
-- Complex: `age >= 18 & income > 12000`
+- Complex: `age >= 18 & income > 12000 ~ "High"`
 
-- Vectorized: `variable %in% c(1,2,3)`
+- Vectorized: `variable %in% c(1,2,3) ~ "Group A"`
 
-- Vectorized: `variable %in% c(1,2,3)` (validates `variable` exists)
-
-- Logical:
-  `!is.na(education) & education > mean(education, na.rm = TRUE)`
+- Logical: `!is.na(education) ~ "Has education"`
 
 ## See also
 

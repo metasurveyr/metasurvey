@@ -53,15 +53,15 @@ g bc_pe2 = e26
 * edad
 g bc_pe3 = e27
 
-* parentesco
+* parentesco (e30 en ECH 2023, era e31 en ediciones anteriores)
 g bc_pe4 = -9
-  replace bc_pe4 = 1 if e31 == 1
-  replace bc_pe4 = 2 if e31 == 2
-  replace bc_pe4 = 3 if e31 == 3 | e31 == 4 | e31 == 5
-  replace bc_pe4 = 4 if e31 == 7 | e31 == 8
-  replace bc_pe4 = 5 if e31 == 6 | e31 == 9 | e31 == 10 | e31 == 11 | e31 == 12
-  replace bc_pe4 = 6 if e31 == 13
-  replace bc_pe4 = 7 if e31 == 14
+  replace bc_pe4 = 1 if e30 == 1
+  replace bc_pe4 = 2 if e30 == 2
+  replace bc_pe4 = 3 if e30 == 3 | e30 == 4 | e30 == 5
+  replace bc_pe4 = 4 if e30 == 7 | e30 == 8
+  replace bc_pe4 = 5 if e30 == 6 | e30 == 9 | e30 == 10 | e30 == 11 | e30 == 12
+  replace bc_pe4 = 6 if e30 == 13
+  replace bc_pe4 = 7 if e30 == 14
 ```
 
 El equivalente en metasurvey:
@@ -70,13 +70,13 @@ El equivalente en metasurvey:
 svy <- step_rename(svy, sex = e26, age = e27)
 
 svy <- step_recode(svy, relationship,
-  e31 == 1                ~ "Head",
-  e31 == 2                ~ "Spouse",
-  e31 %in% 3:5            ~ "Child",
-  e31 %in% c(7, 8)        ~ "Parent",
-  e31 %in% c(6, 9:12)     ~ "Other relative",
-  e31 == 13               ~ "Domestic service",
-  e31 == 14               ~ "Non-relative",
+  e30 == 1                ~ "Head",
+  e30 == 2                ~ "Spouse",
+  e30 %in% 3:5            ~ "Child",
+  e30 %in% c(7, 8)        ~ "Parent",
+  e30 %in% c(6, 9:12)     ~ "Other relative",
+  e30 == 13               ~ "Domestic service",
+  e30 == 14               ~ "Non-relative",
   .default = NA_character_,
   comment = "Relationship to head of household"
 )
@@ -93,58 +93,38 @@ Las diferencias clave:
 | Reproducibilidad | Depende de rutas de archivos y entorno | Autocontenido, cualquier máquina   |
 | Inter-ediciones  | Duplicar script por año                | Un recipe, múltiples ediciones     |
 
-## Simulación de datos similares a la ECH
+## Carga de microdatos reales de la ECH
 
-Para esta viñeta simulamos datos que replican la estructura de un
-archivo de microdatos real de la ECH. Las variables simuladas siguen las
-mismas convenciones de nombres y rangos de valores utilizados por el
-INE.
+Utilizamos una muestra de microdatos reales de la ECH 2023, publicada
+por el INE. La muestra contiene 200 hogares (~500 personas) con las
+variables clave necesarias para el analisis del mercado laboral.
 
 ``` r
 library(metasurvey)
 library(data.table)
 
-set.seed(2023)
-n <- 500
-
-ech_sim <- data.table(
-  numero = rep(1:100, each = 5),
-  nper = rep(1:5, 100),
-  e26 = sample(c(1, 2), n, replace = TRUE),
-  e27 = sample(0:90, n, replace = TRUE),
-  e31 = sample(1:14, n,
-    replace = TRUE,
-    prob = c(
-      0.20, 0.15, 0.25, 0.05, 0.03,
-      0.02, 0.03, 0.02, 0.02, 0.01,
-      0.01, 0.01, 0.05, 0.15
-    )
-  ),
-  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n,
-    replace = TRUE,
-    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)
-  ),
-  e51 = sample(1:14, n, replace = TRUE),
-  ht11 = round(runif(n, 5000, 120000)),
-  dpto = sample(1:19, n, replace = TRUE),
-  pesoano = round(runif(n, 0.5, 3.0), 4)
-)
+# Cargar muestra real de la ECH 2023
+dt <- fread(system.file("extdata", "ech_2023_sample.csv", package = "metasurvey"))
 
 svy <- Survey$new(
-  data    = ech_sim,
+  data    = dt,
   edition = "2023",
   type    = "ech",
-  psu     = NULL,
   engine  = "data.table",
-  weight  = add_weight(annual = "pesoano")
+  weight  = add_weight(annual = "W_ANO")
 )
 
 head(get_data(svy), 3)
-#>    numero  nper   e26   e27   e31 pobpcoac   e51   ht11  dpto pesoano
-#>     <int> <int> <num> <int> <int>    <num> <int>  <num> <int>   <num>
-#> 1:      1     1     1    60     1        2    14 116378     5  0.6996
-#> 2:      1     2     2     5     1        7    10  48407    11  0.7896
-#> 3:      1     3     1     0     1        2     7 103278     4  1.5015
+#>       ID  nper  anio   mes region  dpto   nom_dpto   e26   e27   e30 e51_2
+#>    <int> <int> <int> <int>  <int> <int>     <char> <int> <int> <int> <int>
+#> 1: 34561     1  2023     1      1     1 Montevideo     2    26     1     6
+#> 2: 34561     2  2023     1      1     1 Montevideo     2    45     7     6
+#> 3: 34561     3  2023     1      1     1 Montevideo     2     7     4     1
+#>    POBPCOAC SUBEMPLEO    HT11 pobre06 W_ANO
+#>       <int>     <int>   <num>   <int> <int>
+#> 1:        2         0 55429.6       0    57
+#> 2:        4         0 55429.6       0    57
+#> 3:        1         0 55429.6       0    57
 ```
 
 ## Paso 1: Variables demográficas
@@ -179,26 +159,28 @@ svy <- step_recode(svy, age_group,
 La variable `POBPCOAC` (Población por condición de actividad) es la
 clasificación central del estado laboral en la ECH. Códigos del INE:
 
+- 1 = Menor de 14
 - 2 = Ocupado
 - 3-5 = Desocupado (diversas subcategorías)
-- 6-7 = Inactivo
+- 6-10 = Inactivo
+- 11 = No aplica
 
 Esto replica el marco estándar de fuerza laboral de la OIT:
 
 ``` r
 svy <- step_recode(svy, labor_status,
-  pobpcoac == 2 ~ "Employed",
-  pobpcoac %in% 3:5 ~ "Unemployed",
-  pobpcoac %in% 6:7 ~ "Inactive",
+  POBPCOAC == 2 ~ "Employed",
+  POBPCOAC %in% 3:5 ~ "Unemployed",
+  POBPCOAC %in% 6:10 ~ "Inactive",
   .default = NA_character_,
   comment = "ILO labor force status from POBPCOAC"
 )
 
 # Create binary indicators
 svy <- step_compute(svy,
-  employed = ifelse(pobpcoac == 2, 1L, 0L),
-  unemployed = ifelse(pobpcoac %in% 3:5, 1L, 0L),
-  active = ifelse(pobpcoac %in% 2:5, 1L, 0L),
+  employed = ifelse(POBPCOAC == 2, 1L, 0L),
+  unemployed = ifelse(POBPCOAC %in% 3:5, 1L, 0L),
+  active = ifelse(POBPCOAC %in% 2:5, 1L, 0L),
   working_age = ifelse(e27 >= 14, 1L, 0L),
   comment = "Labor force binary indicators"
 )
@@ -211,33 +193,31 @@ utilizada con datos de la ECH:
 
 ``` r
 svy <- step_compute(svy,
-  income_pc = ht11 / 5,
-  income_thousands = ht11 / 1000,
-  log_income = log(ht11 + 1),
+  income_pc = HT11 / nper,
+  income_thousands = HT11 / 1000,
+  log_income = log(HT11 + 1),
   comment = "Income transformations"
 )
 ```
 
 ## Paso 4: Clasificación geográfica
 
+Los microdatos reales de la ECH ya incluyen `nom_dpto` (nombre del
+departamento) y `region` (1-3). Demostramos un join con lineas de
+pobreza por region:
+
 ``` r
-dept_names <- data.table(
-  dpto = 1:19,
-  department = c(
-    "Montevideo", "Artigas", "Canelones", "Cerro Largo",
-    "Colonia", "Durazno", "Flores", "Florida", "Lavalleja",
-    "Maldonado", "Paysandu", "Rio Negro", "Rivera", "Rocha",
-    "Salto", "San Jose", "Soriano", "Tacuarembo",
-    "Treinta y Tres"
-  ),
-  region = c("Montevideo", rep("Interior", 18))
+poverty_lines <- data.table(
+  region = 1:3,
+  poverty_line = c(19000, 12500, 11000),
+  region_name = c("Montevideo", "Interior loc. >= 5000", "Interior loc. < 5000")
 )
 
 svy <- step_join(svy,
-  dept_names,
-  by = "dpto",
+  poverty_lines,
+  by = "region",
   type = "left",
-  comment = "Department names and region classification"
+  comment = "Add poverty lines by region"
 )
 ```
 
@@ -269,8 +249,8 @@ ech_recipe
 #> Description: Standard labor market indicators for the ECH. Includes demographic recoding, ILO labor classification, income transformations, and geographic joins.
 #> Certification: community
 #> 
-#> ── Requires (5 variables) ──
-#>   e26, e27, pobpcoac, ht11, dpto
+#> ── Requires (6 variables) ──
+#>   e26, e27, POBPCOAC, HT11, nper, region
 #> 
 #> ── Pipeline (6 steps) ──
 #>   1. [recode] -> sex  "Sex: 1=Male, 2=Female (INE e26)"
@@ -278,7 +258,7 @@ ech_recipe
 #>   3. [recode] -> labor_status  "ILO labor force status from POBPCOAC"
 #>   4. [compute] -> employed, unemployed, active, working_age  "Labor force binary indicators"
 #>   5. [compute] -> income_pc, income_thousands, log_income  "Income transformations"
-#>   6. [step_join] -> (no output)  "Department names and region classification"
+#>   6. [step_join] -> (no output)  "Add poverty lines by region"
 #> 
 #> ── Produces (10 variables) ──
 #>   sex [categorical], age_group [categorical], labor_status [categorical], employed [numeric], unemployed [numeric], active [numeric], working_age [numeric], income_pc [numeric], income_thousands [numeric], log_income [numeric]
@@ -291,7 +271,7 @@ doc <- ech_recipe$doc()
 
 # What variables does the recipe need?
 doc$input_variables
-#> [1] "e26"      "e27"      "pobpcoac" "ht11"     "dpto"
+#> [1] "e26"      "e27"      "POBPCOAC" "HT11"     "nper"     "region"
 
 # What variables does it create?
 doc$output_variables
@@ -324,17 +304,17 @@ Ahora calculamos indicadores estándar del mercado laboral:
 # Mean household income
 result_income <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~HT11, na.rm = TRUE),
   estimation_type = "annual"
 )
 
 result_income
 #>                     stat    value       se         cv confint_lower
 #>                   <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: ht11 60742.91 1631.918 0.02686598      57544.41
+#> 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5
 #>    confint_upper
 #>            <num>
-#> 1:      63941.41
+#> 1:      114677.7
 ```
 
 ``` r
@@ -348,10 +328,10 @@ result_employment <- workflow(
 result_employment
 #>                         stat     value         se         cv confint_lower
 #>                       <char>     <num>      <num>      <num>         <num>
-#> 1: survey::svymean: employed 0.5778099 0.02386869 0.04130891     0.5310281
+#> 1: survey::svymean: employed 0.4422188 0.02343197 0.05298728      0.396293
 #>    confint_upper
 #>            <num>
-#> 1:     0.6245916
+#> 1:     0.4881447
 ```
 
 ### Estimación por dominio
@@ -359,22 +339,24 @@ result_employment
 Calcular estimaciones por subpoblación:
 
 ``` r
-# Mean income by region
+# Mean income by region name
 income_region <- workflow(
   list(svy),
-  survey::svyby(~ht11, ~region, survey::svymean, na.rm = TRUE),
+  survey::svyby(~HT11, ~region_name, survey::svymean, na.rm = TRUE),
   estimation_type = "annual"
 )
 
 income_region
-#>          stat     value    se        cv confint_lower confint_upper
-#>        <char>     <num> <num>     <num>         <num>         <num>
-#> 1:   Interior        NA    NA 0.0275355      57568.21      64136.44
-#> 2: Montevideo        NA    NA 0.1223059      44632.89      72778.09
-#> 3:   Interior 60852.322    NA 0.0275355            NA            NA
-#> 4: Montevideo 58705.489    NA 0.1223059            NA            NA
-#> 5:   Interior  1675.599    NA 0.0275355            NA            NA
-#> 6: Montevideo  7180.028    NA 0.1223059            NA            NA
+#>                                                       stat     value       se
+#>                                                     <char>     <num>    <num>
+#> 1:  survey::svyby: HT11 [region_name=Interior loc. < 5000]  90397.57 4632.957
+#> 2: survey::svyby: HT11 [region_name=Interior loc. >= 5000] 103877.64 5949.558
+#> 3:            survey::svyby: HT11 [region_name=Montevideo] 118302.36 5412.484
+#>            cv confint_lower confint_upper           region_name
+#>         <num>         <num>         <num>                <char>
+#> 1: 0.05125091      81317.14       99478.0  Interior loc. < 5000
+#> 2: 0.05727467      92216.72      115538.6 Interior loc. >= 5000
+#> 3: 0.04575127     107694.09      128910.6            Montevideo
 ```
 
 ``` r
@@ -386,14 +368,14 @@ employment_sex <- workflow(
 )
 
 employment_sex
-#>      stat      value    se         cv confint_lower confint_upper
-#>    <char>      <num> <num>      <num>         <num>         <num>
-#> 1: Female         NA    NA 0.06019825     0.4912161     0.6226354
-#> 2:   Male         NA    NA 0.05644886     0.5343696     0.6673221
-#> 3: Female 0.55692572    NA 0.06019825            NA            NA
-#> 4:   Male 0.60084583    NA 0.05644886            NA            NA
-#> 5: Female 0.03352595    NA 0.06019825            NA            NA
-#> 6:   Male 0.03391706    NA 0.05644886            NA            NA
+#>                                    stat     value         se         cv
+#>                                  <char>     <num>      <num>      <num>
+#> 1: survey::svyby: employed [sex=Female] 0.3824018 0.03146234 0.08227562
+#> 2:   survey::svyby: employed [sex=Male] 0.5076963 0.03449008 0.06793446
+#>    confint_lower confint_upper    sex
+#>            <num>         <num> <char>
+#> 1:     0.3207367     0.4440669 Female
+#> 2:     0.4400970     0.5752956   Male
 ```
 
 ### Evaluación de calidad
@@ -401,7 +383,7 @@ employment_sex
 ``` r
 results_all <- workflow(
   list(svy),
-  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~HT11, na.rm = TRUE),
   survey::svymean(~employed, na.rm = TRUE),
   estimation_type = "annual"
 )
@@ -414,67 +396,35 @@ for (i in seq_len(nrow(results_all))) {
     evaluate_cv(cv_pct), "\n"
   )
 }
-#> survey::svymean: ht11 : 2.7 % CV - Excellent 
-#> survey::svymean: employed : 4.1 % CV - Excellent
+#> survey::svymean: HT11 : 3.2 % CV - Excellent 
+#> survey::svymean: employed : 5.3 % CV - Very good
 ```
 
 ## Reproducibilidad: mismo recipe, distinta edición
 
 El poder de los recipes radica en aplicarlos sin modificaciones a datos
-nuevos. Aquí simulamos una “edición 2024” con la misma estructura:
+nuevos. En un flujo de trabajo real, se cargarían los datos de otra
+edicion y se aplicaría el mismo recipe:
 
 ``` r
-set.seed(2024)
-ech_2024 <- data.table(
-  numero = rep(1:100, each = 5),
-  nper = rep(1:5, 100),
-  e26 = sample(c(1, 2), n, replace = TRUE),
-  e27 = sample(0:90, n, replace = TRUE),
-  e31 = sample(1:14, n,
-    replace = TRUE,
-    prob = c(
-      0.20, 0.15, 0.25, 0.05, 0.03,
-      0.02, 0.03, 0.02, 0.02, 0.01,
-      0.01, 0.01, 0.05, 0.15
-    )
-  ),
-  pobpcoac = sample(c(2, 3, 4, 5, 6, 7), n,
-    replace = TRUE,
-    prob = c(0.50, 0.03, 0.02, 0.02, 0.30, 0.13)
-  ),
-  e51 = sample(1:14, n, replace = TRUE),
-  ht11 = round(runif(n, 5500, 130000)),
-  dpto = sample(1:19, n, replace = TRUE),
-  pesoano = round(runif(n, 0.5, 3.0), 4)
+# Cargar microdatos de la ECH 2024 (cuando esten disponibles)
+svy_2024 <- load_survey(
+  path = "ECH_2024.csv",
+  type = "ech", edition = "2024",
+  weight = add_weight(annual = "W_ANO")
 )
 
-svy_2024 <- Survey$new(
-  data = ech_2024, edition = "2024", type = "ech",
-  psu = NULL, engine = "data.table",
-  weight = add_weight(annual = "pesoano")
-)
-
-# Apply the same recipe
+# Aplicar el mismo recipe
 svy_2024 <- add_recipe(svy_2024, ech_recipe)
 svy_2024 <- bake_recipes(svy_2024)
 
-# Estimate
+# Estimar con metodología consistente
 result_2024 <- workflow(
   list(svy_2024),
-  survey::svymean(~ht11, na.rm = TRUE),
+  survey::svymean(~HT11, na.rm = TRUE),
   survey::svymean(~employed, na.rm = TRUE),
   estimation_type = "annual"
 )
-
-result_2024
-#>                         stat        value           se         cv confint_lower
-#>                       <char>        <num>        <num>      <num>         <num>
-#> 1:     survey::svymean: ht11 7.177680e+04 1.702000e+03 0.02371240  6.844094e+04
-#> 2: survey::svymean: employed 5.234533e-01 2.410369e-02 0.04604745  4.762109e-01
-#>    confint_upper
-#>            <num>
-#> 1:  7.511266e+04
-#> 2:  5.706957e-01
 ```
 
 Mismo recipe, datos diferentes, metodología consistente.
@@ -521,6 +471,20 @@ aquí hay un mapeo de operaciones comunes:
     `doc()`), auto-validados (vía `validate()`), y descubribles (vía el
     registry). Un archivo `.do` es simplemente un script; un recipe es
     un objeto estructurado y portable.
+
+## Datos y agradecimientos
+
+Los datos de ejemplo utilizados en esta vinieta provienen de la
+*Encuesta Continua de Hogares* (ECH) 2023, publicada por el Instituto
+Nacional de Estadistica (INE) de Uruguay. Los microdatos completos estan
+disponibles en [www.ine.gub.uy](https://www.ine.gub.uy).
+
+El paquete **[ech](https://calcita.github.io/ech/)** de Gabriela Mathieu
+y Richard Detomasi fue una inspiracion importante para metasurvey.
+Mientras que `ech` provee funciones listas para usar para calcular
+indicadores de la ECH, metasurvey toma un enfoque diferente: permite a
+los usuarios definir, compartir y reproducir sus propios pipelines de
+procesamiento como recipes.
 
 ## Próximos pasos
 

@@ -5,7 +5,7 @@ expressions are validated and optimized for
 efficient execution."><meta property="og:description" content="This function uses optimized expression evaluation
 for all recoding conditions. All conditional
 expressions are validated and optimized for
-efficient execution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+efficient execution."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -19,7 +19,7 @@ efficient execution."><meta property="og:image" content="https://metasurveyr.git
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ efficient execution."><meta property="og:image" content="https://metasurveyr.git
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Create recoding steps for categorical variables</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Create recoding steps for categorical variables</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/steps.R" class="external-link"><code>R/steps.R</code></a></small>
       <div class="d-none name"><code>step_recode.Rd</code></div>
     </div>
@@ -61,16 +61,17 @@ efficient execution.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">step_recode</span><span class="op">(</span></span>
-<span>  svy <span class="op">=</span> <span class="fu"><a href="survey_empty.html">survey_empty</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">svy</span>,</span>
 <span>  <span class="va">new_var</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  .default <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
 <span>  .name_step <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ordered <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  use_copy <span class="op">=</span> <span class="fu"><a href="use_copy_default.html">use_copy_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  .copy <span class="op">=</span> <span class="fu"><a href="use_copy_default.html">use_copy_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  comment <span class="op">=</span> <span class="st">"Recode step"</span>,</span>
 <span>  .to_factor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  .level <span class="op">=</span> <span class="st">"auto"</span></span>
+<span>  .level <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  use_copy <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -103,9 +104,10 @@ condition is met. Defaults to <code>NA_character_</code></p></dd>
 
 
 <dt id="arg--name-step">.name_step<a class="anchor" aria-label="anchor" href="#arg--name-step"></a></dt>
-<dd><p>Custom name for the step to
-identify it in the history. If not provided,
-generated automatically with "Recode" prefix</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a>
+Custom name for the step in the history. Now
+auto-generated from the variable name. Use <code>comment</code>
+for user-facing documentation instead.</p></dd>
 
 
 <dt id="arg-ordered">ordered<a class="anchor" aria-label="anchor" href="#arg-ordered"></a></dt>
@@ -114,7 +116,7 @@ variable should be an ordered factor.
 Defaults to FALSE</p></dd>
 
 
-<dt id="arg-use-copy">use_copy<a class="anchor" aria-label="anchor" href="#arg-use-copy"></a></dt>
+<dt id="arg--copy">.copy<a class="anchor" aria-label="anchor" href="#arg--copy"></a></dt>
 <dd><p>Logical indicating whether to
 create a copy of the object before applying
 transformations. Defaults to <code><a href="use_copy_default.html">use_copy_default()</a></code></p></dd>
@@ -138,6 +140,10 @@ specifies the level where recoding is applied:
 "implantation", "follow_up", "quarter",
 "month", or "auto"</p></dd>
 
+
+<dt id="arg-use-copy">use_copy<a class="anchor" aria-label="anchor" href="#arg-use-copy"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>.copy</code> instead.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -146,23 +152,16 @@ with the new recoded variable and the step added to the history</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>CORE ENGINE FOR RECODING</strong>:</p>
-<p><strong>1. Automatic Condition Processing:</strong></p><ul><li><p>All LHS conditions are automatically analyzed</p></li>
-<li><p>Static analysis of logical expressions</p></li>
-<li><p>Dependency detection for all referenced variables</p></li>
-<li><p>Optimization of conditional logic</p></li>
-</ul><p><strong>2. Enhanced Condition Evaluation:</strong></p><ul><li><p>Conditions evaluated in order</p></li>
-<li><p>First matching condition determines assignment</p></li>
-<li><p>Optimized short-circuit evaluation</p></li>
-<li><p>Better error reporting with expression context</p></li>
-</ul><p><strong>3. Performance Features:</strong></p><ul><li><p>Direct evaluation using R's native conditional logic</p></li>
-<li><p>Efficient execution for all condition types</p></li>
-<li><p>Dependency validation prevents runtime errors</p></li>
-</ul><p>Condition examples:</p><ul><li><p>Simple: <code>variable == 1</code></p></li>
-<li><p>Complex: <code>age &gt;= 18 &amp; income &gt; 12000</code></p></li>
-<li><p>Vectorized: <code>variable %in% c(1,2,3)</code></p></li>
-<li><p>Vectorized: <code>variable %in% c(1,2,3)</code> (validates <code>variable</code> exists)</p></li>
-<li><p>Logical: <code>!is.na(education) &amp; education &gt; mean(education, na.rm = TRUE)</code></p></li>
+    <p><strong>Lazy evaluation (default):</strong> By default, steps are recorded but
+<strong>not executed</strong> until <code><a href="bake_steps.html">bake_steps()</a></code> is called. This allows building
+a full pipeline before materializing any changes.</p>
+<p><strong>Condition evaluation:</strong> Conditions are two-sided formulas evaluated
+in order. The first matching condition determines the assigned value.
+If no condition matches, <code>.default</code> is used.</p>
+<p>Condition examples:</p><ul><li><p>Simple: <code>variable == 1 ~ "Yes"</code></p></li>
+<li><p>Complex: <code>age &gt;= 18 &amp; income &gt; 12000 ~ "High"</code></p></li>
+<li><p>Vectorized: <code>variable %in% c(1,2,3) ~ "Group A"</code></p></li>
+<li><p>Logical: <code>!is.na(education) ~ "Has education"</code></p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

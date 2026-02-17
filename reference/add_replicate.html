@@ -5,7 +5,7 @@ sampling designs. It is essential for obtaining correct standard errors in
 population estimates."><meta property="og:description" content="This function configures replicate weights (bootstrap, jackknife, etc.) that
 allow estimation of variance for complex statistics in surveys with complex
 sampling designs. It is essential for obtaining correct standard errors in
-population estimates."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.png"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
+population estimates."><meta property="og:image" content="https://metasurveyr.github.io/metasurvey/logo.svg"><!-- javascript assets for rmarkdown --><meta name="pkgdown-site-root" content="../"><script src="../ace-1.2.3/ace.js" type="text/javascript" charset="utf-8"></script><script src="../holder-2.9.0/holder.min.js" type="text/javascript" charset="utf-8"></script><script src="../snippets/snippets.js" type="text/javascript" charset="utf-8"></script><style type="text/css">
 .snippet {
   border: solid 1px #cccccc;
   margin-bottom: 12px;
@@ -19,7 +19,7 @@ population estimates."><meta property="og:image" content="https://metasurveyr.gi
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ population estimates."><meta property="og:image" content="https://metasurveyr.gi
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Configure replicate weights for variance estimation</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Configure replicate weights for variance estimation</h1>
       <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>add_replicate.Rd</code></div>
     </div>
@@ -127,11 +127,10 @@ complex weight configurations.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Basic configuration with external file</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic configuration with external file</span></span></span>
 <span class="r-in"><span><span class="va">annual_replicates</span> <span class="op">&lt;-</span> <span class="fu">add_replicate</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  weight <span class="op">=</span> <span class="st">"pesoano"</span>,</span></span>
-<span class="r-in"><span>  replicate_pattern <span class="op">=</span> <span class="st">"wr\\\\d+"</span>,</span></span>
+<span class="r-in"><span>  replicate_pattern <span class="op">=</span> <span class="st">"wr\\d+"</span>,</span></span>
 <span class="r-in"><span>  replicate_path <span class="op">=</span> <span class="st">"bootstrap_weights_2023.xlsx"</span>,</span></span>
 <span class="r-in"><span>  replicate_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID_HOGAR"</span> <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  replicate_type <span class="op">=</span> <span class="st">"bootstrap"</span></span></span>
@@ -140,7 +139,7 @@ complex weight configurations.</p>
 <span class="r-in"><span><span class="co"># With replicates in same dataset</span></span></span>
 <span class="r-in"><span><span class="va">integrated_replicates</span> <span class="op">&lt;-</span> <span class="fu">add_replicate</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  weight <span class="op">=</span> <span class="st">"main_weight"</span>,</span></span>
-<span class="r-in"><span>  replicate_pattern <span class="op">=</span> <span class="st">"rep_\\\\d{3}"</span>,</span></span>
+<span class="r-in"><span>  replicate_pattern <span class="op">=</span> <span class="st">"rep_\\d{3}"</span>,</span></span>
 <span class="r-in"><span>  replicate_type <span class="op">=</span> <span class="st">"jackknife"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -148,30 +147,13 @@ complex weight configurations.</p>
 <span class="r-in"><span><span class="va">weight_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  annual <span class="op">=</span> <span class="fu">add_replicate</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    weight <span class="op">=</span> <span class="st">"pesoano"</span>,</span></span>
-<span class="r-in"><span>    replicate_pattern <span class="op">=</span> <span class="st">"wr\\\\d+"</span>,</span></span>
+<span class="r-in"><span>    replicate_pattern <span class="op">=</span> <span class="st">"wr\\d+"</span>,</span></span>
 <span class="r-in"><span>    replicate_path <span class="op">=</span> <span class="st">"bootstrap_annual.xlsx"</span>,</span></span>
 <span class="r-in"><span>    replicate_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numero"</span> <span class="op">=</span> <span class="st">"ID_HOGAR"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    replicate_type <span class="op">=</span> <span class="st">"bootstrap"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  monthly <span class="op">=</span> <span class="st">"pesomes"</span> <span class="co"># No replicates for monthly</span></span></span>
+<span class="r-in"><span>  monthly <span class="op">=</span> <span class="st">"pesomes"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># In load_survey</span></span></span>
-<span class="r-in"><span><span class="va">ech</span> <span class="op">&lt;-</span> <span class="fu"><a href="load_survey.html">load_survey</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  path <span class="op">=</span> <span class="st">"ech_2023.dta"</span>,</span></span>
-<span class="r-in"><span>  svy_type <span class="op">=</span> <span class="st">"ech"</span>,</span></span>
-<span class="r-in"><span>  svy_edition <span class="op">=</span> <span class="st">"2023"</span>,</span></span>
-<span class="r-in"><span>  svy_weight <span class="op">=</span> <span class="fu"><a href="add_weight.html">add_weight</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    annual <span class="op">=</span> <span class="fu">add_replicate</span><span class="op">(</span></span></span>
-<span class="r-in"><span>      weight <span class="op">=</span> <span class="st">"pesoano"</span>,</span></span>
-<span class="r-in"><span>      replicate_pattern <span class="op">=</span> <span class="st">"wr\\\\d+"</span>,</span></span>
-<span class="r-in"><span>      replicate_path <span class="op">=</span> <span class="st">"bootstrap_weights.xlsx"</span>,</span></span>
-<span class="r-in"><span>      replicate_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numero"</span> <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      replicate_type <span class="op">=</span> <span class="st">"bootstrap"</span></span></span>
-<span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

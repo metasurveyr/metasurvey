@@ -23,3 +23,19 @@ transpile_coverage(path, recursive = TRUE)
 
 A data.frame with columns: file, total_commands, translated, skipped,
 manual_review, coverage_pct
+
+## Examples
+
+``` r
+# \donttest{
+tf <- tempfile(fileext = ".do")
+writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
+transpile_coverage(tf)
+#>                file                              path total_commands translated
+#> 1 file4f498a2ac7.do /tmp/RtmpNdlq0Q/file4f498a2ac7.do              2          2
+#> 2             TOTAL /tmp/RtmpNdlq0Q/file4f498a2ac7.do              2          2
+#>   skipped manual_review coverage_pct
+#> 1       0             0          100
+#> 2       0             0          100
+# }
+```
