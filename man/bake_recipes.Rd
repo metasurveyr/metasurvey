@@ -19,11 +19,15 @@ Bake recipes
 \donttest{
 library(data.table)
 dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
-svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-                  psu = NULL, engine = "data.table",
-                  weight = add_weight(annual = "w"))
-r <- recipe(name = "Demo", user = "test", svy = svy,
-            description = "Demo recipe")
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "demo",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
+r <- recipe(
+  name = "Demo", user = "test", svy = svy,
+  description = "Demo recipe"
+)
 svy <- add_recipe(svy, r)
 processed <- bake_recipes(svy)
 }

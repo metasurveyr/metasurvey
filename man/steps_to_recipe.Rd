@@ -38,11 +38,15 @@ Convert a list of steps to a recipe
 \examples{
 \donttest{
 library(data.table)
-dt <- data.table(id = 1:20, age = sample(18:65, 20, TRUE),
-                 w = runif(20, 0.5, 2))
-svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-                  psu = NULL, engine = "data.table",
-                  weight = add_weight(annual = "w"))
+dt <- data.table(
+  id = 1:20, age = sample(18:65, 20, TRUE),
+  w = runif(20, 0.5, 2)
+)
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "demo",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
 svy <- step_compute(svy, age2 = age^2)
 my_recipe <- steps_to_recipe(
   name = "age_vars", user = "analyst",

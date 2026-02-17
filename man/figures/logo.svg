@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2521 2911">
+<defs>
+  <clipPath id="hx">
+    <polygon points="1260.5,0 2521,727.8 2521,2183.2 1260.5,2911 0,2183.2 0,727.8"/>
+  </clipPath>
+
+  <!-- Glow filters -->
+  <filter id="glow-sm">
+    <feGaussianBlur stdDeviation="8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glow-md">
+    <feGaussianBlur stdDeviation="18" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glow-lg">
+    <feGaussianBlur stdDeviation="35" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glow-xl">
+    <feGaussianBlur stdDeviation="60" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- Background -->
+  <linearGradient id="bg" x1="0.5" y1="0" x2="0.5" y2="1">
+    <stop offset="0%" stop-color="#0c1445"/>
+    <stop offset="50%" stop-color="#0a0e27"/>
+    <stop offset="100%" stop-color="#06081a"/>
+  </linearGradient>
+  <radialGradient id="ambient" cx="0.45" cy="0.4" r="0.5">
+    <stop offset="0%" stop-color="#00d4aa" stop-opacity="0.06"/>
+    <stop offset="100%" stop-color="#00d4aa" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="result-glow" cx="0.45" cy="0.55" r="0.35">
+    <stop offset="0%" stop-color="#00d4aa" stop-opacity="0.10"/>
+    <stop offset="100%" stop-color="#00d4aa" stop-opacity="0"/>
+  </radialGradient>
+
+  <!-- Card fills -->
+  <linearGradient id="glass1" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="white" stop-opacity="0.92"/>
+    <stop offset="100%" stop-color="#e8f4f8" stop-opacity="0.85"/>
+  </linearGradient>
+  <linearGradient id="glass2" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#d4f5ed" stop-opacity="0.72"/>
+    <stop offset="100%" stop-color="#a8e6d5" stop-opacity="0.58"/>
+  </linearGradient>
+  <linearGradient id="glass3" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#00d4aa" stop-opacity="0.38"/>
+    <stop offset="100%" stop-color="#00a88a" stop-opacity="0.22"/>
+  </linearGradient>
+
+  <!-- Arrow markers -->
+  <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <path d="M0,0 L10,3.5 L0,7 Z" fill="#00d4aa"/>
+  </marker>
+  <marker id="arr-w" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L8,3 L0,6 Z" fill="white" opacity="0.6"/>
+  </marker>
+
+  <!-- Border -->
+  <linearGradient id="border-grad" x1="0.5" y1="0" x2="0.5" y2="1">
+    <stop offset="0%" stop-color="#00ffcc"/>
+    <stop offset="50%" stop-color="#00d4aa"/>
+    <stop offset="100%" stop-color="#00b894"/>
+  </linearGradient>
+</defs>
+
+<!-- ══════ BACKGROUND ══════ -->
+<polygon points="1260.5,0 2521,727.8 2521,2183.2 1260.5,2911 0,2183.2 0,727.8"
+         fill="url(#bg)"/>
+
+<!-- ══════ CONTENT ══════ -->
+<g clip-path="url(#hx)">
+
+  <!-- Ambient light -->
+  <rect x="0" y="0" width="2521" height="2911" fill="url(#ambient)"/>
+  <rect x="0" y="0" width="2521" height="2911" fill="url(#result-glow)"/>
+
+  <!-- ── Constellation ── -->
+  <circle cx="320" cy="520" r="5" fill="white" opacity="0.12" filter="url(#glow-sm)"/>
+  <circle cx="2180" cy="630" r="4" fill="white" opacity="0.10"/>
+  <circle cx="580" cy="1920" r="5" fill="white" opacity="0.08"/>
+  <circle cx="1920" cy="1870" r="6" fill="#00d4aa" opacity="0.10" filter="url(#glow-sm)"/>
+  <circle cx="260" cy="1320" r="4" fill="white" opacity="0.07"/>
+  <circle cx="2270" cy="1180" r="5" fill="white" opacity="0.09"/>
+  <circle cx="480" cy="780" r="3" fill="#00d4aa" opacity="0.08"/>
+  <circle cx="2080" cy="1580" r="4" fill="white" opacity="0.06"/>
+  <circle cx="730" cy="1570" r="5" fill="white" opacity="0.08"/>
+  <circle cx="1830" cy="460" r="3" fill="white" opacity="0.07"/>
+  <circle cx="1080" cy="1970" r="4" fill="#00d4aa" opacity="0.07"/>
+  <circle cx="2320" cy="880" r="5" fill="white" opacity="0.09" filter="url(#glow-sm)"/>
+  <circle cx="180" cy="900" r="3" fill="white" opacity="0.06"/>
+  <circle cx="1500" cy="2050" r="4" fill="white" opacity="0.05"/>
+  <circle cx="2100" cy="400" r="4" fill="#00d4aa" opacity="0.06"/>
+  <circle cx="400" cy="1700" r="3" fill="white" opacity="0.05"/>
+  <line x1="320" y1="520" x2="480" y2="780" stroke="white" opacity="0.04" stroke-width="1.5"/>
+  <line x1="2180" y1="630" x2="2270" y2="1180" stroke="white" opacity="0.03" stroke-width="1.5"/>
+  <line x1="1920" y1="1870" x2="2080" y2="1580" stroke="#00d4aa" opacity="0.04" stroke-width="1.5"/>
+  <line x1="260" y1="1320" x2="580" y2="1920" stroke="white" opacity="0.03" stroke-width="1.5"/>
+  <line x1="2320" y1="880" x2="2100" y2="400" stroke="white" opacity="0.03" stroke-width="1.5"/>
+  <line x1="730" y1="1570" x2="1080" y2="1970" stroke="white" opacity="0.03" stroke-width="1.5"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CARD 1 — STRATIFIED SAMPLING (survey design)       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="430" y="505" width="1150" height="270" rx="16"
+        fill="black" opacity="0.15" filter="url(#glow-md)"/>
+  <rect x="420" y="490" width="1150" height="270" rx="16"
+        fill="url(#glass1)"/>
+  <rect x="420" y="490" width="1150" height="270" rx="16"
+        fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
+
+  <!-- Strata dividers -->
+  <line x1="440" y1="580" x2="1550" y2="580" stroke="#1a2d45" opacity="0.10" stroke-width="1.5"/>
+  <line x1="440" y1="670" x2="1550" y2="670" stroke="#1a2d45" opacity="0.10" stroke-width="1.5"/>
+
+  <!-- Population dots (gray) — 5 cols × 3 rows -->
+  <!-- Row 1 (stratum 1) y=535 -->
+  <circle cx="560" cy="535" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="760" cy="535" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="960" cy="535" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1160" cy="535" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1360" cy="535" r="14" fill="#1a2d45" opacity="0.18"/>
+  <!-- Row 2 (stratum 2) y=625 -->
+  <circle cx="560" cy="625" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="760" cy="625" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="960" cy="625" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1160" cy="625" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1360" cy="625" r="14" fill="#1a2d45" opacity="0.18"/>
+  <!-- Row 3 (stratum 3) y=715 -->
+  <circle cx="560" cy="715" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="760" cy="715" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="960" cy="715" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1160" cy="715" r="14" fill="#1a2d45" opacity="0.18"/>
+  <circle cx="1360" cy="715" r="14" fill="#1a2d45" opacity="0.18"/>
+
+  <!-- Sampled units (teal, glowing) — scattered across strata -->
+  <circle cx="760" cy="535" r="19" fill="#00d4aa" opacity="0.85" filter="url(#glow-sm)"/>
+  <circle cx="760" cy="535" r="7" fill="white" opacity="0.85"/>
+  <circle cx="1160" cy="535" r="19" fill="#00d4aa" opacity="0.85" filter="url(#glow-sm)"/>
+  <circle cx="1160" cy="535" r="7" fill="white" opacity="0.85"/>
+  <circle cx="560" cy="625" r="19" fill="#00d4aa" opacity="0.85" filter="url(#glow-sm)"/>
+  <circle cx="560" cy="625" r="7" fill="white" opacity="0.85"/>
+  <circle cx="1360" cy="625" r="19" fill="#00d4aa" opacity="0.85" filter="url(#glow-sm)"/>
+  <circle cx="1360" cy="625" r="7" fill="white" opacity="0.85"/>
+  <circle cx="960" cy="715" r="19" fill="#00d4aa" opacity="0.85" filter="url(#glow-sm)"/>
+  <circle cx="960" cy="715" r="7" fill="white" opacity="0.85"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CARD 2 — STEP PIPELINE (compute→recode→rename→…)  -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="430" y="895" width="1150" height="270" rx="16"
+        fill="black" opacity="0.12" filter="url(#glow-md)"/>
+  <rect x="420" y="880" width="1150" height="270" rx="16"
+        fill="url(#glass2)"/>
+  <rect x="420" y="880" width="1150" height="270" rx="16"
+        fill="none" stroke="#5bbda8" stroke-width="2.5" opacity="0.7"/>
+
+  <!-- Pipeline arrows (between nodes) -->
+  <line x1="640" y1="1015" x2="750" y2="1015"
+        stroke="white" stroke-width="5" opacity="0.45" marker-end="url(#arr-w)"/>
+  <line x1="880" y1="1015" x2="990" y2="1015"
+        stroke="white" stroke-width="5" opacity="0.45" marker-end="url(#arr-w)"/>
+  <line x1="1110" y1="1015" x2="1220" y2="1015"
+        stroke="white" stroke-width="5" opacity="0.45" marker-end="url(#arr-w)"/>
+
+  <!-- Node 1: compute (darkest teal) -->
+  <circle cx="590" cy="1015" r="30" fill="#006b52" opacity="0.60" filter="url(#glow-sm)"/>
+  <circle cx="590" cy="1015" r="12" fill="white" opacity="0.65"/>
+
+  <!-- Node 2: recode -->
+  <circle cx="820" cy="1015" r="30" fill="#009e7a" opacity="0.65" filter="url(#glow-sm)"/>
+  <circle cx="820" cy="1015" r="12" fill="white" opacity="0.72"/>
+
+  <!-- Node 3: rename -->
+  <circle cx="1050" cy="1015" r="30" fill="#00b894" opacity="0.72" filter="url(#glow-sm)"/>
+  <circle cx="1050" cy="1015" r="12" fill="white" opacity="0.80"/>
+
+  <!-- Node 4: workflow/output (brightest) -->
+  <circle cx="1280" cy="1015" r="30" fill="#00d4aa" opacity="0.80" filter="url(#glow-sm)"/>
+  <circle cx="1280" cy="1015" r="12" fill="white" opacity="0.90"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CARD 3 — WORKFLOW OUTPUT (CART decision tree)      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="350" y="1200" width="1300" height="370" rx="30"
+        fill="#00d4aa" opacity="0.08" filter="url(#glow-xl)"/>
+  <rect x="430" y="1285" width="1150" height="270" rx="16"
+        fill="black" opacity="0.10" filter="url(#glow-md)"/>
+  <rect x="420" y="1270" width="1150" height="270" rx="16"
+        fill="url(#glass3)"/>
+  <rect x="420" y="1270" width="1150" height="270" rx="16"
+        fill="none" stroke="#00d4aa" stroke-width="3.5" filter="url(#glow-sm)"/>
+
+  <!-- CART tree — branches -->
+  <line x1="995" y1="1325" x2="720" y2="1405"
+        stroke="white" stroke-width="5" opacity="0.6" filter="url(#glow-sm)"/>
+  <line x1="995" y1="1325" x2="1270" y2="1405"
+        stroke="white" stroke-width="5" opacity="0.6" filter="url(#glow-sm)"/>
+  <line x1="720" y1="1405" x2="570" y2="1490"
+        stroke="white" stroke-width="4" opacity="0.45" filter="url(#glow-sm)"/>
+  <line x1="720" y1="1405" x2="870" y2="1490"
+        stroke="white" stroke-width="4" opacity="0.45" filter="url(#glow-sm)"/>
+  <line x1="1270" y1="1405" x2="1120" y2="1490"
+        stroke="white" stroke-width="4" opacity="0.45" filter="url(#glow-sm)"/>
+  <line x1="1270" y1="1405" x2="1420" y2="1490"
+        stroke="white" stroke-width="4" opacity="0.45" filter="url(#glow-sm)"/>
+
+  <!-- CART tree — nodes -->
+  <circle cx="995" cy="1325" r="26" fill="#00d4aa" opacity="0.85" filter="url(#glow-md)"/>
+  <circle cx="995" cy="1325" r="10" fill="white" opacity="0.9"/>
+  <circle cx="720" cy="1405" r="20" fill="#00d4aa" opacity="0.75" filter="url(#glow-sm)"/>
+  <circle cx="720" cy="1405" r="8" fill="white" opacity="0.8"/>
+  <circle cx="1270" cy="1405" r="20" fill="#00d4aa" opacity="0.75" filter="url(#glow-sm)"/>
+  <circle cx="1270" cy="1405" r="8" fill="white" opacity="0.8"/>
+
+  <!-- CART tree — leaf nodes (classification) -->
+  <circle cx="570" cy="1490" r="16" fill="white" opacity="0.80" filter="url(#glow-sm)"/>
+  <circle cx="870" cy="1490" r="16" fill="#00d4aa" opacity="0.70" filter="url(#glow-sm)"/>
+  <circle cx="870" cy="1490" r="6" fill="white" opacity="0.6"/>
+  <circle cx="1120" cy="1490" r="16" fill="#00d4aa" opacity="0.70" filter="url(#glow-sm)"/>
+  <circle cx="1120" cy="1490" r="6" fill="white" opacity="0.6"/>
+  <circle cx="1420" cy="1490" r="16" fill="white" opacity="0.80" filter="url(#glow-sm)"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- FLOW ARROWS between cards                          -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <line x1="995" y1="760" x2="995" y2="875"
+        stroke="#00d4aa" stroke-width="7" marker-end="url(#arr)" filter="url(#glow-sm)"/>
+  <circle cx="995" cy="760" r="12" fill="#00d4aa" filter="url(#glow-sm)"/>
+  <circle cx="995" cy="760" r="5" fill="white" opacity="0.9"/>
+
+  <line x1="995" y1="1150" x2="995" y2="1265"
+        stroke="#00d4aa" stroke-width="7" marker-end="url(#arr)" filter="url(#glow-sm)"/>
+  <circle cx="995" cy="1150" r="12" fill="#00d4aa" filter="url(#glow-sm)"/>
+  <circle cx="995" cy="1150" r="5" fill="white" opacity="0.9"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- RECIPE LOOP (reproducibility)                      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <path d="M1640,1405 C1960,1405 2080,1100 2080,1000 C2080,850 1960,600 1640,600"
+        stroke="#00d4aa" stroke-width="12" stroke-dasharray="32,16"
+        fill="none" opacity="0.15" filter="url(#glow-lg)"/>
+  <path d="M1640,1405 C1960,1405 2080,1100 2080,1000 C2080,850 1960,600 1640,600"
+        stroke="#00d4aa" stroke-width="6" stroke-dasharray="32,16"
+        fill="none" marker-end="url(#arr)" opacity="0.85"/>
+  <circle cx="1970" cy="1280" r="8" fill="#00d4aa" opacity="0.50" filter="url(#glow-sm)"/>
+  <circle cx="2075" cy="1000" r="10" fill="#00d4aa" opacity="0.60" filter="url(#glow-sm)"/>
+  <circle cx="2075" cy="1000" r="4" fill="white" opacity="0.7"/>
+  <circle cx="1970" cy="720" r="8" fill="#00d4aa" opacity="0.50" filter="url(#glow-sm)"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ECOSYSTEM ICONS — API · Reproducibility · Open Sci -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <!-- API REST — cloud -->
+  <path d="M575,1760 C548,1760 535,1740 545,1722 C535,1700 558,1685 585,1692
+           C595,1675 625,1675 635,1692 C658,1685 678,1700 668,1722
+           C678,1740 665,1760 638,1760 Z"
+        fill="#00d4aa" opacity="0.45" filter="url(#glow-sm)"/>
+  <!-- Small up/down arrows on cloud -->
+  <line x1="600" y1="1712" x2="600" y2="1740" stroke="white" opacity="0.6" stroke-width="3"/>
+  <line x1="620" y1="1740" x2="620" y2="1712" stroke="white" opacity="0.6" stroke-width="3"/>
+
+  <!-- Reproducibility — infinity loop -->
+  <path d="M940,1725 C940,1700 962,1688 985,1708
+           C1008,1688 1030,1700 1030,1725
+           C1030,1750 1008,1762 985,1742
+           C962,1762 940,1750 940,1725 Z"
+        fill="none" stroke="#00d4aa" stroke-width="5" opacity="0.50" filter="url(#glow-sm)"/>
+
+  <!-- Open Science — connected network triangle -->
+  <circle cx="1340" cy="1710" r="12" fill="#00d4aa" opacity="0.50" filter="url(#glow-sm)"/>
+  <circle cx="1340" cy="1710" r="5" fill="white" opacity="0.5"/>
+  <circle cx="1380" cy="1755" r="12" fill="#00d4aa" opacity="0.50" filter="url(#glow-sm)"/>
+  <circle cx="1380" cy="1755" r="5" fill="white" opacity="0.5"/>
+  <circle cx="1420" cy="1710" r="12" fill="#00d4aa" opacity="0.50" filter="url(#glow-sm)"/>
+  <circle cx="1420" cy="1710" r="5" fill="white" opacity="0.5"/>
+  <line x1="1340" y1="1710" x2="1380" y2="1755" stroke="#00d4aa" stroke-width="3" opacity="0.35"/>
+  <line x1="1380" y1="1755" x2="1420" y2="1710" stroke="#00d4aa" stroke-width="3" opacity="0.35"/>
+  <line x1="1340" y1="1710" x2="1420" y2="1710" stroke="#00d4aa" stroke-width="3" opacity="0.35"/>
+
+</g>
+
+<!-- ══════ BORDER ══════ -->
+<polygon points="1260.5,0 2521,727.8 2521,2183.2 1260.5,2911 0,2183.2 0,727.8"
+         fill="none" stroke="#00d4aa" stroke-width="60" stroke-linejoin="round"
+         opacity="0.15" filter="url(#glow-lg)"/>
+<polygon points="1260.5,0 2521,727.8 2521,2183.2 1260.5,2911 0,2183.2 0,727.8"
+         fill="none" stroke="url(#border-grad)" stroke-width="45" stroke-linejoin="round"/>
+
+<!-- ══════ TEXT ══════ -->
+<text x="1260.5" y="2370" text-anchor="middle"
+      fill="#00d4aa" font-family="Roboto,Helvetica Neue,Arial,sans-serif"
+      font-size="260" font-weight="700" letter-spacing="8"
+      opacity="0.25" filter="url(#glow-md)">metasurvey</text>
+<text x="1260.5" y="2370" text-anchor="middle"
+      fill="white" font-family="Roboto,Helvetica Neue,Arial,sans-serif"
+      font-size="260" font-weight="700" letter-spacing="8">metasurvey</text>
+
+</svg>
