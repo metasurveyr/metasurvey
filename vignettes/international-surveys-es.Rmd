@@ -15,23 +15,11 @@ knitr::opts_chunk$set(
   message = FALSE
 )
 
-install_if_missing <- function(pkg, github = NULL) {
-  if (!requireNamespace(pkg, quietly = TRUE)) {
-    if (!is.null(github)) {
-      if (!requireNamespace("pak", quietly = TRUE)) {
-        install.packages("pak", repos = "https://cloud.r-project.org")
-      }
-      get("pak", envir = asNamespace("pak"))(github, ask = FALSE)
-    } else {
-      install.packages(pkg, repos = "https://cloud.r-project.org", quiet = TRUE)
-    }
-  }
-}
-install_if_missing("eph")
-install_if_missing("casen", github = "pachadotdev/casen")
-install_if_missing("PNADcIBGE")
-install_if_missing("ipumsr")
-install_if_missing("haven")
+has_eph <- requireNamespace("eph", quietly = TRUE)
+has_casen <- requireNamespace("casen", quietly = TRUE)
+has_pnad <- requireNamespace("PNADcIBGE", quietly = TRUE)
+has_ipumsr <- requireNamespace("ipumsr", quietly = TRUE)
+has_haven <- requireNamespace("haven", quietly = TRUE)
 ```
 
 ## Introduccion
