@@ -1,19 +1,11 @@
 ^.*\.Rproj$
-^AST_CORE_TRANSFORMATION_SUMMARY\.md$
 ^CLAUDE\.md$
 ^CODE_OF_CONDUCT\.md$
 ^CONTRIBUTING\.md$
 ^CRAN-SUBMISSION$
-^EJEMPLOS_RECETAS\.md$
 ^LICENSE\.md$
 ^Meta$
-^OPTIMIZATIONS_SUMMARY\.md$
-^OPTIMIZATION_PROPOSAL\.md$
-^PERFORMANCE_EVALUATION\.md$
-^PLAN_MIGRACION_MONGO\.md$
 ^README\.Rmd$
-^RESUMEN_FINAL\.md$
-^STATA_COMPATIBILITY_ANALYSIS\.md$
 ^\.DS_Store$
 ^\.RData$
 ^\.Rcheck$
@@ -63,7 +55,6 @@
 ^renv$
 ^renv\.lock$
 ^revdep$
-^ropensci-presubmission-plan\.md$
 ^slides$
 ^summary_iecon\.md$
 ^temp$
@@ -84,7 +75,3 @@
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
 ^vignettes/self-hosting-es\.Rmd$
-^summary_iecon\.md$
-^ropensci-presubmission-plan\.md$
-^\.env\.example$
-^docker-compose\.yml$
