@@ -589,14 +589,7 @@ test_that("extract_time_pattern handles YYYYMM format", {
   expect_equal(result$month, 5)
 })
 
-# --- .onLoad / .onAttach coverage ---
-
-test_that(".onAttach emits startup message", {
-  expect_message(
-    metasurvey:::.onAttach(NULL, "metasurvey"),
-    "metasurvey"
-  )
-})
+# --- .onLoad coverage ---
 
 test_that(".onLoad reads METASURVEY_API_URL env var", {
   old_url <- Sys.getenv("METASURVEY_API_URL", "")

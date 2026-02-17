@@ -53,15 +53,20 @@ test_that("survey_to_data_frame returns data.frame", {
   expect_equal(nrow(df), 10)
 })
 
-test_that("survey_to_data.table returns data.table", {
+test_that("survey_to_datatable returns data.table", {
   s <- make_test_survey()
-  dt <- survey_to_data.table(s)
+  dt <- survey_to_datatable(s)
   expect_true(data.table::is.data.table(dt))
+})
+
+test_that("survey_to_data.table is deprecated", {
+  s <- make_test_survey()
+  lifecycle::expect_deprecated(survey_to_data.table(s))
 })
 
 test_that("get_metadata does not error on Survey", {
   s <- make_test_survey()
-  expect_message(get_metadata(s))
+  expect_output(get_metadata(s))
 })
 
 test_that("add_step registers steps correctly", {
@@ -545,13 +550,13 @@ test_that("survey_empty creates Survey with NULL data", {
 
 test_that("get_metadata works for RotativePanelSurvey", {
   panel <- make_test_panel()
-  expect_message(get_metadata(panel))
+  expect_output(get_metadata(panel))
 })
 
 test_that("get_metadata for RotativePanelSurvey with steps", {
   panel <- make_test_panel()
   panel$implantation <- step_compute(panel$implantation, z = age + 1)
-  expect_message(get_metadata(panel))
+  expect_output(get_metadata(panel))
 })
 
 # --- Survey$bake method ---
@@ -591,7 +596,7 @@ test_that("bake_recipes handles single Recipe object", {
 
 test_that("get_metadata runs without error for Survey", {
   s <- make_test_survey()
-  expect_message(get_metadata(s))
+  expect_output(get_metadata(s))
 })
 
 # --- get_metadata with steps ---
@@ -599,7 +604,7 @@ test_that("get_metadata runs without error for Survey", {
 test_that("get_metadata shows steps when present", {
   s <- make_test_survey()
   s2 <- step_compute(s, z = age + 1)
-  expect_message(get_metadata(s2), "step_")
+  expect_output(get_metadata(s2), "step_")
 })
 
 # --- get_metadata with Date edition ---
@@ -611,7 +616,7 @@ test_that("get_metadata handles Date edition", {
     psu = NULL, engine = "data.table",
     weight = add_weight(monthly = "w")
   )
-  expect_message(get_metadata(s))
+  expect_output(get_metadata(s))
 })
 
 # --- set_weight standalone ---
@@ -647,14 +652,14 @@ test_that("get_metadata works for PoolSurvey", {
     )
   )
   pool <- PoolSurvey$new(surveys_struct)
-  expect_message(get_metadata(pool))
+  expect_output(get_metadata(pool))
 })
 
 # --- Survey print method ---
 
 test_that("Survey print calls get_metadata", {
   s <- make_test_survey()
-  expect_message(s$print())
+  expect_output(s$print())
 })
 
 # --- PoolSurvey print method ---
@@ -666,7 +671,7 @@ test_that("PoolSurvey print calls get_metadata", {
     annual = list("group1" = list(s1))
   )
   pool <- PoolSurvey$new(surveys_struct)
-  expect_message(pool$print())
+  expect_output(pool$print())
 })
 
 # --- Survey with PSU formula ---
@@ -967,13 +972,13 @@ test_that("explore_recipes calls runApp with correct args", {
 test_that("Survey print handles NULL edition", {
   s <- make_test_survey()
   s$edition <- NULL
-  expect_message(s$print(), "Unknown|UNKNOWN|unknown|ECH")
+  expect_output(s$print(), "Unknown|UNKNOWN|unknown|ECH")
 })
 
 test_that("Survey print handles Date edition", {
   s <- make_test_survey()
   s$edition <- as.Date("2023-06-15")
-  expect_message(s$print(), "2023")
+  expect_output(s$print(), "2023")
 })
 
 test_that("set_weight with .copy=FALSE and list comparison errors", {
@@ -1032,7 +1037,7 @@ test_that("cat_design_type returns design class after initialization", {
 test_that("Survey$print with numeric edition formats correctly", {
   s <- make_test_survey()
   s$edition <- 2023
-  expect_message(s$print(), "2023")
+  expect_output(s$print(), "2023")
 })
 
 test_that("is_baked returns FALSE when unbaked steps exist", {

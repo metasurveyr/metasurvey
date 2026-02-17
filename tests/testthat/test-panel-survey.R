@@ -180,7 +180,7 @@ test_that("PoolSurvey get_surveys without period returns all", {
 
 test_that("RotativePanelSurvey print calls get_metadata", {
   panel <- make_test_panel()
-  expect_message(panel$print())
+  expect_output(panel$print())
 })
 
 # --- RotativePanelSurvey get_recipes/get_workflows/get_design ---
@@ -551,5 +551,5 @@ test_that("step_recode on RotativePanelSurvey with .level = follow_up", {
 
 test_that("RotativePanelSurvey print outputs metadata", {
   panel <- make_test_panel()
-  expect_message(panel$print())
+  expect_output(panel$print())
 })
