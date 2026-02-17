@@ -110,7 +110,7 @@ RecipeCategory <- R6::R6Class(
     #' @description Print category
     #' @param ... Additional arguments (not used)
     print = function(...) {
-      cat(crayon::bold(self$name), "\n")
+      cat(cli::style_bold(self$name), "\n")
       if (nchar(self$description) > 0) {
         cat("  ", self$description, "\n")
       }

@@ -421,16 +421,20 @@ test_that("workflow handles survey with multiple editions", {
 test_that("workflow errors on missing estimation type weight", {
   s <- make_test_survey() # only has 'annual' weight
   expect_error(
-    workflow(svy = list(s), survey::svymean(~age, na.rm = TRUE),
-             estimation_type = "monthly")
+    workflow(
+      svy = list(s), survey::svymean(~age, na.rm = TRUE),
+      estimation_type = "monthly"
+    )
   )
 })
 
 test_that("workflow errors on quarterly without quarterly weight", {
   s <- make_test_survey()
   expect_error(
-    workflow(svy = list(s), survey::svymean(~age, na.rm = TRUE),
-             estimation_type = "quarterly")
+    workflow(
+      svy = list(s), survey::svymean(~age, na.rm = TRUE),
+      estimation_type = "quarterly"
+    )
   )
 })
 

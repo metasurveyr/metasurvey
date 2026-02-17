@@ -81,11 +81,13 @@
 workflow <- function(svy, ..., estimation_type = "monthly") {
   if (is(svy, "PoolSurvey")) {
     return(workflow_pool(
-      svy, ..., estimation_type = estimation_type
+      svy, ...,
+      estimation_type = estimation_type
     ))
   } else {
     return(workflow_default(
-      svy, ..., estimation_type = estimation_type
+      svy, ...,
+      estimation_type = estimation_type
     ))
   }
 }
@@ -252,7 +254,8 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
       by = list(stat, type), .SDcols = numeric_vars
     ]
     agg[, se := vapply(
-      variance, adj_se, numeric(1), rho = rho, R = R
+      variance, adj_se, numeric(1),
+      rho = rho, R = R
     )]
     agg[, cv := se / value]
     agg[, evaluate := vapply(cv, evaluate_cv, character(1))]
@@ -496,7 +499,8 @@ cat_estimation.svyratio <- function(estimation, call) {
       raw_call <- .calls[[i]]
       deparsed <- deparse(raw_call, width.cutoff = 200)
       calls_str[[length(calls_str) + 1]] <- paste(
-        deparsed, collapse = " "
+        deparsed,
+        collapse = " "
       )
 
       # Extract type and formula from the call
@@ -514,7 +518,8 @@ cat_estimation.svyratio <- function(estimation, call) {
       by_str <- NULL
       if (fn_name == "svyby" && length(call_list) > 2) {
         by_str <- deparse(
-          call_list[[3]], width.cutoff = 200
+          call_list[[3]],
+          width.cutoff = 200
         )
       }
 

@@ -49,10 +49,7 @@ validate_weight <- function(svy, weight) {
   }
 
   if (!weight %in% colnames(svy)) {
-    stop(glue_col(
-      "{red Weight {weight} not found in survey}",
-      .literal = TRUE
-    ))
+    stop(cli::col_red(glue("Weight {weight} not found in survey")))
   } else {
     weight
   }
@@ -76,9 +73,8 @@ validate_replicate <- function(svy, replicate) {
     }
 
     if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
-      stop(glue_col(
-        "{red Replicate ID {replicate$replicate_id} not found in survey}",
-        .literal = TRUE
+      stop(cli::col_red(
+        glue("Replicate ID {replicate$replicate_id} not found in survey")
       ))
     }
   }
@@ -305,7 +301,8 @@ get_user <- function() {
   }
 
   getOption(
-    "metasurvey.user", default = NULL
+    "metasurvey.user",
+    default = NULL
   ) %||% user_key %||% "public"
 }
 
@@ -371,12 +368,16 @@ parse_short_date <- function(svy_edition) {
     p1 <- as.numeric(sub(pat, "\\1", svy_edition))
     p2 <- as.numeric(sub(pat, "\\2", svy_edition))
     if (p1 >= 1 && p1 <= 12) {
-      return(list(year = 2000 + p2, month = p1,
-                  periodicity = "Monthly"))
+      return(list(
+        year = 2000 + p2, month = p1,
+        periodicity = "Monthly"
+      ))
     }
     if (p2 >= 1 && p2 <= 12) {
-      return(list(year = 2000 + p1, month = p2,
-                  periodicity = "Monthly"))
+      return(list(
+        year = 2000 + p1, month = p2,
+        periodicity = "Monthly"
+      ))
     }
   }
   NULL
@@ -434,43 +435,51 @@ extract_time_pattern <- function(svy_edition) {
 
   # YYYYMM (e.g., "202312")
   if (grepl("^(\\d{4})(\\d{2})$", svy_edition) &&
-      as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition)) <= 12) {
+    as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition)) <= 12) {
     yr <- as.numeric(sub("^(\\d{4})\\d{2}$", "\\1", svy_edition))
     mo <- as.numeric(sub("^\\d{4}(\\d{2})$", "\\1", svy_edition))
     res <- validate_monthly(yr, mo)
-    year <- res$year; month <- res$month; periodicity <- res$periodicity
+    year <- res$year
+    month <- res$month
+    periodicity <- res$periodicity
 
-  # MMYYYY (e.g., "122023")
+    # MMYYYY (e.g., "122023")
   } else if (grepl("^(\\d{2})(\\d{4})$", svy_edition) &&
-             as.numeric(sub("^(\\d{2})\\d{4}$", "\\1", svy_edition)) <= 12) {
+    as.numeric(sub("^(\\d{2})\\d{4}$", "\\1", svy_edition)) <= 12) {
     mo <- as.numeric(sub("^(\\d{2})\\d{4}$", "\\1", svy_edition))
     yr <- as.numeric(sub("^\\d{2}(\\d{4})$", "\\1", svy_edition))
     res <- validate_monthly(yr, mo)
-    year <- res$year; month <- res$month; periodicity <- res$periodicity
+    year <- res$year
+    month <- res$month
+    periodicity <- res$periodicity
 
-  # MM_YYYY (e.g., "01_2023")
+    # MM_YYYY (e.g., "01_2023")
   } else if (
     grepl("^(\\d{2})[_-](\\d{4})$", svy_edition) &&
-    as.numeric(
-      sub("^(\\d{2})[_-]\\d{4}$", "\\1", svy_edition)
-    ) <= 12) {
+      as.numeric(
+        sub("^(\\d{2})[_-]\\d{4}$", "\\1", svy_edition)
+      ) <= 12) {
     mo <- as.numeric(sub("^(\\d{2})[_-]\\d{4}$", "\\1", svy_edition))
     yr <- as.numeric(sub("^\\d{2}[_-](\\d{4})$", "\\1", svy_edition))
     res <- validate_monthly(yr, mo)
-    year <- res$year; month <- res$month; periodicity <- res$periodicity
+    year <- res$year
+    month <- res$month
+    periodicity <- res$periodicity
 
-  # YYYY_MM (e.g., "2023_12")
+    # YYYY_MM (e.g., "2023_12")
   } else if (
     grepl("^(\\d{4})[_-](\\d{2})$", svy_edition) &&
-    as.numeric(
-      sub("^\\d{4}[_-](\\d{2})$", "\\1", svy_edition)
-    ) <= 12) {
+      as.numeric(
+        sub("^\\d{4}[_-](\\d{2})$", "\\1", svy_edition)
+      ) <= 12) {
     yr <- as.numeric(sub("^(\\d{4})[_-]\\d{2}$", "\\1", svy_edition))
     mo <- as.numeric(sub("^\\d{4}[_-](\\d{2})$", "\\1", svy_edition))
     res <- validate_monthly(yr, mo)
-    year <- res$year; month <- res$month; periodicity <- res$periodicity
+    year <- res$year
+    month <- res$month
+    periodicity <- res$periodicity
 
-  # Year range (e.g., "2019_2021")
+    # Year range (e.g., "2019_2021")
   } else if (grepl("^(\\d{4})[_]?(\\d{4})$", svy_edition)) {
     years <- as.numeric(unlist(regmatches(
       svy_edition, gregexpr("\\d{4}", svy_edition)
@@ -480,17 +489,18 @@ extract_time_pattern <- function(svy_edition) {
     span <- year_end - year_start + 1
     periodicity <- if (span == 3) "Triennial" else "Multi-year"
 
-  # Annual (e.g., "2023")
+    # Annual (e.g., "2023")
   } else if (grepl("^\\d{4}$", svy_edition) &&
-             as.numeric(svy_edition) >= 1900) {
+    as.numeric(svy_edition) >= 1900) {
     year <- as.numeric(svy_edition)
     periodicity <- "Annual"
 
-  # Short date YY_MM or MM_YY (e.g., "23_05")
+    # Short date YY_MM or MM_YY (e.g., "23_05")
   } else if (grepl("^\\d{2}[_-]?\\d{2}$", svy_edition)) {
     res <- parse_short_date(svy_edition)
     if (!is.null(res)) {
-      year <- res$year; month <- res$month
+      year <- res$year
+      month <- res$month
       periodicity <- res$periodicity
     }
   } else {
@@ -532,9 +542,9 @@ extract_time_pattern <- function(svy_edition) {
 validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   # Validate that svy_edition is not NULL or empty
   if (is.null(svy_edition) ||
-      length(svy_edition) == 0 ||
-      isTRUE(is.na(svy_edition)) ||
-      identical(svy_edition, "")) {
+    length(svy_edition) == 0 ||
+    isTRUE(is.na(svy_edition)) ||
+    identical(svy_edition, "")) {
     if (is.null(svy_type)) {
       stop(
         "Both svy_edition and svy_type are NULL. ",
@@ -561,7 +571,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   time_pattern$type <- time_pattern$type %@% svy_type
 
   if (!is.null(time_pattern$type) &&
-      toupper(time_pattern$type) != toupper(svy_type)) {
+    toupper(time_pattern$type) != toupper(svy_type)) {
     message(
       "Type does not match. Please provide a valid ",
       "type in the survey edition or as an argument"
@@ -577,9 +587,9 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   svy_editions <- ""
 
   if (!is.null(time_pattern$month) &&
-      !is.na(time_pattern$month) &&
-      !is.null(time_pattern$year) &&
-      !is.na(time_pattern$year)) {
+    !is.na(time_pattern$month) &&
+    !is.null(time_pattern$year) &&
+    !is.na(time_pattern$year)) {
     date_string <- sprintf(
       "%04d-%02d-01",
       time_pattern$year, time_pattern$month

@@ -35,13 +35,15 @@
 #'
 #' # Member linked to institution
 #' member <- recipe_user(
-#'   "Maria", type = "institutional_member",
+#'   "Maria",
+#'   type = "institutional_member",
 #'   institution = inst
 #' )
 #'
 #' # Member with institution name shortcut
 #' member2 <- recipe_user(
-#'   "Pedro", type = "institutional_member",
+#'   "Pedro",
+#'   type = "institutional_member",
 #'   institution = "IECON"
 #' )
 #'
