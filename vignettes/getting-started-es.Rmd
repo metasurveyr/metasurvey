@@ -39,8 +39,8 @@ se construye un **pipeline** de transformaciones que es:
 
 El pipeline tiene tres niveles:
 
-1. **Steps** -- transformaciones individuales (compute, recode, rename,
-   remove, join)
+1. **Steps** -- transformaciones individuales (compute, recode, filter,
+   rename, remove, join, validate)
 2. **Recipes** -- colecciones reutilizables de steps agrupados con metadatos
 3. **Workflows** -- estimaciones estadisticas (`svymean`, `svytotal`,
    `svyby`) que producen las tablas finales
@@ -185,6 +185,20 @@ svy <- step_recode(svy, gender,
   e26 == 2 ~ "Female",
   .default = "Other",
   comment = "Gender classification"
+)
+```
+
+### Filtrado de filas
+
+Se utiliza `step_filter()` para seleccionar filas segun condiciones logicas.
+Multiples condiciones se combinan con AND. Al igual que los demas steps,
+los filtros son lazy por defecto.
+
+```{r step-filter}
+# Mantener solo individuos en edad de trabajar (14+)
+svy <- step_filter(svy,
+  e27 >= 14,
+  comment = "Working-age population only"
 )
 ```
 

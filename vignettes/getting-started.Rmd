@@ -39,8 +39,8 @@ scripts, you build a **pipeline** of transformations that is:
 
 The pipeline has three levels:
 
-1. **Steps** -- individual transformations (compute, recode, rename,
-   remove, join)
+1. **Steps** -- individual transformations (compute, recode, filter,
+   rename, remove, join, validate)
 2. **Recipes** -- reusable collections of steps bundled with metadata
 3. **Workflows** -- statistical estimates (`svymean`, `svytotal`,
    `svyby`) that produce the final tables
@@ -185,6 +185,20 @@ svy <- step_recode(svy, gender,
   e26 == 2 ~ "Female",
   .default = "Other",
   comment = "Gender classification"
+)
+```
+
+### Filtering rows
+
+Use `step_filter()` to subset rows based on logical conditions. Multiple
+conditions are combined with AND. Like other steps, filters are lazy by
+default.
+
+```{r step-filter}
+# Keep only working-age individuals (14+)
+svy <- step_filter(svy,
+  e27 >= 14,
+  comment = "Working-age population only"
 )
 ```
 

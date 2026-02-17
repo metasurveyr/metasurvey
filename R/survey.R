@@ -25,6 +25,7 @@
 #' @field psu Primary Sampling Unit specification (formula or character).
 #' @field strata Stratification variable name (character or NULL).
 #' @field design_initialized Logical flag for lazy design initialization.
+#' @field provenance Data lineage metadata (see [provenance()]).
 #'
 #' @section Main methods:
 #' \describe{

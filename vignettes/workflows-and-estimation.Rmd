@@ -311,6 +311,80 @@ for (i in seq_len(nrow(estimates))) {
 }
 ```
 
+## Provenance: Data Lineage
+
+Every `Survey` object records **provenance** metadata: where the data
+came from, which steps were applied, how many rows survived each step,
+and which versions of R and metasurvey were used. This makes it possible
+to trace any estimate back to the raw data.
+
+```{r provenance}
+# Provenance is populated automatically after bake_steps()
+prov <- provenance(svy_full)
+prov
+```
+
+Provenance is also attached to `workflow()` results, so you can always
+inspect the full lineage of an estimate:
+
+```{r provenance-workflow}
+prov_wf <- provenance(estimates)
+cat("metasurvey version:", prov_wf$environment$metasurvey_version, "\n")
+cat("Steps applied:", length(prov_wf$steps), "\n")
+```
+
+For audit trails, export provenance to JSON:
+
+```{r provenance-json, eval = FALSE}
+provenance_to_json(prov, "audit_trail.json")
+```
+
+To compare two runs (e.g., different editions), use `provenance_diff()`:
+
+```{r provenance-diff, eval = FALSE}
+diff <- provenance_diff(prov_2022, prov_2023)
+diff$steps_changed
+diff$n_final_changed
+```
+
+## Publication-Quality Tables
+
+`workflow_table()` formats estimation results as publication-ready tables
+using the `gt` package. It adds confidence intervals, CV quality
+classification with color coding, and provenance-based source notes.
+
+```{r workflow-table, eval = requireNamespace("gt", quietly = TRUE)}
+workflow_table(estimates)
+```
+
+You can customize the output:
+
+```{r workflow-table-opts, eval = requireNamespace("gt", quietly = TRUE)}
+# Spanish locale, hide SE, custom title
+workflow_table(
+  estimates,
+  locale = "es",
+  show_se = FALSE,
+  title = "API Growth Indicators",
+  subtitle = "California Schools, 2000"
+)
+```
+
+For domain estimates, the table detects group columns automatically:
+
+```{r workflow-table-domain, eval = requireNamespace("gt", quietly = TRUE)}
+workflow_table(by_school)
+```
+
+Export to any format supported by `gt::gtsave()`:
+
+```{r workflow-table-export, eval = FALSE}
+tbl <- workflow_table(estimates)
+gt::gtsave(tbl, "estimates.html")
+gt::gtsave(tbl, "estimates.docx")
+gt::gtsave(tbl, "estimates.png")
+```
+
 ## Next Steps
 
 - **[Creating and Publishing Recipes](recipes.html)** -- Build reproducible transformation pipelines

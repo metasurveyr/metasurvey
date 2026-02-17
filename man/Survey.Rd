@@ -101,6 +101,8 @@ Other survey-objects:
 \item{\code{strata}}{Stratification variable name (character or NULL).}
 
 \item{\code{design_initialized}}{Logical flag for lazy design initialization.}
+
+\item{\code{provenance}}{Data lineage metadata (see \code{\link[=provenance]{provenance()}}).}
 }
 \if{html}{\out{</div>}}
 }

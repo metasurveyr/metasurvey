@@ -311,6 +311,81 @@ for (i in seq_len(nrow(estimates))) {
 }
 ```
 
+## Provenance: Linaje de datos
+
+Cada objeto `Survey` registra metadatos de **provenance**: de donde vinieron los datos,
+que steps se aplicaron, cuantas filas sobrevivieron a cada paso y que versiones de R
+y metasurvey se utilizaron. Esto permite rastrear cualquier estimacion hasta los datos
+originales.
+
+```{r provenance}
+# El provenance se completa automaticamente despues de bake_steps()
+prov <- provenance(svy_full)
+prov
+```
+
+El provenance tambien se adjunta a los resultados de `workflow()`, de modo que siempre
+es posible inspeccionar el linaje completo de una estimacion:
+
+```{r provenance-workflow}
+prov_wf <- provenance(estimates)
+cat("metasurvey version:", prov_wf$environment$metasurvey_version, "\n")
+cat("Steps applied:", length(prov_wf$steps), "\n")
+```
+
+Para pistas de auditoria, se exporta el provenance a JSON:
+
+```{r provenance-json, eval = FALSE}
+provenance_to_json(prov, "audit_trail.json")
+```
+
+Para comparar dos ejecuciones (por ejemplo, diferentes ediciones), se utiliza
+`provenance_diff()`:
+
+```{r provenance-diff, eval = FALSE}
+diff <- provenance_diff(prov_2022, prov_2023)
+diff$steps_changed
+diff$n_final_changed
+```
+
+## Tablas de calidad publicacion
+
+`workflow_table()` formatea los resultados de estimacion como tablas listas para
+publicar usando el paquete `gt`. Agrega intervalos de confianza, clasificacion de
+calidad del CV con colores y notas al pie basadas en el provenance.
+
+```{r workflow-table, eval = requireNamespace("gt", quietly = TRUE)}
+workflow_table(estimates)
+```
+
+Se puede personalizar la salida:
+
+```{r workflow-table-opts, eval = requireNamespace("gt", quietly = TRUE)}
+# Locale en espaniol, ocultar SE, titulo personalizado
+workflow_table(
+  estimates,
+  locale = "es",
+  show_se = FALSE,
+  title = "Indicadores de crecimiento API",
+  subtitle = "Escuelas de California, 2000"
+)
+```
+
+Para estimaciones por dominio, la tabla detecta automaticamente las columnas de grupo:
+
+```{r workflow-table-domain, eval = requireNamespace("gt", quietly = TRUE)}
+workflow_table(by_school)
+```
+
+Se exporta a cualquier formato soportado por `gt::gtsave()`:
+
+```{r workflow-table-export, eval = FALSE}
+tbl <- workflow_table(estimates)
+gt::gtsave(tbl, "estimates.html")
+gt::gtsave(tbl, "estimates.docx")
+gt::gtsave(tbl, "estimates.png")
+```
+
 ## Proximos pasos
 
 - **[Creacion y publicacion de Recipes](recipes.html)** -- Construir pipelines de transformacion reproducibles

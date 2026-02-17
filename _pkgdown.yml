@@ -47,9 +47,11 @@ reference:
   contents:
   - step_compute
   - step_recode
+  - step_filter
   - step_rename
   - step_remove
   - step_join
+  - step_validate
   - bake_steps
 - title: Recipes
   desc: Reproducible and portable pipelines
@@ -87,8 +89,16 @@ reference:
   desc: Survey estimation workflows
   contents:
   - workflow
+  - workflow_table
   - RecipeWorkflow-class
   - evaluate_cv
+- title: Provenance
+  desc: Data lineage and audit trails
+  contents:
+  - provenance
+  - provenance_to_json
+  - provenance_diff
+  - print.metasurvey_provenance
   - save_workflow
   - read_workflow
   - workflow_from_list
@@ -148,6 +158,16 @@ reference:
   - api_get_workflow
   - api_publish_workflow
   - api_get_anda_variables
+  - api_star_recipe
+  - api_get_recipe_stars
+  - api_comment_recipe
+  - api_get_recipe_comments
+  - api_get_recipe_dependents
+  - api_star_workflow
+  - api_get_workflow_stars
+  - api_comment_workflow
+  - api_get_workflow_comments
+  - api_delete_comment
 - title: ANDA
   desc: INE Uruguay ANDA catalog metadata
   contents:
