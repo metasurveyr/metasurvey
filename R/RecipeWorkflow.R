@@ -379,45 +379,43 @@ read_workflow <- function(file) {
 print.RecipeWorkflow <- function(x, ...) {
   doc_info <- x$doc()
 
-  cat(crayon::bold(crayon::blue(paste0(
+  cat(cli::style_bold(cli::col_blue(paste0(
     "\n\u2500\u2500 Workflow: ", x$name, " \u2500\u2500\n"
   ))))
 
-  cat(crayon::silver("Author:  "), x$user, "\n", sep = "")
+  cat(cli::col_silver("Author:  "), x$user, "\n", sep = "")
   cat(
-    crayon::silver("Survey:  "),
-    x$survey_type, " / ", x$edition, "\n",
-    sep = ""
+    cli::col_silver("Survey:  "),
+    x$survey_type, " / ", x$edition, "\n", sep = ""
   )
-  cat(crayon::silver("Version: "), x$version, "\n", sep = "")
+  cat(cli::col_silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$doi)) {
-    cat(crayon::silver("DOI:     "), x$doi, "\n", sep = "")
+    cat(cli::col_silver("DOI:     "), x$doi, "\n", sep = "")
   }
   if (nzchar(x$description)) {
     cat(
-      crayon::silver("Description: "),
-      x$description, "\n",
-      sep = ""
+      cli::col_silver("Description: "),
+      x$description, "\n", sep = ""
     )
   }
 
   # Certification badge
   cert_label <- switch(x$certification$level,
-    "community" = crayon::yellow("community"),
-    "reviewed" = crayon::cyan("reviewed"),
-    "official" = crayon::green("official"),
+    "community" = cli::col_yellow("community"),
+    "reviewed" = cli::col_cyan("reviewed"),
+    "official" = cli::col_green("official"),
     x$certification$level
   )
-  cat(crayon::silver("Certification: "), cert_label, "\n", sep = "")
+  cat(cli::col_silver("Certification: "), cert_label, "\n", sep = "")
 
   if (x$downloads > 0) {
-    cat(crayon::silver("Downloads: "), x$downloads, "\n", sep = "")
+    cat(cli::col_silver("Downloads: "), x$downloads, "\n", sep = "")
   }
 
   # Estimation types
   if (length(x$estimation_type) > 0) {
     cat(
-      crayon::silver("Estimation types: "),
+      cli::col_silver("Estimation types: "),
       paste(x$estimation_type, collapse = ", "),
       "\n",
       sep = ""
@@ -426,7 +424,7 @@ print.RecipeWorkflow <- function(x, ...) {
 
   # Weight configuration
   if (!is.null(x$weight_spec) && length(x$weight_spec) > 0) {
-    cat(crayon::bold(crayon::blue("\n\u2500\u2500 Weights \u2500\u2500\n")))
+    cat(cli::style_bold(cli::col_blue("\n\u2500\u2500 Weights \u2500\u2500\n")))
     for (pname in names(x$weight_spec)) {
       ws <- x$weight_spec[[pname]]
       if (ws$type == "simple") {
@@ -449,7 +447,7 @@ print.RecipeWorkflow <- function(x, ...) {
 
   # Recipe references
   if (length(x$recipe_ids) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Uses Recipes (", length(x$recipe_ids), ") \u2500\u2500\n"
     ))))
     cat("  ", paste(x$recipe_ids, collapse = ", "), "\n", sep = "")
@@ -461,7 +459,7 @@ print.RecipeWorkflow <- function(x, ...) {
       "\n\u2500\u2500 Estimations (",
       length(x$call_metadata), ") \u2500\u2500\n"
     )
-    cat(crayon::bold(crayon::blue(est_hdr)))
+    cat(cli::style_bold(cli::col_blue(est_hdr)))
     for (i in seq_along(x$call_metadata)) {
       cm <- x$call_metadata[[i]]
       type_str <- cm$type %||% "unknown"
@@ -477,7 +475,7 @@ print.RecipeWorkflow <- function(x, ...) {
 
   # Raw calls if no metadata
   if (length(x$call_metadata) == 0 && length(x$calls) > 0) {
-    cat(crayon::bold(crayon::blue(paste0(
+    cat(cli::style_bold(cli::col_blue(paste0(
       "\n\u2500\u2500 Calls (", length(x$calls), ") \u2500\u2500\n"
     ))))
     for (i in seq_along(x$calls)) {

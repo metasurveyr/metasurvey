@@ -49,10 +49,7 @@ validate_weight <- function(svy, weight) {
   }
 
   if (!weight %in% colnames(svy)) {
-    stop(glue_col(
-      "{red Weight {weight} not found in survey}",
-      .literal = TRUE
-    ))
+    stop(cli::col_red(glue("Weight {weight} not found in survey")))
   } else {
     weight
   }
@@ -76,9 +73,8 @@ validate_replicate <- function(svy, replicate) {
     }
 
     if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
-      stop(glue_col(
-        "{red Replicate ID {replicate$replicate_id} not found in survey}",
-        .literal = TRUE
+      stop(cli::col_red(
+        glue("Replicate ID {replicate$replicate_id} not found in survey")
       ))
     }
   }

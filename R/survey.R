@@ -620,7 +620,7 @@ has_design <- function(svy) {
 #' @title get_metadata
 #' @description Get metadata from survey
 #' @keywords survey
-#' @importFrom glue glue glue_col
+#' @importFrom glue glue
 #' @param self Object of class Survey
 #' @return NULL (called for side effect: prints metadata to console).
 #' @examples
@@ -638,40 +638,35 @@ has_design <- function(svy) {
 
 get_metadata <- function(self) {
   if (is(self, "Survey")) {
-    message(
-      glue::glue_col(
-        "
-              {blue Type:} {type}
-              {blue Edition:} {edition}
-              {blue Periodicity:} {periodicity}
-              {blue Engine:} {default_engine}
-              {blue Design:} {design}
-              {blue Steps:} {steps}
-              {blue Recipes:} {names_recipes}
-              ",
-        type = toupper(self$type),
-        edition = if (is.null(self$edition) || identical(self$edition, NA)) {
-          "Unknown"
-        } else if (is(self$edition, "character") || is(self$edition, "numeric")) {
-          self$edition
-        } else {
-          format(self$edition, "%Y-%m")
-        },
-        default_engine = self$default_engine,
-        design = cat_design(self),
-        steps = ifelse(
-          length(self$steps) == 0,
-          "None",
-          paste0(
-            "\n  - ",
-            paste0(names(self$steps), collapse = "\n  - ")
-          )
-        ),
-        periodicity = self$periodicity,
-        names_recipes = cat_recipes(self),
-        .literal = TRUE
+    type <- toupper(self$type)
+    edition <- if (is.null(self$edition) || identical(self$edition, NA)) {
+      "Unknown"
+    } else if (is(self$edition, "character") || is(self$edition, "numeric")) {
+      self$edition
+    } else {
+      format(self$edition, "%Y-%m")
+    }
+    default_engine <- self$default_engine
+    design <- cat_design(self)
+    steps <- ifelse(
+      length(self$steps) == 0,
+      "None",
+      paste0(
+        "\n  - ",
+        paste0(names(self$steps), collapse = "\n  - ")
       )
     )
+    periodicity <- self$periodicity
+    names_recipes <- cat_recipes(self)
+    message(glue::glue(
+      "\n{cli::col_blue('Type:')} {type}",
+      "\n{cli::col_blue('Edition:')} {edition}",
+      "\n{cli::col_blue('Periodicity:')} {periodicity}",
+      "\n{cli::col_blue('Engine:')} {default_engine}",
+      "\n{cli::col_blue('Design:')} {design}",
+      "\n{cli::col_blue('Steps:')} {steps}",
+      "\n{cli::col_blue('Recipes:')} {names_recipes}"
+    ))
 
     invisible(
       list(
@@ -685,65 +680,60 @@ get_metadata <- function(self) {
   }
 
   if (is(self, "RotativePanelSurvey")) {
-    message(
-      glue::glue_col(
-        "
-            {blue Type:} {type} (Rotative Panel)
-            {blue Edition:} {edition}
-            {blue Periodicity:} Implantation: {imp_per}, Follow-up: {fu_per}
-            {blue Engine:} {default_engine}
-            {blue Steps:} {steps}
-            {blue Recipes:} {names_recipes}
-            ",
-        type = toupper(self$type),
-        edition = ifelse(
-          is(self$implantation$edition, "character") ||
-            is(self$implantation$edition, "numeric"),
-          self$implantation$edition,
-          format(self$implantation$edition, "%Y-%m")
-        ),
-        default_engine = self$default_engine,
-        steps = sub(
-          "\n$",
-          "",
+    type <- toupper(self$type)
+    edition <- ifelse(
+      is(self$implantation$edition, "character") ||
+        is(self$implantation$edition, "numeric"),
+      self$implantation$edition,
+      format(self$implantation$edition, "%Y-%m")
+    )
+    default_engine <- self$default_engine
+    steps <- sub(
+      "\n$",
+      "",
+      paste0(
+        if (length(self$get_steps()$implantation) > 0) {
           paste0(
-            if (length(self$get_steps()$implantation) > 0) {
-              paste0(
-                "implantation: (",
-                paste(
-                  names(self$get_steps()$implantation),
-                  collapse = ", "
-                ),
-                ")\n"
-              )
-            } else {
-              ""
-            },
-            if (length(self$get_steps()$follow_up) > 0 &&
-              !is.null(row.names(
-                self$get_steps()$follow_up
-              ))) {
-              paste0(
-                "follow_up: (",
-                paste(
-                  row.names(
-                    self$get_steps()$follow_up
-                  ),
-                  collapse = ", "
-                ),
-                ")\n"
-              )
-            } else {
-              ""
-            }
+            "implantation: (",
+            paste(
+              names(self$get_steps()$implantation),
+              collapse = ", "
+            ),
+            ")\n"
           )
-        ),
-        imp_per = self$periodicity$implantation,
-        fu_per = self$periodicity$follow_up,
-        names_recipes = cat_recipes(self),
-        .literal = TRUE
+        } else {
+          ""
+        },
+        if (length(self$get_steps()$follow_up) > 0 &&
+          !is.null(row.names(
+            self$get_steps()$follow_up
+          ))) {
+          paste0(
+            "follow_up: (",
+            paste(
+              row.names(
+                self$get_steps()$follow_up
+              ),
+              collapse = ", "
+            ),
+            ")\n"
+          )
+        } else {
+          ""
+        }
       )
     )
+    imp_per <- self$periodicity$implantation
+    fu_per <- self$periodicity$follow_up
+    names_recipes <- cat_recipes(self)
+    message(glue::glue(
+      "\n{cli::col_blue('Type:')} {type} (Rotative Panel)",
+      "\n{cli::col_blue('Edition:')} {edition}",
+      "\n{cli::col_blue('Periodicity:')} Implantation: {imp_per}, Follow-up: {fu_per}",
+      "\n{cli::col_blue('Engine:')} {default_engine}",
+      "\n{cli::col_blue('Steps:')} {steps}",
+      "\n{cli::col_blue('Recipes:')} {names_recipes}"
+    ))
 
     invisible(
       list(
@@ -757,65 +747,60 @@ get_metadata <- function(self) {
   }
 
   if (is(self, "PoolSurvey")) {
-    message(
-      glue::glue_col(
-        "
-            {blue Type:} {type}
-            {blue Periodicity:} {red Periodicity of pool} \
-{periodicity} {red each survey} {p_each}
-            {blue Steps:} {steps}
-            {blue Recipes:} {names_recipes}
-            {blue Group:} {groups}
-            ",
-        type = toupper(
-          unique(
-            vapply(
-              self$surveys[[1]],
-              function(x) x[[1]]$type,
-              character(1)
-            )
-          )
-        ),
-        steps = unique(
-          vapply(
-            self$surveys[[1]],
-            function(x) {
-              ifelse(
-                length(x[[1]]$steps) == 0,
-                "None",
-                paste0(
-                  "\n  - ",
-                  paste0(names(x[[1]]$steps), collapse = "\n  - ")
-                )
-              )
-            },
-            character(1)
-          )
-        ),
-        periodicity = names(self$surveys),
-        p_each = tolower(
-          unique(vapply(
-            self$surveys[[1]],
-            function(x) x[[1]]$periodicity,
-            character(1)
-          ))
-        ),
-        names_recipes = unique(
-          vapply(
-            self$surveys[[1]],
-            function(x) cat_recipes(x[[1]]),
-            character(1)
-          )
-        ),
-        groups = Reduce(
-          f = function(x, y) {
-            paste0(x, ", ", y)
-          },
-          names(self$surveys[[1]])
-        ),
-        .literal = TRUE
+    type <- toupper(
+      unique(
+        vapply(
+          self$surveys[[1]],
+          function(x) x[[1]]$type,
+          character(1)
+        )
       )
     )
+    steps <- unique(
+      vapply(
+        self$surveys[[1]],
+        function(x) {
+          ifelse(
+            length(x[[1]]$steps) == 0,
+            "None",
+            paste0(
+              "\n  - ",
+              paste0(names(x[[1]]$steps), collapse = "\n  - ")
+            )
+          )
+        },
+        character(1)
+      )
+    )
+    periodicity <- names(self$surveys)
+    p_each <- tolower(
+      unique(vapply(
+        self$surveys[[1]],
+        function(x) x[[1]]$periodicity,
+        character(1)
+      ))
+    )
+    names_recipes <- unique(
+      vapply(
+        self$surveys[[1]],
+        function(x) cat_recipes(x[[1]]),
+        character(1)
+      )
+    )
+    groups <- Reduce(
+      f = function(x, y) {
+        paste0(x, ", ", y)
+      },
+      names(self$surveys[[1]])
+    )
+    message(glue::glue(
+      "\n{cli::col_blue('Type:')} {type}",
+      "\n{cli::col_blue('Periodicity:')} {cli::col_red('Periodicity of pool')} ",
+      "{periodicity} {cli::col_red('each survey')} {p_each}",
+      "\n{cli::col_blue('Steps:')} {steps}",
+      "\n{cli::col_blue('Recipes:')} {names_recipes}",
+      "\n{cli::col_blue('Group:')} {groups}"
+    ))
 
     invisible(
       list(
@@ -899,13 +884,13 @@ cat_design <- function(self) {
       design_type <- cat_design_type(self, x)
 
       text <- paste0(
-        "\n* ", crayon::red(paste(toupper(x), "ESTIMATION")), "\n",
+        "\n* ", cli::col_red(paste(toupper(x), "ESTIMATION")), "\n",
         "        ", design_type, "\n",
-        "  * ", crayon::green("PSU:"), " ", cluster, "\n",
-        "  * ", crayon::green("Strata:"), " ", strata, "\n",
-        "  * ", crayon::green("Weight:"), " ", weight, "\n",
-        "  * ", crayon::green("FPC:"), " ", fpc, "\n",
-        "  * ", crayon::green("Calibrate formula:"), " ", calibrate.formula
+        "  * ", cli::col_green("PSU:"), " ", cluster, "\n",
+        "  * ", cli::col_green("Strata:"), " ", strata, "\n",
+        "  * ", cli::col_green("Weight:"), " ", weight, "\n",
+        "  * ", cli::col_green("FPC:"), " ", fpc, "\n",
+        "  * ", cli::col_green("Calibrate formula:"), " ", calibrate.formula
       )
 
       return(paste("\n  ", text))
@@ -913,7 +898,7 @@ cat_design <- function(self) {
     character(1)
   )
 
-  output <- glue::glue_col(paste0(output_list, collapse = ""))
+  output <- paste0(output_list, collapse = "")
 
   return(output)
 }
@@ -976,10 +961,10 @@ cat_design_type <- function(self, design_name) {
       design_details$variance_estimation
     )
     return(
-      glue::glue_col(
-        "\n
-        * {green Package:} {package}
-        * {green Variance estimation:} {variance_estimation}",
+      glue::glue(
+        "\n",
+        "\n* {cli::col_green('Package:')} {package}",
+        "\n* {cli::col_green('Variance estimation:')} {variance_estimation}",
         package = design_details$package,
         variance_estimation = variance_estimation
       )
@@ -1014,18 +999,17 @@ cat_recipes <- function(self) {
     x = vapply(
       X = seq_len(n_recipes),
       FUN = function(x) {
-        glue::glue_col(
-          " {green Name:} {self$recipes[[x]]$name}
-                    * {green User:} {self$recipes[[x]]$user}
-                    * {green Id:} {self$recipes[[x]]$id}
-                    * {green DOI:} {doi}
-                    * {green Bake:} {self$recipes[[x]]$bake}
-                ",
-          doi = ifelse(
-            is.null(self$recipes[[x]]$DOI),
-            "None",
-            self$recipes[[x]]$DOI
-          )
+        doi <- ifelse(
+          is.null(self$recipes[[x]]$DOI),
+          "None",
+          self$recipes[[x]]$DOI
+        )
+        paste0(
+          " ", cli::col_green("Name:"), " ", self$recipes[[x]]$name, "\n",
+          "                    * ", cli::col_green("User:"), " ", self$recipes[[x]]$user, "\n",
+          "                    * ", cli::col_green("Id:"), " ", self$recipes[[x]]$id, "\n",
+          "                    * ", cli::col_green("DOI:"), " ", doi, "\n",
+          "                    * ", cli::col_green("Bake:"), " ", self$recipes[[x]]$bake
         )
       },
       FUN.VALUE = character(1)

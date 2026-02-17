@@ -15,7 +15,7 @@
 #' old <- set_engine("data.table")
 #' get_engine()
 #' }
-#' @importFrom glue glue glue_col identity_transformer
+#' @importFrom glue glue
 #' @family options
 #' @export
 
@@ -39,10 +39,7 @@ set_engine <- function(.engine = show_engines()) {
   }
 
   message(
-    glue_col(
-      "{green Engine: {.engine}}",
-      .engine = get_engine()
-    )
+    cli::col_green(glue("Engine: {.engine}", .engine = get_engine()))
   )
 
   engine_name <- get_engine()
@@ -60,7 +57,7 @@ set_engine <- function(.engine = show_engines()) {
 #' List available survey data engines
 #' @description Returns a character vector of available
 #' engines that can be used for loading surveys.
-#' @importFrom glue glue glue_col
+#' @importFrom glue glue
 #' @export
 #' @return Character vector with the names of the available engines.
 #' @examples

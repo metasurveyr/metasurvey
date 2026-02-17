@@ -272,7 +272,7 @@ RecipeRegistry <- R6::R6Class(
     print = function(...) {
       s <- self$stats()
       cat(
-        crayon::bold("RecipeRegistry"),
+        cli::style_bold("RecipeRegistry"),
         paste0("(", s$total, " recipes)\n")
       )
       if (length(s$by_category) > 0) {

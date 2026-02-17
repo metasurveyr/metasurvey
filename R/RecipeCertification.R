@@ -115,11 +115,11 @@ RecipeCertification <- R6::R6Class(
     #' @param ... Additional arguments (not used)
     print = function(...) {
       badge <- switch(self$level,
-        "community" = crayon::yellow("community"),
-        "reviewed" = crayon::cyan("reviewed"),
-        "official" = crayon::green("official")
+        "community" = cli::col_yellow("community"),
+        "reviewed" = cli::col_cyan("reviewed"),
+        "official" = cli::col_green("official")
       )
-      cat(crayon::bold("Certification:"), badge, "\n")
+      cat(cli::style_bold("Certification:"), badge, "\n")
       if (!is.null(self$certified_by)) {
         cat("  Certified by:", self$certified_by$name, "\n")
       }
