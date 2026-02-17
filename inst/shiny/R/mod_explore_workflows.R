@@ -313,11 +313,18 @@ explore_workflows_server <- function(
       if (is.null(wid) || !isTRUE(auth_state$logged_in)) return()
       tryCatch(
         {
-          shiny_star("workflow", wid, value, auth_state$token)
-          shiny::showNotification(
-            paste("Rated", value, "stars"),
-            type = "message", duration = 2
-          )
+          result <- shiny_star("workflow", wid, value, auth_state$token)
+          if (isTRUE(result$ok)) {
+            shiny::showNotification(
+              paste("Rated", value, "stars"),
+              type = "message", duration = 2
+            )
+          } else {
+            shiny::showNotification(
+              paste("Could not save rating:", result$error %||% "Unknown error"),
+              type = "error", duration = 3
+            )
+          }
         },
         error = function(e) {
           shiny::showNotification(
@@ -336,11 +343,18 @@ explore_workflows_server <- function(
       if (!nzchar(trimws(text))) return()
       tryCatch(
         {
-          shiny_add_comment("workflow", wid, text, auth_state$token)
-          shiny::showNotification(
-            "Comment added",
-            type = "message", duration = 2
-          )
+          result <- shiny_add_comment("workflow", wid, text, auth_state$token)
+          if (isTRUE(result$ok)) {
+            shiny::showNotification(
+              "Comment added",
+              type = "message", duration = 2
+            )
+          } else {
+            shiny::showNotification(
+              paste("Could not add comment:", result$error %||% "Unknown error"),
+              type = "error", duration = 3
+            )
+          }
         },
         error = function(e) {
           shiny::showNotification(
@@ -357,11 +371,18 @@ explore_workflows_server <- function(
       if (is.null(cid) || !isTRUE(auth_state$logged_in)) return()
       tryCatch(
         {
-          shiny_delete_comment(cid, auth_state$token)
-          shiny::showNotification(
-            "Comment deleted",
-            type = "message", duration = 2
-          )
+          result <- shiny_delete_comment(cid, auth_state$token)
+          if (isTRUE(result$ok)) {
+            shiny::showNotification(
+              "Comment deleted",
+              type = "message", duration = 2
+            )
+          } else {
+            shiny::showNotification(
+              paste("Could not delete comment:", result$error %||% "Unknown error"),
+              type = "error", duration = 3
+            )
+          }
         },
         error = function(e) {
           shiny::showNotification(

@@ -847,8 +847,8 @@ function(req, res, id) {
 #* @response 200 Returns {ok, value}.
 #* @response 401 Unauthorized.
 function(req, res, id) {
-  auth_err <- require_auth(req, res)
-  if (!is.null(auth_err)) return(auth_err)
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) return(user)
 
   body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
   value <- as.integer(body$value)
@@ -862,14 +862,14 @@ function(req, res, id) {
     {
       db_stars$update(
         query = toJSON(list(
-          user = req$user$sub,
+          user = user$sub,
           target_type = "recipe",
           target_id = id
         ), auto_unbox = TRUE),
         update = toJSON(list(
           `$set` = list(value = value, updated_at = now),
           `$setOnInsert` = list(
-            user = req$user$sub,
+            user = user$sub,
             target_type = "recipe",
             target_id = id,
             created_at = now
@@ -927,8 +927,8 @@ function(req, res, id) {
 #* @response 200 Returns {ok, comment}.
 #* @response 401 Unauthorized.
 function(req, res, id) {
-  auth_err <- require_auth(req, res)
-  if (!is.null(auth_err)) return(auth_err)
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) return(user)
 
   body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
   text <- trimws(body$text %||% "")
@@ -946,8 +946,8 @@ function(req, res, id) {
 
   comment <- list(
     id = comment_id,
-    user = req$user$sub,
-    user_name = req$user$name,
+    user = user$sub,
+    user_name = user$name,
     target_type = "recipe",
     target_id = id,
     text = text,
@@ -1206,8 +1206,8 @@ function(req, res, id) {
 #* @put /workflows/<id>/star
 #* @response 200 Returns {ok, value}.
 function(req, res, id) {
-  auth_err <- require_auth(req, res)
-  if (!is.null(auth_err)) return(auth_err)
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) return(user)
 
   body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
   value <- as.integer(body$value)
@@ -1221,14 +1221,14 @@ function(req, res, id) {
     {
       db_stars$update(
         query = toJSON(list(
-          user = req$user$sub,
+          user = user$sub,
           target_type = "workflow",
           target_id = id
         ), auto_unbox = TRUE),
         update = toJSON(list(
           `$set` = list(value = value, updated_at = now),
           `$setOnInsert` = list(
-            user = req$user$sub,
+            user = user$sub,
             target_type = "workflow",
             target_id = id,
             created_at = now
@@ -1283,8 +1283,8 @@ function(req, res, id) {
 #* @post /workflows/<id>/comments
 #* @response 200 Returns {ok, comment}.
 function(req, res, id) {
-  auth_err <- require_auth(req, res)
-  if (!is.null(auth_err)) return(auth_err)
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) return(user)
 
   body <- tryCatch(jsonlite::fromJSON(req$postBody), error = function(e) list())
   text <- trimws(body$text %||% "")
@@ -1302,8 +1302,8 @@ function(req, res, id) {
 
   comment <- list(
     id = comment_id,
-    user = req$user$sub,
-    user_name = req$user$name,
+    user = user$sub,
+    user_name = user$name,
     target_type = "workflow",
     target_id = id,
     text = text,
@@ -1357,8 +1357,8 @@ function(req, res, id) {
 #* @response 401 Unauthorized.
 #* @response 403 Forbidden — not the comment author.
 function(req, res, comment_id) {
-  auth_err <- require_auth(req, res)
-  if (!is.null(auth_err)) return(auth_err)
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) return(user)
 
   tryCatch(
     {
@@ -1368,7 +1368,7 @@ function(req, res, comment_id) {
         res$status <- 404L
         return(list(error = "Comment not found"))
       }
-      if (existing$user[1] != req$user$sub) {
+      if (existing$user[1] != user$sub) {
         res$status <- 403L
         return(list(error = "You can only delete your own comments"))
       }
