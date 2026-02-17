@@ -1,3 +1,26 @@
+# metasurvey 0.0.18
+
+## New features
+* `step_validate()`: declarative data validation step that checks invariants
+  without mutating data. Supports row-level logical expressions, named checks,
+  `.min_n`, and `.action = "stop"` or `"warn"`.
+* Stars and comments API: users can rate (1-5) and comment on recipes and
+  workflows. New R functions: `api_star_recipe()`, `api_get_recipe_stars()`,
+  `api_comment_recipe()`, `api_get_recipe_comments()`, `api_delete_comment()`,
+  `api_get_recipe_dependents()`, and workflow equivalents.
+* Backlinks: `GET /recipes/:id/dependents` returns recipes that depend on a
+  given recipe via `depends_on_recipes`.
+* Shiny app: star rating widget, comment section, and dependents panel in
+  recipe and workflow detail modals.
+
+## Performance
+* `optimize_steps()` now collapses consecutive independent `step_compute()`
+  calls into single calls with dependency analysis, reducing transpiled step
+  counts.
+
+## Bug fixes
+* Fixed DHS vignette chunk failing when external URL is unreachable.
+
 # metasurvey 0.0.17
 
 ## New features
