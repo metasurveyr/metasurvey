@@ -10,12 +10,13 @@ survey_to_tibble(svy)
 \item{svy}{Survey object}
 }
 \value{
-tibble
+A tibble (\link[tibble:tbl_df-class]{tbl_df}) containing the survey data.
 }
 \description{
 Convert survey to tibble
 }
 \examples{
+\dontshow{if (requireNamespace("tibble", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 dt <- data.table::data.table(
   id = 1:5, age = c(25, 30, 45, 50, 60),
   w = rep(1, 5)
@@ -26,6 +27,7 @@ svy <- Survey$new(
 )
 tbl <- survey_to_tibble(svy)
 class(tbl)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other survey-objects: 

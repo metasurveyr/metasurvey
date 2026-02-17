@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 )
 
 has_eph <- requireNamespace("eph", quietly = TRUE)
-has_casen <- requireNamespace("casen", quietly = TRUE)
 has_pnad <- requireNamespace("PNADcIBGE", quietly = TRUE)
 has_ipumsr <- requireNamespace("ipumsr", quietly = TRUE)
 has_haven <- requireNamespace("haven", quietly = TRUE)
@@ -171,10 +170,9 @@ bundled sample from the Los Rios region.
 
 Install with `remotes::install_github("pachadotdev/casen")`.
 
-```{r casen, eval = requireNamespace("casen", quietly = TRUE)}
-library(casen)
-
-data("casen_2017_los_rios", package = "casen")
+```r
+# Requires: remotes::install_github("pachadotdev/casen")
+data("casen_2017_los_rios")
 dt_casen <- data.table(casen_2017_los_rios)
 
 svy_casen <- Survey$new(
@@ -216,7 +214,7 @@ workflow(
 ```
 
 For the full CASEN microdata, use
-`casen::descargar_casen_github(2017, tempdir())`.
+`descargar_casen_github(2017, tempdir())` from the casen package.
 
 ## PNADc -- Brazil
 
