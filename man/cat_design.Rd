@@ -35,9 +35,11 @@ Output is color-coded for better readability in supporting terminals.
 \donttest{
 library(data.table)
 dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
-svy <- Survey$new(data = dt, edition = "2023", type = "demo",
-                  psu = NULL, engine = "data.table",
-                  weight = add_weight(annual = "w"))
+svy <- Survey$new(
+  data = dt, edition = "2023", type = "demo",
+  psu = NULL, engine = "data.table",
+  weight = add_weight(annual = "w")
+)
 cat_design(svy)
 }
 

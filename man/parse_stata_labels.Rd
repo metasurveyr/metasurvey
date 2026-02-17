@@ -23,7 +23,7 @@ value label assignments from label commands.
 lines <- c(
   'label variable edad "Age in years"',
   'label define sexo_lbl 1 "Male" 2 "Female"',
-  'label values sexo sexo_lbl'
+  "label values sexo sexo_lbl"
 )
 labels <- parse_stata_labels(lines)
 labels$var_labels
