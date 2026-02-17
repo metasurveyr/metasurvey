@@ -1,3 +1,29 @@
+# metasurvey 0.0.16
+
+## Dependencies
+* Migrated `crayon` to `cli` for terminal output coloring. All `crayon::bold()`,
+  `crayon::silver()`, `crayon::green()`, etc. replaced with `cli::style_bold()`,
+  `cli::col_silver()`, `cli::col_green()`, etc. across 8 files.
+* Migrated `httr` to `httr2` for HTTP requests. All API client, ANDA catalog,
+  and Shiny helper functions now use the pipe-based `httr2` API
+  (`request() |> req_headers() |> req_perform()`).
+* Replaced all `glue::glue_col()` calls (which depended on crayon color
+  functions) with `glue::glue()` + `cli::col_*()` wrappers.
+* Removed `bit64` and `jose` (already unused since 0.0.14) from Dockerfile.
+* Removed `casen` from Suggests (GitHub-only package, not available on CRAN).
+* Removed `pak` from Suggests (no longer used in vignettes).
+
+## Bug fixes
+* Fixed international-surveys vignette crash on PNADcIBGE example data:
+  set `options(survey.lonely.psu = "adjust")` for strata with single PSUs.
+* Fixed vignette setup chunk that attempted to install packages at build time
+  via `pak`; replaced with `requireNamespace()` guards.
+* Updated Shiny Dockerfile dependencies to match new imports (httr2, cli).
+
+## Internal
+* Excluded 9 Spanish (`*-es.Rmd`) vignettes from CRAN tarball via
+  `.Rbuildignore` (remain available on pkgdown site).
+
 # metasurvey 0.0.15
 
 ## New features
@@ -20,7 +46,8 @@
 ## Internal
 * Expanded test suite to 2810 tests covering strata support, edge cases
   in STATA transpiler, API client, panel surveys, and recipe system.
-* Added `pak` and survey-related packages to Suggests for vignette builds.
+* Expanded test suite to cover strata support in survey construction and
+  workflow estimation.
 
 # metasurvey 0.0.14
 
