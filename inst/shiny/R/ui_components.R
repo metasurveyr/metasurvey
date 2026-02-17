@@ -1159,8 +1159,10 @@ format_edition <- function(edition) {
 
 # Star rating display for cards (read-only inline)
 star_rating_inline <- function(average, count) {
-  avg <- round(as.numeric(average %||% 0), 1)
-  n <- as.integer(count %||% 0)
+  avg_raw <- average %||% 0
+  avg <- round(as.numeric(if (length(avg_raw) == 0) 0 else avg_raw[[1]]), 1)
+  n_raw <- count %||% 0
+  n <- as.integer(if (length(n_raw) == 0) 0L else n_raw[[1]])
   if (n == 0) return(NULL)
   htmltools::tags$span(
     class = "star-rating-inline",
@@ -1192,9 +1194,12 @@ star_rating_widget <- function(ns, id_prefix,
                                count = 0,
                                user_value = NULL,
                                logged_in = FALSE) {
-  avg <- round(as.numeric(average %||% 0), 1)
-  n <- as.integer(count %||% 0)
-  uv <- as.integer(user_value %||% 0)
+  avg_raw <- average %||% 0
+  avg <- round(as.numeric(if (length(avg_raw) == 0) 0 else avg_raw[[1]]), 1)
+  n_raw <- count %||% 0
+  n <- as.integer(if (length(n_raw) == 0) 0L else n_raw[[1]])
+  uv_raw <- user_value %||% 0
+  uv <- as.integer(if (length(uv_raw) == 0) 0L else uv_raw[[1]])
 
   stars <- lapply(1:5, function(i) {
     filled <- i <= uv
