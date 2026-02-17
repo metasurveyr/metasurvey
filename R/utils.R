@@ -45,11 +45,12 @@ validate_weight <- function(svy, weight) {
   }
 
   if (!is.character(weight)) {
-    stop("Weight must be a character")
+    stop("Weight must be a character", call. = FALSE)
   }
 
   if (!weight %in% colnames(svy)) {
-    stop(cli::col_red(glue("Weight {weight} not found in survey")))
+    stop(cli::col_red(glue::glue("Weight {weight} not found in survey")),
+      call. = FALSE)
   } else {
     weight
   }
@@ -69,13 +70,13 @@ validate_replicate <- function(svy, replicate) {
 
   if (!is.null(replicate$replicate_id)) {
     if (!is.character(replicate$replicate_id)) {
-      stop("Replicate ID must be a character")
+      stop("Replicate ID must be a character", call. = FALSE)
     }
 
     if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
       stop(cli::col_red(
-        glue("Replicate ID {replicate$replicate_id} not found in survey")
-      ))
+        glue::glue("Replicate ID {replicate$replicate_id} not found in survey")
+      ), call. = FALSE)
     }
   }
 
@@ -84,13 +85,13 @@ validate_replicate <- function(svy, replicate) {
 
   if (!is.null(replicate$replicate_pattern)) {
     if (!is.character(replicate$replicate_pattern)) {
-      stop("Replicate pattern must be a character")
+      stop("Replicate pattern must be a character", call. = FALSE)
     }
 
     column_names <- names(replicate_file)
 
     if (!any(grepl(replicate$replicate_pattern, column_names))) {
-      stop("Replicate pattern not found in replicate file")
+      stop("Replicate pattern not found in replicate file", call. = FALSE)
     }
   }
 
@@ -115,7 +116,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
   }
 
   if (!is.list(weight_list)) {
-    stop("Weight time pattern must be a list")
+    stop("Weight time pattern must be a list", call. = FALSE)
   }
 
   Map(
@@ -276,7 +277,7 @@ use_copy_default <- function() {
 #' @keywords utils
 set_use_copy <- function(use_copy) {
   if (!is.logical(use_copy)) {
-    stop("use_copy must be a logical")
+    stop("use_copy must be a logical", call. = FALSE)
   }
 
   old <- getOption("metasurvey.use_copy")
@@ -340,7 +341,7 @@ lazy_default <- function() {
 
 set_lazy_processing <- function(lazy) {
   if (!is.logical(lazy)) {
-    stop("lazy must be a logical")
+    stop("lazy must be a logical", call. = FALSE)
   }
 
   old <- getOption("metasurvey.lazy_processing")
@@ -548,7 +549,8 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
     if (is.null(svy_type)) {
       stop(
         "Both svy_edition and svy_type are NULL. ",
-        "Please provide at least one."
+        "Please provide at least one.",
+        call. = FALSE
       )
     }
     # If no edition but type exists, return type only
@@ -564,7 +566,8 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
   if (is.null(time_pattern$type) && is.null(svy_type)) {
     stop(
       "Type not found. Please provide a valid type ",
-      "in the survey edition or as an argument"
+      "in the survey edition or as an argument",
+      call. = FALSE
     )
   }
 
@@ -572,7 +575,7 @@ validate_time_pattern <- function(svy_type = NULL, svy_edition = NULL) {
 
   if (!is.null(time_pattern$type) &&
     toupper(time_pattern$type) != toupper(svy_type)) {
-    message(
+    metasurvey_msg(
       "Type does not match. Please provide a valid ",
       "type in the survey edition or as an argument"
     )

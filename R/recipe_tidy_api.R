@@ -12,14 +12,14 @@
 #' @param name Character. User or institution name.
 #' @param type Character. One of \code{"individual"} (default),
 #'   \code{"institutional_member"}, or \code{"institution"}.
-#' @param email Character or NULL. Email address.
-#' @param affiliation Character or NULL. Organizational affiliation.
+#' @param email Character or `NULL` (default `NULL`). Email address.
+#' @param affiliation Character or `NULL` (default `NULL`). Organizational affiliation.
 #' @param institution RecipeUser object or character institution name.
 #'   Required for \code{"institutional_member"} type. If a string is provided,
 #'   it creates an institution user with that name
 #'   automatically.
-#' @param url Character or NULL. Institution URL.
-#' @param verified Logical. Whether the account is verified.
+#' @param url Character or `NULL` (default `NULL`). Institution URL.
+#' @param verified Logical (default `FALSE`). Whether the account is verified.
 #'
 #' @return A \code{\link{RecipeUser}} object.
 #'
@@ -75,8 +75,8 @@ recipe_user <- function(name, type = "individual", email = NULL,
 #' @param description Character. Human-readable description.
 #'   Defaults to empty.
 #' @param parent RecipeCategory object or character parent
-#'   category name. If a string is provided, it creates a
-#'   parent category with that name.
+#'   category name (default `NULL`). If a string is provided,
+#'   it creates a parent category with that name.
 #'
 #' @return A \code{\link{RecipeCategory}} object.
 #'
@@ -111,8 +111,9 @@ recipe_category <- function(name, description = "", parent = NULL) {
 #' @param level Character. One of \code{"community"}
 #'   (default), \code{"reviewed"}, or
 #'   \code{"official"}.
-#' @param certified_by RecipeUser or NULL. Required for reviewed/official.
-#' @param notes Character or NULL. Additional notes.
+#' @param certified_by RecipeUser or `NULL` (default `NULL`). Required for
+#'   reviewed/official.
+#' @param notes Character or `NULL` (default `NULL`). Additional notes.
 #'
 #' @return A \code{\link{RecipeCertification}} object.
 #'

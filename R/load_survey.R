@@ -250,7 +250,8 @@ load_panel_survey <- function(
 
   if (length(names(svy_weight_follow_up)) > 1) {
     stop(
-      "The follow-up survey must have a single weight time pattern"
+      "The follow-up survey must have a single weight time pattern",
+      call. = FALSE
     )
   }
 
@@ -448,10 +449,18 @@ read_file <- function(file, .args = NULL, convert = FALSE) {
     csv = list(package = "data.table", read_function = "fread"),
     xlsx = list(package = "openxlsx", read_function = "read.xlsx"),
     rds = list(package = "base", read_function = "readRDS"),
-    stop("Unsupported file type: ", .extension)
+    stop("Unsupported file type: ", .extension, call. = FALSE)
   )
 
-  loadNamespace(.read_function$package)
+  if (!requireNamespace(.read_function$package, quietly = TRUE)) {
+    stop(
+      "Package '", .read_function$package,
+      "' is required to read .", .extension, " files. ",
+      "Please install it with: install.packages('",
+      .read_function$package, "')",
+      call. = FALSE
+    )
+  }
 
   # Use the original file path (not .output_file) unless convert was used
   .actual_file <- if (convert) .output_file else file
@@ -542,7 +551,7 @@ load_survey.data.table <- function(...) {
         recipe_svy_type = single_recipe$survey_type
       )
       if (!index_valid_recipes) {
-        message(
+        metasurvey_msg(
           "Invalid Recipe: \n",
           single_recipe$name
         )

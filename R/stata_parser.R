@@ -19,6 +19,7 @@
 #' length(cmds)
 #' cmds[[1]]$cmd
 #' }
+#' @family transpiler
 #' @export
 parse_do_file <- function(do_file, encoding = "latin1") {
   if (!file.exists(do_file)) {
@@ -511,6 +512,7 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
 #' labels$var_labels
 #' labels$val_labels
 #' }
+#' @family transpiler
 #' @export
 parse_stata_labels <- function(lines) {
   var_labels <- list()

@@ -54,6 +54,11 @@ shiny_api_request <- function(method,
   }
 
   req <- httr2::request(url)
+  ua <- tryCatch(
+    paste0("metasurvey/", utils::packageVersion("metasurvey")),
+    error = function(e) "metasurvey/dev"
+  )
+  req <- httr2::req_user_agent(req, ua)
   req <- httr2::req_headers(req, !!!as.list(headers))
   req <- httr2::req_timeout(req, 10)
   req <- httr2::req_error(req, is_error = function(resp) FALSE)

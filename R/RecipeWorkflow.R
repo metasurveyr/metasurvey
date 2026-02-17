@@ -325,7 +325,7 @@ workflow_from_list <- function(lst) {
 #' save_workflow(wf, f)
 save_workflow <- function(wf, file) {
   if (!inherits(wf, "RecipeWorkflow")) {
-    stop("Can only save RecipeWorkflow objects")
+    stop("Can only save RecipeWorkflow objects", call. = FALSE)
   }
   wf_data <- wf$to_list()
   jsonlite::write_json(
@@ -333,7 +333,7 @@ save_workflow <- function(wf, file) {
     path = file,
     auto_unbox = TRUE, pretty = TRUE
   )
-  message(glue::glue("Workflow saved to {file}"))
+  metasurvey_msg(glue::glue("Workflow saved to {file}"))
 }
 
 #' Read a RecipeWorkflow from a JSON file

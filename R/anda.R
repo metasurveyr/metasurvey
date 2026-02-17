@@ -27,6 +27,7 @@ anda_fetch_ddi <- function(catalog_id,
   }
 
   req <- httr2::request(url)
+  req <- httr2::req_user_agent(req, metasurvey_user_agent())
   req <- httr2::req_options(
     req,
     ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
@@ -38,7 +39,8 @@ anda_fetch_ddi <- function(catalog_id,
   if (httr2::resp_status(resp) != 200) {
     stop(
       "Failed to download DDI from ANDA5 (catalog_id=", catalog_id,
-      "): HTTP ", httr2::resp_status(resp)
+      "): HTTP ", httr2::resp_status(resp),
+      call. = FALSE
     )
   }
 
@@ -60,6 +62,7 @@ anda_catalog_search <- function(keyword = "ECH",
   url <- paste0(base_url, "/index.php/api/catalog/search")
 
   req <- httr2::request(url)
+  req <- httr2::req_user_agent(req, metasurvey_user_agent())
   req <- httr2::req_url_query(req, sk = keyword, ps = limit, format = "json")
   req <- httr2::req_options(
     req,
@@ -70,7 +73,8 @@ anda_catalog_search <- function(keyword = "ECH",
   resp <- httr2::req_perform(req)
 
   if (httr2::resp_status(resp) != 200) {
-    stop("ANDA5 catalog search failed: HTTP ", httr2::resp_status(resp))
+    stop("ANDA5 catalog search failed: HTTP ", httr2::resp_status(resp),
+      call. = FALSE)
   }
 
   body <- httr2::resp_body_json(resp)
@@ -131,7 +135,7 @@ anda_parse_variables <- function(ddi_xml_path) {
   vars <- xml2::xml_find_all(doc, ".//d1:dataDscr/d1:var", ns)
 
   if (length(vars) == 0) {
-    warning("No variables found in DDI file")
+    warning("No variables found in DDI file", call. = FALSE)
     return(list())
   }
 
@@ -271,10 +275,11 @@ anda_download_microdata <- function(edition,
   catalog_id <- .ech_catalog_ids[[as.character(edition)]]
   if (is.null(catalog_id)) {
     avail <- paste(names(.ech_catalog_ids), collapse = ", ")
-    stop("Unknown ECH edition '", edition, "'. Available: ", avail)
+    stop("Unknown ECH edition '", edition, "'. Available: ", avail,
+      call. = FALSE)
   }
 
-  message(
+  metasurvey_msg(
     "Downloading ECH ", edition,
     " from ANDA5 (catalog ", catalog_id, ")..."
   )
@@ -285,6 +290,7 @@ anda_download_microdata <- function(edition,
     catalog_id, "/get-microdata"
   )
   req <- httr2::request(accept_url)
+  req <- httr2::req_user_agent(req, metasurvey_user_agent())
   req <- httr2::req_body_form(req, accept = "1")
   req <- httr2::req_options(
     req,
@@ -297,7 +303,8 @@ anda_download_microdata <- function(edition,
   if (httr2::resp_status(resp) != 200) {
     stop(
       "Failed to access microdata page: HTTP ",
-      httr2::resp_status(resp)
+      httr2::resp_status(resp),
+      call. = FALSE
     )
   }
 
@@ -306,7 +313,7 @@ anda_download_microdata <- function(edition,
   resources <- .anda_parse_resources(page_html, catalog_id)
 
   if (nrow(resources) == 0) {
-    stop("No downloadable resources found for ECH ", edition)
+    stop("No downloadable resources found for ECH ", edition, call. = FALSE)
   }
 
   # Select the appropriate resource(s)
@@ -325,8 +332,9 @@ anda_download_microdata <- function(edition,
       paste0("ech_", edition, "_", rid, "_raw")
     )
 
-    message("  Downloading: ", title)
+    metasurvey_msg("  Downloading: ", title)
     dl_req <- httr2::request(dl_url)
+    dl_req <- httr2::req_user_agent(dl_req, metasurvey_user_agent())
     dl_req <- httr2::req_options(
       dl_req,
       ssl_verifypeer = getOption("metasurvey.ssl_verify", TRUE)
@@ -338,12 +346,13 @@ anda_download_microdata <- function(edition,
     if (httr2::resp_status(dl_resp) != 200) {
       stop(
         "Failed to download '", title,
-        "': HTTP ", httr2::resp_status(dl_resp)
+        "': HTTP ", httr2::resp_status(dl_resp),
+        call. = FALSE
       )
     }
 
     file_size <- file.info(dest_raw)$size
-    message(sprintf(
+    metasurvey_msg(sprintf(
       "  Done: %.1f MB", file_size / 1024 / 1024
     ))
 
@@ -401,7 +410,8 @@ anda_download_microdata <- function(edition,
         if (length(idx) == 0) {
           stop(
             "No implantation file found for ECH ", edition,
-            ". Available: ", paste(resources$title, collapse = ", ")
+            ". Available: ", paste(resources$title, collapse = ", "),
+            call. = FALSE
           )
         }
         resources[idx[1], , drop = FALSE]
@@ -434,7 +444,8 @@ anda_download_microdata <- function(edition,
       if (length(idx) == 0) {
         stop(
           "No monthly files found for ECH ", edition,
-          ". Monthly data is available from 2022 onwards."
+          ". Monthly data is available from 2022 onwards.",
+          call. = FALSE
         )
       }
       resources[idx, , drop = FALSE]
@@ -445,7 +456,7 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No annual bootstrap weights found for ECH ", edition)
+        stop("No annual bootstrap weights found for ECH ", edition, call. = FALSE)
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -455,7 +466,7 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No monthly bootstrap weights found for ECH ", edition)
+        stop("No monthly bootstrap weights found for ECH ", edition, call. = FALSE)
       }
       resources[idx, , drop = FALSE]
     },
@@ -465,7 +476,7 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No quarterly bootstrap weights found for ECH ", edition)
+        stop("No quarterly bootstrap weights found for ECH ", edition, call. = FALSE)
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -475,7 +486,7 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No semestral bootstrap weights found for ECH ", edition)
+        stop("No semestral bootstrap weights found for ECH ", edition, call. = FALSE)
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -484,7 +495,7 @@ anda_download_microdata <- function(edition,
         "microdatos_lp|linea.*pobreza", titles_lower
       )
       if (length(idx) == 0) {
-        stop("No poverty line data found for ECH ", edition)
+        stop("No poverty line data found for ECH ", edition, call. = FALSE)
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -610,7 +621,7 @@ anda_download_microdata <- function(edition,
     return(extracted[1])
   }
 
-  stop("Extracted archive was empty for ECH ", label)
+  stop("Extracted archive was empty for ECH ", label, call. = FALSE)
 }
 
 #' Query ANDA variable metadata from the API

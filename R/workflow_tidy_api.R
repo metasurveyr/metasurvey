@@ -23,7 +23,8 @@ search_workflows <- function(query) {
 #'
 #' Get the top workflows ranked by download count.
 #'
-#' @param n Integer. Maximum number to return, or NULL for all.
+#' @param n Integer or `NULL` (default `NULL`). Maximum number to return,
+#'   or `NULL` for all.
 #' @return List of RecipeWorkflow objects sorted by downloads.
 #'
 #' @examples
@@ -43,11 +44,12 @@ rank_workflows <- function(n = NULL) {
 #' Filter workflows in the active backend by survey type, edition, recipe ID,
 #' or certification level.
 #'
-#' @param survey_type Character survey type or NULL.
-#' @param edition Character edition or NULL.
-#' @param recipe_id Character recipe ID or NULL (find
-#'   workflows using this recipe).
-#' @param certification_level Character certification level or NULL.
+#' @param survey_type Character survey type or `NULL` (default `NULL`).
+#' @param edition Character edition or `NULL` (default `NULL`).
+#' @param recipe_id Character recipe ID or `NULL` (default `NULL`). Find
+#'   workflows using this recipe.
+#' @param certification_level Character certification level or `NULL`
+#'   (default `NULL`).
 #' @return List of matching RecipeWorkflow objects.
 #'
 #' @examples

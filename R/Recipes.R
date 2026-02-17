@@ -355,7 +355,8 @@ Recipe <- R6Class("Recipe",
             "Recipe '%s' requires variables not present in survey: %s",
             self$name,
             paste(missing_vars, collapse = ", ")
-          )
+          ),
+          call. = FALSE
         )
       }
 
@@ -427,8 +428,7 @@ metadata_recipe <- function() {
 #'
 #' \donttest{
 #' # Recipe with steps using local data
-#' library(data.table)
-#' dt <- data.table(
+#' dt <- data.table::data.table(
 #'   id = 1:50, age = sample(18:65, 50, TRUE),
 #'   income = runif(50, 1000, 5000), w = runif(50, 0.5, 2)
 #' )
@@ -612,7 +612,7 @@ save_recipe <- function(recipe, file) {
       auto_unbox = TRUE, pretty = TRUE
     )
 
-  message(
+  metasurvey_msg(
     glue::glue("The recipe has been saved in {file}")
   )
 }
@@ -894,11 +894,11 @@ get_recipe <- function(
       )
 
       if (length(recipes) == 0) {
-        message("The API returned no recipes for the specified criteria")
+        metasurvey_msg("The API returned no recipes for the specified criteria")
         return(NULL)
       }
 
-      message(glue::glue("The API returned {length(recipes)} recipes"))
+      metasurvey_msg(glue::glue("The API returned {length(recipes)} recipes"))
 
       if (!allowMultiple) {
         return(recipes[[1]])
@@ -935,8 +935,7 @@ get_recipe <- function(
 #' @keywords recipe
 #' @examples
 #' \donttest{
-#' library(data.table)
-#' dt <- data.table(
+#' dt <- data.table::data.table(
 #'   id = 1:20, age = sample(18:65, 20, TRUE),
 #'   w = runif(20, 0.5, 2)
 #' )

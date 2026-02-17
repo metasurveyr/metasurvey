@@ -141,7 +141,8 @@ validate_step <- function(svy, step) {
       paste0(
         "The following variables are not in the survey: ",
         paste(missing_vars, collapse = ", ")
-      )
+      ),
+      call. = FALSE
     )
   } else {
     return(TRUE)
@@ -321,7 +322,7 @@ bake_steps <- function(svy) {
     return(bake_steps_rotative(svy))
   }
 
-  stop("The object is not a Survey or RotativePanelSurvey object")
+  stop("The object is not a Survey or RotativePanelSurvey object", call. = FALSE)
 }
 
 #' Bake steps survey rotative

@@ -40,7 +40,8 @@ RecipeCertification <- R6::R6Class(
         !(level %in% valid_levels)) {
         stop(
           "level must be one of: ",
-          paste(valid_levels, collapse = ", ")
+          paste(valid_levels, collapse = ", "),
+          call. = FALSE
         )
       }
 
@@ -49,7 +50,8 @@ RecipeCertification <- R6::R6Class(
           certified_by$user_type != "institution") {
           stop(
             "official certification requires a ",
-            "RecipeUser of type 'institution'"
+            "RecipeUser of type 'institution'",
+            call. = FALSE
           )
         }
       }
@@ -61,7 +63,8 @@ RecipeCertification <- R6::R6Class(
           stop(
             "reviewed certification requires a ",
             "RecipeUser of type 'institutional_member' ",
-            "or 'institution'"
+            "or 'institution'",
+            call. = FALSE
           )
         }
       }

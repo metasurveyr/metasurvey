@@ -21,7 +21,7 @@ RecipeRegistry <- R6::R6Class(
     #' @param recipe Recipe object to register
     register = function(recipe) {
       if (!inherits(recipe, "Recipe")) {
-        stop("Can only register Recipe objects")
+        stop("Can only register Recipe objects", call. = FALSE)
       }
       id <- as.character(recipe$id)
       private$.recipes[[id]] <- recipe

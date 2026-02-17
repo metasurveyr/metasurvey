@@ -43,6 +43,7 @@ SKIP_COMMANDS <- c(
 #' result$steps
 #' result$stats
 #' }
+#' @family transpiler
 #' @export
 transpile_stata <- function(do_file, survey_type = "ech",
                             user = "iecon", strict = FALSE) {
@@ -81,6 +82,7 @@ transpile_stata <- function(do_file, survey_type = "ech",
 #' recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
 #' names(recipes)
 #' }
+#' @family transpiler
 #' @export
 transpile_stata_module <- function(year_dir, year, user = "iecon",
                                    output_dir = NULL) {
@@ -273,7 +275,7 @@ transpile_stata_module <- function(year_dir, year, user = "iecon",
   }
 
   if (length(all_warnings) > 0) {
-    message(sprintf(
+    metasurvey_msg(sprintf(
       paste0(
         "Transpilation completed with %d MANUAL_REVIEW items. ",
         "Use $warnings to see them."
@@ -1160,6 +1162,7 @@ filter_labels <- function(labels, vars) {
 #' writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 #' transpile_coverage(tf)
 #' }
+#' @family transpiler
 #' @export
 transpile_coverage <- function(path, recursive = TRUE) {
   if (dir.exists(path)) {

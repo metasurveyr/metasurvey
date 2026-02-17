@@ -122,6 +122,15 @@ print.metasurvey_provenance <- function(x, ...) {
 #'
 #' @return JSON string (invisibly if `path` is provided).
 #'
+#' @examples
+#' svy <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = rep(1, 5)),
+#'   edition = "2023", type = "test",
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' prov <- provenance(svy)
+#' provenance_to_json(prov)
+#'
 #' @family provenance
 #' @export
 provenance_to_json <- function(prov, path = NULL) {
@@ -146,6 +155,19 @@ provenance_to_json <- function(prov, path = NULL) {
 #' @param prov2 Second provenance list.
 #'
 #' @return A `metasurvey_provenance_diff` list with detected differences.
+#'
+#' @examples
+#' svy1 <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = rep(1, 5)),
+#'   edition = "2023", type = "test",
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' svy2 <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = rep(2, 5)),
+#'   edition = "2024", type = "test",
+#'   engine = "data.table", weight = add_weight(annual = "w")
+#' )
+#' provenance_diff(provenance(svy1), provenance(svy2))
 #'
 #' @family provenance
 #' @export
@@ -188,6 +210,14 @@ provenance_diff <- function(prov1, prov2) {
 }
 
 
+#' Print provenance diff
+#'
+#' @param x A `metasurvey_provenance_diff` list.
+#' @param ... Additional arguments (unused).
+#'
+#' @return Invisibly returns `x`.
+#'
+#' @family provenance
 #' @export
 print.metasurvey_provenance_diff <- function(x, ...) {
   cli::cat_rule("Provenance Diff")

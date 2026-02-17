@@ -42,7 +42,7 @@ explore_recipes <- function(port = NULL,
   }
   app_dir <- system.file("shiny", package = "metasurvey")
   if (app_dir == "") {
-    stop("Shiny app not found. Reinstall metasurvey.")
+    stop("Shiny app not found. Reinstall metasurvey.", call. = FALSE)
   }
   shiny::runApp(
     app_dir,

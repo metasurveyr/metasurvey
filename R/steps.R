@@ -16,8 +16,8 @@ compute <- function(svy, ..., .by = NULL,
       .data <- get_data(.clone)
     }
 
-    if (!is(.dots, "call") & !is(.dots, "name") &
-      !is(.dots, "numeric") & !is(.dots, "logical")) {
+    if (!is(.dots, "call") && !is(.dots, "name") &&
+      !is(.dots, "numeric") && !is(.dots, "logical")) {
       .exprs <- list()
       for (i in seq.int(2L, length(.dots))) {
         .exprs <- c(.exprs, .dots[[i]])
@@ -212,10 +212,10 @@ filter_rows <- function(svy, ..., .by = NULL,
 #' @param comment Descriptive text for the step for
 #'   documentation and traceability. Compatible with
 #'   Markdown syntax. Defaults to "Compute step"
-#' @param .level For RotativePanelSurvey objects,
+#' @param .level For RotativePanelSurvey objects (default `"auto"`),
 #'   specifies the level where computations are
-#'   applied: "implantation", "follow_up", "quarter",
-#'   "month", or "auto"
+#'   applied: `"implantation"`, `"follow_up"`, `"quarter"`,
+#'   `"month"`, or `"auto"`
 #'
 #' @return Same type of input object (`Survey` or `RotativePanelSurvey`)
 #'   with new computed variables and the step added to the history
@@ -338,7 +338,7 @@ step_compute <- function(
       }
       return(.svy_after)
     } else {
-      message("No new variable created: ", substitute(list(...)))
+      metasurvey_msg("No new variable created: ", substitute(list(...)))
       return(svy)
     }
   } else {
@@ -478,10 +478,10 @@ step_compute_rotative <- function(
 #' @param .to_factor Logical indicating whether the
 #'   new variable should be converted to a factor.
 #'   Defaults to FALSE
-#' @param .level For RotativePanelSurvey objects,
+#' @param .level For RotativePanelSurvey objects (default `"auto"`),
 #'   specifies the level where recoding is applied:
-#'   "implantation", "follow_up", "quarter",
-#'   "month", or "auto"
+#'   `"implantation"`, `"follow_up"`, `"quarter"`,
+#'   `"month"`, or `"auto"`
 #'
 #' @return Same type of input object (`Survey` or `RotativePanelSurvey`)
 #'   with the new recoded variable and the step added to the history
@@ -846,7 +846,9 @@ get_comments <- function(steps) {
 #'   from `svy` and `x` respectively. Defaults to c("", ".y")
 #' @param .copy Whether to operate on a copy (default: use_copy_default())
 #' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
-#' @param comment Optional description for the step
+#' @param comment Optional description for the step (default `"Join step"`).
+#' @param lazy Internal. Whether to delay execution (default `lazy_default()`).
+#' @param record Internal. Whether to record the step (default `TRUE`).
 #'
 #' @return Modified survey object with the join
 #'   recorded as a step (and applied immediately
@@ -873,8 +875,6 @@ get_comments <- function(steps) {
 #' s3 <- step_join(s, s_right, by = c("id" = "id"), type = "inner")
 #' s3 <- bake_steps(s3)
 #'
-#' @param lazy Internal. Whether to delay execution.
-#' @param record Internal. Whether to record the step.
 #' @keywords step
 #' @family steps
 #' @export
@@ -899,7 +899,7 @@ step_join <- function(
   # Normalize RHS data source
   rhs_data <- if (methods::is(x, "Survey")) get_data(x) else x
   if (!is.data.frame(rhs_data)) {
-    stop("x must be a data.frame/data.table or a Survey")
+    stop("x must be a data.frame/data.table or a Survey", call. = FALSE)
   }
 
   # RotativePanelSurvey: apply to implantation and each follow_up
@@ -935,7 +935,7 @@ step_join <- function(
   if (is.null(by)) {
     common <- intersect(names(lhs_data), names(rhs_data))
     if (length(common) == 0) {
-      stop("Cannot infer join keys: no common columns")
+      stop("Cannot infer join keys: no common columns", call. = FALSE)
     }
     by.x <- by.y <- common
   } else {
@@ -955,13 +955,13 @@ step_join <- function(
     stop(sprintf(
       "Join keys not found in survey: %s",
       paste(miss_x, collapse = ", ")
-    ))
+    ), call. = FALSE)
   }
   if (length(miss_y) > 0) {
     stop(sprintf(
       "Join keys not found in x: %s",
       paste(miss_y, collapse = ", ")
-    ))
+    ), call. = FALSE)
   }
 
   # Prepare RHS: resolve name conflicts (excluding join keys)
@@ -1063,8 +1063,10 @@ step_join <- function(
 #'   Alternative to `...` for programmatic use.
 #' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
 #' @param comment Descriptive text for the step for
-#'   documentation and traceability. Defaults to "Remove variables"
+#'   documentation and traceability (default `"Remove variables"`).
 #' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
+#' @param lazy Internal. Whether to delay execution (default `lazy_default()`).
+#' @param record Internal. Whether to record the step (default `TRUE`).
 #' @return Survey object with the specified variables
 #'   removed (or queued for removal).
 #'
@@ -1090,8 +1092,6 @@ step_join <- function(
 #' svy2 <- step_remove(svy, age)
 #' svy2 <- bake_steps(svy2)
 #' "age" %in% names(get_data(svy2)) # FALSE
-#' @param lazy Internal. Whether to delay execution.
-#' @param record Internal. Whether to record the step.
 #' @family steps
 #' @export
 step_remove <- function(
@@ -1113,7 +1113,7 @@ step_remove <- function(
     if (is.character(vars)) {
       var_names <- vars
     } else {
-      stop("'vars' must be a character vector of variable names")
+      stop("'vars' must be a character vector of variable names", call. = FALSE)
     }
   } else {
     dots_list <- as.list(substitute(list(...)))[-1]
@@ -1170,7 +1170,7 @@ step_remove <- function(
     warning(sprintf(
       "Variables not found and cannot be removed: %s",
       paste(missing, collapse = ", ")
-    ))
+    ), call. = FALSE)
   }
 
   # Apply change only if not lazy
@@ -1219,8 +1219,10 @@ step_remove <- function(
 #'   programmatic use.
 #' @param .copy Whether to operate on a copy (default: `use_copy_default()`)
 #' @param comment Descriptive text for the step for
-#'   documentation and traceability. Defaults to "Rename variables"
+#'   documentation and traceability (default `"Rename variables"`).
 #' @param use_copy `r lifecycle::badge("deprecated")` Use `.copy` instead.
+#' @param lazy Internal. Whether to delay execution (default `lazy_default()`).
+#' @param record Internal. Whether to record the step (default `TRUE`).
 #' @return Survey object with the specified variables
 #'   renamed (or queued for renaming).
 #'
@@ -1246,8 +1248,6 @@ step_remove <- function(
 #' svy2 <- step_rename(svy, edad = age)
 #' svy2 <- bake_steps(svy2)
 #' "edad" %in% names(get_data(svy2)) # TRUE
-#' @param lazy Internal. Whether to delay execution.
-#' @param record Internal. Whether to record the step.
 #' @family steps
 #' @export
 step_rename <- function(
@@ -1266,7 +1266,8 @@ step_rename <- function(
   # Build mapping new -> old
   if (!is.null(mapping)) {
     if (is.null(names(mapping)) || !is.character(mapping)) {
-      stop("'mapping' must be a named character vector: new_name = old_name")
+      stop("'mapping' must be a named character vector: new_name = old_name",
+        call. = FALSE)
     }
     map <- mapping
   } else {
@@ -1327,7 +1328,7 @@ step_rename <- function(
     stop(sprintf(
       "Variables to rename not found: %s",
       paste(missing, collapse = ", ")
-    ))
+    ), call. = FALSE)
   }
 
   # Apply change only if not lazy
@@ -1401,7 +1402,7 @@ get_type_step <- function(steps) {
 #' @param .copy Whether to operate on a copy (default:
 #'   \code{use_copy_default()})
 #' @param comment Descriptive text for the step for documentation
-#'   and traceability.
+#'   and traceability (default `"Validate step"`).
 #' @return The survey object with a validate step recorded (no data
 #'   mutation).
 #'
@@ -1514,9 +1515,9 @@ step_validate <- function(
 #'   return a logical vector. Multiple conditions are combined with AND.
 #' @param .by Optional grouping variable(s) for within-group filtering.
 #' @param .copy Whether to operate on a copy (default: [use_copy_default()]).
-#' @param comment Descriptive text for the step.
-#' @param .level For [RotativePanelSurvey], the level to apply:
-#'   `"implantation"`, `"follow_up"`, or `"auto"` (both).
+#' @param comment Descriptive text for the step (default `"Filter step"`).
+#' @param .level For [RotativePanelSurvey], the level to apply
+#'   (default `"auto"`): `"implantation"`, `"follow_up"`, or `"auto"` (both).
 #'
 #' @return The survey object with rows filtered and the step recorded.
 #'
@@ -2167,7 +2168,7 @@ new_step <- function(id = 1, name, description,
                      new_var = NULL, ...) {
   if (type == "recode") {
     if (is.null(new_var)) {
-      stop("new_var is required for recode")
+      stop("new_var is required for recode", call. = FALSE)
     }
   }
 

@@ -80,7 +80,7 @@ RotativePanelSurvey <- R6Class(
       )
 
       if (length(unique(follow_up_types)) > 1) {
-        stop("All follow-up surveys must have the same type")
+        stop("All follow-up surveys must have the same type", call. = FALSE)
       }
 
       self$periodicity <- list(
@@ -277,7 +277,7 @@ extract_surveys <- function(RotativePanelSurvey,
       "At least one interval argument must be ",
       "different from NULL. ",
       "Returning the implantation survey."
-    ))
+    ), call. = FALSE)
     annual <- 1
   }
 
@@ -288,7 +288,7 @@ extract_surveys <- function(RotativePanelSurvey,
     stop(paste0(
       "The `RotativeSurvey` argument must be an ",
       "object of class `RotativePanelSurvey`"
-    ))
+    ), call. = FALSE)
   }
 
   follow_up <- RotativePanelSurvey$follow_up
@@ -498,31 +498,22 @@ PoolSurvey <- R6Class(
 #' - Evaluation of sampling design quality
 #'
 #' @examples
-#' \dontrun{
-#' # Load ECH rotating panel
-#' panel_ech <- load_panel_survey(
-#'   path = "ech_panel_2023.dta",
-#'   svy_type = "ech_panel",
-#'   svy_edition = "2023"
+#' impl <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#'
-#' # Get implantation survey
-#' ech_baseline <- get_implantation(panel_ech)
-#'
-#' # Check implantation characteristics
-#' cat("Implantation sample size:", nrow(ech_baseline$data))
-#' cat("Available variables:", ncol(ech_baseline$data))
-#'
-#' # Use in baseline analysis
-#' baseline_stats <- workflow(
-#'   survey = ech_baseline,
-#'   svymean(~activity_rate, na.rm = TRUE),
-#'   estimation_type = "baseline"
+#' fu <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023_01", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#'
-#' # Compare with follow-up
-#' followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-#' }
+#' panel <- RotativePanelSurvey$new(
+#'   implantation = impl, follow_up = list(fu),
+#'   type = "test", default_engine = "data.table",
+#'   steps = list(), recipes = list(), workflows = list(), design = NULL
+#' )
+#' get_implantation(panel)
 #'
 #' @seealso
 #' \code{\link{get_follow_up}} for obtaining follow-up surveys
@@ -586,42 +577,28 @@ get_implantation <- function(RotativePanelSurvey) {
 #' - Each follow-up maintains methodological consistency with implantation
 #'
 #' @examples
-#' \dontrun{
-#' # Load rotating panel
-#' panel_ech <- load_panel_survey(
-#'   path = "ech_panel_2023.dta",
-#'   svy_type = "ech_panel",
-#'   svy_edition = "2023"
+#' impl <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#'
-#' # Get first follow-up survey
-#' followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-#'
-#' # Get multiple follow-ups
-#' followups_q1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
-#'
-#' # Get all available follow-ups
-#' all_followups <- get_follow_up(panel_ech)
-#'
-#' # Check number of available follow-ups
-#' n_followups <- length(get_follow_up(panel_ech))
-#' cat("Available follow-ups:", n_followups)
-#'
-#' # Longitudinal analysis with follow-ups
-#' baseline <- get_implantation(panel_ech)
-#' final_followup <- get_follow_up(panel_ech, index = n_followups)[[1]]
-#'
-#' # Compare rates between implantation and final follow-up
-#' initial_rate <- workflow(
-#'   survey = baseline,
-#'   svymean(~unemployment_rate, na.rm = TRUE)
+#' fu1 <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023_01", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#'
-#' final_rate <- workflow(
-#'   survey = final_followup,
-#'   svymean(~unemployment_rate, na.rm = TRUE)
+#' fu2 <- Survey$new(
+#'   data = data.table::data.table(id = 1:5, w = 1),
+#'   edition = "2023_02", type = "test", psu = NULL,
+#'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#' }
+#' panel <- RotativePanelSurvey$new(
+#'   implantation = impl, follow_up = list(fu1, fu2),
+#'   type = "test", default_engine = "data.table",
+#'   steps = list(), recipes = list(), workflows = list(), design = NULL
+#' )
+#' get_follow_up(panel, index = 1)
+#' get_follow_up(panel)
 #'
 #' @seealso
 #' \code{\link{get_implantation}} for obtaining the implantation survey

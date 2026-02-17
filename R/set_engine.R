@@ -38,8 +38,8 @@ set_engine <- function(.engine = show_engines()) {
     )
   }
 
-  message(
-    cli::col_green(glue("Engine: {.engine}", .engine = get_engine()))
+  metasurvey_msg(
+    cli::col_green(glue::glue("Engine: {.engine}", .engine = get_engine()))
   )
 
   engine_name <- get_engine()

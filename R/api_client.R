@@ -98,7 +98,7 @@ configure_api <- function(url) {
   url <- sub("/$", "", url)
   old <- getOption("metasurvey.api_url")
   options(metasurvey.api_url = url)
-  message("API configured: ", url)
+  metasurvey_msg("API configured: ", url)
   invisible(old)
 }
 
@@ -155,6 +155,7 @@ api_request <- function(endpoint, method = "GET",
 
   # Build request
   req <- httr2::request(url)
+  req <- httr2::req_user_agent(req, metasurvey_user_agent())
   req <- httr2::req_headers(req, !!!as.list(headers))
   req <- httr2::req_timeout(req, 15)
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
@@ -247,7 +248,7 @@ api_register <- function(name, email, password,
 
   if (!is.null(result$token)) {
     store_token(result$token)
-    message("Registered and logged in as: ", email)
+    metasurvey_msg("Registered and logged in as: ", email)
   }
   invisible(result)
 }
@@ -272,7 +273,7 @@ api_login <- function(email, password) {
 
   if (!is.null(result$token)) {
     store_token(result$token)
-    message("Logged in as: ", email)
+    metasurvey_msg("Logged in as: ", email)
   }
   invisible(result)
 }
@@ -309,7 +310,7 @@ api_refresh_token <- function() {
   )
   if (!is.null(result) && !is.null(result$token)) {
     store_token(result$token)
-    message("Token refreshed successfully.")
+    metasurvey_msg("Token refreshed successfully.")
     return(invisible(result$token))
   }
   invisible(NULL)
@@ -326,7 +327,7 @@ api_refresh_token <- function() {
 #' @family api-auth
 api_logout <- function() {
   options(metasurvey.api_token = NULL)
-  message("Logged out.")
+  metasurvey_msg("Logged out.")
   invisible(NULL)
 }
 
@@ -450,7 +451,7 @@ api_publish_recipe <- function(recipe) {
     method = "POST", body = recipe$to_list()
   )
   if (isTRUE(result$ok)) {
-    message("Recipe published: ", result$id)
+    metasurvey_msg("Recipe published: ", result$id)
   }
   invisible(result)
 }
@@ -567,7 +568,7 @@ api_publish_workflow <- function(workflow) {
     body = workflow$to_list()
   )
   if (isTRUE(result$ok)) {
-    message("Workflow published: ", result$id)
+    metasurvey_msg("Workflow published: ", result$id)
   }
   invisible(result)
 }

@@ -28,7 +28,8 @@ RecipeBackend <- R6::R6Class(
       if (!(type %in% valid_types)) {
         stop(
           "Backend type must be one of: ",
-          paste(valid_types, collapse = ", ")
+          paste(valid_types, collapse = ", "),
+          call. = FALSE
         )
       }
       self$type <- type

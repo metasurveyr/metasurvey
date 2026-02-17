@@ -366,7 +366,7 @@ Survey <- R6Class(
       data_now <- self$get_data()
 
       if (length(self$design) != length(weight_list)) {
-        warning("Design length mismatch, reinitializing design")
+        warning("Design length mismatch, reinitializing design", call. = FALSE)
         self$design_initialized <- FALSE
         self$ensure_design()
       }
@@ -455,10 +455,12 @@ survey_to_tibble <- function(svy) {
   tibble::as_tibble(svy$get_data())
 }
 
-#' @title survey_to_data.table
-#' @keywords survey
-#' @description Convert survey to data.table
-#' @param svy Survey object
+#' Convert survey to data.table
+#'
+#' Extracts the survey microdata as a `data.table`.
+#'
+#' @param svy Survey object.
+#' @return A `data.table`.
 #' @examples
 #' dt <- data.table::data.table(
 #'   id = 1:5, age = c(25, 30, 45, 50, 60),
@@ -468,15 +470,23 @@ survey_to_tibble <- function(svy) {
 #'   data = dt, edition = "2023", type = "ech",
 #'   psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#' result <- survey_to_data.table(svy)
+#' result <- survey_to_datatable(svy)
 #' data.table::is.data.table(result) # TRUE
 #' @family survey-objects
+#' @keywords survey
 #' @export
 #' @importFrom data.table data.table
-#' @return data.table
-
-survey_to_data.table <- function(svy) {
+survey_to_datatable <- function(svy) {
   data.table::data.table(svy$get_data())
+}
+
+#' @rdname survey_to_datatable
+#' @export
+survey_to_data.table <- function(svy) {
+  lifecycle::deprecate_warn(
+    "0.0.20", "survey_to_data.table()", "survey_to_datatable()"
+  )
+  survey_to_datatable(svy)
 }
 
 #' @title get_data
@@ -495,7 +505,7 @@ survey_to_data.table <- function(svy) {
 #' head(get_data(svy))
 #' @family survey-objects
 #' @export
-#' @return Data
+#' @return A `data.table` (or `data.frame`) containing the survey microdata.
 
 get_data <- function(svy) {
   svy$get_data()
@@ -687,7 +697,7 @@ get_metadata <- function(self) {
     )
     periodicity <- self$periodicity
     names_recipes <- cat_recipes(self)
-    message(glue::glue(
+    cat(glue::glue(
       "\n{cli::col_blue('Type:')} {type}",
       "\n{cli::col_blue('Edition:')} {edition}",
       "\n{cli::col_blue('Periodicity:')} {periodicity}",
@@ -695,7 +705,7 @@ get_metadata <- function(self) {
       "\n{cli::col_blue('Design:')} {design}",
       "\n{cli::col_blue('Steps:')} {steps}",
       "\n{cli::col_blue('Recipes:')} {names_recipes}"
-    ))
+    ), "\n")
 
     invisible(
       list(
@@ -755,14 +765,14 @@ get_metadata <- function(self) {
     imp_per <- self$periodicity$implantation
     fu_per <- self$periodicity$follow_up
     names_recipes <- cat_recipes(self)
-    message(glue::glue(
+    cat(glue::glue(
       "\n{cli::col_blue('Type:')} {type} (Rotative Panel)",
       "\n{cli::col_blue('Edition:')} {edition}",
       "\n{cli::col_blue('Periodicity:')} Implantation: {imp_per}, Follow-up: {fu_per}",
       "\n{cli::col_blue('Engine:')} {default_engine}",
       "\n{cli::col_blue('Steps:')} {steps}",
       "\n{cli::col_blue('Recipes:')} {names_recipes}"
-    ))
+    ), "\n")
 
     invisible(
       list(
@@ -822,14 +832,14 @@ get_metadata <- function(self) {
       },
       names(self$surveys[[1]])
     )
-    message(glue::glue(
+    cat(glue::glue(
       "\n{cli::col_blue('Type:')} {type}",
       "\n{cli::col_blue('Periodicity:')} {cli::col_red('Periodicity of pool')} ",
       "{periodicity} {cli::col_red('each survey')} {p_each}",
       "\n{cli::col_blue('Steps:')} {steps}",
       "\n{cli::col_blue('Recipes:')} {names_recipes}",
       "\n{cli::col_blue('Group:')} {groups}"
-    ))
+    ), "\n")
 
     invisible(
       list(
@@ -869,8 +879,7 @@ get_metadata <- function(self) {
 #'
 #' @examples
 #' \donttest{
-#' library(data.table)
-#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' dt <- data.table::data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
 #' svy <- Survey$new(
 #'   data = dt, edition = "2023", type = "demo",
 #'   psu = NULL, engine = "data.table",
@@ -946,8 +955,7 @@ cat_design <- function(self) {
 #' @return Character string describing the design type, or "None".
 #' @examples
 #' \donttest{
-#' library(data.table)
-#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' dt <- data.table::data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
 #' svy <- Survey$new(
 #'   data = dt, edition = "2023", type = "demo",
 #'   psu = NULL, engine = "data.table",
@@ -1109,8 +1117,7 @@ survey_empty <- function(edition = NULL, type = NULL,
 #' @keywords survey
 #' @examples
 #' \donttest{
-#' library(data.table)
-#' dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+#' dt <- data.table::data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
 #' svy <- Survey$new(
 #'   data = dt, edition = "2023", type = "demo",
 #'   psu = NULL, engine = "data.table",

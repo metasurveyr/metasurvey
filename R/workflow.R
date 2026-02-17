@@ -10,9 +10,9 @@
 #'   Must contain properly configured sample design.
 #' @param ... Calls to survey package functions (such as \code{svymean},
 #'   \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially
-#' @param estimation_type Type of estimation that
+#' @param estimation_type Type of estimation (default `"monthly"`) that
 #'   determines which weight to use. Options:
-#'   "monthly", "quarterly", "annual", or vector
+#'   `"monthly"`, `"quarterly"`, `"annual"`, or vector
 #'   with multiple types
 #'
 #' @return \code{data.table} with results from all
@@ -289,7 +289,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
 cat_estimation <- function(estimation, call) {
   class_estimation <- class(estimation)[1]
 
-  if (class_estimation != "svyby" & class_estimation != "svyratio") {
+  if (class_estimation != "svyby" && class_estimation != "svyratio") {
     class_estimation <- "default"
   }
 
