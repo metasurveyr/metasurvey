@@ -42,8 +42,8 @@ Other survey-objects:
 \code{\link{has_steps}()},
 \code{\link{is_baked}()},
 \code{\link{survey_empty}()},
-\code{\link{survey_to_data.table}()},
 \code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_datatable}()},
 \code{\link{survey_to_tibble}()}
 }
 \concept{survey-objects}

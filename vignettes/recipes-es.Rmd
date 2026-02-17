@@ -301,7 +301,7 @@ api_publish_recipe(labor_recipe)
 api_list_recipes(survey_type = "ech")
 ```
 
-Consulta la vignette [API y Base de Datos](api-database.html) para instrucciones sobre cómo desplegar la API Plumber con MongoDB para tu propia organización.
+Consulta la vignette [API y Base de Datos](https://metasurveyr.github.io/metasurvey/articles/api-database.html) para instrucciones sobre cómo desplegar la API Plumber con MongoDB para tu propia organización.
 
 ## Buenas Prácticas
 

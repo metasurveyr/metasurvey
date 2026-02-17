@@ -32,7 +32,7 @@ row-level expressions.}
 \code{use_copy_default()})}
 
 \item{comment}{Descriptive text for the step for documentation
-and traceability.}
+and traceability (default \code{"Validate step"}).}
 }
 \value{
 The survey object with a validate step recorded (no data

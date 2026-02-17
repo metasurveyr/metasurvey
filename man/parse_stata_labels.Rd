@@ -30,3 +30,11 @@ labels$var_labels
 labels$val_labels
 }
 }
+\seealso{
+Other transpiler: 
+\code{\link{parse_do_file}()},
+\code{\link{transpile_coverage}()},
+\code{\link{transpile_stata}()},
+\code{\link{transpile_stata_module}()}
+}
+\concept{transpiler}

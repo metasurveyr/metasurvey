@@ -27,13 +27,13 @@ programmatic use.}
 \item{.copy}{Whether to operate on a copy (default: \code{use_copy_default()})}
 
 \item{comment}{Descriptive text for the step for
-documentation and traceability. Defaults to "Rename variables"}
+documentation and traceability (default \code{"Rename variables"}).}
 
 \item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 
-\item{lazy}{Internal. Whether to delay execution.}
+\item{lazy}{Internal. Whether to delay execution (default \code{lazy_default()}).}
 
-\item{record}{Internal. Whether to record the step.}
+\item{record}{Internal. Whether to record the step (default \code{TRUE}).}
 }
 \value{
 Survey object with the specified variables

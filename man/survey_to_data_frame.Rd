@@ -40,7 +40,7 @@ Other survey-objects:
 \code{\link{is_baked}()},
 \code{\link{set_data}()},
 \code{\link{survey_empty}()},
-\code{\link{survey_to_data.table}()},
+\code{\link{survey_to_datatable}()},
 \code{\link{survey_to_tibble}()}
 }
 \concept{survey-objects}

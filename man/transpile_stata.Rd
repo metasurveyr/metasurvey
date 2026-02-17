@@ -39,3 +39,11 @@ result$steps
 result$stats
 }
 }
+\seealso{
+Other transpiler: 
+\code{\link{parse_do_file}()},
+\code{\link{parse_stata_labels}()},
+\code{\link{transpile_coverage}()},
+\code{\link{transpile_stata_module}()}
+}
+\concept{transpiler}

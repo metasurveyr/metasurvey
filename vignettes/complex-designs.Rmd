@@ -319,14 +319,16 @@ cat("Match:", all.equal(
 You can use `view_graph()` to visualize the dependency graph between
 steps:
 
-```{r view-graph, eval = requireNamespace("visNetwork", quietly = TRUE)}
-# Requires the visNetwork package
+```{r view-graph, eval = FALSE}
 svy_viz <- step_compute(svy_simple,
   api_diff = api00 - api99,
   high_growth = ifelse(api00 - api99 > 50, 1L, 0L)
 )
 view_graph(svy_viz, init_step = "Load API data")
 ```
+
+The interactive DAG is not rendered in this vignette to keep the
+package size small. Run the code above in your R session to explore it.
 
 ### Quality Assessment
 

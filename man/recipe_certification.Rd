@@ -11,9 +11,10 @@ recipe_certification(level = "community", certified_by = NULL, notes = NULL)
 (default), \code{"reviewed"}, or
 \code{"official"}.}
 
-\item{certified_by}{RecipeUser or NULL. Required for reviewed/official.}
+\item{certified_by}{RecipeUser or \code{NULL} (default \code{NULL}). Required for
+reviewed/official.}
 
-\item{notes}{Character or NULL. Additional notes.}
+\item{notes}{Character or \code{NULL} (default \code{NULL}). Additional notes.}
 }
 \value{
 A \code{\link{RecipeCertification}} object.

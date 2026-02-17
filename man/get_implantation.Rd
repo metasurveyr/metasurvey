@@ -44,31 +44,22 @@ This function is essential for analysis requiring:
 }
 }
 \examples{
-\dontrun{
-# Load ECH rotating panel
-panel_ech <- load_panel_survey(
-  path = "ech_panel_2023.dta",
-  svy_type = "ech_panel",
-  svy_edition = "2023"
+impl <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
 )
-
-# Get implantation survey
-ech_baseline <- get_implantation(panel_ech)
-
-# Check implantation characteristics
-cat("Implantation sample size:", nrow(ech_baseline$data))
-cat("Available variables:", ncol(ech_baseline$data))
-
-# Use in baseline analysis
-baseline_stats <- workflow(
-  survey = ech_baseline,
-  svymean(~activity_rate, na.rm = TRUE),
-  estimation_type = "baseline"
+fu <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023_01", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
 )
-
-# Compare with follow-up
-followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-}
+panel <- RotativePanelSurvey$new(
+  implantation = impl, follow_up = list(fu),
+  type = "test", default_engine = "data.table",
+  steps = list(), recipes = list(), workflows = list(), design = NULL
+)
+get_implantation(panel)
 
 }
 \seealso{

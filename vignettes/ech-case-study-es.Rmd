@@ -414,7 +414,7 @@ aquí hay un mapeo de operaciones comunes:
 Los datos de ejemplo utilizados en esta vinieta provienen de la *Encuesta
 Continua de Hogares* (ECH) 2023, publicada por el Instituto Nacional de
 Estadistica (INE) de Uruguay. Los microdatos completos estan disponibles en
-[www.ine.gub.uy](https://www.ine.gub.uy).
+[INE](https://www.gub.uy/instituto-nacional-estadistica/).
 
 El paquete **[ech](https://calcita.github.io/ech/)** de Gabriela Mathieu
 y Richard Detomasi fue una inspiracion importante para metasurvey. Mientras

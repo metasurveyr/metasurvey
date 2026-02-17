@@ -64,7 +64,6 @@ Suggests:
     parallel,
     rio (>= 0.5.27),
     here (>= 1.0.1),
-    digest,
     gt (>= 0.10.0),
     magrittr,
     shiny (>= 1.7.0),

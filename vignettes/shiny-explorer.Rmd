@@ -199,7 +199,7 @@ application connects to. It can point to a self-hosted instance.
 
 ## Next steps
 
-- **[API and Database Reference](api-database.html)** -- Technical
+- **[API and Database Reference](https://metasurveyr.github.io/metasurvey/articles/api-database.html)** -- Technical
   details about the API endpoints and MongoDB schema
 - **[Creating and Sharing Recipes](recipes.html)** -- Build recipes
   programmatically and publish them

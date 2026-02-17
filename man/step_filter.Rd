@@ -23,10 +23,10 @@ return a logical vector. Multiple conditions are combined with AND.}
 
 \item{.copy}{Whether to operate on a copy (default: \code{\link[=use_copy_default]{use_copy_default()}}).}
 
-\item{comment}{Descriptive text for the step.}
+\item{comment}{Descriptive text for the step (default \code{"Filter step"}).}
 
-\item{.level}{For \link{RotativePanelSurvey}, the level to apply:
-\code{"implantation"}, \code{"follow_up"}, or \code{"auto"} (both).}
+\item{.level}{For \link{RotativePanelSurvey}, the level to apply
+(default \code{"auto"}): \code{"implantation"}, \code{"follow_up"}, or \code{"auto"} (both).}
 }
 \value{
 The survey object with rows filtered and the step recorded.

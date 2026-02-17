@@ -12,14 +12,15 @@ filter_workflows(
 )
 }
 \arguments{
-\item{survey_type}{Character survey type or NULL.}
+\item{survey_type}{Character survey type or \code{NULL} (default \code{NULL}).}
 
-\item{edition}{Character edition or NULL.}
+\item{edition}{Character edition or \code{NULL} (default \code{NULL}).}
 
-\item{recipe_id}{Character recipe ID or NULL (find
-workflows using this recipe).}
+\item{recipe_id}{Character recipe ID or \code{NULL} (default \code{NULL}). Find
+workflows using this recipe.}
 
-\item{certification_level}{Character certification level or NULL.}
+\item{certification_level}{Character certification level or \code{NULL}
+(default \code{NULL}).}
 }
 \value{
 List of matching RecipeWorkflow objects.

@@ -15,9 +15,9 @@ Must contain properly configured sample design.}
 \item{...}{Calls to survey package functions (such as \code{svymean},
 \code{svytotal}, \code{svyratio}, etc.) that will be executed sequentially}
 
-\item{estimation_type}{Type of estimation that
+\item{estimation_type}{Type of estimation (default \code{"monthly"}) that
 determines which weight to use. Options:
-"monthly", "quarterly", "annual", or vector
+\code{"monthly"}, \code{"quarterly"}, \code{"annual"}, or vector
 with multiple types}
 }
 \value{

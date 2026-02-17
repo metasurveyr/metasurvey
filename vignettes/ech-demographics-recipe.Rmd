@@ -214,10 +214,12 @@ The pipeline is a DAG (directed acyclic graph) of transformations.
 `view_graph()` renders it as an interactive network -- each node is a step,
 and edges show variable dependencies:
 
-```{r eval = requireNamespace("visNetwork", quietly = TRUE)}
+```{r eval = FALSE}
 view_graph(svy)
 ```
 
+The interactive DAG is not rendered in this vignette to keep the
+package size small. Run `view_graph()` in your R session to explore it.
 With only 7 nodes the graph is clean and navigable. Compare that with a
 transpiled recipe where the DAG can have 100+ nodes -- still useful for
 auditing, but much harder to read at a glance.

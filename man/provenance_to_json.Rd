@@ -18,9 +18,20 @@ JSON string (invisibly if \code{path} is provided).
 Serializes a provenance object to JSON format, optionally writing
 to a file.
 }
+\examples{
+svy <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = rep(1, 5)),
+  edition = "2023", type = "test",
+  engine = "data.table", weight = add_weight(annual = "w")
+)
+prov <- provenance(svy)
+provenance_to_json(prov)
+
+}
 \seealso{
 Other provenance: 
 \code{\link{print.metasurvey_provenance}()},
+\code{\link{print.metasurvey_provenance_diff}()},
 \code{\link{provenance}()},
 \code{\link{provenance_diff}()}
 }

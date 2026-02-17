@@ -1,6 +1,8 @@
 # metasurvey
 
 <!-- badges: start -->
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN status](https://www.r-pkg.org/badges/version/metasurvey)](https://CRAN.R-project.org/package=metasurvey)
 [![R-CMD-check](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/metasurveyr/metasurvey/actions/workflows/R-CMD-check.yml)
 [![pkgdown](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/metasurveyr/metasurvey/actions/workflows/pkgdown.yaml)
@@ -26,8 +28,7 @@ The full stack is deployed and publicly available:
 | Service | URL | Description |
 |---------|-----|-------------|
 | **Recipe Explorer** | [metasurvey-shiny-production.up.railway.app](https://metasurvey-shiny-production.up.railway.app) | Interactive Shiny app to browse, search and inspect community recipes and workflows |
-| **REST API** | [metasurvey-api-production.up.railway.app](https://metasurvey-api-production.up.railway.app) | Plumber API backed by MongoDB Atlas for publishing and discovering recipes |
-| **API Docs** | [metasurvey-api-production.up.railway.app/\_\_docs\_\_/](https://metasurvey-api-production.up.railway.app/__docs__/) | Swagger/OpenAPI interactive documentation |
+| **REST API** | [API reference](https://metasurveyr.github.io/metasurvey/articles/api-database.html) | Plumber API backed by MongoDB for publishing and discovering recipes ([self-hosting guide](https://metasurveyr.github.io/metasurvey/articles/self-hosting.html)) |
 | **pkgdown site** | [metasurveyr.github.io/metasurvey](https://metasurveyr.github.io/metasurvey/) | Full package documentation and vignettes |
 
 ---
@@ -47,7 +48,7 @@ The full stack is deployed and publicly available:
 - **Replicate weights**: bootstrap replicate configuration via
   `add_replicate()` for robust variance with `survey::svrepdesign`.
 - **Recipe registry**: publish, search and discover recipes and workflows
-  through the [REST API](https://metasurvey-api-production.up.railway.app/__docs__/) or a local JSON registry.
+  through a self-hosted REST API or a local JSON registry.
 - **Shiny app**: [interactive recipe and workflow explorer](https://metasurvey-shiny-production.up.railway.app) with
   `explore_recipes()`.
 - **Self-hosting**: deploy the full stack on your infrastructure with
@@ -155,7 +156,7 @@ workflow(
 ## Full example: ECH panel with bootstrap replicate weights
 
 This example uses the rotating panel from Uruguay's
-[*Encuesta Continua de Hogares*](https://www.ine.gub.uy/encuesta-continua-de-hogares)
+[*Encuesta Continua de Hogares*](https://www.gub.uy/instituto-nacional-estadistica/)
 (ECH) with bootstrap replicate weights. First, download the example data:
 
 ```r
@@ -314,8 +315,13 @@ citation("metasurvey")
 
 ---
 
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to
+contribute to metasurvey.
+
 ## Code of Conduct
 
 Please note that the metasurvey project is released with a
-[Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to
+[Contributor Code of Conduct](https://github.com/metasurveyr/metasurvey/blob/main/CODE_OF_CONDUCT.md). By contributing to
 this project you agree to abide by its terms.

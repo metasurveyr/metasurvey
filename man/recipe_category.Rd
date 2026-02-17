@@ -13,8 +13,8 @@ recipe_category(name, description = "", parent = NULL)
 Defaults to empty.}
 
 \item{parent}{RecipeCategory object or character parent
-category name. If a string is provided, it creates a
-parent category with that name.}
+category name (default \code{NULL}). If a string is provided,
+it creates a parent category with that name.}
 }
 \value{
 A \code{\link{RecipeCategory}} object.

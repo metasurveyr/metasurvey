@@ -50,42 +50,28 @@ In rotating panels like ECH:
 }
 }
 \examples{
-\dontrun{
-# Load rotating panel
-panel_ech <- load_panel_survey(
-  path = "ech_panel_2023.dta",
-  svy_type = "ech_panel",
-  svy_edition = "2023"
+impl <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
 )
-
-# Get first follow-up survey
-followup_1 <- get_follow_up(panel_ech, index = 1)[[1]]
-
-# Get multiple follow-ups
-followups_q1 <- get_follow_up(panel_ech, index = c(1, 2, 3))
-
-# Get all available follow-ups
-all_followups <- get_follow_up(panel_ech)
-
-# Check number of available follow-ups
-n_followups <- length(get_follow_up(panel_ech))
-cat("Available follow-ups:", n_followups)
-
-# Longitudinal analysis with follow-ups
-baseline <- get_implantation(panel_ech)
-final_followup <- get_follow_up(panel_ech, index = n_followups)[[1]]
-
-# Compare rates between implantation and final follow-up
-initial_rate <- workflow(
-  survey = baseline,
-  svymean(~unemployment_rate, na.rm = TRUE)
+fu1 <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023_01", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
 )
-
-final_rate <- workflow(
-  survey = final_followup,
-  svymean(~unemployment_rate, na.rm = TRUE)
+fu2 <- Survey$new(
+  data = data.table::data.table(id = 1:5, w = 1),
+  edition = "2023_02", type = "test", psu = NULL,
+  engine = "data.table", weight = add_weight(annual = "w")
 )
-}
+panel <- RotativePanelSurvey$new(
+  implantation = impl, follow_up = list(fu1, fu2),
+  type = "test", default_engine = "data.table",
+  steps = list(), recipes = list(), workflows = list(), design = NULL
+)
+get_follow_up(panel, index = 1)
+get_follow_up(panel)
 
 }
 \seealso{

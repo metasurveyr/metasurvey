@@ -20,18 +20,18 @@ recipe_user(
 \item{type}{Character. One of \code{"individual"} (default),
 \code{"institutional_member"}, or \code{"institution"}.}
 
-\item{email}{Character or NULL. Email address.}
+\item{email}{Character or \code{NULL} (default \code{NULL}). Email address.}
 
-\item{affiliation}{Character or NULL. Organizational affiliation.}
+\item{affiliation}{Character or \code{NULL} (default \code{NULL}). Organizational affiliation.}
 
 \item{institution}{RecipeUser object or character institution name.
 Required for \code{"institutional_member"} type. If a string is provided,
 it creates an institution user with that name
 automatically.}
 
-\item{url}{Character or NULL. Institution URL.}
+\item{url}{Character or \code{NULL} (default \code{NULL}). Institution URL.}
 
-\item{verified}{Logical. Whether the account is verified.}
+\item{verified}{Logical (default \code{FALSE}). Whether the account is verified.}
 }
 \value{
 A \code{\link{RecipeUser}} object.

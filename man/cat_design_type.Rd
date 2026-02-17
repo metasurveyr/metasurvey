@@ -19,8 +19,7 @@ Cast design type from survey
 }
 \examples{
 \donttest{
-library(data.table)
-dt <- data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
+dt <- data.table::data.table(id = 1:20, x = rnorm(20), w = runif(20, 0.5, 2))
 svy <- Survey$new(
   data = dt, edition = "2023", type = "demo",
   psu = NULL, engine = "data.table",
@@ -42,8 +41,8 @@ Other survey-objects:
 \code{\link{is_baked}()},
 \code{\link{set_data}()},
 \code{\link{survey_empty}()},
-\code{\link{survey_to_data.table}()},
 \code{\link{survey_to_data_frame}()},
+\code{\link{survey_to_datatable}()},
 \code{\link{survey_to_tibble}()}
 }
 \concept{survey-objects}

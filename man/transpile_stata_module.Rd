@@ -29,3 +29,11 @@ recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
 names(recipes)
 }
 }
+\seealso{
+Other transpiler: 
+\code{\link{parse_do_file}()},
+\code{\link{parse_stata_labels}()},
+\code{\link{transpile_coverage}()},
+\code{\link{transpile_stata}()}
+}
+\concept{transpiler}

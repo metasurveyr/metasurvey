@@ -29,3 +29,11 @@ length(cmds)
 cmds[[1]]$cmd
 }
 }
+\seealso{
+Other transpiler: 
+\code{\link{parse_stata_labels}()},
+\code{\link{transpile_coverage}()},
+\code{\link{transpile_stata}()},
+\code{\link{transpile_stata_module}()}
+}
+\concept{transpiler}

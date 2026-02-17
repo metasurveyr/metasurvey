@@ -40,7 +40,7 @@ reference:
   - has_design
   - is_baked
   - survey_to_data_frame
-  - survey_to_data.table
+  - survey_to_datatable
   - survey_to_tibble
 - title: Steps
   desc: Lazy transformations on surveys
@@ -99,6 +99,7 @@ reference:
   - provenance_to_json
   - provenance_diff
   - print.metasurvey_provenance
+  - print.metasurvey_provenance_diff
   - save_workflow
   - read_workflow
   - workflow_from_list

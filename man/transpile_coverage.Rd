@@ -26,3 +26,11 @@ writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 transpile_coverage(tf)
 }
 }
+\seealso{
+Other transpiler: 
+\code{\link{parse_do_file}()},
+\code{\link{parse_stata_labels}()},
+\code{\link{transpile_stata}()},
+\code{\link{transpile_stata_module}()}
+}
+\concept{transpiler}

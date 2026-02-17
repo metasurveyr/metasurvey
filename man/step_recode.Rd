@@ -56,10 +56,10 @@ Markdown syntax. Defaults to "Recode step"}
 new variable should be converted to a factor.
 Defaults to FALSE}
 
-\item{.level}{For RotativePanelSurvey objects,
+\item{.level}{For RotativePanelSurvey objects (default \code{"auto"}),
 specifies the level where recoding is applied:
-"implantation", "follow_up", "quarter",
-"month", or "auto"}
+\code{"implantation"}, \code{"follow_up"}, \code{"quarter"},
+\code{"month"}, or \code{"auto"}}
 
 \item{use_copy}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{.copy} instead.}
 }

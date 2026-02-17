@@ -62,7 +62,6 @@
 ^test_.*\.R$
 ^vignettes/.*\.html$
 ^vignettes/api-database-es\.Rmd$
-^vignettes/api-database\.Rmd$
 ^vignettes/shiny-explorer-es\.Rmd$
 ^vignettes/shiny-explorer\.Rmd$
 ^vignettes/complex-designs-es\.Rmd$

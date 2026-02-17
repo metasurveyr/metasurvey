@@ -2,15 +2,25 @@
 
 0 errors | 0 warnings | 1 note
 
-* checking installed package size ... NOTE
-  installed size is 9.8Mb
-  sub-directories of 1Mb or more:
-    doc 7.8Mb
+* This is a new submission.
 
-  The package ships 9 vignettes with rendered HTML output demonstrating
-  survey processing workflows with 7 international household surveys.
-  These vignettes are essential for user onboarding and cannot be
-  meaningfully reduced without losing documentation value.
+## Resubmission
+
+This is a resubmission. In the previous submission (0.0.17) the package
+received a NOTE about invalid URLs and file URIs. All issues have been
+fixed:
+
+* Updated redirected URLs (Azure AKS, INE Uruguay) to their current
+  destinations.
+* Removed links to resources that are no longer available (Railway API,
+  infrastructure repository).
+* Replaced relative cross-vignette links to excluded vignettes with
+  full pkgdown URLs.
+* Replaced relative `CODE_OF_CONDUCT.md` link in README with full
+  GitHub URL.
+* Updated bibliography entry (`references.bib`) with current INE URL.
+* Included the `api-database` vignette in the build (was previously
+  excluded, causing broken file URI references from other vignettes).
 
 ## Test environments
 
@@ -20,7 +30,7 @@
 
 ## Notes
 
-* This is a new submission.
+* This is a new submission (first CRAN release).
 * Package contains 2,810 tests with 0 failures.
 * The `eph`, `PNADcIBGE`, and `ipumsr` packages in Suggests are used
   conditionally in the international-surveys vignette; sections are

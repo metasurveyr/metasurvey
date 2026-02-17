@@ -31,6 +31,7 @@ provenance(svy)
 \seealso{
 Other provenance: 
 \code{\link{print.metasurvey_provenance}()},
+\code{\link{print.metasurvey_provenance_diff}()},
 \code{\link{provenance_diff}()},
 \code{\link{provenance_to_json}()}
 }

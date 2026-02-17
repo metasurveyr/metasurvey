@@ -7,7 +7,8 @@
 rank_workflows(n = NULL)
 }
 \arguments{
-\item{n}{Integer. Maximum number to return, or NULL for all.}
+\item{n}{Integer or \code{NULL} (default \code{NULL}). Maximum number to return,
+or \code{NULL} for all.}
 }
 \value{
 List of RecipeWorkflow objects sorted by downloads.
