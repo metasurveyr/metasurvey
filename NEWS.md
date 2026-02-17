@@ -1,3 +1,20 @@
+# metasurvey 0.0.21
+
+## Bug fixes
+* `validate_weight()` now shows available columns when weight is not found.
+* `validate_replicate()` now lists missing replicate ID columns in the error.
+* `set_use_copy()` and `set_lazy_processing()` reject non-scalar logical input.
+
+## Internal
+* Step functions (`step_join`, `step_remove`, `step_rename`, `step_validate`,
+  `step_filter`) now return `invisible(out)` per R convention for side-effect
+  functions.
+* Added `@rdname provenance` to S3 method documentation.
+* Removed unused `stats::median` and `stats::quantile` imports.
+* Use fully qualified `stats::confint()` in `cat_estimation.svyratio`.
+* Added edge case tests: double bake idempotency, filter-then-compute chain,
+  `provenance_diff` print output.
+
 # metasurvey 0.0.20
 
 ## Breaking changes
