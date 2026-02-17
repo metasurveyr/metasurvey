@@ -2,7 +2,7 @@
 // metasurvey — MongoDB Setup Script
 // =============================================================================
 //
-// Creates collections (users, recipes, workflows) with JSON Schema validation,
+// Creates collections (users, recipes, workflows, indicators) with JSON Schema validation,
 // and builds all required indexes.
 //
 // IMPORTANT: On MongoDB Atlas free/shared tier the user typically lacks collMod
@@ -206,13 +206,64 @@ try {
 db.anda_variables.createIndex({ survey_type: 1, name: 1 }, { unique: true });
 db.anda_variables.createIndex({ survey_type: 1 });
 
+// --- indicators ---
+try {
+  db.createCollection("indicators", {
+    validator: {
+      $jsonSchema: {
+        bsonType: "object",
+        required: ["name", "workflow_id", "value", "user"],
+        properties: {
+          id:               { bsonType: "string" },
+          name:             { bsonType: "string", minLength: 1 },
+          description:      { bsonType: ["string", "null"] },
+          recipe_id:        { bsonType: ["string", "null"] },
+          workflow_id:      { bsonType: "string" },
+          survey_type:      { bsonType: ["string", "null"] },
+          edition:          { bsonType: ["string", "array", "null"] },
+          estimation_type:  { bsonType: ["string", "null"] },
+          stat:             { bsonType: ["string", "null"] },
+          value:            { bsonType: ["double", "int"] },
+          se:               { bsonType: ["double", "int", "null"] },
+          cv:               { bsonType: ["double", "int", "null"] },
+          confint_lower:    { bsonType: ["double", "int", "null"] },
+          confint_upper:    { bsonType: ["double", "int", "null"] },
+          metadata:         { bsonType: ["object", "null"] },
+          user:             { bsonType: "string" },
+          user_info:        { bsonType: ["object", "null"] },
+          published_at:     { bsonType: "string" },
+          metasurvey_version: { bsonType: ["string", "null"] }
+        }
+      }
+    }
+  });
+  print("[OK] indicators");
+} catch (e) {
+  if (e.codeName === "NamespaceExists") {
+    print("[SKIP] indicators — already exists");
+  } else {
+    print("[ERROR] indicators: " + e.message);
+  }
+}
+
+db.indicators.createIndex({ "id": 1 },            { unique: true, sparse: true });
+db.indicators.createIndex({ "recipe_id": 1 });
+db.indicators.createIndex({ "workflow_id": 1 });
+db.indicators.createIndex({ "survey_type": 1 });
+db.indicators.createIndex({ "published_at": -1 });
+db.indicators.createIndex({ "survey_type": 1, "edition": 1 });
+db.indicators.createIndex(
+  { "name": "text", "description": "text" },
+  { name: "indicators_text_search" }
+);
+
 print("[OK] All indexes created");
 
 // ---------------------------------------------------------------------------
 // 3. Summary
 // ---------------------------------------------------------------------------
 print("\n=== Summary ===");
-["users", "recipes", "workflows", "anda_variables"].forEach(function(c) {
+["users", "recipes", "workflows", "anda_variables", "indicators"].forEach(function(c) {
   var count = db[c].countDocuments({});
   var idxCount = db[c].getIndexes().length;
   print("  " + c + ": " + count + " docs, " + idxCount + " indexes");

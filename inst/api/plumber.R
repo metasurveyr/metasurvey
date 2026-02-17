@@ -16,10 +16,20 @@
 #   POST /workflows          — Publish a workflow (requires JWT)
 #   POST /workflows/:id/download — Increment download counter
 #
+#   GET  /indicators              — List/search/filter indicators
+#   GET  /indicators/:id          — Get single indicator
+#   GET  /indicators/:id/recipe   — Get recipe that produced it
+#   GET  /indicators/:id/workflow — Get workflow (estimation + design)
+#   POST /indicators              — Publish an indicator (requires JWT)
+#   POST /indicators/compute      — Request on-demand computation (requires JWT)
+#
 # Config (env vars):
-#   METASURVEY_MONGO_URI  — MongoDB connection string (required)
-#   METASURVEY_DB         — Database name (default: metasurvey)
-#   METASURVEY_JWT_SECRET — JWT signing secret
+#   METASURVEY_MONGO_URI           — MongoDB connection string (required)
+#   METASURVEY_DB                  — Database name (default: metasurvey)
+#   METASURVEY_JWT_SECRET          — JWT signing secret
+#   METASURVEY_WORKER_URL          — Internal worker URL (e.g. http://worker:8788)
+#   METASURVEY_ENABLE_INDICATORS   — "1" (default) or "0" to disable /indicators
+#   METASURVEY_ENABLE_WORKER       — "0" (default) or "1" to enable POST /compute
 #
 # Launch:
 #   METASURVEY_MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net" \
@@ -43,7 +53,8 @@ function(pr) {
   spec$info <- list(
     title = "metasurvey API",
     description = paste(
-      "REST API for sharing survey recipes, estimation workflows, and",
+      "REST API for sharing survey recipes, estimation workflows,",
+      "published indicators with traceability, and",
       "ANDA variable metadata. Built with plumber + MongoDB.",
       "\n\nAuthentication: POST /auth/login returns a JWT token.",
       "Include it as `Authorization: Bearer <token>` in requests",
@@ -78,6 +89,15 @@ JWT_SECRET <- Sys.getenv(
   "metasurvey-dev-secret-change-me"
 )
 ADMIN_EMAIL <- Sys.getenv("METASURVEY_ADMIN_EMAIL", "")
+WORKER_URL <- Sys.getenv("METASURVEY_WORKER_URL", "")
+
+# Feature flags — disable modules not available in this deployment
+ENABLE_INDICATORS <- tolower(Sys.getenv(
+  "METASURVEY_ENABLE_INDICATORS", "1"
+)) %in% c("1", "true", "yes")
+ENABLE_WORKER <- tolower(Sys.getenv(
+  "METASURVEY_ENABLE_WORKER", "0"
+)) %in% c("1", "true", "yes")
 
 if (!nzchar(MONGO_URI)) {
   stop(
@@ -109,6 +129,12 @@ db_anda <- mongolite::mongo(
   collection = "anda_variables",
   db = DATABASE, url = MONGO_URI
 )
+if (ENABLE_INDICATORS) {
+  db_indicators <- mongolite::mongo(
+    collection = "indicators",
+    db = DATABASE, url = MONGO_URI
+  )
+}
 
 message(sprintf(
   "[metasurvey-api] Connected to MongoDB: %s (db: %s)",
@@ -121,7 +147,19 @@ message(sprintf(
     " — users: %d, recipes: %d,",
     " workflows: %d, anda: %d"
   ),
-  db_users$count(), db_recipes$count(), db_workflows$count(), db_anda$count()
+  db_users$count(), db_recipes$count(),
+  db_workflows$count(), db_anda$count()
+))
+if (ENABLE_INDICATORS) {
+  message(sprintf(
+    "[metasurvey-api] Indicators: %d",
+    db_indicators$count()
+  ))
+}
+message(sprintf(
+  "[metasurvey-api] Features — indicators: %s, worker: %s",
+  if (ENABLE_INDICATORS) "ON" else "OFF",
+  if (ENABLE_WORKER) "ON" else "OFF"
 ))
 
 # -- JWT helpers --------------------------------------------------------------
@@ -978,6 +1016,485 @@ function(req, res, id) {
     error = function(e) {
       res$status <- 500L
       list(error = e$message)
+    }
+  )
+}
+
+# ==============================================================================
+# INDICATORS
+# Feature-gated: set METASURVEY_ENABLE_INDICATORS=0 to disable
+# ==============================================================================
+
+require_indicators <- function(res) {
+  if (!ENABLE_INDICATORS) {
+    res$status <- 404L
+    return(list(error = "Indicators module is disabled"))
+  }
+  NULL
+}
+
+require_worker <- function(res) {
+  if (!ENABLE_WORKER || !nzchar(WORKER_URL)) {
+    res$status <- 404L
+    return(list(error = "Worker module is disabled"))
+  }
+  NULL
+}
+
+#* List published indicators with optional
+#* search, filtering, and pagination.
+#* Sorted by published_at descending.
+#* No authentication required.
+#* @tag Indicators
+#* @get /indicators
+#* @param search:str Regex search on indicator name
+#* @param survey_type:str Filter by survey type
+#* @param recipe_id:str Filter by recipe ID
+#* @param workflow_id:str Filter by workflow ID
+#* @param edition:str Filter by survey edition
+#* @param limit:int Max results (default 50)
+#* @param offset:int Skip N results (default 0)
+#* @response 200 Returns {ok, count,
+#*   indicators: [{id, name, value, se,
+#*   cv, recipe_id, workflow_id, ...}]}.
+function(req, res, search = NULL,
+         survey_type = NULL,
+         recipe_id = NULL,
+         workflow_id = NULL,
+         edition = NULL,
+         limit = 50, offset = 0) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+
+  filter <- list()
+  if (!is.null(survey_type) && nzchar(survey_type)) {
+    filter$survey_type <- survey_type
+  }
+  if (!is.null(recipe_id) && nzchar(recipe_id)) {
+    filter$recipe_id <- recipe_id
+  }
+  if (!is.null(workflow_id) && nzchar(workflow_id)) {
+    filter$workflow_id <- workflow_id
+  }
+  if (!is.null(edition) && nzchar(edition)) {
+    filter$edition <- edition
+  }
+  if (!is.null(search) && nzchar(search)) {
+    filter$name <- list(
+      `$regex` = search,
+      `$options` = "i"
+    )
+  }
+
+  query_json <- if (length(filter) == 0) {
+    "{}"
+  } else {
+    toJSON(filter, auto_unbox = TRUE)
+  }
+
+  tryCatch(
+    {
+      iter <- db_indicators$iterate(
+        query = query_json,
+        sort = '{"published_at": -1}',
+        skip = as.integer(offset),
+        limit = as.integer(limit)
+      )
+
+      docs <- list()
+      while (!is.null(doc <- iter$one())) {
+        doc[["_id"]] <- NULL
+        docs[[length(docs) + 1L]] <- doc
+      }
+
+      list(ok = TRUE, count = length(docs), indicators = docs)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste(
+        "Failed to fetch indicators:",
+        e$message
+      ))
+    }
+  )
+}
+
+#* Get a single indicator by its unique ID.
+#* No authentication required.
+#* @tag Indicators
+#* @get /indicators/<id>
+#* @response 200 Returns {ok, indicator:
+#*   {id, name, value, se, cv,
+#*   confint_lower, confint_upper,
+#*   recipe_id, workflow_id, ...}}.
+#* @response 404 Indicator not found.
+function(req, res, id) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+
+  tryCatch(
+    {
+      iter <- db_indicators$iterate(
+        query = toJSON(
+          list(id = id),
+          auto_unbox = TRUE
+        ),
+        limit = 1
+      )
+      doc <- iter$one()
+
+      if (is.null(doc)) {
+        res$status <- 404L
+        return(list(error = "Indicator not found"))
+      }
+
+      doc[["_id"]] <- NULL
+      list(ok = TRUE, indicator = doc)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Get the recipe that produced an indicator.
+#* Shows the data transformation steps
+#* (input variables, recodes, computations).
+#* No authentication required.
+#* @tag Indicators
+#* @get /indicators/<id>/recipe
+#* @response 200 Returns {ok, indicator_id,
+#*   recipe: {id, name, steps, doc, ...}}.
+#* @response 404 Indicator not found.
+function(req, res, id) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+
+  tryCatch(
+    {
+      iter <- db_indicators$iterate(
+        query = toJSON(
+          list(id = id),
+          auto_unbox = TRUE
+        ),
+        limit = 1
+      )
+      ind <- iter$one()
+
+      if (is.null(ind)) {
+        res$status <- 404L
+        return(list(error = "Indicator not found"))
+      }
+
+      rid <- ind$recipe_id
+      if (is.null(rid) || !nzchar(rid)) {
+        return(list(
+          ok = TRUE,
+          indicator_id = id,
+          recipe = NULL,
+          message = "No recipe linked to this indicator"
+        ))
+      }
+
+      riter <- db_recipes$iterate(
+        query = toJSON(
+          list(id = rid),
+          auto_unbox = TRUE
+        ),
+        limit = 1
+      )
+      rdoc <- riter$one()
+      if (!is.null(rdoc)) rdoc[["_id"]] <- NULL
+
+      list(ok = TRUE, indicator_id = id, recipe = rdoc)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Get the workflow that produced an indicator.
+#* Shows the estimation calls (svymean,
+#* svytotal, svyby), design type,
+#* and referenced recipe IDs.
+#* No authentication required.
+#* @tag Indicators
+#* @get /indicators/<id>/workflow
+#* @response 200 Returns {ok, indicator_id,
+#*   workflow: {id, name, estimation_type,
+#*   calls, call_metadata,
+#*   recipe_ids, ...}}.
+#* @response 404 Indicator not found.
+function(req, res, id) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+
+  tryCatch(
+    {
+      iter <- db_indicators$iterate(
+        query = toJSON(
+          list(id = id),
+          auto_unbox = TRUE
+        ),
+        limit = 1
+      )
+      ind <- iter$one()
+
+      if (is.null(ind)) {
+        res$status <- 404L
+        return(list(error = "Indicator not found"))
+      }
+
+      wid <- ind$workflow_id
+      if (is.null(wid) || !nzchar(wid)) {
+        return(list(
+          ok = TRUE,
+          indicator_id = id,
+          workflow = NULL,
+          message = "No workflow linked"
+        ))
+      }
+
+      witer <- db_workflows$iterate(
+        query = toJSON(
+          list(id = wid),
+          auto_unbox = TRUE
+        ),
+        limit = 1
+      )
+      wdoc <- witer$one()
+      if (!is.null(wdoc)) wdoc[["_id"]] <- NULL
+
+      list(
+        ok = TRUE,
+        indicator_id = id,
+        workflow = wdoc
+      )
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = e$message)
+    }
+  )
+}
+
+#* Publish a new indicator. Requires JWT
+#* authentication. Required fields: name,
+#* workflow_id, value. Optional: recipe_id,
+#* description, survey_type, edition,
+#* estimation_type, stat, se, cv,
+#* confint_lower, confint_upper, metadata.
+#* @tag Indicators
+#* @post /indicators
+#* @response 201 Returns {ok, id}.
+#* @response 400 Missing required fields.
+#* @response 401 Authentication required.
+function(req, res) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
+
+  body <- req$body
+  if (is.null(body)) {
+    res$status <- 400L
+    return(list(error = "Request body is required"))
+  }
+
+  required <- c("name", "workflow_id", "value")
+  missing_fields <- required[
+    !required %in% names(body)
+  ]
+  if (length(missing_fields) > 0) {
+    res$status <- 400L
+    return(list(error = paste(
+      "Missing required fields:",
+      paste(missing_fields, collapse = ", ")
+    )))
+  }
+
+  body$user <- user$sub
+  body$published_at <- format(
+    Sys.time(), "%Y-%m-%dT%H:%M:%SZ"
+  )
+  body$metasurvey_version <- "0.0.16"
+  if (is.null(body$id)) {
+    body$id <- paste0(
+      "ind_", as.integer(Sys.time()),
+      "_", sample.int(999, 1)
+    )
+  }
+  if (is.null(body$user_info)) {
+    body$user_info <- list(
+      name = user$name,
+      user_type = user$user_type,
+      email = user$sub
+    )
+  }
+
+  tryCatch(
+    {
+      db_indicators$insert(toJSON(
+        body,
+        auto_unbox = TRUE,
+        null = "null"
+      ))
+      res$status <- 201L
+      list(ok = TRUE, id = body$id)
+    },
+    error = function(e) {
+      res$status <- 500L
+      list(error = paste(
+        "Failed to publish indicator:",
+        e$message
+      ))
+    }
+  )
+}
+
+#* Request an on-demand computation from the
+#* worker. Proxies the request to the internal
+#* compute worker, stores the result as an
+#* indicator, and returns it. Requires JWT.
+#*
+#* The frontend can use this to request
+#* estimations with specific filters
+#* (by variable, domain subset).
+#*
+#* @tag Indicators
+#* @post /indicators/compute
+#* @response 200 Returns {ok, indicator_id,
+#*   results: [{stat, value, se, cv, ...}]}.
+#* @response 400 Missing fields or no worker.
+#* @response 401 Authentication required.
+#* @response 502 Worker unavailable or error.
+function(req, res) {
+  guard <- require_indicators(res)
+  if (!is.null(guard)) return(guard)
+  guard <- require_worker(res)
+  if (!is.null(guard)) return(guard)
+
+  user <- require_auth(req, res)
+  if (is.list(user) && !is.null(user$error)) {
+    return(user)
+  }
+
+  body <- req$body
+  if (is.null(body)) {
+    res$status <- 400L
+    return(list(error = "Request body is required"))
+  }
+
+  required <- c("workflow_id", "survey_type", "edition")
+  missing_fields <- required[
+    !required %in% names(body)
+  ]
+  if (length(missing_fields) > 0) {
+    res$status <- 400L
+    return(list(error = paste(
+      "Missing required fields:",
+      paste(missing_fields, collapse = ", ")
+    )))
+  }
+
+  tryCatch(
+    {
+      # Forward to worker
+      worker_resp <- httr2::request(
+        paste0(WORKER_URL, "/compute")
+      ) |>
+        httr2::req_body_json(body) |>
+        httr2::req_timeout(300) |>
+        httr2::req_perform()
+
+      worker_result <- httr2::resp_body_json(
+        worker_resp
+      )
+
+      if (!isTRUE(worker_result$ok)) {
+        res$status <- 502L
+        return(list(
+          error = "Worker computation failed",
+          detail = worker_result$error
+        ))
+      }
+
+      # Store each result as an indicator
+      indicator_ids <- character(0)
+      results <- worker_result$results
+
+      for (r in results) {
+        ind_id <- paste0(
+          "ind_", as.integer(Sys.time()),
+          "_", sample.int(9999, 1)
+        )
+
+        filters_meta <- body$filters
+        ind_doc <- list(
+          id = ind_id,
+          name = r$stat %||% "Computed indicator",
+          workflow_id = body$workflow_id,
+          recipe_id = if (length(body$recipe_ids) > 0) {
+            body$recipe_ids[[1]]
+          } else {
+            NULL
+          },
+          survey_type = body$survey_type,
+          edition = body$edition,
+          estimation_type = body$estimation_type %||%
+            "annual",
+          stat = r$stat,
+          value = r$value,
+          se = r$se,
+          cv = r$cv,
+          confint_lower = r$confint_lower,
+          confint_upper = r$confint_upper,
+          metadata = list(
+            call = r$call,
+            by_group = r$by_group,
+            filters = filters_meta,
+            computed_on_demand = TRUE
+          ),
+          user = user$sub,
+          user_info = list(
+            name = user$name,
+            user_type = user$user_type,
+            email = user$sub
+          ),
+          published_at = format(
+            Sys.time(),
+            "%Y-%m-%dT%H:%M:%SZ"
+          ),
+          metasurvey_version = "0.0.16"
+        )
+
+        db_indicators$insert(toJSON(
+          ind_doc,
+          auto_unbox = TRUE,
+          null = "null"
+        ))
+        indicator_ids <- c(indicator_ids, ind_id)
+      }
+
+      list(
+        ok = TRUE,
+        indicator_ids = indicator_ids,
+        count = length(results),
+        results = results
+      )
+    },
+    error = function(e) {
+      res$status <- 502L
+      list(error = paste(
+        "Worker request failed:",
+        e$message
+      ))
     }
   )
 }
