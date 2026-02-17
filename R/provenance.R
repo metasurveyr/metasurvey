@@ -23,16 +23,19 @@ provenance <- function(x, ...) {
   UseMethod("provenance")
 }
 
+#' @rdname provenance
 #' @export
 provenance.Survey <- function(x, ...) {
   x$provenance
 }
 
+#' @rdname provenance
 #' @export
 provenance.data.table <- function(x, ...) {
   attr(x, "provenance")
 }
 
+#' @rdname provenance
 #' @export
 provenance.default <- function(x, ...) {
   NULL

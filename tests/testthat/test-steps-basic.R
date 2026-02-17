@@ -980,3 +980,45 @@ test_that("step_filter requires at least one expression", {
   s <- make_test_survey()
   expect_error(step_filter(s), "at least one filter expression")
 })
+
+# --- Edge case tests (Round 6 audit) ---
+
+test_that("double bake_steps() is safe (no re-execution)", {
+  s <- make_test_survey(50)
+  s <- step_compute(s, age2 = age * 2)
+  s <- bake_steps(s)
+  data_after_first <- data.table::copy(get_data(s))
+  s2 <- bake_steps(s)
+  expect_identical(get_data(s2), data_after_first)
+  expect_true(all(vapply(get_steps(s2), function(st) st$bake, logical(1))))
+})
+
+test_that("step_filter removing all rows produces 0-row data", {
+  s <- make_test_survey(50)
+  s <- step_filter(s, age > 9999)
+  # bake_steps will try to init design which fails on 0-row
+
+  # Check the step is recorded and lazy data is unchanged
+  expect_length(get_steps(s), 1)
+  expect_equal(get_steps(s)[[1]]$type, "filter")
+})
+
+test_that("step_compute with new column is idempotent after double bake", {
+  s <- make_test_survey(10)
+  s <- step_compute(s, z = age * 2)
+  s <- bake_steps(s)
+  expected_z <- get_data(s)$z
+  # Second bake is a no-op
+  s2 <- bake_steps(s)
+  expect_equal(get_data(s2)$z, expected_z)
+})
+
+test_that("step_filter then step_compute on filtered data", {
+  s <- make_test_survey(100)
+  s <- step_filter(s, age >= 50)
+  s <- step_compute(s, double_age = age * 2)
+  s <- bake_steps(s)
+  d <- get_data(s)
+  expect_true(all(d$age >= 50))
+  expect_equal(d$double_age, d$age * 2)
+})

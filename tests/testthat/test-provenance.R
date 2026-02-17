@@ -92,6 +92,21 @@ test_that("provenance print method works", {
   expect_output(print(s$provenance), "Pipeline")
 })
 
+test_that("print.metasurvey_provenance_diff shows comparison output", {
+  s1 <- make_test_survey(50)
+  s1 <- step_filter(s1, age >= 30)
+  s1 <- bake_steps(s1)
+
+  s2 <- make_test_survey(100)
+  s2 <- step_filter(s2, age >= 30)
+  s2 <- bake_steps(s2)
+
+  diff_result <- provenance_diff(s1$provenance, s2$provenance)
+  expect_output(print(diff_result), "Provenance Diff")
+  expect_output(print(diff_result), "Final N")
+  expect_output(print(diff_result), "Steps")
+})
+
 test_that("provenance survives shallow_clone", {
   s <- make_test_survey()
   s2 <- s$shallow_clone()

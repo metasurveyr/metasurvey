@@ -2,9 +2,18 @@
 % Please edit documentation in R/provenance.R
 \name{provenance}
 \alias{provenance}
+\alias{provenance.Survey}
+\alias{provenance.data.table}
+\alias{provenance.default}
 \title{Get provenance from a survey or workflow result}
 \usage{
 provenance(x, ...)
+
+\method{provenance}{Survey}(x, ...)
+
+\method{provenance}{data.table}(x, ...)
+
+\method{provenance}{default}(x, ...)
 }
 \arguments{
 \item{x}{A \link{Survey} object or a \code{data.table} from \code{\link[=workflow]{workflow()}}.}

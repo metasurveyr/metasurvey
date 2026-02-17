@@ -1049,7 +1049,7 @@ step_join <- function(
     )
     out$add_step(step)
   }
-  out
+  invisible(out)
 }
 
 #' Remove variables from survey data (step)
@@ -1205,7 +1205,7 @@ step_remove <- function(
     )
     out$add_step(step)
   }
-  out
+  invisible(out)
 }
 
 #' Rename variables in survey data (step)
@@ -1359,7 +1359,7 @@ step_rename <- function(
     )
     out$add_step(step)
   }
-  out
+  invisible(out)
 }
 
 #' Get type of step
@@ -1501,7 +1501,7 @@ step_validate <- function(
   )
 
   out$add_step(step)
-  out
+  invisible(out)
 }
 
 
@@ -1583,7 +1583,7 @@ step_filter <- function(
   )
 
   out$add_step(step)
-  out
+  invisible(out)
 }
 
 
