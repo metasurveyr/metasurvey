@@ -869,6 +869,156 @@ app_css <- function() {
       to { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
+    /* ── Star Rating ── */
+    .star-rating {
+      display: inline-flex;
+      gap: .15rem;
+      align-items: center;
+    }
+    .star-rating .star-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 1.25rem;
+      color: var(--slate-300);
+      transition: color .15s;
+      line-height: 1;
+    }
+    .star-rating .star-btn:hover,
+    .star-rating .star-btn.active {
+      color: var(--amber);
+    }
+    .star-rating .star-btn.readonly {
+      cursor: default;
+    }
+    .star-rating-summary {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .8rem;
+      color: var(--slate-500);
+    }
+    .star-rating-summary .star-avg {
+      font-weight: 700;
+      color: var(--amber);
+    }
+    .star-rating-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      margin-left: .75rem;
+    }
+    .star-rating-inline .star-icon {
+      color: var(--amber);
+      font-size: .8rem;
+    }
+
+    /* ── Comments ── */
+    .comments-section {
+      padding: 1rem 0;
+    }
+    .comment-card {
+      display: flex;
+      gap: .75rem;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--slate-100);
+    }
+    .comment-card:last-child {
+      border-bottom: none;
+    }
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--indigo-50);
+      color: var(--indigo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .75rem;
+      flex-shrink: 0;
+    }
+    .comment-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .comment-meta {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .25rem;
+    }
+    .comment-author {
+      font-weight: 600;
+      font-size: .82rem;
+      color: var(--slate-800);
+    }
+    .comment-date {
+      font-size: .72rem;
+      color: var(--slate-400);
+    }
+    .comment-text {
+      font-size: .85rem;
+      color: var(--slate-600);
+      line-height: 1.5;
+    }
+    .comment-delete {
+      background: none;
+      border: none;
+      color: var(--slate-400);
+      cursor: pointer;
+      font-size: .7rem;
+      padding: .1rem .3rem;
+      border-radius: 3px;
+      transition: all .15s;
+    }
+    .comment-delete:hover {
+      color: var(--rose);
+      background: rgba(244,63,94,.08);
+    }
+    .comment-form {
+      display: flex;
+      gap: .5rem;
+      margin-top: .75rem;
+      align-items: flex-start;
+    }
+    .comment-form textarea {
+      flex: 1;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: .5rem .75rem;
+      font-size: .82rem;
+      resize: vertical;
+      min-height: 60px;
+      max-height: 150px;
+      font-family: inherit;
+      color: var(--slate-800);
+    }
+    .comment-form textarea:focus {
+      outline: none;
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 2px rgba(99,102,241,.1);
+    }
+    .comment-form .btn-comment {
+      padding: .5rem .75rem;
+      font-size: .78rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .empty-comments {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--slate-400);
+      font-size: .85rem;
+    }
+
+    /* ── Dependents (Used by) ── */
+    .dependents-section {
+      padding: 1rem 0;
+    }
+
     /* ── Pipeline graph disclaimer ── */
     .graph-disclaimer {
       display: flex;
@@ -1005,6 +1155,223 @@ format_edition <- function(edition) {
   }
   # Show range for consecutive years
   paste0(eds[1], "-", eds[length(eds)])
+}
+
+# Star rating display for cards (read-only inline)
+star_rating_inline <- function(average, count) {
+  avg <- round(as.numeric(average %||% 0), 1)
+  n <- as.integer(count %||% 0)
+  if (n == 0) return(NULL)
+  htmltools::tags$span(
+    class = "star-rating-inline",
+    htmltools::tags$span(
+      class = "star-icon",
+      bsicons::bs_icon("star-fill", size = ".75rem")
+    ),
+    htmltools::tags$span(
+      style = paste0(
+        "font-weight:600;",
+        "font-size:.78rem;",
+        "color:var(--amber);"
+      ),
+      avg
+    ),
+    htmltools::tags$span(
+      style = paste0(
+        "font-size:.72rem;",
+        "color:var(--slate-400);"
+      ),
+      paste0("(", n, ")")
+    )
+  )
+}
+
+# Interactive star rating widget for detail views
+star_rating_widget <- function(ns, id_prefix,
+                               average = 0,
+                               count = 0,
+                               user_value = NULL,
+                               logged_in = FALSE) {
+  avg <- round(as.numeric(average %||% 0), 1)
+  n <- as.integer(count %||% 0)
+  uv <- as.integer(user_value %||% 0)
+
+  stars <- lapply(1:5, function(i) {
+    filled <- i <= uv
+    cls <- paste0(
+      "star-btn",
+      if (filled) " active" else "",
+      if (!logged_in) " readonly" else ""
+    )
+    icon <- if (filled) "star-fill" else "star"
+    if (logged_in) {
+      htmltools::tags$button(
+        class = cls,
+        onclick = sprintf(
+          "Shiny.setInputValue('%s', %d, {priority: 'event'})",
+          ns(paste0(id_prefix, "_star_click")), i
+        ),
+        bsicons::bs_icon(icon, size = "1.1rem")
+      )
+    } else {
+      htmltools::tags$span(
+        class = cls,
+        bsicons::bs_icon(
+          if (i <= round(avg)) "star-fill" else "star",
+          size = "1.1rem"
+        )
+      )
+    }
+  })
+
+  htmltools::tags$div(
+    style = "display:flex;align-items:center;gap:.75rem;",
+    htmltools::tags$div(class = "star-rating", stars),
+    htmltools::tags$span(
+      class = "star-rating-summary",
+      htmltools::tags$span(class = "star-avg", avg),
+      paste0("(", n, " ", if (n == 1) "rating" else "ratings", ")")
+    )
+  )
+}
+
+# Comment card component
+comment_card_ui <- function(comment, ns,
+                            current_user = NULL) {
+  user_name <- comment$user_name %||%
+    comment$user %||% "Anonymous"
+  initials <- toupper(substr(user_name, 1, 1))
+  date_str <- comment$created_at %||% ""
+  if (nzchar(date_str)) {
+    date_str <- tryCatch(
+      format(as.POSIXct(date_str), "%b %d, %Y"),
+      error = function(e) date_str
+    )
+  }
+  is_author <- !is.null(current_user) &&
+    identical(comment$user, current_user)
+
+  htmltools::tags$div(
+    class = "comment-card",
+    htmltools::tags$div(class = "comment-avatar", initials),
+    htmltools::tags$div(
+      class = "comment-body",
+      htmltools::tags$div(
+        class = "comment-meta",
+        htmltools::tags$span(
+          class = "comment-author", user_name
+        ),
+        htmltools::tags$span(
+          class = "comment-date", date_str
+        ),
+        if (is_author && !is.null(ns)) {
+          htmltools::tags$button(
+            class = "comment-delete",
+            onclick = sprintf(
+              "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+              ns("delete_comment"), comment$id
+            ),
+            bsicons::bs_icon("trash", size = ".7rem"),
+            " Delete"
+          )
+        }
+      ),
+      htmltools::tags$div(
+        class = "comment-text",
+        comment$text %||% ""
+      )
+    )
+  )
+}
+
+# Comments section (list + form)
+comments_section_ui <- function(comments, ns,
+                                id_prefix,
+                                current_user = NULL,
+                                logged_in = FALSE) {
+  comment_list <- if (length(comments) > 0) {
+    htmltools::tagList(lapply(comments, function(c) {
+      comment_card_ui(c, ns, current_user)
+    }))
+  } else {
+    htmltools::tags$div(
+      class = "empty-comments",
+      "No comments yet."
+    )
+  }
+
+  form <- if (logged_in && !is.null(ns)) {
+    htmltools::tags$div(
+      class = "comment-form",
+      htmltools::tags$textarea(
+        id = ns(paste0(id_prefix, "_comment_text")),
+        placeholder = "Add a comment...",
+        maxlength = "2000"
+      ),
+      htmltools::tags$button(
+        class = "btn btn-sm btn-primary btn-comment",
+        onclick = sprintf(
+          paste0(
+            "var ta=document.getElementById('%s');",
+            "if(ta.value.trim()){",
+            "Shiny.setInputValue('%s',ta.value,{priority:'event'});",
+            "ta.value='';}"
+          ),
+          ns(paste0(id_prefix, "_comment_text")),
+          ns(paste0(id_prefix, "_submit_comment"))
+        ),
+        bsicons::bs_icon("send", size = ".75rem"),
+        " Send"
+      )
+    )
+  }
+
+  htmltools::tags$div(
+    class = "comments-section",
+    htmltools::tags$div(
+      class = "section-title",
+      bsicons::bs_icon("chat-dots-fill"),
+      paste("Comments (", length(comments), ")")
+    ),
+    comment_list,
+    form
+  )
+}
+
+# Dependents section (backlinks)
+dependents_section_ui <- function(dependents, ns = NULL) {
+  if (length(dependents) == 0) return(NULL)
+
+  dep_chips <- lapply(dependents, function(dep) {
+    dep_name <- dep$name %||% dep$id
+    if (!is.null(ns)) {
+      htmltools::tags$span(
+        class = "cross-ref-chip cross-ref-recipe",
+        onclick = sprintf(
+          "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+          ns("navigate_dep_recipe"), dep$id
+        ),
+        bsicons::bs_icon("journal-code", size = ".75rem"),
+        " ", dep_name
+      )
+    } else {
+      htmltools::tags$span(
+        class = "cross-ref-chip cross-ref-recipe",
+        bsicons::bs_icon("journal-code", size = ".75rem"),
+        " ", dep_name
+      )
+    }
+  })
+
+  htmltools::tags$div(
+    class = "dependents-section",
+    htmltools::tags$div(
+      class = "section-title",
+      bsicons::bs_icon("diagram-2-fill"),
+      paste("Used by (", length(dependents), "recipes )")
+    ),
+    htmltools::tagList(dep_chips)
+  )
 }
 
 # Build S3 object path from recipe data_source metadata

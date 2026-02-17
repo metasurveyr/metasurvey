@@ -62,16 +62,24 @@ shiny_api_request <- function(method,
     {
       if (method == "GET") {
         httr2::req_perform(req)
+      } else if (method == "DELETE") {
+        req <- httr2::req_method(req, "DELETE")
+        httr2::req_perform(req)
       } else {
-        req <- httr2::req_body_raw(
-          req,
-          jsonlite::toJSON(
-            body,
-            auto_unbox = TRUE,
-            null = "null"
-          ),
-          type = "application/json"
-        )
+        if (method != "POST") {
+          req <- httr2::req_method(req, method)
+        }
+        if (!is.null(body)) {
+          req <- httr2::req_body_raw(
+            req,
+            jsonlite::toJSON(
+              body,
+              auto_unbox = TRUE,
+              null = "null"
+            ),
+            type = "application/json"
+          )
+        }
         httr2::req_perform(req)
       }
     },
@@ -1608,4 +1616,70 @@ example_workflows <- function() {
       version = "1.0.0"
     )
   )
+}
+
+# ── Stars ─────────────────────────────────────────────
+
+shiny_star <- function(target_type, id, value, token) {
+  shiny_api_request(
+    "PUT",
+    paste0(target_type, "s/", id, "/star"),
+    body = list(value = as.integer(value)),
+    token = token
+  )
+}
+
+shiny_get_stars <- function(target_type, id,
+                            token = NULL) {
+  shiny_api_request(
+    "GET",
+    paste0(target_type, "s/", id, "/stars"),
+    token = token
+  )
+}
+
+# ── Comments ──────────────────────────────────────────
+
+shiny_add_comment <- function(target_type, id,
+                              text, token) {
+  shiny_api_request(
+    "POST",
+    paste0(target_type, "s/", id, "/comments"),
+    body = list(text = text),
+    token = token
+  )
+}
+
+shiny_get_comments <- function(target_type, id) {
+  result <- shiny_api_request(
+    "GET",
+    paste0(target_type, "s/", id, "/comments")
+  )
+  if (isTRUE(result$ok)) {
+    result$comments %||% list()
+  } else {
+    list()
+  }
+}
+
+shiny_delete_comment <- function(comment_id, token) {
+  shiny_api_request(
+    "DELETE",
+    paste0("comments/", comment_id),
+    token = token
+  )
+}
+
+# ── Dependents (backlinks) ────────────────────────────
+
+shiny_get_recipe_dependents <- function(id) {
+  result <- shiny_api_request(
+    "GET",
+    paste0("recipes/", id, "/dependents")
+  )
+  if (isTRUE(result$ok)) {
+    result$dependents %||% list()
+  } else {
+    list()
+  }
 }
