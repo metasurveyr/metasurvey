@@ -6,6 +6,14 @@
 # metadata (labels, value labels, types) for ECH survey variables.
 # ══════════════════════════════════════════════════════════════════════════════
 
+.check_httr2 <- function() {
+  if (!requireNamespace("httr2", quietly = TRUE)) {
+    stop("Package 'httr2' is required for ANDA operations. ",
+      "Install it with: install.packages('httr2')",
+      call. = FALSE)
+  }
+}
+
 #' Fetch DDI XML from ANDA5 catalog
 #'
 #' Downloads the DDI (Data Documentation Initiative) XML file for a given
@@ -20,6 +28,7 @@
 anda_fetch_ddi <- function(catalog_id,
                            base_url = "https://www4.ine.gub.uy/Anda5",
                            dest_file = NULL) {
+  .check_httr2()
   url <- paste0(base_url, "/metadata/export/", catalog_id, "/ddi")
 
   if (is.null(dest_file)) {
@@ -59,6 +68,7 @@ anda_fetch_ddi <- function(catalog_id,
 anda_catalog_search <- function(keyword = "ECH",
                                 base_url = "https://www4.ine.gub.uy/Anda5",
                                 limit = 50) {
+  .check_httr2()
   url <- paste0(base_url, "/index.php/api/catalog/search")
 
   req <- httr2::request(url)
@@ -232,6 +242,9 @@ anda_list_editions <- function() {
 
 #' Download ECH microdata from ANDA5
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Downloads microdata files for a given ECH edition from INE Uruguay's
 #' ANDA5 catalog. Automatically accepts the terms of use, parses available
 #' resources, and downloads the appropriate file.
@@ -272,6 +285,7 @@ anda_download_microdata <- function(edition,
                                     dest_dir = tempdir(),
                                     base_url =
                                       "https://www4.ine.gub.uy/Anda5") {
+  .check_httr2()
   catalog_id <- .ech_catalog_ids[[as.character(edition)]]
   if (is.null(catalog_id)) {
     avail <- paste(names(.ech_catalog_ids), collapse = ", ")
@@ -625,6 +639,9 @@ anda_download_microdata <- function(edition,
 }
 
 #' Query ANDA variable metadata from the API
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' Fetches variable metadata (labels, types, value labels) from the
 #' metasurvey API's ANDA endpoint.

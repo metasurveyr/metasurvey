@@ -33,17 +33,16 @@ Authors@R:
             email = "fabricio.mch.slv@gmail.com"
         )
     )
-Description: Wraps the 'survey' package with 'R6' classes and a step-based
-    pipeline for reproducible survey data processing. Supports complex sampling
-    designs including rotating panels with bootstrap replicate weights, and
-    provides a recipe system for sharing and reproducing data transformation
-    workflows across survey editions.
+Description: Provides a step-based pipeline for reproducible survey data
+    processing, building on the 'survey' package for complex sampling designs.
+    Supports rotating panels with bootstrap replicate weights, and provides a
+    recipe system for sharing and reproducing data transformation workflows
+    across survey editions.
 License: GPL (>= 3)
 Imports:
     data.table (>= 1.14.2),
     cli (>= 3.0.0),
     glue (>= 1.6.0),
-    httr2 (>= 1.0.0),
     lifecycle (>= 1.0.0),
     jsonlite (>= 1.7.2),
     R6 (>= 2.5.0),
@@ -51,6 +50,7 @@ Imports:
     methods
 Suggests:
     archive,
+    httr2 (>= 1.0.0),
     haven,
     openxlsx,
     visNetwork (>= 2.0.9),

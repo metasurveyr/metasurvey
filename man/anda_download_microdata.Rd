@@ -39,11 +39,12 @@ to \code{load_survey()} or
 \code{data.table::fread()}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Downloads microdata files for a given ECH edition from INE Uruguay's
 ANDA5 catalog. Automatically accepts the terms of use, parses available
 resources, and downloads the appropriate file.
-}
-\details{
+
 For editions >= 2022, ANDA provides separate files for implantation,
 monthly follow-ups, and bootstrap replicate weights. Use the \code{resource}
 parameter to select which file to download.

@@ -107,6 +107,12 @@ configure_api <- function(url) {
 #' @keywords internal
 api_request <- function(endpoint, method = "GET",
                         body = NULL, params = NULL) {
+  if (!requireNamespace("httr2", quietly = TRUE)) {
+    stop("Package 'httr2' is required for API operations. ",
+      "Install it with: install.packages('httr2')",
+      call. = FALSE)
+  }
+
   base_url <- api_url()
 
   if (is.null(base_url)) {
@@ -388,6 +394,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 }
 
 #' @title Get recipe(s) by ID
+#' @description
 #' @param id Character vector of recipe ID(s). If length > 1, returns a list.
 #' @return A single Recipe object (or NULL) when \code{length(id) == 1}.
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
@@ -517,6 +524,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 }
 
 #' @title Get a single workflow by ID
+#' @description
 #' @param id Workflow ID
 #' @return RecipeWorkflow object or NULL
 #' @export

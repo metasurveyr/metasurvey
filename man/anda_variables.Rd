@@ -16,6 +16,8 @@ returns all variables for the survey type.}
 A data.frame with columns: name, label, type
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Fetches variable metadata (labels, types, value labels) from the
 metasurvey API's ANDA endpoint.
 }
