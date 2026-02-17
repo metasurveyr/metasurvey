@@ -30,3 +30,24 @@ Other provenance:
 [`provenance()`](https://metasurveyr.github.io/metasurvey/reference/provenance.md),
 [`provenance_diff()`](https://metasurveyr.github.io/metasurvey/reference/provenance_diff.md),
 [`provenance_to_json()`](https://metasurveyr.github.io/metasurvey/reference/provenance_to_json.md)
+
+## Examples
+
+``` r
+s <- survey_empty("ech", "2023")
+#> Type does not match. Please provide a valid type in the survey edition or as an argument
+s <- set_data(s, data.table::data.table(age = 18:65))
+s <- step_compute(s, age2 = age * 2)
+s <- bake_steps(s)
+print(provenance(s))
+#> ── Data Provenance ─────────────────────────────────────────────────────────────
+#> Loaded: 2026-02-17T16:04:35 
+#> 
+#> Pipeline:
+#>   1. step_1 Compute: age2  N=48 [0.0ms]
+#> 
+#> Environment:
+#>   metasurvey: 0.0.21 
+#>   R: 4.5.2 
+#>   survey: 4.4.8 
+```

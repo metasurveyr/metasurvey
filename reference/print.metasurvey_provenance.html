@@ -41,7 +41,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Print provenance information</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/v0.0.21/R/provenance.R" class="external-link"><code>R/provenance.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/provenance.R" class="external-link"><code>R/provenance.R</code></a></small>
       <div class="d-none name"><code>print.metasurvey_provenance.Rd</code></div>
     </div>
 
@@ -80,6 +80,27 @@
 <code><a href="provenance_to_json.html">provenance_to_json()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="survey_empty.html">survey_empty</a></span><span class="op">(</span><span class="st">"ech"</span>, <span class="st">"2023"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Type does not match. Please provide a valid type in the survey edition or as an argument</span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="set_data.html">set_data</a></span><span class="op">(</span><span class="va">s</span>, <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fl">18</span><span class="op">:</span><span class="fl">65</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="step_compute.html">step_compute</a></span><span class="op">(</span><span class="va">s</span>, age2 <span class="op">=</span> <span class="va">age</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="bake_steps.html">bake_steps</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="provenance.html">provenance</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Data Provenance ─────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Loaded: 2026-02-17T16:04:35 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pipeline:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1. step_1 Compute: age2  N=48 [0.0ms]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Environment:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   metasurvey: 0.0.21 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   R: 4.5.2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   survey: 4.4.8 </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

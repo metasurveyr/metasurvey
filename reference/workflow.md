@@ -108,7 +108,6 @@ result <- workflow(
   survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
-#> Warning: CV may not be useful for negative statistics
 
 # \donttest{
 # ECH example with domain estimations
