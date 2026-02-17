@@ -1,8 +1,6 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* This is a new submission.
+0 errors | 0 warnings | 0 notes
 
 ## Resubmission
 
@@ -21,6 +19,8 @@ fixed:
 * Updated bibliography entry (`references.bib`) with current INE URL.
 * Included the `api-database` vignette in the build (was previously
   excluded, causing broken file URI references from other vignettes).
+* Fixed SVG diagram branding text that referenced a non-existent
+  repository URL.
 
 ## Test environments
 
@@ -31,7 +31,7 @@ fixed:
 ## Notes
 
 * This is a new submission (first CRAN release).
-* Package contains 2,810 tests with 0 failures.
+* Package contains 2,959 tests with 0 failures.
 * The `eph`, `PNADcIBGE`, and `ipumsr` packages in Suggests are used
   conditionally in the international-surveys vignette; sections are
   skipped when these packages are not installed.
