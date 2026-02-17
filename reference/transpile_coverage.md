@@ -31,11 +31,11 @@ manual_review, coverage_pct
 tf <- tempfile(fileext = ".do")
 writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 transpile_coverage(tf)
-#>                file                              path total_commands translated
-#> 1 file4f498a2ac7.do /tmp/RtmpNdlq0Q/file4f498a2ac7.do              2          2
-#> 2             TOTAL /tmp/RtmpNdlq0Q/file4f498a2ac7.do              2          2
-#>   skipped manual_review coverage_pct
-#> 1       0             0          100
-#> 2       0             0          100
+#>                  file                                path total_commands
+#> 1 file1dd4716cbb9a.do /tmp/RtmpW6DAXu/file1dd4716cbb9a.do              2
+#> 2               TOTAL /tmp/RtmpW6DAXu/file1dd4716cbb9a.do              2
+#>   translated skipped manual_review coverage_pct
+#> 1          2       0             0          100
+#> 2          2       0             0          100
 # }
 ```

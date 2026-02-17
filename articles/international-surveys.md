@@ -31,8 +31,8 @@ and package the pipeline as a `Recipe`.
 ### Installing companion packages
 
 Most packages are on CRAN. The `casen` package is only available from
-GitHub. Missing packages are installed automatically when this vignette
-is built, but you can also install them manually:
+GitHub. Sections for unavailable packages are skipped automatically.
+Install them manually to see all examples:
 
 ``` r
 # CRAN packages
