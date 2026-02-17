@@ -372,7 +372,7 @@ The `rdhs` package ([CRAN](https://cran.r-project.org/package=rdhs),
 datasets (no authentication needed) are available at
 <https://dhsprogram.com/data/model-datasets.cfm>.
 
-```{r dhs, eval = requireNamespace("haven", quietly = TRUE)}
+```{r dhs, eval = FALSE}
 library(haven)
 
 # Download the model Individual Recode (no credentials needed)
