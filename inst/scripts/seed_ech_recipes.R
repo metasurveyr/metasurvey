@@ -3,9 +3,10 @@
 # seed_ech_recipes.R — Seed MongoDB from JSON files
 #
 # Single source of truth: inst/seed-data/*.json
-#   - recipes.json   → recipes collection
-#   - workflows.json → workflows collection
-#   - users.json     → users collection (seed/demo users)
+#   - recipes.json    → recipes collection
+#   - workflows.json  → workflows collection
+#   - users.json      → users collection (seed/demo users)
+#   - indicators.json → indicators collection (example indicators)
 #
 # Usage:
 #   METASURVEY_MONGO_URI="mongodb+srv://user:pass@cluster" \
@@ -52,6 +53,7 @@ cat("==========================================================\n\n")
 recipes_file <- file.path(seed_dir, "recipes.json")
 workflows_file <- file.path(seed_dir, "workflows.json")
 users_file <- file.path(seed_dir, "users.json")
+indicators_file <- file.path(seed_dir, "indicators.json")
 
 recipes <- fromJSON(recipes_file, simplifyVector = FALSE)
 cat(sprintf("  recipes.json    : %d entries\n", length(recipes)))
@@ -70,15 +72,24 @@ seed_users <- if (file.exists(users_file)) {
 }
 cat(sprintf("  users.json      : %d entries\n", length(seed_users)))
 
+indicators <- if (file.exists(indicators_file)) {
+  fromJSON(indicators_file, simplifyVector = FALSE)
+} else {
+  list()
+}
+cat(sprintf("  indicators.json : %d entries\n", length(indicators)))
+
 # ── Connect ──────────────────────────────────────────────────────────────────
 db_users <- mongolite::mongo(collection = "users", db = DATABASE, url = MONGO_URI)
 db_recipes <- mongolite::mongo(collection = "recipes", db = DATABASE, url = MONGO_URI)
 db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
+db_indicators <- mongolite::mongo(collection = "indicators", db = DATABASE, url = MONGO_URI)
 
 cat(sprintf("\nConnected to '%s'\n", DATABASE))
 cat(sprintf(
-  "  Before: users=%d, recipes=%d, workflows=%d\n",
-  db_users$count(), db_recipes$count(), db_workflows$count()
+  "  Before: users=%d, recipes=%d, workflows=%d, indicators=%d\n",
+  db_users$count(), db_recipes$count(),
+  db_workflows$count(), db_indicators$count()
 ))
 
 # ── 1. Cleanup ───────────────────────────────────────────────────────────────
@@ -96,9 +107,14 @@ for (u in seed_users) {
   db_users$remove(toJSON(list(email = u$email), auto_unbox = TRUE))
 }
 
+for (iid in vapply(indicators, function(i) i$id %||% "", character(1))) {
+  db_indicators$remove(toJSON(list(id = iid), auto_unbox = TRUE))
+}
+
 cat(sprintf(
-  "  Cleared: %d recipe slots, %d workflow slots, %d user slots\n",
-  length(recipes), length(workflows), length(seed_users)
+  "  Cleared: %d recipe, %d workflow, %d user, %d indicator slots\n",
+  length(recipes), length(workflows),
+  length(seed_users), length(indicators)
 ))
 
 # ── 2. Insert users ─────────────────────────────────────────────────────────
@@ -139,9 +155,24 @@ for (wf in workflows) {
   )
 }
 
+# ── 5. Insert indicators ──────────────────────────────────────────────────────
+if (length(indicators) > 0) {
+  cat(sprintf("\n[indicators] Inserting %d indicators...\n", length(indicators)))
+  for (ind in indicators) {
+    tryCatch(
+      {
+        db_indicators$insert(toJSON(ind, auto_unbox = TRUE, null = "null"))
+        cat(sprintf("  + %s [%s]\n", ind$name, ind$id))
+      },
+      error = function(e) message("  ERROR inserting ", ind$id, ": ", e$message)
+    )
+  }
+}
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 cat(sprintf(
-  "\n  After: users=%d, recipes=%d, workflows=%d\n",
-  db_users$count(), db_recipes$count(), db_workflows$count()
+  "\n  After: users=%d, recipes=%d, workflows=%d, indicators=%d\n",
+  db_users$count(), db_recipes$count(),
+  db_workflows$count(), db_indicators$count()
 ))
 cat("\nSeed complete!\n")
