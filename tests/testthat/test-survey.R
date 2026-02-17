@@ -124,6 +124,7 @@ test_that("weight names can be accessed", {
 })
 
 test_that("survey_to_tibble converts to tibble", {
+  skip_if_not_installed("tibble")
   s <- make_test_survey()
   tb <- survey_to_tibble(s)
   expect_s3_class(tb, "tbl_df")
