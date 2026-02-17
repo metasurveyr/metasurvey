@@ -20,6 +20,9 @@ has_casen <- requireNamespace("casen", quietly = TRUE)
 has_pnad <- requireNamespace("PNADcIBGE", quietly = TRUE)
 has_ipumsr <- requireNamespace("ipumsr", quietly = TRUE)
 has_haven <- requireNamespace("haven", quietly = TRUE)
+
+# Handle strata with a single PSU (common in example/sample data)
+options(survey.lonely.psu = "adjust")
 ```
 
 ## Introduction
