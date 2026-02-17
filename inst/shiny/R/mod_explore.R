@@ -91,6 +91,9 @@ explore_server <- function(
     # Counter for unique graph IDs
     graph_counter <- shiny::reactiveVal(0)
 
+    # Track current modal recipe for star/comment observers
+    current_modal_recipe <- shiny::reactiveValues(id = NULL)
+
     load_recipes <- function() {
       shiny::withProgress(message = "Loading recipes...", {
         recipes <- tryCatch(
@@ -275,6 +278,29 @@ explore_server <- function(
         }
       )
 
+      # Fetch stars, comments, and dependents
+      logged_in <- isTRUE(auth_state$logged_in)
+      token <- if (logged_in) auth_state$token else NULL
+      user_email <- if (logged_in) auth_state$email else NULL
+
+      stars_data <- tryCatch(
+        shiny_get_stars("recipe", recipe$id, token),
+        error = function(e) list(average = 0, count = 0)
+      )
+
+      comments <- tryCatch(
+        shiny_get_comments("recipe", recipe$id),
+        error = function(e) list()
+      )
+
+      dependents <- tryCatch(
+        shiny_get_recipe_dependents(recipe$id),
+        error = function(e) list()
+      )
+
+      # Store current recipe ID for observers
+      current_modal_recipe$id <- recipe$id
+
       shiny::showModal(
         shiny::modalDialog(
           recipe_detail_ui(recipe,
@@ -284,6 +310,19 @@ explore_server <- function(
             all_recipes = all_recipes(),
             anda_labels = anda_labels
           ),
+          star_rating_widget(
+            ns, "recipe",
+            average = stars_data$average,
+            count = stars_data$count,
+            user_value = stars_data$user_value,
+            logged_in = logged_in
+          ),
+          comments_section_ui(
+            comments, ns, "recipe",
+            current_user = user_email,
+            logged_in = logged_in
+          ),
+          dependents_section_ui(dependents, ns),
           size = "l",
           easyClose = TRUE,
           footer = shiny::modalButton("Close")
@@ -342,6 +381,72 @@ explore_server <- function(
         shiny::removeModal()
         navigate_to_workflow(input$navigate_workflow)
       }
+    })
+
+    # Star click: rate recipe
+    shiny::observeEvent(input$recipe_star_click, {
+      value <- input$recipe_star_click
+      rid <- current_modal_recipe$id
+      if (is.null(rid) || !isTRUE(auth_state$logged_in)) return()
+      tryCatch(
+        {
+          shiny_star("recipe", rid, value, auth_state$token)
+          shiny::showNotification(
+            paste("Rated", value, "stars"),
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not save rating:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
+    })
+
+    # Submit comment on recipe
+    shiny::observeEvent(input$recipe_submit_comment, {
+      text <- input$recipe_submit_comment
+      rid <- current_modal_recipe$id
+      if (is.null(rid) || !isTRUE(auth_state$logged_in)) return()
+      if (!nzchar(trimws(text))) return()
+      tryCatch(
+        {
+          shiny_add_comment("recipe", rid, text, auth_state$token)
+          shiny::showNotification(
+            "Comment added",
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not add comment:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
+    })
+
+    # Delete comment
+    shiny::observeEvent(input$delete_comment, {
+      cid <- input$delete_comment
+      if (is.null(cid) || !isTRUE(auth_state$logged_in)) return()
+      tryCatch(
+        {
+          shiny_delete_comment(cid, auth_state$token)
+          shiny::showNotification(
+            "Comment deleted",
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not delete comment:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
     })
 
     # Return the all_recipes reactive for cross-reference by workflows module

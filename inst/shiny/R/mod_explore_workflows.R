@@ -86,6 +86,9 @@ explore_workflows_server <- function(
     # Reactive: all workflows from MongoDB
     all_workflows <- shiny::reactiveVal(list())
 
+    # Track current modal workflow for star/comment observers
+    current_modal_workflow <- shiny::reactiveValues(id = NULL)
+
     load_workflows <- function() {
       shiny::withProgress(message = "Loading workflows...", {
         workflows <- tryCatch(
@@ -224,9 +227,38 @@ explore_workflows_server <- function(
         error = function(e) NULL
       )
 
+      # Fetch stars and comments
+      logged_in <- isTRUE(auth_state$logged_in)
+      token <- if (logged_in) auth_state$token else NULL
+      user_email <- if (logged_in) auth_state$email else NULL
+
+      stars_data <- tryCatch(
+        shiny_get_stars("workflow", wf$id, token),
+        error = function(e) list(average = 0, count = 0)
+      )
+
+      comments <- tryCatch(
+        shiny_get_comments("workflow", wf$id),
+        error = function(e) list()
+      )
+
+      current_modal_workflow$id <- wf$id
+
       shiny::showModal(
         shiny::modalDialog(
           workflow_detail_ui(wf, recipes_list = all_recipes(), ns = ns),
+          star_rating_widget(
+            ns, "workflow",
+            average = stars_data$average,
+            count = stars_data$count,
+            user_value = stars_data$user_value,
+            logged_in = logged_in
+          ),
+          comments_section_ui(
+            comments, ns, "workflow",
+            current_user = user_email,
+            logged_in = logged_in
+          ),
           size = "l",
           easyClose = TRUE,
           footer = shiny::modalButton("Close")
@@ -272,6 +304,72 @@ explore_workflows_server <- function(
         shiny::removeModal()
         navigate_to_recipe(input$navigate_recipe)
       }
+    })
+
+    # Star click: rate workflow
+    shiny::observeEvent(input$workflow_star_click, {
+      value <- input$workflow_star_click
+      wid <- current_modal_workflow$id
+      if (is.null(wid) || !isTRUE(auth_state$logged_in)) return()
+      tryCatch(
+        {
+          shiny_star("workflow", wid, value, auth_state$token)
+          shiny::showNotification(
+            paste("Rated", value, "stars"),
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not save rating:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
+    })
+
+    # Submit comment on workflow
+    shiny::observeEvent(input$workflow_submit_comment, {
+      text <- input$workflow_submit_comment
+      wid <- current_modal_workflow$id
+      if (is.null(wid) || !isTRUE(auth_state$logged_in)) return()
+      if (!nzchar(trimws(text))) return()
+      tryCatch(
+        {
+          shiny_add_comment("workflow", wid, text, auth_state$token)
+          shiny::showNotification(
+            "Comment added",
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not add comment:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
+    })
+
+    # Delete comment
+    shiny::observeEvent(input$delete_comment, {
+      cid <- input$delete_comment
+      if (is.null(cid) || !isTRUE(auth_state$logged_in)) return()
+      tryCatch(
+        {
+          shiny_delete_comment(cid, auth_state$token)
+          shiny::showNotification(
+            "Comment deleted",
+            type = "message", duration = 2
+          )
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste("Could not delete comment:", e$message),
+            type = "error", duration = 3
+          )
+        }
+      )
     })
 
     # Return reactive of all workflows for cross-reference from recipe module
