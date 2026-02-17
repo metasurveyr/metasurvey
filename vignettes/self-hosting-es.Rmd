@@ -53,9 +53,7 @@ acceso a los microdatos. El worker es el unico componente que toca los datos
 crudos de la encuesta.
 
 ```{r architecture-diagram, echo=FALSE, eval=TRUE, out.width="100%", fig.cap="Infraestructura de self-hosting de metasurvey"}
-knitr::include_graphics(
-  system.file("diagrams", "metasurvey-infrastructure.svg", package = "metasurvey")
-)
+knitr::include_graphics("metasurvey-infrastructure.png")
 ```
 
 **Separacion clave**: El Worker carga los microdatos, busca las recetas en
@@ -912,39 +910,81 @@ METASURVEY_ENABLE_WORKER=1
 METASURVEY_WORKER_URL=http://worker:8788
 ```
 
-## Despliegue hibrido: Registro publico + Worker privado
+## Despliegue hibrido: Registro publico + Infraestructura privada
 
 No necesitas correr tu propio MongoDB para acceder a las recetas
-compartidas. Podes apuntar tu API/Worker privado al **registro publico de
-recetas de metasurvey** para que investigadores con acceso a microdatos
-puedan aplicar recetas publicadas por la comunidad.
+compartidas. Podes desplegar **tu propia API + Worker** apuntando al
+**registro publico de recetas de metasurvey**, para que investigadores con
+acceso a microdatos apliquen recetas publicadas por la comunidad.
+
+La organizacion despliega dos servicios:
+
+1. **plumber API** (`:8787`) -- se conecta al MongoDB publico para leer
+   recetas y workflows. Recibe requests del frontend o investigadores, y
+   delega las estimaciones al worker.
+2. **Worker** (`:8788`) -- tiene metasurvey instalado y acceso a los
+   microdatos privados. Obtiene las recetas del registro publico (via
+   MongoDB), las aplica, y ejecuta las estimaciones.
+
+```text
+  MongoDB publico de metasurvey         Tu infraestructura
+  (recetas, workflows)                  (red privada)
+  +-------------------+           +---------------------------+
+  |  MongoDB Atlas     |<----------| plumber API  :8787        |
+  |  (solo lectura)    |           |   - lee recetas/wf        |
+  +-------------------+           |   - proxie POST /compute   |
+                                   +-------------+-------------+
+                                                 |
+                                    POST /compute|
+                                                 v
+                                   +-------------+-------------+
+                                   | Worker  :8788              |
+                                   |   - carga microdatos       |
+                                   |   - aplica recetas         |
+                                   |   - ejecuta workflow()     |
+                                   +---------------------------+
+                                                 ^
+                                   +-------------+-------------+
+                                   | Microdatos (.sav, .dta)   |
+                                   | PRIVADOS — nunca salen    |
+                                   +---------------------------+
+```
 
 ```bash
 # .env para despliegue hibrido
-# Usar el MongoDB publico de metasurvey (solo lectura para recetas/workflows)
+# Ambos (API y Worker) apuntan al MongoDB publico de metasurvey
 METASURVEY_MONGO_URI=mongodb+srv://readonly:public@metasurvey.mongodb.net
 METASURVEY_DB=metasurvey
 
 # El worker tiene microdatos locales
 SURVEY_DATA_PATH=/secure/microdatos
 
-# Indicadores locales (tu propio MongoDB o deshabilitados)
-METASURVEY_ENABLE_INDICATORS=0
+# La API delega estimaciones al worker
+METASURVEY_WORKER_URL=http://worker:8788
 METASURVEY_ENABLE_WORKER=1
+
+# Indicadores deshabilitados (no hay MongoDB local para guardarlos)
+METASURVEY_ENABLE_INDICATORS=0
+```
+
+```bash
+docker compose up api worker
 ```
 
 En este modo:
 
 - **Recetas y workflows** se obtienen del registro publico -- cualquier
-  receta publicada por la comunidad esta disponible para tu worker.
+  receta publicada por la comunidad esta disponible para tu API y worker.
 - **Los microdatos son privados** -- el worker carga archivos de encuesta
   desde un volumen local, nunca expuestos externamente.
-- **La estimacion es local** -- el worker aplica recetas y ejecuta workflows
-  en tu infraestructura.
+- **La estimacion es local** -- la API recibe el request, lo delega al
+  worker, que aplica las recetas y ejecuta `workflow()` en tu
+  infraestructura.
+- **Sin MongoDB propio** -- usas el registro publico tal cual.
 
 Esto es util para equipos de investigacion que tienen acceso a microdatos
 restringidos y quieren aplicar recetas estandarizadas sin mantener su propia
-base de datos de recetas.
+base de datos.
 
 ## Despliegue en produccion
 
