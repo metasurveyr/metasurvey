@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.16</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,28 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.16" id="metasurvey-0016">metasurvey 0.0.16<a class="anchor" aria-label="anchor" href="#metasurvey-0016"></a></h2>
+<div class="section level3">
+<h3 id="dependencies-0-0-16">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-0-16"></a></h3>
+<ul><li>Migrated <code>crayon</code> to <code>cli</code> for terminal output coloring. All <code><a href="http://r-lib.github.io/crayon/reference/crayon.html" class="external-link">crayon::bold()</a></code>, <code><a href="http://r-lib.github.io/crayon/reference/crayon.html" class="external-link">crayon::silver()</a></code>, <code><a href="http://r-lib.github.io/crayon/reference/crayon.html" class="external-link">crayon::green()</a></code>, etc. replaced with <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::style_bold()</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::col_silver()</a></code>, <code><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">cli::col_green()</a></code>, etc. across 8 files.</li>
+<li>Migrated <code>httr</code> to <code>httr2</code> for HTTP requests. All API client, ANDA catalog, and Shiny helper functions now use the pipe-based <code>httr2</code> API (<code>request() |&gt; req_headers() |&gt; req_perform()</code>).</li>
+<li>Replaced all <code><a href="https://glue.tidyverse.org/reference/glue_col.html" class="external-link">glue::glue_col()</a></code> calls (which depended on crayon color functions) with <code><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue::glue()</a></code> + <code>cli::col_*()</code> wrappers.</li>
+<li>Removed <code>bit64</code> and <code>jose</code> (already unused since 0.0.14) from Dockerfile.</li>
+<li>Removed <code>casen</code> from Suggests (GitHub-only package, not available on CRAN).</li>
+<li>Removed <code>pak</code> from Suggests (no longer used in vignettes).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-16">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-16"></a></h3>
+<ul><li>Fixed international-surveys vignette crash on PNADcIBGE example data: set <code>options(survey.lonely.psu = "adjust")</code> for strata with single PSUs.</li>
+<li>Fixed vignette setup chunk that attempted to install packages at build time via <code>pak</code>; replaced with <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace()</a></code> guards.</li>
+<li>Updated Shiny Dockerfile dependencies to match new imports (httr2, cli).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-0-16">Internal<a class="anchor" aria-label="anchor" href="#internal-0-0-16"></a></h3>
+<ul><li>Excluded 9 Spanish (<code>*-es.Rmd</code>) vignettes from CRAN tarball via <code>.Rbuildignore</code> (remain available on pkgdown site).</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.15" id="metasurvey-0015">metasurvey 0.0.15<a class="anchor" aria-label="anchor" href="#metasurvey-0015"></a></h2>
 <div class="section level3">
 <h3 id="new-features-0-0-15">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-15"></a></h3>
@@ -61,7 +83,7 @@
 <div class="section level3">
 <h3 id="internal-0-0-15">Internal<a class="anchor" aria-label="anchor" href="#internal-0-0-15"></a></h3>
 <ul><li>Expanded test suite to 2810 tests covering strata support, edge cases in STATA transpiler, API client, panel surveys, and recipe system.</li>
-<li>Added <code>pak</code> and survey-related packages to Suggests for vignette builds.</li>
+<li>Expanded test suite to cover strata support in survey construction and workflow estimation.</li>
 </ul></div>
 </div>
     <div class="section level2">
