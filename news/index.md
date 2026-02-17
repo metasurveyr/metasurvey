@@ -1,5 +1,26 @@
 # Changelog
 
+## metasurvey 0.0.17
+
+### New features
+
+- Indicators API module: new `/indicators` REST endpoints for publishing
+  estimation results with full traceability (indicator -\> workflow -\>
+  recipe). Feature-gated via `METASURVEY_ENABLE_INDICATORS` env var.
+- Compute worker service: on-demand estimation via
+  `POST /indicators/compute`. The worker loads private microdata,
+  applies recipes, and runs
+  [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md).
+  Deployed as a separate Docker container, never exposes raw survey
+  data.
+- Self-hosting vignette: deployment guide with Docker Compose, including
+  hybrid mode (public recipe registry + private worker with microdata).
+
+### Documentation
+
+- Updated self-hosting vignette with hybrid deployment architecture
+  diagram.
+
 ## metasurvey 0.0.16
 
 ### Dependencies

@@ -53,6 +53,11 @@ The full stack is deployed and publicly available:
 - **Shiny app**: [interactive recipe and workflow
   explorer](https://metasurvey-shiny-production.up.railway.app) with
   [`explore_recipes()`](https://metasurveyr.github.io/metasurvey/reference/explore_recipes.md).
+- **Self-hosting**: deploy the full stack on your infrastructure with
+  Docker Compose or Kubernetes. Publish indicators with full
+  traceability (indicator → workflow → recipe) while keeping microdata
+  private. See
+  [`vignette("self-hosting")`](https://metasurveyr.github.io/metasurvey/articles/self-hosting.md).
 - **STATA transpiler**: convert `.do` files into reproducible Recipe
   objects.
 
@@ -309,6 +314,8 @@ for the full reference.
   explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.html)
 - [API and
   database](https://metasurveyr.github.io/metasurvey/articles/api-database.html)
+- [Self-hosting
+  guide](https://metasurveyr.github.io/metasurvey/articles/self-hosting.html)
 
 ------------------------------------------------------------------------
 

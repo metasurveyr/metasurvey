@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,19 @@
       <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.17" id="metasurvey-0017">metasurvey 0.0.17<a class="anchor" aria-label="anchor" href="#metasurvey-0017"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-0-17">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-17"></a></h3>
+<ul><li>Indicators API module: new <code>/indicators</code> REST endpoints for publishing estimation results with full traceability (indicator -&gt; workflow -&gt; recipe). Feature-gated via <code>METASURVEY_ENABLE_INDICATORS</code> env var.</li>
+<li>Compute worker service: on-demand estimation via <code>POST /indicators/compute</code>. The worker loads private microdata, applies recipes, and runs <code><a href="../reference/workflow.html">workflow()</a></code>. Deployed as a separate Docker container, never exposes raw survey data.</li>
+<li>Self-hosting vignette: deployment guide with Docker Compose, including hybrid mode (public recipe registry + private worker with microdata).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-0-17">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-17"></a></h3>
+<ul><li>Updated self-hosting vignette with hybrid deployment architecture diagram.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.16" id="metasurvey-0016">metasurvey 0.0.16<a class="anchor" aria-label="anchor" href="#metasurvey-0016"></a></h2>
 <div class="section level3">

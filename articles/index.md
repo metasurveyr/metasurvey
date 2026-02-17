@@ -33,6 +33,8 @@ Interactive explorer, REST API, and database
   Explorer](https://metasurveyr.github.io/metasurvey/articles/shiny-explorer.md):
 - [API and Database
   Reference](https://metasurveyr.github.io/metasurvey/articles/api-database.md):
+- [Self-Hosting
+  Guide](https://metasurveyr.github.io/metasurvey/articles/self-hosting.md):
 
 ### STATA Transpiler
 
@@ -78,3 +80,5 @@ Documentación en español
   (ES)](https://metasurveyr.github.io/metasurvey/articles/ech-demographics-recipe-es.md):
 - [Compatibilidad con encuestas internacionales
   (ES)](https://metasurveyr.github.io/metasurvey/articles/international-surveys-es.md):
+- [Guia de Self-Hosting
+  (ES)](https://metasurveyr.github.io/metasurvey/articles/self-hosting-es.md):
