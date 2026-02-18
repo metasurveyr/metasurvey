@@ -2,15 +2,16 @@
 
 ## Authors
 
-- **[Mauro Loprete](https://www.mauroloprete.com)**. Author, maintainer.
-  [](https://orcid.org/0000-0003-1560-0183)
+- **[Mauro
+  Loprete](https://iesta.fcea.udelar.edu.uy/integrantes/loprete-mauro/)**.
+  Author, maintainer. [](https://orcid.org/0000-0003-1560-0183)
 
 - **[Natalia da Silva](https://natydasilva.github.io/natydasilva/)**.
   Author. [](https://orcid.org/0000-0002-6031-7451)
 
 - **[Fabricio
   Machado](https://iecon.fcea.udelar.edu.uy/es/autores/item/machado-fabricio.html)**.
-  Author.
+  Author. [](https://orcid.org/0009-0008-2653-9166)
 
 ## Citation
 
