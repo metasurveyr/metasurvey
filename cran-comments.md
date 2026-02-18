@@ -4,23 +4,15 @@
 
 ## Resubmission
 
-This is a resubmission. In the previous submission (0.0.17) the package
-received a NOTE about invalid URLs and file URIs. All issues have been
-fixed:
+This is a resubmission. The previous submission (0.0.21) was flagged
+for an invalid file URI (`CONTRIBUTING.md` referenced from `README.md`).
+Fixed:
 
-* Updated redirected URLs (Azure AKS, INE Uruguay) to their current
-  destinations.
-* Removed links to resources that are no longer available (Railway API,
-  infrastructure repository).
-* Replaced relative cross-vignette links to excluded vignettes with
-  full pkgdown URLs.
-* Replaced relative `CODE_OF_CONDUCT.md` link in README with full
-  GitHub URL.
-* Updated bibliography entry (`references.bib`) with current INE URL.
-* Included the `api-database` vignette in the build (was previously
-  excluded, causing broken file URI references from other vignettes).
-* Fixed SVG diagram branding text that referenced a non-existent
-  repository URL.
+* Replaced relative `CONTRIBUTING.md` link in README with full GitHub URL.
+* Replaced relative `CODE_OF_CONDUCT.md` link in CONTRIBUTING.md with
+  full GitHub URL.
+* Wrapped bare URL in roxygen with `\url{}` (`load_survey_example.Rd`).
+* Added `Rplots.pdf` and `convey-inequality_files/` to `.Rbuildignore`.
 
 ## Test environments
 
