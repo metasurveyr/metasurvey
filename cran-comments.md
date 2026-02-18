@@ -12,7 +12,6 @@ Fixed:
 * Replaced relative `CODE_OF_CONDUCT.md` link in CONTRIBUTING.md with
   full GitHub URL.
 * Wrapped bare URL in roxygen with `\url{}` (`load_survey_example.Rd`).
-* Added `Rplots.pdf` and `convey-inequality_files/` to `.Rbuildignore`.
 
 ## Test environments
 

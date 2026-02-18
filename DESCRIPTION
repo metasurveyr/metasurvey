@@ -30,7 +30,8 @@ Authors@R:
             role = c(
                 "aut"
             ),
-            email = "fabricio.mch.slv@gmail.com"
+            email = "fabricio.mch.slv@gmail.com",
+            comment = c(ORCID = "0009-0008-2653-9166")
         )
     )
 Description: Provides a step-based pipeline for reproducible survey data
