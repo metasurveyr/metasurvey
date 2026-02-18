@@ -12,7 +12,8 @@ antes de que cualquier análisis inter-anual sea posible.
 
 La compatibilización de la ECH ha sido un trabajo histórico del
 Instituto de Economía (IECON) de la Universidad de la República. El
-dataset resultante tiene DOI: <http://doi.org/10.47426/ECH.INE>
+dataset resultante está disponible en [FCEA - ECH
+Compatibilizadas](https://fcea.udelar.edu.uy/portada-ech-compatibilizadas.html)
 (Instituto de Economía, 2020). metasurvey busca complementar y facilitar
 este tipo de trabajo ofreciendo herramientas reproducibles en R.
 

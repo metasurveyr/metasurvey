@@ -11,9 +11,10 @@ before any cross-year analysis is possible.
 
 ECH harmonization has historically been carried out by the Instituto de
 Economia (IECON) at the Universidad de la Republica. The resulting
-dataset has DOI: <http://doi.org/10.47426/ECH.INE> (Instituto de
-Economia, 2020). metasurvey aims to complement and facilitate this kind
-of work by providing reproducible tools in R.
+dataset is available at [FCEA - ECH
+Compatibilizadas](https://fcea.udelar.edu.uy/portada-ech-compatibilizadas.html)
+(Instituto de Economia, 2020). metasurvey aims to complement and
+facilitate this kind of work by providing reproducible tools in R.
 
 In Uruguayan academia, this work has been done in STATA for over 30
 years. A typical harmonization pipeline consists of approximately **8
