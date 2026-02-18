@@ -163,7 +163,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' in the same session.
 #'
 #' Available survey types and editions can be found at:
-#' https://github.com/metasurveyr/metasurvey_data
+#' \url{https://github.com/metasurveyr/metasurvey_data}
 #'
 #' @examples
 #' \dontrun{

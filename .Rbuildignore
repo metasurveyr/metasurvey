@@ -79,3 +79,5 @@
 ^vignettes/self-hosting\.Rmd$
 ^vignettes/stata-transpiler\.Rmd$
 ^vignettes/convey-inequality\.Rmd$
+^vignettes/convey-inequality_files$
+^Rplots\.pdf$

@@ -14,7 +14,7 @@ A single Recipe object (or NULL) when \code{length(id) == 1}.
 A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 }
 \description{
-Get recipe(s) by ID
+Retrieve one or more recipes from the API by their IDs.
 }
 \examples{
 \dontrun{

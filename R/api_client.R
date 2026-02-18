@@ -394,7 +394,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 }
 
 #' @title Get recipe(s) by ID
-#' @description
+#' @description Retrieve one or more recipes from the API by their IDs.
 #' @param id Character vector of recipe ID(s). If length > 1, returns a list.
 #' @return A single Recipe object (or NULL) when \code{length(id) == 1}.
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
@@ -524,7 +524,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 }
 
 #' @title Get a single workflow by ID
-#' @description
+#' @description Retrieve a workflow from the API by its ID.
 #' @param id Workflow ID
 #' @return RecipeWorkflow object or NULL
 #' @export

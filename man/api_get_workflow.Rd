@@ -13,7 +13,7 @@ api_get_workflow(id)
 RecipeWorkflow object or NULL
 }
 \description{
-Get a single workflow by ID
+Retrieve a workflow from the API by its ID.
 }
 \examples{
 \dontrun{
