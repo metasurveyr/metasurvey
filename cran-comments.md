@@ -23,7 +23,11 @@ Fixed:
 ## Notes
 
 * This is a new submission (first CRAN release).
-* Package contains 2,959 tests with 0 failures.
+* Package contains 2,972 tests with 0 failures.
 * The `eph`, `PNADcIBGE`, and `ipumsr` packages in Suggests are used
   conditionally in the international-surveys vignette; sections are
   skipped when these packages are not installed.
+* URL `https://www.gub.uy/instituto-nacional-estadistica/` may
+  trigger a timeout NOTE. This is the official website of Uruguay's
+  National Statistics Institute (INE) — a valid government URL that
+  is occasionally slow to respond from outside Latin America.
