@@ -33,7 +33,7 @@ repository on GitHub. The data is cached locally in a temporary file to
 avoid repeated downloads in the same session.
 
 Available survey types and editions can be found at:
-https://github.com/metasurveyr/metasurvey_data
+<https://github.com/metasurveyr/metasurvey_data>
 
 ## See also
 

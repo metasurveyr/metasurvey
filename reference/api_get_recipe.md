@@ -1,6 +1,6 @@
 # Get recipe(s) by ID
 
-Get recipe(s) by ID
+Retrieve one or more recipes from the API by their IDs.
 
 ## Usage
 

@@ -75,7 +75,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Poverty and Inequality with convey</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/vignettes/convey-inequality.Rmd" class="external-link"><code>vignettes/convey-inequality.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/convey-inequality.Rmd" class="external-link"><code>vignettes/convey-inequality.Rmd</code></a></small>
       <div class="d-none name"><code>convey-inequality.Rmd</code></div>
     </div>
 
@@ -881,7 +881,7 @@ estimation:</p>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
-<td class="gt_sourcenote" colspan="7">metasurvey 0.0.21 | CI: 95% | 2026-02-17</td>
+<td class="gt_sourcenote" colspan="7">metasurvey 0.0.21 | CI: 95% | 2026-02-18</td>
     </tr></tfoot>
 </table>
 </div>
@@ -895,6 +895,22 @@ applied, convey estimates computed, and package versions — is
 available:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/provenance.html">provenance</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span>
+<span><span class="va">prov</span></span>
+<span><span class="co">#&gt; ── Data Provenance ─────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Loaded: 2026-02-18T00:40:19 </span></span>
+<span><span class="co">#&gt; Initial rows: 200 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Pipeline:</span></span>
+<span><span class="co">#&gt;   1. step_1 Compute: api_growth  N=200 [1.0ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimation:</span></span>
+<span><span class="co">#&gt;   Type: annual </span></span>
+<span><span class="co">#&gt;   Timestamp: 2026-02-18T00:40:19 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Environment:</span></span>
+<span><span class="co">#&gt;   metasurvey: 0.0.21 </span></span>
+<span><span class="co">#&gt;   R: 4.5.2 </span></span>
+<span><span class="co">#&gt;   survey: 4.4.8</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"metasurvey version:"</span>, <span class="va">prov</span><span class="op">$</span><span class="va">environment</span><span class="op">$</span><span class="va">metasurvey_version</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; metasurvey version: 0.0.21</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Steps applied:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">prov</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>

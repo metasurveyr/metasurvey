@@ -350,7 +350,7 @@ citation("metasurvey")
 ## Contributing
 
 Please see
-[CONTRIBUTING.md](https://metasurveyr.github.io/metasurvey/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/metasurveyr/metasurvey/blob/main/CONTRIBUTING.md)
 for guidelines on how to contribute to metasurvey.
 
 ## Code of Conduct
