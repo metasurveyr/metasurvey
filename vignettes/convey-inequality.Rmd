@@ -276,6 +276,7 @@ convey estimates computed, and package versions --- is available:
 
 ```{r provenance, eval = can_run}
 prov <- provenance(results)
+prov
 cat("metasurvey version:", prov$environment$metasurvey_version, "\n")
 cat("Steps applied:", length(prov$steps), "\n")
 ```
