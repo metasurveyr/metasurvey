@@ -2,7 +2,6 @@
 
 app_css <- function() {
   htmltools::tags$style(htmltools::HTML("
-    /* ══ Design System: Minimalist + Eye-catching ══ */
     :root {
       --slate-900: #0f172a;
       --slate-800: #1e293b;

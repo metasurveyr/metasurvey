@@ -21,7 +21,6 @@ for (f in list.files(
   source(f, local = TRUE)
 }
 
-# Theme — minimalist with indigo accent
 app_theme <- bs_theme(
   version = 5,
   primary = "#6366f1",
