@@ -38,8 +38,6 @@ METASURVEY_MONGO_URI="..." Rscript inst/scripts/seed_anda_metadata.R
 
 ## Migracion de schema (base existente)
 
-MongoDB Atlas free tier no soporta `collMod`, asi que para actualizar
-el schema hay que dropear y recrear las colecciones:
 
 ```bash
 # 1. Dropear colecciones (el seed las repobla)
@@ -118,3 +116,4 @@ no borra datos creados por usuarios via la API.
 | `METASURVEY_MONGO_URI` | — | Connection string MongoDB (requerida) |
 | `METASURVEY_DB` | `metasurvey` | Nombre de la base de datos |
 | `ANDA_CATALOG_ID` | `767` | ID del catalogo ANDA (solo para seed_anda) |
+
