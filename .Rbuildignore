@@ -63,7 +63,6 @@
 ^vignettes/.*\.html$
 ^vignettes/api-database-es\.Rmd$
 ^vignettes/shiny-explorer-es\.Rmd$
-^vignettes/shiny-explorer\.Rmd$
 ^vignettes/complex-designs-es\.Rmd$
 ^vignettes/ech-case-study-es\.Rmd$
 ^vignettes/ech-demographics-recipe-es\.Rmd$
@@ -74,10 +73,4 @@
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
 ^vignettes/self-hosting-es\.Rmd$
-^vignettes/ech-demographics-recipe\.Rmd$
-^vignettes/api-database\.Rmd$
-^vignettes/self-hosting\.Rmd$
-^vignettes/stata-transpiler\.Rmd$
-^vignettes/convey-inequality\.Rmd$
-^vignettes/convey-inequality_files$
 ^Rplots\.pdf$
