@@ -11,6 +11,100 @@ navbar:
   structure:
     left:  [intro, articles, reference, news]
     right: [search, github, lightswitch]
+  components:
+    intro:
+      text: Get Started
+      href: articles/getting-started.html
+    articles:
+      text: Articles
+      menu:
+        - text: Core Features
+        - text: Recipes
+          href: articles/recipes.html
+        - text: Workflows & Estimation
+          href: articles/workflows-and-estimation.html
+        - text: -------
+        - text: Advanced Topics
+        - text: Complex Designs
+          href: articles/complex-designs.html
+        - text: Panel Analysis
+          href: articles/panel-analysis.html
+        - text: -------
+        - text: Infrastructure
+        - text: Shiny Explorer
+          href: articles/shiny-explorer.html
+        - text: REST API & Database
+          href: articles/api-database.html
+        - text: Self-Hosting
+          href: articles/self-hosting.html
+        - text: -------
+        - text: Interoperability
+        - text: STATA Transpiler
+          href: articles/stata-transpiler.html
+        - text: -------
+        - text: Case Studies
+        - text: ECH Demographics Recipe
+          href: articles/ech-demographics-recipe.html
+        - text: ECH Case Study
+          href: articles/ech-case-study.html
+        - text: International Surveys
+          href: articles/international-surveys.html
+        - text: Inequality with convey
+          href: articles/convey-inequality.html
+        - text: -------
+        - text: "Espa\u00F1ol"
+        - text: Comenzando
+          href: articles/getting-started-es.html
+        - text: Recetas
+          href: articles/recipes-es.html
+        - text: Workflows y Estimaciones
+          href: articles/workflows-and-estimation-es.html
+        - text: "Dise\u00F1os Complejos"
+          href: articles/complex-designs-es.html
+        - text: "An\u00E1lisis de Panel"
+          href: articles/panel-analysis-es.html
+        - text: Caso de Estudio ECH
+          href: articles/ech-case-study-es.html
+        - text: "Demograf\u00EDa ECH"
+          href: articles/ech-demographics-recipe-es.html
+        - text: Encuestas Internacionales
+          href: articles/international-surveys-es.html
+        - text: Explorador Shiny
+          href: articles/shiny-explorer-es.html
+        - text: API y Base de Datos
+          href: articles/api-database-es.html
+        - text: Self-Hosting
+          href: articles/self-hosting-es.html
+        - text: Transpilador STATA
+          href: articles/stata-transpiler-es.html
+    reference:
+      text: Reference
+      menu:
+        - text: Survey Objects
+          href: reference/index.html#surveys
+        - text: Step Pipeline
+          href: reference/index.html#steps
+        - text: Recipes
+          href: reference/index.html#recipes
+        - text: Recipe Discovery
+          href: reference/index.html#recipe-discovery
+        - text: -------
+        - text: Estimation & Provenance
+          href: reference/index.html#estimation
+        - text: Rotating Panels
+          href: reference/index.html#rotating-panels
+        - text: Weights & Design
+          href: reference/index.html#weights-and-design
+        - text: -------
+        - text: Remote API
+          href: reference/index.html#remote-api
+        - text: ANDA Catalog
+          href: reference/index.html#anda
+        - text: STATA Transpiler
+          href: reference/index.html#stata-transpiler
+        - text: -------
+        - text: All functions
+          href: reference/index.html
 
 authors:
   Mauro Loprete:
@@ -221,8 +315,8 @@ articles:
   - ech-case-study
   - international-surveys
   - convey-inequality
-- title: "Español"
-  desc: "Documentación en español"
+- title: "Espa\u00F1ol"
+  desc: "Documentaci\u00F3n en espa\u00F1ol"
   contents:
   - getting-started-es
   - recipes-es
