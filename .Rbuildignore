@@ -73,4 +73,5 @@
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
 ^vignettes/self-hosting-es\.Rmd$
+^R/README\.md$
 ^Rplots\.pdf$
