@@ -53,7 +53,7 @@ svy <- Survey$new(
 )
 provenance(svy)
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-02-20T02:06:15 
+#> Loaded: 2026-02-20T02:17:55 
 #> Initial rows: 10 
 #> 
 #> Environment:

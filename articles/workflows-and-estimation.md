@@ -392,7 +392,7 @@ to trace any estimate back to the raw data.
 prov <- provenance(svy_full)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-02-20T02:08:10 
+#> Loaded: 2026-02-20T02:19:37 
 #> Initial rows: 200 
 #> 
 #> Environment:
