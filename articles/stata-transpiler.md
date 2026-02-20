@@ -457,49 +457,20 @@ result <- transpile_stata(do_file)
 
 ``` r
 cat("Translated:", result$stats$translated, "\n")
-#> Translated: 27
 cat("Skipped:   ", result$stats$skipped, "\n")
-#> Skipped:    6
 cat("Manual:    ", result$stats$manual_review, "\n")
-#> Manual:     0
 ```
 
 ``` r
 # Print the generated steps
 for (s in result$steps) cat(s, "\n")
-#> step_rename(svy, hh_id = "id", person_id = "nper") 
-#> step_compute(svy, weight_yr = pesoano, weight_qt = pesotri, sex = q01) 
-#> step_recode(svy, relationship,
-#>     q05 == 1 ~ "1",
-#>     q05 == 2 ~ "2",
-#>     (q05 >= 3 & q05 <= 5) ~ "3",
-#>     q05 == 6 ~ "4",
-#>     q05 == 7 ~ "5",
-#>     .default = "-9") 
-#> step_compute(svy, area = NA, area = data.table::fifelse(region == 1, 1, area), area = data.table::fifelse(region == 2, 2, area), area = data.table::fifelse(region == 3, 3, area), edu_compat = q20, edu_compat = data.table::fifelse(q20 == 2, 2, edu_compat), edu_compat = data.table::fifelse(q20 == 3, -9, edu_compat), edu_compat = data.table::fifelse(q20 == 4, 3, edu_compat), edu_compat = data.table::fifelse(q20 == 5, 4, edu_compat)) 
-#> step_compute(svy, max_age = max(edad, na.rm = TRUE), n_members = sum(!is.na(person_id)), .by = "hh_id") 
-#> step_compute(svy, contrib1 = 0, contrib1 = data.table::fifelse(provider == 1, amount, contrib1), contrib2 = 0, contrib2 = data.table::fifelse(provider == 2, amount, contrib2), contrib3 = 0, contrib3 = data.table::fifelse(provider == 3, amount, contrib3), contrib1 = data.table::fifelse(is.na(contrib1), 0, contrib1), contrib2 = data.table::fifelse(is.na(contrib2), 0, contrib2), contrib3 = data.table::fifelse(is.na(contrib3), 0, contrib3)) 
-#> step_remove(svy, region, q01, q05, q20)
 ```
 
 ### Labels
 
 ``` r
 str(result$labels$var_labels)
-#> List of 2
-#>  $ sex         : chr "Sex"
-#>  $ relationship: chr "Relationship to household head"
 str(result$labels$val_labels)
-#> List of 2
-#>  $ sex         :List of 2
-#>   ..$ 1: chr "Male"
-#>   ..$ 2: chr "Female"
-#>  $ relationship:List of 5
-#>   ..$ 1: chr "Head"
-#>   ..$ 2: chr "Spouse"
-#>   ..$ 3: chr "Child"
-#>   ..$ 4: chr "Other relative"
-#>   ..$ 5: chr "Non-relative"
 ```
 
 ### Building a Recipe from transpiled steps

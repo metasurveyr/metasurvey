@@ -89,7 +89,6 @@ Nothing happened to the data yet:
 
 ``` r
 names(get_data(svy))[1:4]
-#> [1] "id"      "nper"    "pesoano" "e26"
 ```
 
 The original column names are still there because the step is pending.
@@ -193,7 +192,6 @@ At this point we have seven pending steps. Let’s see what was recorded:
 
 ``` r
 length(get_steps(svy))
-#> [1] 7
 ```
 
 This is one of the key advantages of building from scratch: **7 steps
@@ -224,13 +222,6 @@ For static output we can inspect the step list:
 for (s in get_steps(svy)) {
   cat(sprintf("[%s] %s\n", s$type, s$comment %||% ""))
 }
-#> [step_rename] Standardize identifiers
-#> [recode] Sex from e26
-#> [recode] Age groups from e27
-#> [recode] Relationship from e30
-#> [recode] Education level from e51_2
-#> [recode] Geographic area from region_4
-#> [step_remove] Drop raw ECH variables
 ```
 
 ## Packaging as a recipe (before baking)
@@ -253,29 +244,6 @@ rec <- steps_to_recipe(
 )
 
 rec
-#> 
-#> ── Recipe: ECH Demographics (minimal) ──
-#> Author:  research_team
-#> Survey:  ech / 2023
-#> Version: 1.0.0
-#> Topic:   demographics
-#> Description: Harmonized demographics: sex, age group, relationship, education level, and geographic area.
-#> Certification: community
-#> 
-#> ── Requires (5 variables) ──
-#>   e26, e27, e30, e51_2, region_4
-#> 
-#> ── Pipeline (7 steps) ──
-#>   1. [step_rename] -> mapping  "Standardize identifiers"
-#>   2. [recode] -> sex  "Sex from e26"
-#>   3. [recode] -> age_group  "Age groups from e27"
-#>   4. [recode] -> relationship  "Relationship from e30"
-#>   5. [recode] -> edu_level  "Education level from e51_2"
-#>   6. [recode] -> area  "Geographic area from region_4"
-#>   7. [step_remove] -> (no output)  "Drop raw ECH variables"
-#> 
-#> ── Produces (6 variables) ──
-#>   sex [categorical], age_group [categorical], relationship [categorical], edu_level [categorical], area [categorical], mapping [inherited]
 ```
 
 The recipe auto-generates documentation from the steps:
@@ -283,11 +251,8 @@ The recipe auto-generates documentation from the steps:
 ``` r
 doc <- rec$doc()
 cat("Input variables: ", paste(doc$input_variables, collapse = ", "), "\n")
-#> Input variables:  e26, e27, e30, e51_2, region_4
 cat("Output variables:", paste(doc$output_variables, collapse = ", "), "\n")
-#> Output variables: mapping, sex, age_group, relationship, edu_level, area
 cat("Pipeline steps:  ", length(doc$pipeline), "\n")
-#> Pipeline steps:   7
 ```
 
 ## Baking: materializing the pipeline
@@ -307,21 +272,12 @@ head(get_data(svy)[, .(
   hh_id, person_id, sex, age_group, relationship,
   edu_level, area
 )])
-#>    hh_id person_id    sex   age_group relationship edu_level       area
-#>    <int>     <int> <char>      <char>       <char>    <char>     <char>
-#> 1:     1         1 Female     Elderly Non-relative      None  Urban <5k
-#> 2:     1         2 Female       Adult         Head   Primary Montevideo
-#> 3:     1         3   Male Young adult       Spouse  Tertiary  Urban <5k
-#> 4:     1         4 Female       Adult        Child   Primary      Rural
-#> 5:     2         1   Male     Elderly        Child      None  Urban >5k
-#> 6:     2         2   Male Young adult       Spouse  Tertiary      Rural
 ```
 
 The raw variables are gone:
 
 ``` r
 "e26" %in% names(get_data(svy))
-#> [1] FALSE
 ```
 
 ## Saving and loading
@@ -336,30 +292,13 @@ save_recipe(rec, f)
 ``` r
 rec2 <- read_recipe(f)
 rec2$name
-#> [1] "ECH Demographics (minimal)"
 length(rec2$steps)
-#> [1] 7
 ```
 
 The JSON is human-readable and diffable in git:
 
 ``` r
 cat(readLines(f, n = 15), sep = "\n")
-#> {
-#>   "name": "ECH Demographics (minimal)",
-#>   "user": "research_team",
-#>   "survey_type": "ech",
-#>   "edition": 2023,
-#>   "description": "Harmonized demographics: sex, age group, relationship, education level, and geographic area.",
-#>   "topic": "demographics",
-#>   "doi": {},
-#>   "id": "r_1771377044_663",
-#>   "version": "1.0.0",
-#>   "downloads": 0,
-#>   "categories": [],
-#>   "certification": {
-#>     "level": "community",
-#>     "certified_at": "2026-02-18 01:10:44.943109"
 ```
 
 ## Applying to a new edition
@@ -385,14 +324,6 @@ svy_2024 <- survey_empty(type = "ech", edition = "2024") |>
   bake_recipes()
 
 head(get_data(svy_2024)[, .(hh_id, person_id, sex, age_group, area)])
-#>    hh_id person_id    sex   age_group       area
-#>    <int>     <int> <char>      <char>     <char>
-#> 1:     1         1   Male     Elderly      Rural
-#> 2:     1         2   Male       Adult  Urban <5k
-#> 3:     1         3 Female Young adult  Urban >5k
-#> 4:     2         1   Male       Adult Montevideo
-#> 5:     2         2 Female     Elderly      Rural
-#> 6:     2         3   Male     Elderly  Urban <5k
 ```
 
 No code changes needed. The recipe encodes the *logic*, not the data.

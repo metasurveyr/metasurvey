@@ -43,8 +43,66 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><h6 class="dropdown-header" data-toc-skip>Core Features</h6></li>
+    <li><a class="dropdown-item" href="../articles/recipes.html">Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation.html">Workflows &amp; Estimation</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Advanced Topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs.html">Complex Designs</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis.html">Panel Analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Infrastructure</h6></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer.html">Shiny Explorer</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database.html">REST API &amp; Database</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting.html">Self-Hosting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interoperability</h6></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler.html">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe.html">ECH Demographics Recipe</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study.html">ECH Case Study</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys.html">International Surveys</a></li>
+    <li><a class="dropdown-item" href="../articles/convey-inequality.html">Inequality with convey</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Español</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started-es.html">Comenzando</a></li>
+    <li><a class="dropdown-item" href="../articles/recipes-es.html">Recetas</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation-es.html">Workflows y Estimaciones</a></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs-es.html">Diseños Complejos</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis-es.html">Análisis de Panel</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study-es.html">Caso de Estudio ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe-es.html">Demografía ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys-es.html">Encuestas Internacionales</a></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer-es.html">Explorador Shiny</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database-es.html">API y Base de Datos</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting-es.html">Self-Hosting</a></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler-es.html">Transpilador STATA</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-reference" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Reference</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-reference">
+<li><a class="dropdown-item" href="../reference/index.html#surveys">Survey Objects</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#steps">Step Pipeline</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipes">Recipes</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipe-discovery">Recipe Discovery</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#estimation">Estimation &amp; Provenance</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#rotating-panels">Rotating Panels</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#weights-and-design">Weights &amp; Design</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#remote-api">Remote API</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#anda">ANDA Catalog</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#stata-transpiler">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html">All functions</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -75,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Compatibilidad con encuestas internacionales (ES)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/vignettes/international-surveys-es.Rmd" class="external-link"><code>vignettes/international-surveys-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/international-surveys-es.Rmd" class="external-link"><code>vignettes/international-surveys-es.Rmd</code></a></small>
       <div class="d-none name"><code>international-surveys-es.Rmd</code></div>
     </div>
 
@@ -279,13 +337,7 @@ paquete.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_ech</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Para el pipeline completo de la ECH, ver
 <code><a href="../articles/ech-case-study.html">vignette("ech-case-study")</a></code>.</p>
 </div>
@@ -335,13 +387,7 @@ juguete.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_eph</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">employed</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"quarterly"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         stat     value         se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: employed 0.4378169 0.01668347 0.03810603     0.4051179</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.4705159</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Para descargar microdatos reales de la EPH:
 <code>eph::get_microdata(year = 2023, period = 3, type = "individual")</code>.</p>
 </div>
@@ -441,13 +487,7 @@ microdatos de ejemplo.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_pnadc</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">age</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"quarterly"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                    stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                  &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: age 35.55343 0.856023 0.02407708      33.87566</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      37.23121</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Para microdatos reales de la PNADc:
 <code>PNADcIBGE::get_pnadc(year = 2023, quarter = 1)</code>. La descarga
 es de aproximadamente 200 MB.</p>
@@ -495,13 +535,7 @@ de CPS.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_cps</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">INCTOT</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                       stat     value      se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;     &lt;num&gt;   &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: INCTOT 191645236 4277528 0.02232004     183261435</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     200029038</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Los datos de IPUMS requieren una cuenta gratuita en <a href="https://cps.ipums.org" class="external-link uri">https://cps.ipums.org</a>. El
 archivo DDI XML proporciona metadatos de variables para el
 etiquetado.</p>
@@ -554,13 +588,7 @@ real.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_enigh</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">income_pc</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                          stat    value       se        cv confint_lower</span></span>
-<span><span class="co">#&gt;                        &lt;char&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: income_pc 11928.34 1473.022 0.1234893      9041.267</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      14815.41</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dhs-internacional">DHS – Internacional<a class="anchor" aria-label="anchor" href="#dhs-internacional"></a>
@@ -619,13 +647,7 @@ disponibles en <a href="https://dhsprogram.com/data/model-datasets.cfm" class="e
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">svy_dhs</span><span class="op">)</span>,</span>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">children</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         stat    value        se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;    &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: children 2.769343 0.0758253 0.02738025      2.620729</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      2.917958</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Los datos de DHS requieren registro en <a href="https://dhsprogram.com" class="external-link uri">https://dhsprogram.com</a>. El
 paquete <code>rdhs</code> gestiona la autenticacion con la API. Los
 ponderadores (v005) deben dividirse por 1.000.000 antes de usarlos.</p>
@@ -672,9 +694,7 @@ de la encuesta de origen:</p>
 <span></span>
 <span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="va">my_recipe</span><span class="op">$</span><span class="fu">doc</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Entradas:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">input_variables</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Entradas: age</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Salidas:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">output_variables</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Salidas: indicator, age_group</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Salidas:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">output_variables</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
 <p>Los recipes capturan <em>que</em> transformaciones aplicar, no <em>de
 que</em> encuesta provienen. Un recipe construido para la EPH puede
 adaptarse para la PNADc simplemente renombrando variables.</p>

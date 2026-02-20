@@ -23,8 +23,62 @@ functional interface."><meta property="og:image" content="https://metasurveyr.gi
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Core Features</h6></li>
+    <li><a class="dropdown-item" href="../articles/recipes.html">Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation.html">Workflows &amp; Estimation</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Advanced Topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs.html">Complex Designs</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis.html">Panel Analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Infrastructure</h6></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer.html">Shiny Explorer</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database.html">REST API &amp; Database</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting.html">Self-Hosting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interoperability</h6></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler.html">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe.html">ECH Demographics Recipe</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study.html">ECH Case Study</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys.html">International Surveys</a></li>
+    <li><a class="dropdown-item" href="../articles/convey-inequality.html">Inequality with convey</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Español</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started-es.html">Comenzando</a></li>
+    <li><a class="dropdown-item" href="../articles/recipes-es.html">Recetas</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation-es.html">Workflows y Estimaciones</a></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs-es.html">Diseños Complejos</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis-es.html">Análisis de Panel</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study-es.html">Caso de Estudio ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe-es.html">Demografía ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys-es.html">Encuestas Internacionales</a></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer-es.html">Explorador Shiny</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database-es.html">API y Base de Datos</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting-es.html">Self-Hosting</a></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler-es.html">Transpilador STATA</a></li>
+  </ul></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-reference" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Reference</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-reference"><li><a class="dropdown-item" href="../reference/index.html#surveys">Survey Objects</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#steps">Step Pipeline</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipes">Recipes</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipe-discovery">Recipe Discovery</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#estimation">Estimation &amp; Provenance</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#rotating-panels">Rotating Panels</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#weights-and-design">Weights &amp; Design</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#remote-api">Remote API</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#anda">ANDA Catalog</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#stata-transpiler">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html">All functions</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -43,7 +97,7 @@ functional interface."><meta property="og:image" content="https://metasurveyr.gi
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Create a recipe user</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/R/recipe_tidy_api.R" class="external-link"><code>R/recipe_tidy_api.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/R/recipe_tidy_api.R" class="external-link"><code>R/recipe_tidy_api.R</code></a></small>
       <div class="d-none name"><code>recipe_user.Rd</code></div>
     </div>
 

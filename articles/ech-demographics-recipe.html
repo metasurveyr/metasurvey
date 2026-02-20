@@ -43,8 +43,66 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><h6 class="dropdown-header" data-toc-skip>Core Features</h6></li>
+    <li><a class="dropdown-item" href="../articles/recipes.html">Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation.html">Workflows &amp; Estimation</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Advanced Topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs.html">Complex Designs</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis.html">Panel Analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Infrastructure</h6></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer.html">Shiny Explorer</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database.html">REST API &amp; Database</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting.html">Self-Hosting</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interoperability</h6></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler.html">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Case Studies</h6></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe.html">ECH Demographics Recipe</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study.html">ECH Case Study</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys.html">International Surveys</a></li>
+    <li><a class="dropdown-item" href="../articles/convey-inequality.html">Inequality with convey</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Español</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started-es.html">Comenzando</a></li>
+    <li><a class="dropdown-item" href="../articles/recipes-es.html">Recetas</a></li>
+    <li><a class="dropdown-item" href="../articles/workflows-and-estimation-es.html">Workflows y Estimaciones</a></li>
+    <li><a class="dropdown-item" href="../articles/complex-designs-es.html">Diseños Complejos</a></li>
+    <li><a class="dropdown-item" href="../articles/panel-analysis-es.html">Análisis de Panel</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-case-study-es.html">Caso de Estudio ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/ech-demographics-recipe-es.html">Demografía ECH</a></li>
+    <li><a class="dropdown-item" href="../articles/international-surveys-es.html">Encuestas Internacionales</a></li>
+    <li><a class="dropdown-item" href="../articles/shiny-explorer-es.html">Explorador Shiny</a></li>
+    <li><a class="dropdown-item" href="../articles/api-database-es.html">API y Base de Datos</a></li>
+    <li><a class="dropdown-item" href="../articles/self-hosting-es.html">Self-Hosting</a></li>
+    <li><a class="dropdown-item" href="../articles/stata-transpiler-es.html">Transpilador STATA</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-reference" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Reference</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-reference">
+<li><a class="dropdown-item" href="../reference/index.html#surveys">Survey Objects</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#steps">Step Pipeline</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipes">Recipes</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#recipe-discovery">Recipe Discovery</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#estimation">Estimation &amp; Provenance</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#rotating-panels">Rotating Panels</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#weights-and-design">Weights &amp; Design</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html#remote-api">Remote API</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#anda">ANDA Catalog</a></li>
+    <li><a class="dropdown-item" href="../reference/index.html#stata-transpiler">STATA Transpiler</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../reference/index.html">All functions</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -75,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Building an ECH Demographics Recipe</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/develop/vignettes/ech-demographics-recipe.Rmd" class="external-link"><code>vignettes/ech-demographics-recipe.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/vignettes/ech-demographics-recipe.Rmd" class="external-link"><code>vignettes/ech-demographics-recipe.Rmd</code></a></small>
       <div class="d-none name"><code>ech-demographics-recipe.Rmd</code></div>
     </div>
 
@@ -167,8 +225,7 @@ commands we need to type.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p>Nothing happened to the data yet:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] "id"      "nper"    "pesoano" "e26"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span></code></pre></div>
 <p>The original column names are still there because the step is
 pending. Let’s keep adding steps.</p>
 </div>
@@ -270,8 +327,7 @@ makes analysis easier.</p>
 <p>At this point we have seven pending steps. Let’s see what was
 recorded:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 7</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This is one of the key advantages of building from scratch: <strong>7
 steps that each do one clear thing</strong>. A transpiled version of the
 full IECON demographics module has 80+ steps because it preserves every
@@ -290,14 +346,7 @@ useful for auditing, but much harder to read at a glance.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">s</span> <span class="kw">in</span> <span class="fu"><a href="../reference/get_steps.html">get_steps</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"[%s] %s\n"</span>, <span class="va">s</span><span class="op">$</span><span class="va">type</span>, <span class="va">s</span><span class="op">$</span><span class="va">comment</span> <span class="op"><a href="https://rdrr.io/r/base/Control.html" class="external-link">%||%</a></span> <span class="st">""</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; [step_rename] Standardize identifiers</span></span>
-<span><span class="co">#&gt; [recode] Sex from e26</span></span>
-<span><span class="co">#&gt; [recode] Age groups from e27</span></span>
-<span><span class="co">#&gt; [recode] Relationship from e30</span></span>
-<span><span class="co">#&gt; [recode] Education level from e51_2</span></span>
-<span><span class="co">#&gt; [recode] Geographic area from region_4</span></span>
-<span><span class="co">#&gt; [step_remove] Drop raw ECH variables</span></span></code></pre></div>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="packaging-as-a-recipe-before-baking">Packaging as a recipe (before baking)<a class="anchor" aria-label="anchor" href="#packaging-as-a-recipe-before-baking"></a>
@@ -318,39 +367,13 @@ same pipeline on different data. We create the recipe
 <span>  topic <span class="op">=</span> <span class="st">"demographics"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">rec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Recipe: ECH Demographics (minimal) ──</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span><span style="color: #555555;">Author:  </span>research_team</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Survey:  </span>ech / 2023</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Version: </span>1.0.0</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Topic:   </span>demographics</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Description: </span>Harmonized demographics: sex, age group, relationship, education level, and geographic area.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Certification: </span><span style="color: #BBBB00;">community</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Requires (5 variables) ──</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  e26, e27, e30, e51_2, region_4</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Pipeline (7 steps) ──</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  1. [step_rename] -&gt; mapping  "Standardize identifiers"</span></span>
-<span><span class="co">#&gt;   2. [recode] -&gt; sex  "Sex from e26"</span></span>
-<span><span class="co">#&gt;   3. [recode] -&gt; age_group  "Age groups from e27"</span></span>
-<span><span class="co">#&gt;   4. [recode] -&gt; relationship  "Relationship from e30"</span></span>
-<span><span class="co">#&gt;   5. [recode] -&gt; edu_level  "Education level from e51_2"</span></span>
-<span><span class="co">#&gt;   6. [recode] -&gt; area  "Geographic area from region_4"</span></span>
-<span><span class="co">#&gt;   7. [step_remove] -&gt; (no output)  "Drop raw ECH variables"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; ── Produces (6 variables) ──</span></span></span>
-<span><span class="co"><span style="color: #0000BB; font-weight: bold;">#&gt; </span>  sex [categorical], age_group [categorical], relationship [categorical], edu_level [categorical], area [categorical], mapping [inherited]</span></span></code></pre></div>
+<span><span class="va">rec</span></span></code></pre></div>
 <p>The recipe auto-generates documentation from the steps:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">doc</span> <span class="op">&lt;-</span> <span class="va">rec</span><span class="op">$</span><span class="fu">doc</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Input variables: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">input_variables</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Input variables:  e26, e27, e30, e51_2, region_4</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Output variables:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">output_variables</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Output variables: mapping, sex, age_group, relationship, edu_level, area</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Pipeline steps:  "</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">pipeline</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pipeline steps:   7</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Pipeline steps:  "</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">doc</span><span class="op">$</span><span class="va">pipeline</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="baking-materializing-the-pipeline">Baking: materializing the pipeline<a class="anchor" aria-label="anchor" href="#baking-materializing-the-pipeline"></a>
@@ -364,19 +387,10 @@ pending steps in order and returns the transformed survey:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span></span>
 <span>  <span class="va">hh_id</span>, <span class="va">person_id</span>, <span class="va">sex</span>, <span class="va">age_group</span>, <span class="va">relationship</span>,</span>
 <span>  <span class="va">edu_level</span>, <span class="va">area</span></span>
-<span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    hh_id person_id    sex   age_group relationship edu_level       area</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;     &lt;int&gt; &lt;char&gt;      &lt;char&gt;       &lt;char&gt;    &lt;char&gt;     &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     1         1 Female     Elderly Non-relative      None  Urban &lt;5k</span></span>
-<span><span class="co">#&gt; 2:     1         2 Female       Adult         Head   Primary Montevideo</span></span>
-<span><span class="co">#&gt; 3:     1         3   Male Young adult       Spouse  Tertiary  Urban &lt;5k</span></span>
-<span><span class="co">#&gt; 4:     1         4 Female       Adult        Child   Primary      Rural</span></span>
-<span><span class="co">#&gt; 5:     2         1   Male     Elderly        Child      None  Urban &gt;5k</span></span>
-<span><span class="co">#&gt; 6:     2         2   Male Young adult       Spouse  Tertiary      Rural</span></span></code></pre></div>
+<span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>The raw variables are gone:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="st">"e26"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="st">"e26"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="saving-and-loading">Saving and loading<a class="anchor" aria-label="anchor" href="#saving-and-loading"></a>
@@ -388,27 +402,10 @@ pending steps in order and returns the transformed survey:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rec2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_recipe.html">read_recipe</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
 <span><span class="va">rec2</span><span class="op">$</span><span class="va">name</span></span>
-<span><span class="co">#&gt; [1] "ECH Demographics (minimal)"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rec2</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 7</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rec2</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span></span></code></pre></div>
 <p>The JSON is human-readable and diffable in git:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">f</span>, n <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt;   "name": "ECH Demographics (minimal)",</span></span>
-<span><span class="co">#&gt;   "user": "research_team",</span></span>
-<span><span class="co">#&gt;   "survey_type": "ech",</span></span>
-<span><span class="co">#&gt;   "edition": 2023,</span></span>
-<span><span class="co">#&gt;   "description": "Harmonized demographics: sex, age group, relationship, education level, and geographic area.",</span></span>
-<span><span class="co">#&gt;   "topic": "demographics",</span></span>
-<span><span class="co">#&gt;   "doi": {},</span></span>
-<span><span class="co">#&gt;   "id": "r_1771377044_663",</span></span>
-<span><span class="co">#&gt;   "version": "1.0.0",</span></span>
-<span><span class="co">#&gt;   "downloads": 0,</span></span>
-<span><span class="co">#&gt;   "categories": [],</span></span>
-<span><span class="co">#&gt;   "certification": {</span></span>
-<span><span class="co">#&gt;     "level": "community",</span></span>
-<span><span class="co">#&gt;     "certified_at": "2026-02-18 01:10:44.943109"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">f</span>, n <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="applying-to-a-new-edition">Applying to a new edition<a class="anchor" aria-label="anchor" href="#applying-to-a-new-edition"></a>
@@ -432,15 +429,7 @@ attach it to new data, and bake:</p>
 <span>  <span class="fu"><a href="../reference/add_recipe.html">add_recipe</a></span><span class="op">(</span><span class="va">rec_loaded</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/bake_recipes.html">bake_recipes</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy_2024</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">hh_id</span>, <span class="va">person_id</span>, <span class="va">sex</span>, <span class="va">age_group</span>, <span class="va">area</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    hh_id person_id    sex   age_group       area</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;     &lt;int&gt; &lt;char&gt;      &lt;char&gt;     &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     1         1   Male     Elderly      Rural</span></span>
-<span><span class="co">#&gt; 2:     1         2   Male       Adult  Urban &lt;5k</span></span>
-<span><span class="co">#&gt; 3:     1         3 Female Young adult  Urban &gt;5k</span></span>
-<span><span class="co">#&gt; 4:     2         1   Male       Adult Montevideo</span></span>
-<span><span class="co">#&gt; 5:     2         2 Female     Elderly      Rural</span></span>
-<span><span class="co">#&gt; 6:     2         3   Male     Elderly  Urban &lt;5k</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_data.html">get_data</a></span><span class="op">(</span><span class="va">svy_2024</span><span class="op">)</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">hh_id</span>, <span class="va">person_id</span>, <span class="va">sex</span>, <span class="va">age_group</span>, <span class="va">area</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>No code changes needed. The recipe encodes the <em>logic</em>, not
 the data.</p>
 </div>
