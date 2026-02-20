@@ -1012,14 +1012,8 @@ cat_design_type <- function(self, design_name) {
 
 #' @title cat_recipes
 #' @description Cast recipes from survey
-#' @keywords survey
 #' @param self Object of class Survey
 #' @return Character string listing recipe names, or "None".
-#' @examples
-#' \dontrun{
-#' svy <- survey_empty(type = "demo", edition = "2023")
-#' cat_recipes(svy)
-#' }
 #' @keywords internal
 
 cat_recipes <- function(self) {

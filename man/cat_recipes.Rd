@@ -15,11 +15,4 @@ Character string listing recipe names, or "None".
 \description{
 Cast recipes from survey
 }
-\examples{
-\dontrun{
-svy <- survey_empty(type = "demo", edition = "2023")
-cat_recipes(svy)
-}
-}
 \keyword{internal}
-\keyword{survey}

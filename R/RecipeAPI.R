@@ -5,13 +5,6 @@
 #'
 #' @field type Character backend type ("local" or "api").
 #'
-#' @examples
-#' \dontrun{
-#' # Local backend (internal class, use set_backend() instead)
-#' backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
-#' backend$search("labor")
-#' }
-#'
 #' @keywords internal
 RecipeBackend <- R6::R6Class(
   "RecipeBackend",

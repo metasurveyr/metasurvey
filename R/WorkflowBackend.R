@@ -6,13 +6,6 @@
 #'
 #' @field type Character backend type ("local" or "api").
 #'
-#' @examples
-#' \dontrun{
-#' # Local backend (internal class, use set_workflow_backend() instead)
-#' backend <- WorkflowBackend$new("local", path = tempfile(fileext = ".json"))
-#' backend$search("labor")
-#' }
-#'
 #' @keywords internal
 WorkflowBackend <- R6::R6Class(
   "WorkflowBackend",

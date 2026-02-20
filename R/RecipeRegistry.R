@@ -2,12 +2,6 @@
 #' @description Local JSON-backed catalog for recipe
 #'   discovery, ranking, and filtering.
 #'
-#' @examples
-#' # Use the tidy API instead:
-#' # set_backend("local", path = "recipes.json")
-#' # publish_recipe(my_recipe)
-#' # search_recipes("labor")
-#'
 #' @keywords internal
 RecipeRegistry <- R6::R6Class(
   "RecipeRegistry",

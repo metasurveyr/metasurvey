@@ -2,12 +2,6 @@
 #' @description Local JSON-backed catalog for workflow
 #'   discovery, ranking, and filtering.
 #'
-#' @examples
-#' # Use the tidy API instead:
-#' # set_workflow_backend("local", path = "workflows.json")
-#' # publish_workflow(my_workflow)
-#' # search_workflows("labor")
-#'
 #' @keywords internal
 WorkflowRegistry <- R6::R6Class(
   "WorkflowRegistry",

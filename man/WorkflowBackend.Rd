@@ -9,14 +9,6 @@ storage and retrieval. Supports "local" (JSON-backed
 WorkflowRegistry) and "api" (remote plumber API)
 backends.
 }
-\examples{
-\dontrun{
-# Local backend (internal class, use set_workflow_backend() instead)
-backend <- WorkflowBackend$new("local", path = tempfile(fileext = ".json"))
-backend$search("labor")
-}
-
-}
 \keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

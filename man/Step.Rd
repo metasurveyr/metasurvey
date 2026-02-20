@@ -17,20 +17,7 @@ and operations required for a single step in the
 workflow. Steps can be chained together to form a
 complete workflow.
 }
-\examples{
-# Step objects are created internally by step_compute(), step_recode(), etc.
-# Use the tidy API:
-dt <- data.table::data.table(id = 1:3, age = c(25, 30, 45), w = 1)
-svy <- Survey$new(
-  data = dt, edition = "2023", type = "test",
-  psu = NULL, engine = "data.table", weight = add_weight(annual = "w")
-)
-svy <- step_compute(svy, age2 = age * 2)
-get_steps(svy)
-}
 \keyword{internal}
-\keyword{step}
-\keyword{survey}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

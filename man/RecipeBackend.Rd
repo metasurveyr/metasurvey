@@ -8,14 +8,6 @@ Backend-agnostic factory for recipe storage
 and retrieval. Supports "local" (JSON-backed
 RecipeRegistry) and "api" (remote plumber API) backends.
 }
-\examples{
-\dontrun{
-# Local backend (internal class, use set_backend() instead)
-backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
-backend$search("labor")
-}
-
-}
 \keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
