@@ -11,7 +11,6 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE,
   warning = FALSE,
   message = FALSE
 )
@@ -118,7 +117,7 @@ laboral de Argentina. El paquete `eph`
 ([CRAN](https://cran.r-project.org/package=eph),
 [GitHub](https://github.com/ropensci/eph)) incluye una base de juguete.
 
-```{r eph}
+```{r eph, eval = has_eph}
 library(eph)
 
 data("toybase_individual_2016_04", package = "eph")
@@ -228,7 +227,7 @@ por conglomerados. El paquete `PNADcIBGE`
 ([CRAN](https://cran.r-project.org/package=PNADcIBGE)) incluye microdatos
 de ejemplo.
 
-```{r pnadc}
+```{r pnadc, eval = has_pnad}
 library(PNADcIBGE)
 
 dt_pnadc <- data.table(read_pnadc(
@@ -277,7 +276,7 @@ laboral de Estados Unidos. El paquete `ipumsr`
 ([CRAN](https://cran.r-project.org/package=ipumsr),
 [GitHub](https://github.com/ipums/ipumsr)) incluye un extracto de CPS.
 
-```{r cps}
+```{r cps, eval = has_ipumsr}
 library(ipumsr)
 
 ddi <- read_ipums_ddi(
@@ -379,7 +378,7 @@ El paquete `rdhs` ([CRAN](https://cran.r-project.org/package=rdhs),
 Los datasets modelo (sin necesidad de autenticacion) estan disponibles en
 <https://dhsprogram.com/data/model-datasets.cfm>.
 
-```{r dhs}
+```{r dhs, eval = FALSE}
 library(haven)
 
 # Descargar el modelo Individual Recode (sin credenciales)
