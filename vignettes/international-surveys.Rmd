@@ -116,7 +116,7 @@ force survey. The `eph` package
 ([CRAN](https://cran.r-project.org/package=eph),
 [GitHub](https://github.com/ropensci/eph)) includes a bundled toybase.
 
-```{r eph, eval = requireNamespace("eph", quietly = TRUE)}
+```{r eph}
 library(eph)
 
 data("toybase_individual_2016_04", package = "eph")
@@ -225,7 +225,7 @@ The `PNADcIBGE` package
 ([CRAN](https://cran.r-project.org/package=PNADcIBGE)) includes bundled
 example microdata.
 
-```{r pnadc, eval = requireNamespace("PNADcIBGE", quietly = TRUE)}
+```{r pnadc}
 library(PNADcIBGE)
 
 dt_pnadc <- data.table(read_pnadc(
@@ -272,7 +272,7 @@ The CPS (Current Population Survey) is the US monthly labor force survey.
 The `ipumsr` package ([CRAN](https://cran.r-project.org/package=ipumsr),
 [GitHub](https://github.com/ipums/ipumsr)) includes a bundled CPS extract.
 
-```{r cps, eval = requireNamespace("ipumsr", quietly = TRUE)}
+```{r cps}
 library(ipumsr)
 
 ddi <- read_ipums_ddi(
@@ -373,7 +373,7 @@ The `rdhs` package ([CRAN](https://cran.r-project.org/package=rdhs),
 datasets (no authentication needed) are available at
 <https://dhsprogram.com/data/model-datasets.cfm>.
 
-```{r dhs, eval = FALSE}
+```{r dhs}
 library(haven)
 
 # Download the model Individual Recode (no credentials needed)
