@@ -107,7 +107,13 @@ all seven surveys.
 
 ## Installation
 
-Development version from GitHub:
+Install the stable version from CRAN:
+
+```r
+install.packages("metasurvey")
+```
+
+Or the development version from GitHub:
 
 ```r
 # install.packages("devtools")
@@ -326,9 +332,9 @@ To cite metasurvey in publications use:
 citation("metasurvey")
 ```
 
-> Loprete M, da Silva N, Machado F (2025). _metasurvey: Reproducible
+> Loprete M, da Silva N, Machado F (2026). _metasurvey: Reproducible
 > Survey Data Processing with Step Pipelines_. R package,
-> <https://github.com/metasurveyr/metasurvey>.
+> <https://CRAN.R-project.org/package=metasurvey>.
 
 ---
 
