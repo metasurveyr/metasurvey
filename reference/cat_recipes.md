@@ -17,12 +17,3 @@ cat_recipes(self)
 ## Value
 
 Character string listing recipe names, or "None".
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-svy <- survey_empty(type = "demo", edition = "2023")
-cat_recipes(svy)
-} # }
-```

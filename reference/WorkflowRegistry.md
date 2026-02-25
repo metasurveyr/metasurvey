@@ -285,12 +285,3 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
-
-## Examples
-
-``` r
-# Use the tidy API instead:
-# set_workflow_backend("local", path = "workflows.json")
-# publish_workflow(my_workflow)
-# search_workflows("labor")
-```

@@ -2,6 +2,8 @@
 
 ## metasurvey 0.0.21
 
+CRAN release: 2026-02-25
+
 ### New features
 
 - [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)

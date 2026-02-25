@@ -234,13 +234,3 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Local backend (internal class, use set_backend() instead)
-backend <- RecipeBackend$new("local", path = tempfile(fileext = ".json"))
-backend$search("labor")
-} # }
-```

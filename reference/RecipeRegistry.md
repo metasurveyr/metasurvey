@@ -328,12 +328,3 @@ The objects of this class are cloneable with this method.
 - `deep`:
 
   Whether to make a deep clone.
-
-## Examples
-
-``` r
-# Use the tidy API instead:
-# set_backend("local", path = "recipes.json")
-# publish_recipe(my_recipe)
-# search_recipes("labor")
-```

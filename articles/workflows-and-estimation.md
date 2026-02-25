@@ -392,13 +392,13 @@ to trace any estimate back to the raw data.
 prov <- provenance(svy_full)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-02-20T02:19:37 
+#> Loaded: 2026-02-25T12:03:17 
 #> Initial rows: 200 
 #> 
 #> Environment:
 #>   metasurvey: 0.0.21 
 #>   R: 4.5.2 
-#>   survey: 4.4.8
+#>   survey: 4.5
 ```
 
 Provenance is also attached to
@@ -444,7 +444,7 @@ workflow_table(estimates)
 | Statistic                                  | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
 | :svymean: api_growth                       | 32.89    | 2.158 | 28.66    | 37.12    | 6.6    | Very good |
 | :svymean: high_growth                      | 0.29     | 0.036 | 0.22     | 0.37     | 12.4   | Good      |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-02-20 |          |       |          |          |        |           |
+| metasurvey 0.0.21 \| CI: 95% \| 2026-02-25 |          |       |          |          |        |           |
 
 You can customize the output:
 
@@ -465,7 +465,7 @@ workflow_table(
 | Statistic                                  | Estimate | CI Lower | CI Upper | CV (%) | Quality   |
 | :svymean: api_growth                       | 32,89    | 28,66    | 37,12    | 6,6    | Very good |
 | :svymean: high_growth                      | 0,29     | 0,22     | 0,37     | 12,4   | Good      |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-02-20 |          |          |          |        |           |
+| metasurvey 0.0.21 \| CI: 95% \| 2026-02-25 |          |          |          |        |           |
 
 For domain estimates, the table detects group columns automatically:
 
@@ -479,7 +479,7 @@ workflow_table(by_school)
 | :svyby: api00                              | E     | 674.43   | 12.493 | 649.94   | 698.92   | 1.9    | Excellent |
 | :svyby: api00                              | H     | 625.82   | 15.341 | 595.75   | 655.89   | 2.5    | Excellent |
 | :svyby: api00                              | M     | 636.60   | 16.502 | 604.26   | 668.94   | 2.6    | Excellent |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-02-20 |       |          |        |          |          |        |           |
+| metasurvey 0.0.21 \| CI: 95% \| 2026-02-25 |       |          |        |          |          |        |           |
 
 Export to any format supported by
 [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html):

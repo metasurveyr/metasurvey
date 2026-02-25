@@ -44,7 +44,7 @@ provenance_to_json(prov)
 #> {
 #>   "source": {
 #>     "path": null,
-#>     "timestamp": "2026-02-20T02:17:56",
+#>     "timestamp": "2026-02-25T12:01:00",
 #>     "initial_n": 5,
 #>     "hash": null
 #>   },
@@ -52,7 +52,7 @@ provenance_to_json(prov)
 #>   "environment": {
 #>     "metasurvey_version": "0.0.21",
 #>     "r_version": "4.5.2",
-#>     "survey_version": "4.4.8"
+#>     "survey_version": "4.5"
 #>   }
 #> } 
 ```
