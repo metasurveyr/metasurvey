@@ -112,6 +112,67 @@
 <p>The metasurvey team reviews discussions and decides which ideas get prioritized for implementation. Issues are reserved for confirmed bugs — the team manages their prioritization.</p>
 </div>
 <div class="section level2">
+<h2 id="contributing-recipes">Contributing recipes<a class="anchor" aria-label="anchor" href="#contributing-recipes"></a></h2>
+<p>The most impactful way to contribute to metasurvey is by <strong>publishing a recipe</strong> to the community registry. A recipe captures the full processing pipeline for a household survey — variable construction, recodes, filters — so other researchers can reproduce your work or apply it to new editions.</p>
+<div class="section level3">
+<h3 id="publish-a-recipe-to-the-registry">Publish a recipe to the registry<a class="anchor" aria-label="anchor" href="#publish-a-recipe-to-the-registry"></a></h3>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metasurveyr.github.io/metasurvey/">metasurvey</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 1. Connect to the registry</span></span>
+<span><span class="fu"><a href="reference/configure_api.html">configure_api</a></span><span class="op">(</span><span class="st">"https://metasurvey-api.onrender.com"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 2. Create an account (once)</span></span>
+<span><span class="fu"><a href="reference/api_register.html">api_register</a></span><span class="op">(</span><span class="st">"Your Name"</span>, <span class="st">"you@example.com"</span>, <span class="st">"your_password"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 3. Build your recipe</span></span>
+<span><span class="va">svy</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/survey_empty.html">survey_empty</a></span><span class="op">(</span><span class="st">"eph"</span>, <span class="st">"2023T1"</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/recipe.html">recipe</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"Labor Market Indicators"</span>,</span>
+<span>  user <span class="op">=</span> <span class="st">"you@example.com"</span>,</span>
+<span>  svy <span class="op">=</span> <span class="va">svy</span>,</span>
+<span>  description <span class="op">=</span> <span class="st">"Activity, employment, and unemployment rates from EPH"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 4. Publish</span></span>
+<span><span class="fu"><a href="reference/api_publish_recipe.html">api_publish_recipe</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="browse-existing-recipes">Browse existing recipes<a class="anchor" aria-label="anchor" href="#browse-existing-recipes"></a></h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># From R</span></span>
+<span><span class="fu"><a href="reference/configure_api.html">configure_api</a></span><span class="op">(</span><span class="st">"https://metasurvey-api.onrender.com"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/list_recipes.html">list_recipes</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/search_recipes.html">search_recipes</a></span><span class="op">(</span><span class="st">"labor"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or launch the Shiny explorer</span></span>
+<span><span class="fu"><a href="reference/explore_recipes.html">explore_recipes</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="surveys-were-looking-for">Surveys we’re looking for<a class="anchor" aria-label="anchor" href="#surveys-were-looking-for"></a></h3>
+<p>We are building a community collection for Latin American household surveys:</p>
+<table class="table"><thead><tr class="header"><th>Survey</th>
+<th>Country</th>
+<th>Office</th>
+</tr></thead><tbody><tr class="odd"><td>EPH</td>
+<td>Argentina</td>
+<td>INDEC</td>
+</tr><tr class="even"><td>PNADc</td>
+<td>Brazil</td>
+<td>IBGE</td>
+</tr><tr class="odd"><td>CASEN</td>
+<td>Chile</td>
+<td>MDS</td>
+</tr><tr class="even"><td>GEIH</td>
+<td>Colombia</td>
+<td>DANE</td>
+</tr><tr class="odd"><td>ENIGH</td>
+<td>Mexico</td>
+<td>INEGI</td>
+</tr></tbody></table><p>If you work with any of these (or any other complex survey), publish your recipe and <a href="https://github.com/metasurveyr/metasurvey/issues/new?template=new_recipe.md" class="external-link">open an issue</a> to let us know.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="pull-requests">Pull requests<a class="anchor" aria-label="anchor" href="#pull-requests"></a></h2>
 <ol style="list-style-type: decimal"><li>Fork the repo and create a branch from <code>develop</code>.</li>
 <li>Run <code>devtools::document()</code> if you changed any roxygen comments.</li>
