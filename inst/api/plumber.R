@@ -179,9 +179,34 @@ message(sprintf(
 
 redis_con <- NULL
 
+# Parse redis:// URL into host/port/password for redux::hiredis()
+parse_redis_url <- function(url) {
+  parsed <- regmatches(
+    url,
+    regexec("^redis://(?:([^:]*):([^@]*)@)?([^:]+):?(\\d+)?$", url, perl = TRUE)
+  )[[1]]
+  if (length(parsed) == 0) {
+    return(NULL)
+  }
+  list(
+    host = parsed[4],
+    port = as.integer(if (nzchar(parsed[5])) parsed[5] else "6379"),
+    password = if (nzchar(parsed[3])) parsed[3] else NULL
+  )
+}
+
 if (ENABLE_REDIS) {
+  redis_params <- parse_redis_url(REDIS_URL)
   redis_con <- tryCatch(
-    redux::hiredis(url = REDIS_URL),
+    if (!is.null(redis_params) && !is.null(redis_params$password)) {
+      r <- redux::hiredis(host = redis_params$host, port = redis_params$port)
+      r$AUTH(redis_params$password)
+      r
+    } else if (!is.null(redis_params)) {
+      redux::hiredis(host = redis_params$host, port = redis_params$port)
+    } else {
+      redux::hiredis(url = REDIS_URL)
+    },
     error = function(e) {
       message(sprintf(
         "[metasurvey-api] Redis connection failed (disabled): %s",
