@@ -146,9 +146,9 @@ skipped, manual_review, coverage_pct</p>
 <span class="r-in"><span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".do"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gen x = 1"</span>, <span class="st">"replace x = 2 if y == 3"</span>, <span class="st">"drop z"</span><span class="op">)</span>, <span class="va">tf</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">transpile_coverage</span><span class="op">(</span><span class="va">tf</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 file                               path total_commands</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 file1eca7523d58.do /tmp/RtmpEdkAsK/file1eca7523d58.do              2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2              TOTAL /tmp/RtmpEdkAsK/file1eca7523d58.do              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  file                                path total_commands</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 file1e9f1f8ad8dc.do /tmp/Rtmp8JVcQQ/file1e9f1f8ad8dc.do              2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               TOTAL /tmp/Rtmp8JVcQQ/file1e9f1f8ad8dc.do              2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   translated skipped manual_review coverage_pct</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          2       0             0          100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2          2       0             0          100</span>
