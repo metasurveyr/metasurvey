@@ -16,7 +16,7 @@
 #   METASURVEY_ENABLE_ASYNC      — "1" to enable async compute queue (requires Redis)
 
 [build]
-dockerfilePath = "inst/api/Dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 healthcheckPath = "/health"
