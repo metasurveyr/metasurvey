@@ -30,6 +30,7 @@
 #   METASURVEY_WORKER_URL          — Internal worker URL (e.g. http://worker:8788)
 #   METASURVEY_ENABLE_INDICATORS   — "1" (default) or "0" to disable /indicators
 #   METASURVEY_ENABLE_WORKER       — "0" (default) or "1" to enable POST /compute
+#   METASURVEY_ENABLE_DOCS         — "0" (default) or "1" to enable Swagger UI
 #
 # Launch:
 #   METASURVEY_MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net" \
@@ -47,6 +48,13 @@ library(jose)
 #* @plumber
 function(pr) {
   pr$setSerializer(serializer_json(auto_unbox = TRUE))
+
+  # Disable Swagger UI in production (set METASURVEY_ENABLE_DOCS=1 to enable)
+  enable_docs <- tolower(Sys.getenv("METASURVEY_ENABLE_DOCS", "0")) %in%
+    c("1", "true", "yes")
+  if (!enable_docs) {
+    pr$setDocs(FALSE)
+  }
 
   # Enhance OpenAPI spec with security scheme and API info
   spec <- pr$getApiSpec()
@@ -106,6 +114,13 @@ ENABLE_REDIS <- nzchar(REDIS_URL) || nzchar(REDIS_HOST)
 ENABLE_ASYNC <- tolower(Sys.getenv(
   "METASURVEY_ENABLE_ASYNC", "0"
 )) %in% c("1", "true", "yes")
+ENABLE_DOCS <- tolower(Sys.getenv(
+  "METASURVEY_ENABLE_DOCS", "0"
+)) %in% c("1", "true", "yes")
+
+# Rate limiting config
+RATE_LIMIT_MAX <- 5L # max attempts per window
+RATE_LIMIT_WINDOW <- 300L # 5 minutes
 
 if (!nzchar(MONGO_URI)) {
   stop(
@@ -331,6 +346,36 @@ cache_del_pattern <- function(pattern) {
   )
 }
 
+# -- Rate limiting helpers ---------------------------------------------------
+
+rate_limit_check <- function(action, client_ip) {
+  if (is.null(redis_con)) {
+    return(TRUE)
+  }
+  key <- sprintf("ratelimit:%s:%s", action, client_ip)
+  tryCatch(
+    {
+      count <- redis_con$INCR(key)
+      if (identical(as.integer(count), 1L)) {
+        redis_con$EXPIRE(key, RATE_LIMIT_WINDOW)
+      }
+      as.integer(count) <= RATE_LIMIT_MAX
+    },
+    error = function(e) TRUE
+  )
+}
+
+rate_limit_remaining <- function(action, client_ip) {
+  if (is.null(redis_con)) {
+    return(RATE_LIMIT_MAX)
+  }
+  key <- sprintf("ratelimit:%s:%s", action, client_ip)
+  count <- tryCatch(as.integer(redis_con$GET(key) %||% "0"),
+    error = function(e) 0L
+  )
+  max(0L, RATE_LIMIT_MAX - count)
+}
+
 # -- Job queue helpers --------------------------------------------------------
 
 JOB_TTL <- 3600L
@@ -379,8 +424,9 @@ job_enqueue <- function(job_id) {
 }
 
 message(sprintf(
-  "[metasurvey-api] Features — async: %s",
-  if (ENABLE_ASYNC && !is.null(redis_con)) "ON" else "OFF"
+  "[metasurvey-api] Features — async: %s, docs: %s",
+  if (ENABLE_ASYNC && !is.null(redis_con)) "ON" else "OFF",
+  if (ENABLE_DOCS) "ON" else "OFF"
 ))
 
 # -- JWT helpers --------------------------------------------------------------
@@ -458,6 +504,25 @@ function(req, res) {
   res$setHeader("Access-Control-Allow-Origin", "*")
   res$setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
   res$setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+  # Security headers
+  res$setHeader("X-Content-Type-Options", "nosniff")
+  res$setHeader("X-Frame-Options", "DENY")
+  res$setHeader("X-XSS-Protection", "1; mode=block")
+  res$setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
+  res$setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  )
+  res$setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()"
+  )
+  res$setHeader(
+    "Content-Security-Policy",
+    "default-src 'none'; frame-ancestors 'none'"
+  )
+
   if (req$REQUEST_METHOD == "OPTIONS") {
     res$status <- 200L
     return(list())
@@ -495,6 +560,14 @@ function(req, res, name, email, password,
     return(list(error = "name, email, and password are required"))
   }
 
+  # Prevent NoSQL injection
+  if (!is.character(name) || !is.character(email) ||
+    !is.character(password) || length(name) != 1 ||
+    length(email) != 1 || length(password) != 1) {
+    res$status <- 400L
+    return(list(error = "name, email, and password are required"))
+  }
+
   valid_types <- c("individual", "institutional_member", "institution")
   if (!user_type %in% valid_types) {
     res$status <- 400L
@@ -513,12 +586,12 @@ function(req, res, name, email, password,
 
   # Check duplicate
   existing <- db_users$find(
-    query = toJSON(list(email = email), auto_unbox = TRUE),
+    query = toJSON(list(email = jsonlite::unbox(email)), auto_unbox = FALSE),
     limit = 1
   )
   if (nrow(existing) > 0) {
     res$status <- 409L
-    return(list(error = "Email already registered"))
+    return(list(error = "Registration failed. Please try again or login."))
   }
 
   # Institutional accounts require admin review
@@ -603,12 +676,31 @@ function(req, res, email, password) {
     return(list(error = "email and password are required"))
   }
 
+  # Prevent NoSQL injection: ensure email/password are plain strings
+  if (!is.character(email) || !is.character(password) ||
+    length(email) != 1 || length(password) != 1) {
+    res$status <- 400L
+    return(list(error = "email and password are required"))
+  }
+
+  # Rate limiting: max 5 attempts per IP per 5 minutes
+  client_ip <- req$REMOTE_ADDR %||% "unknown"
+  if (!rate_limit_check("login", client_ip)) {
+    res$status <- 429L
+    remaining <- rate_limit_remaining("login", client_ip)
+    res$setHeader("Retry-After", as.character(RATE_LIMIT_WINDOW))
+    return(list(
+      error = "Too many login attempts. Try again later.",
+      retry_after = RATE_LIMIT_WINDOW
+    ))
+  }
+
   query <- toJSON(
     list(
-      email = email,
-      password_hash = hash_password(password)
+      email = jsonlite::unbox(email),
+      password_hash = jsonlite::unbox(hash_password(password))
     ),
-    auto_unbox = TRUE
+    auto_unbox = FALSE
   )
   result <- db_users$find(query = query, limit = 1)
 
@@ -930,6 +1022,10 @@ function(req, res, search = NULL, survey_type = NULL, topic = NULL,
       docs <- list()
       while (!is.null(doc <- iter$one())) {
         doc[["_id"]] <- NULL
+        # Strip email from public responses
+        if (!is.null(doc$user_info)) {
+          doc$user_info$email <- NULL
+        }
         docs[[length(docs) + 1L]] <- doc
       }
 
@@ -970,6 +1066,7 @@ function(req, res, id) {
       }
 
       doc[["_id"]] <- NULL
+      if (!is.null(doc$user_info)) doc$user_info$email <- NULL
       result <- list(ok = TRUE, recipe = doc)
       cache_set(cache_key, result, 300L)
       result
@@ -1323,6 +1420,7 @@ function(req, res, search = NULL, survey_type = NULL, recipe_id = NULL,
       docs <- list()
       while (!is.null(doc <- iter$one())) {
         doc[["_id"]] <- NULL
+        if (!is.null(doc$user_info)) doc$user_info$email <- NULL
         docs[[length(docs) + 1L]] <- doc
       }
 
@@ -1363,6 +1461,7 @@ function(req, res, id) {
       }
 
       doc[["_id"]] <- NULL
+      if (!is.null(doc$user_info)) doc$user_info$email <- NULL
       result <- list(ok = TRUE, workflow = doc)
       cache_set(cache_key, result, 300L)
       result
@@ -1758,6 +1857,7 @@ function(req, res, search = NULL,
       docs <- list()
       while (!is.null(doc <- iter$one())) {
         doc[["_id"]] <- NULL
+        if (!is.null(doc$user_info)) doc$user_info$email <- NULL
         docs[[length(docs) + 1L]] <- doc
       }
 
@@ -1813,6 +1913,7 @@ function(req, res, id) {
       }
 
       doc[["_id"]] <- NULL
+      if (!is.null(doc$user_info)) doc$user_info$email <- NULL
       result <- list(ok = TRUE, indicator = doc)
       cache_set(cache_key, result, 3600L)
       result
@@ -1879,7 +1980,10 @@ function(req, res, id) {
         limit = 1
       )
       rdoc <- riter$one()
-      if (!is.null(rdoc)) rdoc[["_id"]] <- NULL
+      if (!is.null(rdoc)) {
+        rdoc[["_id"]] <- NULL
+        if (!is.null(rdoc$user_info)) rdoc$user_info$email <- NULL
+      }
 
       result <- list(ok = TRUE, indicator_id = id, recipe = rdoc)
       cache_set(cache_key, result, 3600L)
@@ -1950,7 +2054,10 @@ function(req, res, id) {
         limit = 1
       )
       wdoc <- witer$one()
-      if (!is.null(wdoc)) wdoc[["_id"]] <- NULL
+      if (!is.null(wdoc)) {
+        wdoc[["_id"]] <- NULL
+        if (!is.null(wdoc$user_info)) wdoc$user_info$email <- NULL
+      }
 
       result <- list(ok = TRUE, indicator_id = id, workflow = wdoc)
       cache_set(cache_key, result, 3600L)
