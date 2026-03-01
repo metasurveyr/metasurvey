@@ -18,3 +18,7 @@ services:
         value: "0"
       - key: METASURVEY_ENABLE_WORKER
         value: "0"
+      - key: REDIS_URL
+        sync: false
+      - key: METASURVEY_ENABLE_ASYNC
+        value: "0"

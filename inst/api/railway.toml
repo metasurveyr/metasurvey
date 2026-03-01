@@ -1,0 +1,25 @@
+# metasurvey API — Railway deployment config
+# Railway auto-detects the Dockerfile.
+#
+# Required environment variables (set in Railway dashboard):
+#   METASURVEY_MONGO_URI    — MongoDB Atlas connection string
+#   METASURVEY_JWT_SECRET   — JWT HMAC signing secret
+#   METASURVEY_DB           — Database name (default: metasurvey)
+#   METASURVEY_ADMIN_EMAIL  — Admin email for approvals
+#
+# Redis (provided by Railway Redis plugin):
+#   REDIS_URL               — Auto-injected by Railway Redis plugin
+#
+# Feature flags:
+#   METASURVEY_ENABLE_INDICATORS — "1" to enable /indicators endpoints
+#   METASURVEY_ENABLE_WORKER     — "1" to enable POST /indicators/compute
+#   METASURVEY_ENABLE_ASYNC      — "1" to enable async compute queue (requires Redis)
+
+[build]
+dockerfilePath = "inst/api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

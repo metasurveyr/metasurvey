@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmongoc-dev \
     libbson-dev \
     libsodium-dev \
+    libhiredis-dev \
     pkg-config \
     make \
     curl \
@@ -28,7 +29,7 @@ RUN R -e "install.packages(c( \
     'plumber', 'mongolite', 'jsonlite', \
     'data.table', 'survey', 'R6', \
     'cli', 'glue', 'lifecycle', 'httr2', \
-    'remotes', 'haven' \
+    'remotes', 'haven', 'redux', 'callr' \
   ), repos='https://cloud.r-project.org')"
 
 # Install metasurvey from GitHub
@@ -39,7 +40,7 @@ RUN R -e "remotes::install_github( \
   )"
 
 # Verify
-RUN R -e "library(metasurvey); library(plumber); library(mongolite); library(survey); cat('All packages OK\n')"
+RUN R -e "library(metasurvey); library(plumber); library(mongolite); library(survey); library(redux); library(callr); cat('All packages OK\n')"
 
 # Copy worker code
 COPY plumber.R /app/plumber.R

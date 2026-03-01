@@ -11,16 +11,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmongoc-dev \
     libbson-dev \
     libsodium-dev \
+    libhiredis-dev \
     pkg-config \
     make \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install R packages (openssl explicitly as jose dependency)
-RUN R -e "install.packages(c('plumber', 'mongolite', 'jsonlite', 'openssl', 'jose', 'digest', 'sodium'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages(c('plumber', 'mongolite', 'jsonlite', 'openssl', 'jose', 'digest', 'sodium', 'redux'), repos='https://cloud.r-project.org')"
 
 # Verify all packages load correctly
-RUN R -e "library(plumber); library(mongolite); library(jsonlite); library(jose); library(digest); cat('All packages loaded OK\n')"
+RUN R -e "library(plumber); library(mongolite); library(jsonlite); library(jose); library(digest); library(redux); cat('All packages loaded OK\n')"
 
 # Copy API code
 COPY plumber.R /app/plumber.R

@@ -5,16 +5,18 @@
 #
 # Services:
 #   mongo  → MongoDB (port 27017)
+#   redis  → Redis (port 6379) — cache + async job queue
 #   api    → http://localhost:8787  (Plumber REST API — public)
 #   worker → http://localhost:8788  (Compute Worker — internal)
 #   shiny  → http://localhost:3838  (Recipe Explorer)
 #
 # Architecture:
 #   Frontend/Users → api (indicators, recipes, workflows)
-#                     ↓ POST /indicators/compute
-#                   worker (loads microdata, applies recipes, estimates)
+#                     ↓ async: LPUSH job → redis queue
+#                   worker (BRPOP → loads microdata, applies recipes, estimates)
 #                     ↓
 #                   mongo (stores results)
+#   Redis: GET cache (recipes, workflows, indicators) + job queue
 
 services:
   mongo:
@@ -35,6 +37,19 @@ services:
       retries: 5
       start_period: 10s
 
+  redis:
+    image: redis:7-alpine
+    container_name: metasurvey-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   worker:
     build:
       context: ./inst/worker
@@ -49,11 +64,14 @@ services:
       - METASURVEY_MONGO_URI=${METASURVEY_MONGO_URI:-mongodb://${MONGO_USER:-metasurvey}:${MONGO_PASSWORD:-metasurvey-dev}@mongo:27017/?authSource=admin}
       - METASURVEY_DB=${METASURVEY_DB:-metasurvey}
       - SURVEY_DATA_DIR=/data/surveys
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - PORT=8788
     volumes:
       - ${SURVEY_DATA_PATH:-./data/surveys}:/data/surveys:ro
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -78,9 +96,13 @@ services:
       - METASURVEY_WORKER_URL=http://worker:8788
       - METASURVEY_ENABLE_INDICATORS=${METASURVEY_ENABLE_INDICATORS:-1}
       - METASURVEY_ENABLE_WORKER=${METASURVEY_ENABLE_WORKER:-1}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - METASURVEY_ENABLE_ASYNC=${METASURVEY_ENABLE_ASYNC:-1}
       - PORT=8787
     depends_on:
       mongo:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       worker:
         condition: service_healthy
