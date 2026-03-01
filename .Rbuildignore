@@ -4,8 +4,11 @@
 ^CONTRIBUTING\.md$
 ^CRAN-SUBMISSION$
 ^LICENSE\.md$
+^Makefile$
 ^Meta$
+^R/README\.md$
 ^README\.Rmd$
+^Rplots\.pdf$
 ^\.DS_Store$
 ^\.RData$
 ^\.Rcheck$
@@ -39,6 +42,7 @@
 ^inst/api/\.dockerignore$
 ^inst/api/\.env\.railway$
 ^inst/api/render\.yaml$
+^inst/diagrams/.*\.drawio$
 ^inst/scripts$
 ^inst/seed-data$
 ^inst/shiny-auth\.R$
@@ -46,7 +50,6 @@
 ^inst/shiny/\.dockerignore$
 ^inst/worker/Dockerfile$
 ^inst/worker/\.dockerignore$
-^inst/diagrams/.*\.drawio$
 ^lib$
 ^metasurvey\.Rcheck$
 ^metasurvey_.*\.tar\.gz$
@@ -62,7 +65,6 @@
 ^test_.*\.R$
 ^vignettes/.*\.html$
 ^vignettes/api-database-es\.Rmd$
-^vignettes/shiny-explorer-es\.Rmd$
 ^vignettes/complex-designs-es\.Rmd$
 ^vignettes/ech-case-study-es\.Rmd$
 ^vignettes/ech-demographics-recipe-es\.Rmd$
@@ -70,8 +72,7 @@
 ^vignettes/international-surveys-es\.Rmd$
 ^vignettes/panel-analysis-es\.Rmd$
 ^vignettes/recipes-es\.Rmd$
+^vignettes/self-hosting-es\.Rmd$
+^vignettes/shiny-explorer-es\.Rmd$
 ^vignettes/stata-transpiler-es\.Rmd$
 ^vignettes/workflows-and-estimation-es\.Rmd$
-^vignettes/self-hosting-es\.Rmd$
-^R/README\.md$
-^Rplots\.pdf$

@@ -1,0 +1,52 @@
+# Runs pre-commit hooks + roxygen freshness check on PRs and pushes.
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+name: pre-commit
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::styler
+            any::lintr
+            any::roxygen2
+            any::desc
+            any::spelling
+            local::.
+          needs: check
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Pre-commit hooks (skip roxygenize — not in config; skip no-commit-to-branch in CI)
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
+        env:
+          SKIP: spell-check,no-commit-to-branch
+
+      # Roxygen freshness check (runs document() and checks for diffs)
+      - name: Check roxygen is up to date
+        run: |
+          Rscript -e 'roxygen2::roxygenise()'
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "::error::roxygen2 documentation is out of date. Run 'make document' and commit the changes."
+            git diff --stat
+            exit 1
+          fi

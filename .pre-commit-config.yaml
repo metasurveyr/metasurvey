@@ -1,14 +1,19 @@
-# All available hooks: https://pre-commit.com/hooks.html
-# R specific hooks: https://github.com/lorenzwalthert/precommit
+# metasurvey pre-commit configuration
+# https://pre-commit.com | R hooks: https://github.com/lorenzwalthert/precommit
+#
+# Setup:   make dev-setup
+# Run all: make pre-commit
+# Fix renv lock errors: make dev-clean-hooks
+
 repos:
+# ── R-specific hooks (lorenzwalthert/precommit) ─────────────
 -   repo: https://github.com/lorenzwalthert/precommit
     rev: v0.4.3
     hooks:
     -   id: style-files
-        args: [--style_pkg=styler, --style_fun=tidyverse_style]    
-    -   id: roxygenize
-    # codemeta must be above use-tidy-description when both are used
-    # -   id: codemeta-description-updated
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
+    # roxygenize removed — needs full package deps in renv.
+    # Run `make document` before committing. CI checks roxygen separately.
     -   id: use-tidy-description
     -   id: spell-check
         exclude: >
@@ -24,6 +29,8 @@ repos:
           .*\.Rds|
           .*\.Rproj|
           .*\.sh|
+          .*\.yml|
+          .*\.yaml|
           (.*/|)\.gitignore|
           (.*/|)\.gitlab-ci\.yml|
           (.*/|)\.lintr|
@@ -37,28 +44,73 @@ repos:
           (.*/|)renv/settings\.dcf|
           (.*/|)renv\.lock|
           (.*/|)WORDLIST|
-          \.github/workflows/.*|
+          \.github/.*|
           data/.*|
+          Makefile|
+          docker-compose\.yml|
           )$
+    -   id: lintr
     -   id: parsable-R
     -   id: no-browser-statement
     -   id: no-print-statement
+        exclude: >
+          (?x)^(
+          tests/.*|
+          vignettes/.*|
+          )$
     -   id: no-debug-statement
     -   id: deps-in-desc
+
+# ── General file quality hooks ───────────────────────────────
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
-    hooks: 
+    hooks:
     -   id: check-added-large-files
         args: ['--maxkb=200']
     -   id: file-contents-sorter
         files: '^\.Rbuildignore$'
     -   id: end-of-file-fixer
-        exclude: '\.Rd'
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: trailing-whitespace
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: check-yaml
+        args: ['--allow-multiple-documents']
+    -   id: check-json
+        exclude: >
+          (?x)^(
+          .*\.ipynb|
+          )$
+    -   id: check-merge-conflict
+    -   id: check-case-conflict
+    -   id: detect-private-key
+    -   id: mixed-line-ending
+        args: ['--fix=lf']
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: no-commit-to-branch
+        args: ['--branch', 'main']
+
+# ── pre-commit.ci config validation ─────────────────────────
 -   repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.6.1
     hooks:
-    # Only required when https://pre-commit.ci is used for config validation
     -   id: check-pre-commit-ci-config
+
+# ── Local hooks ──────────────────────────────────────────────
 -   repo: local
     hooks:
     -   id: forbid-to-commit
@@ -66,8 +118,18 @@ repos:
         entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
         language: fail
         files: '\.(Rhistory|RData|Rds|rds)$'
-        # `exclude: <regex>` to allow committing specific files
+        exclude: >
+          (?x)^(
+          inst/.*|
+          example-data/.*|
+          )$
+    -   id: forbid-secrets
+        name: Don't commit secrets
+        entry: Cannot commit .env, credentials, or key files.
+        language: fail
+        files: '(\.env$|\.env\..+$|credentials\.json$|service-account\.json$)'
+        exclude: '\.env\.example$'
 
 ci:
     autoupdate_schedule: monthly
-    skip: [spell-check]
+    skip: [spell-check, lintr, no-commit-to-branch]
