@@ -563,7 +563,7 @@ app_css <- function() {
       background: linear-gradient(
         135deg,
         var(--slate-900) 0%,
-        var(--slate-800) 100%
+        #1e1b4b 100%
       );
       color: #fff;
       padding: 2.5rem 2rem;
@@ -572,17 +572,32 @@ app_css <- function() {
       justify-content: center;
       position: relative;
       overflow: hidden;
+      min-height: 420px;
     }
     .auth-branding::before {
       content: '';
       position: absolute;
       bottom: -30%;
       right: -20%;
-      width: 250px;
-      height: 250px;
+      width: 280px;
+      height: 280px;
       background: radial-gradient(
         circle,
-        rgba(99,102,241,.25) 0%,
+        rgba(99,102,241,.3) 0%,
+        transparent 70%
+      );
+      border-radius: 50%;
+    }
+    .auth-branding::after {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: -15%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(
+        circle,
+        rgba(139,92,246,.18) 0%,
         transparent 70%
       );
       border-radius: 50%;
@@ -666,6 +681,64 @@ app_css <- function() {
     .auth-form-panel .nav-pills .nav-link.active {
       background: var(--indigo);
     }
+    /* ── Auth Stats Bar ── */
+    .auth-stats-bar {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,.1);
+      position: relative;
+    }
+    .auth-stat {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+    }
+    .auth-stat-num {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.01em;
+    }
+    .auth-stat-lbl {
+      font-size: .7rem;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    /* ── Auth Legal Note ── */
+    .auth-legal-note {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .72rem;
+      color: var(--slate-400);
+      margin-top: .6rem;
+      margin-bottom: .25rem;
+    }
+    .auth-legal-note svg { color: var(--emerald); flex-shrink: 0; }
+    /* ── Auth Switch Hint (login → register nudge) ── */
+    .auth-switch-hint {
+      font-size: .75rem;
+      color: var(--slate-400);
+      margin-top: .75rem;
+      padding-top: .75rem;
+      border-top: 1px solid var(--slate-100);
+    }
+    .auth-switch-hint strong { color: var(--indigo); }
+    /* ── Register CTA Button ── */
+    .btn-register-cta {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+      border: none !important;
+      box-shadow: 0 4px 14px rgba(99,102,241,.35) !important;
+      transition: box-shadow .2s, transform .15s !important;
+    }
+    .btn-register-cta:hover {
+      box-shadow: 0 6px 20px rgba(99,102,241,.5) !important;
+      transform: translateY(-1px);
+    }
+    .btn-register-cta:active { transform: translateY(0); }
 
     /* ── Empty State ── */
     .empty-state {
@@ -1162,7 +1235,9 @@ star_rating_inline <- function(average, count) {
   avg <- round(as.numeric(if (length(avg_raw) == 0) 0 else avg_raw[[1]]), 1)
   n_raw <- count %||% 0
   n <- as.integer(if (length(n_raw) == 0) 0L else n_raw[[1]])
-  if (n == 0) return(NULL)
+  if (n == 0) {
+    return(NULL)
+  }
   htmltools::tags$span(
     class = "star-rating-inline",
     htmltools::tags$span(
@@ -1344,7 +1419,9 @@ comments_section_ui <- function(comments, ns,
 
 # Dependents section (backlinks)
 dependents_section_ui <- function(dependents, ns = NULL) {
-  if (length(dependents) == 0) return(NULL)
+  if (length(dependents) == 0) {
+    return(NULL)
+  }
 
   dep_chips <- lapply(dependents, function(dep) {
     dep_name <- dep$name %||% dep$id

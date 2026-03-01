@@ -11,6 +11,62 @@ auth_ui <- function(id) {
       htmltools::tags$h2(
         bsicons::bs_icon("journal-code", size = "1.5rem"),
         " metasurvey"
+      ),
+      htmltools::tags$p(
+        class = "tagline",
+        "La plataforma abierta para compartir, descubrir y reutilizar",
+        htmltools::tags$strong(" metodologias de encuestas."),
+        " Construida por y para la comunidad estadistica."
+      ),
+      htmltools::tags$ul(
+        class = "auth-feature-list",
+        htmltools::tags$li(
+          bsicons::bs_icon("send-check-fill", size = ".9rem"),
+          htmltools::tags$span(
+            htmltools::tags$strong("Publica tus recetas"),
+            " — compartí tus pipelines con un DOI reproducible."
+          )
+        ),
+        htmltools::tags$li(
+          bsicons::bs_icon("arrow-repeat", size = ".9rem"),
+          htmltools::tags$span(
+            htmltools::tags$strong("Reutilizá workflows"),
+            " — copiá estimaciones en una sola linea de R."
+          )
+        ),
+        htmltools::tags$li(
+          bsicons::bs_icon("key-fill", size = ".9rem"),
+          htmltools::tags$span(
+            htmltools::tags$strong("API Token personal"),
+            " — acceede a la API desde cualquier entorno."
+          )
+        ),
+        htmltools::tags$li(
+          bsicons::bs_icon("star-fill", size = ".9rem"),
+          htmltools::tags$span(
+            htmltools::tags$strong("Califica y comentá"),
+            " — da feedback y mejorá la calidad colectiva."
+          )
+        )
+      ),
+      # Social proof stats bar
+      htmltools::tags$div(
+        class = "auth-stats-bar",
+        htmltools::tags$div(
+          class = "auth-stat",
+          htmltools::tags$span(class = "auth-stat-num", "100%"),
+          htmltools::tags$span(class = "auth-stat-lbl", "Open Source")
+        ),
+        htmltools::tags$div(
+          class = "auth-stat",
+          htmltools::tags$span(class = "auth-stat-num", "Gratis"),
+          htmltools::tags$span(class = "auth-stat-lbl", "Para siempre")
+        ),
+        htmltools::tags$div(
+          class = "auth-stat",
+          htmltools::tags$span(class = "auth-stat-num", "R"),
+          htmltools::tags$span(class = "auth-stat-lbl", "Nativo")
+        )
       )
     ),
 
@@ -25,21 +81,26 @@ auth_ui <- function(id) {
           "Login",
           htmltools::tags$div(
             style = "padding-top: 1.25rem;",
-            htmltools::tags$h3("Welcome back"),
+            htmltools::tags$h3("Bienvenido de nuevo"),
             htmltools::tags$div(
               class = "auth-form-sub",
-              "Accede a tus recetas y tokens API."
+              "Accede a tus recetas y token API."
             ),
             shiny::textInput(ns("login_email"), "Email",
-              placeholder = "your@email.com"
+              placeholder = "tu@email.com"
             ),
-            shiny::passwordInput(ns("login_password"), "Password",
-              placeholder = "Enter password"
+            shiny::passwordInput(ns("login_password"), "Contrasena",
+              placeholder = "Tu contrasena"
             ),
             htmltools::tags$div(style = "margin-top: .5rem;"),
-            shiny::actionButton(ns("btn_login"), "Sign in",
+            shiny::actionButton(ns("btn_login"), "Iniciar sesion",
               class = "btn-primary",
               icon = shiny::icon("sign-in-alt")
+            ),
+            htmltools::tags$div(
+              class = "auth-switch-hint",
+              "\u00bfAun no tenes cuenta?",
+              htmltools::tags$strong(" Es gratis y lleva menos de 1 minuto.")
             ),
             shiny::uiOutput(ns("login_feedback"))
           )
@@ -50,25 +111,26 @@ auth_ui <- function(id) {
           "Register",
           htmltools::tags$div(
             style = "padding-top: 1.25rem;",
-            htmltools::tags$h3("Create account"),
+            htmltools::tags$h3("Crear cuenta gratis"),
             htmltools::tags$div(
               class = "auth-form-sub",
-              "Unite a la comunidad para publicar y compartir."
+              bsicons::bs_icon("lightning-charge-fill", size = ".8rem"),
+              " Cuentas individuales activadas al instante."
             ),
-            shiny::textInput(ns("reg_name"), "Full Name",
+            shiny::textInput(ns("reg_name"), "Nombre completo",
               placeholder = "Juan Perez"
             ),
             shiny::textInput(ns("reg_email"), "Email",
-              placeholder = "your@email.com"
+              placeholder = "tu@email.com"
             ),
-            shiny::passwordInput(ns("reg_password"), "Password",
-              placeholder = "Min. 6 characters"
+            shiny::passwordInput(ns("reg_password"), "Contrasena",
+              placeholder = "Min. 6 caracteres"
             ),
-            shiny::selectInput(ns("reg_type"), "Account Type",
+            shiny::selectInput(ns("reg_type"), "Tipo de cuenta",
               choices = c(
-                "Individual" = "individual",
-                "Institutional Member" = "institutional_member",
-                "Institution" = "institution"
+                "Individual (acceso inmediato)" = "individual",
+                "Miembro institucional" = "institutional_member",
+                "Institucion" = "institution"
               )
             ),
             shiny::conditionalPanel(
@@ -76,14 +138,19 @@ auth_ui <- function(id) {
                 "input['%s'] == 'institutional_member'",
                 ns("reg_type")
               ),
-              shiny::textInput(ns("reg_institution"), "Institution Name",
-                placeholder = "e.g., Instituto de Economia"
+              shiny::textInput(ns("reg_institution"), "Nombre de la institucion",
+                placeholder = "ej. Instituto de Economia"
               )
             ),
-            htmltools::tags$div(style = "margin-top: .5rem;"),
-            shiny::actionButton(ns("btn_register"), "Create Account",
-              class = "btn-primary",
+            htmltools::tags$div(style = "margin-top: .75rem;"),
+            shiny::actionButton(ns("btn_register"), "Crear cuenta",
+              class = "btn-primary btn-register-cta",
               icon = shiny::icon("user-plus")
+            ),
+            htmltools::tags$div(
+              class = "auth-legal-note",
+              bsicons::bs_icon("shield-check", size = ".75rem"),
+              " Sin spam. Sin tarjeta de credito. 100% gratis."
             ),
             shiny::uiOutput(ns("register_feedback"))
           )
