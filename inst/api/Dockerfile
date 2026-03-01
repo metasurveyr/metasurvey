@@ -2,23 +2,16 @@
 # Build: docker build -t metasurvey-api .
 # Run:   docker run -p 8787:8787 -e METASURVEY_MONGO_URI="mongodb+srv://..." metasurvey-api
 
-FROM rocker/r-ver:4.4.0
+FROM rocker/r2u:24.04
 
-# System dependencies for mongolite, jose/openssl, plumber/httpuv, sodium
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libmongoc-dev \
-    libbson-dev \
-    libsodium-dev \
-    libhiredis-dev \
-    pkg-config \
-    make \
-    curl \
+# Install R packages as pre-compiled Ubuntu binaries (no compilation)
+# r2u resolves system dependencies automatically
+RUN install2.r --error --skipinstalled \
+    plumber mongolite jsonlite openssl jose digest sodium redux
+
+# curl for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Install R packages (openssl explicitly as jose dependency)
-RUN R -e "install.packages(c('plumber', 'mongolite', 'jsonlite', 'openssl', 'jose', 'digest', 'sodium', 'redux'), repos='https://cloud.r-project.org')"
 
 # Verify all packages load correctly
 RUN R -e "library(plumber); library(mongolite); library(jsonlite); library(jose); library(digest); library(redux); cat('All packages loaded OK\n')"

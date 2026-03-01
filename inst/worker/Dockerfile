@@ -8,29 +8,15 @@
 #          -v /path/to/microdata:/data/surveys \
 #          metasurvey-worker
 
-FROM rocker/r-ver:4.4.0
+FROM rocker/r2u:24.04
 
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libmongoc-dev \
-    libbson-dev \
-    libsodium-dev \
-    libhiredis-dev \
-    pkg-config \
-    make \
-    curl \
-    libxml2-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install R packages: plumber + mongolite + survey ecosystem
-RUN R -e "install.packages(c( \
-    'plumber', 'mongolite', 'jsonlite', \
-    'data.table', 'survey', 'R6', \
-    'cli', 'glue', 'lifecycle', 'httr2', \
-    'remotes', 'haven', 'redux', 'callr' \
-  ), repos='https://cloud.r-project.org')"
+# Install R packages as pre-compiled Ubuntu binaries (no compilation)
+# r2u resolves system dependencies automatically
+RUN install2.r --error --skipinstalled \
+    plumber mongolite jsonlite \
+    data.table survey R6 \
+    cli glue lifecycle httr2 \
+    remotes haven redux callr
 
 # Install metasurvey from GitHub
 ARG METASURVEY_REF=main
@@ -38,6 +24,10 @@ RUN R -e "remotes::install_github( \
     'metasurveyr/metasurvey@${METASURVEY_REF}', \
     dependencies = FALSE \
   )"
+
+# curl for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Verify
 RUN R -e "library(metasurvey); library(plumber); library(mongolite); library(survey); library(redux); library(callr); cat('All packages OK\n')"

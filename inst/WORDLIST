@@ -75,6 +75,7 @@ guarda
 hace
 Healthcheck
 HEALTHCHECK
+healthcheck
 healthcheckPath
 healthcheckTimeout
 HMAC
@@ -162,6 +163,7 @@ rlang
 RStudio
 runnable
 se
+skipinstalled
 srv
 STATA
 Sys
