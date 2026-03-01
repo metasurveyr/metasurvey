@@ -99,7 +99,10 @@ ENABLE_WORKER <- tolower(Sys.getenv(
   "METASURVEY_ENABLE_WORKER", "0"
 )) %in% c("1", "true", "yes")
 REDIS_URL <- Sys.getenv("REDIS_URL", "")
-ENABLE_REDIS <- nzchar(REDIS_URL)
+REDIS_HOST <- Sys.getenv("REDIS_HOST", "")
+REDIS_PORT <- Sys.getenv("REDIS_PORT", "6379")
+REDIS_PASSWORD <- Sys.getenv("REDIS_PASSWORD", "")
+ENABLE_REDIS <- nzchar(REDIS_URL) || nzchar(REDIS_HOST)
 ENABLE_ASYNC <- tolower(Sys.getenv(
   "METASURVEY_ENABLE_ASYNC", "0"
 )) %in% c("1", "true", "yes")
@@ -179,35 +182,71 @@ message(sprintf(
 
 redis_con <- NULL
 
-# Parse redis:// URL into host/port/password for redux::hiredis()
-parse_redis_url <- function(url) {
-  parsed <- regmatches(
-    url,
-    regexec("^redis://(?:([^:]*):([^@]*)@)?([^:]+):?(\\d+)?$", url, perl = TRUE)
-  )[[1]]
-  if (length(parsed) == 0) {
+# Resolve Redis connection params from env vars.
+# Priority: individual REDIS_HOST/PORT/PASSWORD > parse REDIS_URL
+resolve_redis_params <- function() {
+  host <- Sys.getenv("REDIS_HOST", "")
+  port <- Sys.getenv("REDIS_PORT", "6379")
+  pass <- Sys.getenv("REDIS_PASSWORD", "")
+  if (nzchar(host)) {
+    return(list(
+      host = host,
+      port = as.integer(port),
+      password = if (nzchar(pass)) pass else NULL
+    ))
+  }
+  # Fallback: parse REDIS_URL
+  url <- trimws(Sys.getenv("REDIS_URL", ""))
+  if (!grepl("^redis://", url)) {
     return(NULL)
   }
-  list(
-    host = parsed[4],
-    port = as.integer(if (nzchar(parsed[5])) parsed[5] else "6379"),
-    password = if (nzchar(parsed[3])) parsed[3] else NULL
-  )
+  rest <- sub("^redis://", "", url)
+  password <- NULL
+  if (grepl("@", rest)) {
+    auth <- sub("@.*$", "", rest)
+    rest <- sub("^[^@]+@", "", rest)
+    if (grepl(":", auth)) {
+      password <- sub("^[^:]*:", "", auth)
+    } else {
+      password <- auth
+    }
+  }
+  rest <- sub("/.*$", "", rest)
+  parts <- strsplit(rest, ":")[[1]]
+  host <- parts[1]
+  port <- if (length(parts) >= 2) as.integer(parts[2]) else 6379L
+  if (!nzchar(host)) {
+    return(NULL)
+  }
+  list(host = host, port = port, password = password)
 }
 
+redis_error_msg <- NULL
+
 if (ENABLE_REDIS) {
-  redis_params <- parse_redis_url(REDIS_URL)
+  redis_params <- resolve_redis_params()
+  message(sprintf(
+    "[metasurvey-api] Connecting to Redis: %s:%s",
+    if (!is.null(redis_params)) redis_params$host else "?",
+    if (!is.null(redis_params)) redis_params$port else "?"
+  ))
+  # redux reads REDIS_URL env var internally and fails on authenticated URLs.
+  # Workaround: build a clean URL without auth and pass password separately.
   redis_con <- tryCatch(
-    if (!is.null(redis_params) && !is.null(redis_params$password)) {
-      r <- redux::hiredis(host = redis_params$host, port = redis_params$port)
-      r$AUTH(redis_params$password)
-      r
-    } else if (!is.null(redis_params)) {
-      redux::hiredis(host = redis_params$host, port = redis_params$port)
-    } else {
-      redux::hiredis(url = REDIS_URL)
+    {
+      if (!is.null(redis_params)) {
+        clean_url <- sprintf("redis://%s:%d", redis_params$host, redis_params$port)
+        r <- redux::hiredis(url = clean_url)
+        if (!is.null(redis_params$password)) {
+          r$AUTH(redis_params$password)
+        }
+        r
+      } else {
+        redux::hiredis()
+      }
     },
     error = function(e) {
+      redis_error_msg <<- e$message
       message(sprintf(
         "[metasurvey-api] Redis connection failed (disabled): %s",
         e$message
@@ -216,13 +255,10 @@ if (ENABLE_REDIS) {
     }
   )
   if (!is.null(redis_con)) {
-    message(sprintf(
-      "[metasurvey-api] Redis connected: %s",
-      sub("://.*@", "://***@", REDIS_URL)
-    ))
+    message("[metasurvey-api] Redis: connected")
   }
 } else {
-  message("[metasurvey-api] Redis: disabled (REDIS_URL not set)")
+  message("[metasurvey-api] Redis: disabled (no REDIS_URL or REDIS_HOST)")
 }
 
 # -- Cache helpers ------------------------------------------------------------
@@ -2280,7 +2316,7 @@ function() {
   redis_ok <- if (!is.null(redis_con)) {
     tryCatch(
       {
-        identical(redis_con$PING(), "PONG")
+        as.character(redis_con$PING()) == "PONG"
       },
       error = function(e) FALSE
     )
@@ -2302,6 +2338,7 @@ function() {
       "disconnected"
     },
     async = ENABLE_ASYNC && !is.null(redis_con),
-    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
+    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ"),
+    redis_error = redis_error_msg
   )
 }

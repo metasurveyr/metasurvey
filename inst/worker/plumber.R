@@ -78,36 +78,69 @@ message(sprintf(
 # -- Redis connection ---------------------------------------------------------
 
 REDIS_URL <- Sys.getenv("REDIS_URL", "")
+REDIS_HOST <- Sys.getenv("REDIS_HOST", "")
+REDIS_PORT <- Sys.getenv("REDIS_PORT", "6379")
+REDIS_PASSWORD <- Sys.getenv("REDIS_PASSWORD", "")
+ENABLE_REDIS_WORKER <- nzchar(REDIS_URL) || nzchar(REDIS_HOST)
 
 redis_con <- NULL
 
-# Parse redis:// URL into host/port/password for redux::hiredis()
-parse_redis_url <- function(url) {
-  parsed <- regmatches(
-    url,
-    regexec("^redis://(?:([^:]*):([^@]*)@)?([^:]+):?(\\d+)?$", url, perl = TRUE)
-  )[[1]]
-  if (length(parsed) == 0) {
+# Resolve Redis params: individual env vars > parse REDIS_URL
+resolve_redis_params <- function() {
+  host <- Sys.getenv("REDIS_HOST", "")
+  port <- Sys.getenv("REDIS_PORT", "6379")
+  pass <- Sys.getenv("REDIS_PASSWORD", "")
+  if (nzchar(host)) {
+    return(list(
+      host = host,
+      port = as.integer(port),
+      password = if (nzchar(pass)) pass else NULL
+    ))
+  }
+  url <- trimws(Sys.getenv("REDIS_URL", ""))
+  if (!grepl("^redis://", url)) {
     return(NULL)
   }
-  list(
-    host = parsed[4],
-    port = as.integer(if (nzchar(parsed[5])) parsed[5] else "6379"),
-    password = if (nzchar(parsed[3])) parsed[3] else NULL
-  )
+  rest <- sub("^redis://", "", url)
+  password <- NULL
+  if (grepl("@", rest)) {
+    auth <- sub("@.*$", "", rest)
+    rest <- sub("^[^@]+@", "", rest)
+    if (grepl(":", auth)) {
+      password <- sub("^[^:]*:", "", auth)
+    } else {
+      password <- auth
+    }
+  }
+  rest <- sub("/.*$", "", rest)
+  parts <- strsplit(rest, ":")[[1]]
+  host <- parts[1]
+  port <- if (length(parts) >= 2) as.integer(parts[2]) else 6379L
+  if (!nzchar(host)) {
+    return(NULL)
+  }
+  list(host = host, port = port, password = password)
 }
 
-if (nzchar(REDIS_URL)) {
-  redis_params <- parse_redis_url(REDIS_URL)
+if (ENABLE_REDIS_WORKER) {
+  redis_params <- resolve_redis_params()
+  message(sprintf(
+    "[metasurvey-worker] Connecting to Redis: %s:%s",
+    if (!is.null(redis_params)) redis_params$host else "?",
+    if (!is.null(redis_params)) redis_params$port else "?"
+  ))
   redis_con <- tryCatch(
-    if (!is.null(redis_params) && !is.null(redis_params$password)) {
-      r <- redux::hiredis(host = redis_params$host, port = redis_params$port)
-      r$AUTH(redis_params$password)
-      r
-    } else if (!is.null(redis_params)) {
-      redux::hiredis(host = redis_params$host, port = redis_params$port)
-    } else {
-      redux::hiredis(url = REDIS_URL)
+    {
+      if (!is.null(redis_params)) {
+        clean_url <- sprintf("redis://%s:%d", redis_params$host, redis_params$port)
+        r <- redux::hiredis(url = clean_url)
+        if (!is.null(redis_params$password)) {
+          r$AUTH(redis_params$password)
+        }
+        r
+      } else {
+        redux::hiredis()
+      }
     },
     error = function(e) {
       message(sprintf(
@@ -118,13 +151,10 @@ if (nzchar(REDIS_URL)) {
     }
   )
   if (!is.null(redis_con)) {
-    message(sprintf(
-      "[metasurvey-worker] Redis connected: %s",
-      sub("://.*@", "://***@", REDIS_URL)
-    ))
+    message("[metasurvey-worker] Redis: connected")
   }
 } else {
-  message("[metasurvey-worker] Redis: disabled (REDIS_URL not set)")
+  message("[metasurvey-worker] Redis: disabled (no REDIS_URL or REDIS_HOST)")
 }
 
 # -- Helpers ------------------------------------------------------------------
@@ -547,7 +577,8 @@ consumer_process <- NULL
 
 #' Run the blocking Redis queue consumer.
 #' Designed to run in a separate R process via callr::r_bg().
-run_queue_consumer <- function(redis_url, mongo_uri, db_name, data_dir) {
+run_queue_consumer <- function(redis_host, redis_port, redis_password,
+                               mongo_uri, db_name, data_dir) {
   library(redux)
   library(mongolite)
   library(jsonlite)
@@ -557,30 +588,10 @@ run_queue_consumer <- function(redis_url, mongo_uri, db_name, data_dir) {
 
   `%||%` <- function(x, y) if (is.null(x)) y else x
 
-  # Parse redis:// URL into host/port/password
-  parse_redis_url_local <- function(url) {
-    parsed <- regmatches(
-      url,
-      regexec("^redis://(?:([^:]*):([^@]*)@)?([^:]+):?(\\d+)?$", url, perl = TRUE)
-    )[[1]]
-    if (length(parsed) == 0) {
-      return(NULL)
-    }
-    list(
-      host = parsed[4],
-      port = as.integer(if (nzchar(parsed[5])) parsed[5] else "6379"),
-      password = if (nzchar(parsed[3])) parsed[3] else NULL
-    )
-  }
-
-  rp <- parse_redis_url_local(redis_url)
-  if (!is.null(rp) && !is.null(rp$password)) {
-    redis <- redux::hiredis(host = rp$host, port = rp$port)
-    redis$AUTH(rp$password)
-  } else if (!is.null(rp)) {
-    redis <- redux::hiredis(host = rp$host, port = rp$port)
-  } else {
-    redis <- redux::hiredis(url = redis_url)
+  clean_url <- sprintf("redis://%s:%d", redis_host, as.integer(redis_port))
+  redis <- redux::hiredis(url = clean_url)
+  if (nzchar(redis_password %||% "")) {
+    redis$AUTH(redis_password)
   }
   db_rec <- mongolite::mongo("recipes", db = db_name, url = mongo_uri)
   db_wf <- mongolite::mongo("workflows", db = db_name, url = mongo_uri)
@@ -916,10 +927,12 @@ if (!is.null(redis_con)) {
   consumer_process <- callr::r_bg(
     func = run_queue_consumer,
     args = list(
-      redis_url = REDIS_URL,
-      mongo_uri = MONGO_URI,
-      db_name   = DATABASE,
-      data_dir  = DATA_DIR
+      redis_host     = redis_params$host,
+      redis_port     = redis_params$port,
+      redis_password = redis_params$password %||% "",
+      mongo_uri      = MONGO_URI,
+      db_name        = DATABASE,
+      data_dir       = DATA_DIR
     ),
     supervise = TRUE
   )
