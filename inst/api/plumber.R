@@ -2338,7 +2338,6 @@ function() {
       "disconnected"
     },
     async = ENABLE_ASYNC && !is.null(redis_con),
-    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ"),
-    redis_error = redis_error_msg
+    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
   )
 }
