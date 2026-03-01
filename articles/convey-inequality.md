@@ -334,15 +334,15 @@ convey estimates computed, and package versions — is available:
 prov <- provenance(results)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-03-01T05:32:13 
+#> Loaded: 2026-03-01T05:41:01 
 #> Initial rows: 200 
 #> 
 #> Pipeline:
-#>   1. step_1 Compute: api_growth  N=200 [1.0ms]
+#>   1. step_1 Compute: api_growth  N=200 [0.0ms]
 #> 
 #> Estimation:
 #>   Type: annual 
-#>   Timestamp: 2026-03-01T05:32:13 
+#>   Timestamp: 2026-03-01T05:41:01 
 #> 
 #> Environment:
 #>   metasurvey: 0.0.21 
