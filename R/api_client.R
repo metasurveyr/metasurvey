@@ -110,7 +110,8 @@ api_request <- function(endpoint, method = "GET",
   if (!requireNamespace("httr2", quietly = TRUE)) {
     stop("Package 'httr2' is required for API operations. ",
       "Install it with: install.packages('httr2')",
-      call. = FALSE)
+      call. = FALSE
+    )
   }
 
   base_url <- api_url()

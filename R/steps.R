@@ -1267,7 +1267,8 @@ step_rename <- function(
   if (!is.null(mapping)) {
     if (is.null(names(mapping)) || !is.character(mapping)) {
       stop("'mapping' must be a named character vector: new_name = old_name",
-        call. = FALSE)
+        call. = FALSE
+      )
     }
     map <- mapping
   } else {
@@ -1533,7 +1534,9 @@ step_validate <- function(
 #'   edition = "2023", type = "test", psu = NULL,
 #'   engine = "data.table", weight = add_weight(annual = "w")
 #' )
-#' svy <- svy |> step_filter(age >= 18) |> bake_steps()
+#' svy <- svy |>
+#'   step_filter(age >= 18) |>
+#'   bake_steps()
 #' nrow(get_data(svy))
 #'
 #' @family steps

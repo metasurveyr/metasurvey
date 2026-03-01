@@ -24,7 +24,8 @@ test_that("included vignettes have no relative links to excluded vignettes", {
   # Extract excluded vignette basenames from .Rbuildignore
   # Patterns look like: ^vignettes/api-database\.Rmd$
   excluded_patterns <- grep("^\\^vignettes/.*\\.Rmd\\$$", rbuildignore,
-                            value = TRUE)
+    value = TRUE
+  )
   excluded_names <- gsub("^\\^vignettes/", "", excluded_patterns)
   excluded_names <- gsub("\\\\\\.Rmd\\$$", "", excluded_names)
 

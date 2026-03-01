@@ -10,7 +10,8 @@
   if (!requireNamespace("httr2", quietly = TRUE)) {
     stop("Package 'httr2' is required for ANDA operations. ",
       "Install it with: install.packages('httr2')",
-      call. = FALSE)
+      call. = FALSE
+    )
   }
 }
 
@@ -84,7 +85,8 @@ anda_catalog_search <- function(keyword = "ECH",
 
   if (httr2::resp_status(resp) != 200) {
     stop("ANDA5 catalog search failed: HTTP ", httr2::resp_status(resp),
-      call. = FALSE)
+      call. = FALSE
+    )
   }
 
   body <- httr2::resp_body_json(resp)
@@ -290,7 +292,8 @@ anda_download_microdata <- function(edition,
   if (is.null(catalog_id)) {
     avail <- paste(names(.ech_catalog_ids), collapse = ", ")
     stop("Unknown ECH edition '", edition, "'. Available: ", avail,
-      call. = FALSE)
+      call. = FALSE
+    )
   }
 
   metasurvey_msg(

@@ -450,7 +450,8 @@ survey_to_data_frame <- function(svy) {
 survey_to_tibble <- function(svy) {
   if (!requireNamespace("tibble", quietly = TRUE)) {
     stop("Package 'tibble' required. Install with: install.packages('tibble')",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
   tibble::as_tibble(svy$get_data())
 }

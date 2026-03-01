@@ -144,7 +144,8 @@ print.metasurvey_provenance <- function(x, ...) {
 #' @family provenance
 #' @export
 provenance_to_json <- function(prov, path = NULL) {
-  json <- jsonlite::toJSON(unclass(prov), auto_unbox = TRUE, pretty = TRUE,
+  json <- jsonlite::toJSON(unclass(prov),
+    auto_unbox = TRUE, pretty = TRUE,
     null = "null"
   )
   if (!is.null(path)) {
@@ -255,7 +256,8 @@ print.metasurvey_provenance_diff <- function(x, ...) {
     cat("Steps:", x$n_steps$from, "->", x$n_steps$to, "\n")
   }
   if (!is.null(x$metasurvey_version)) {
-    cat("Version:", x$metasurvey_version$from, "->",
+    cat(
+      "Version:", x$metasurvey_version$from, "->",
       x$metasurvey_version$to, "\n"
     )
   }

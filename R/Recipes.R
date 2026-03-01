@@ -1051,7 +1051,9 @@ print.Recipe <- function(x, ...) {
   cat(cli::col_silver("Author:  "), x$user, "\n", sep = "")
   ed_str <- paste(as.character(unlist(x$edition)), collapse = ", ")
   cat(cli::col_silver("Survey:  "),
-    x$survey_type, " / ", ed_str, "\n", sep = "")
+    x$survey_type, " / ", ed_str, "\n",
+    sep = ""
+  )
   cat(cli::col_silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$topic)) {
     cat(cli::col_silver("Topic:   "), x$topic, "\n", sep = "")
@@ -1078,7 +1080,9 @@ print.Recipe <- function(x, ...) {
   if (length(x$categories) > 0) {
     cat_names <- vapply(x$categories, function(c) c$name, character(1))
     cat(cli::col_silver("Categories: "),
-      paste(cat_names, collapse = ", "), "\n", sep = "")
+      paste(cat_names, collapse = ", "), "\n",
+      sep = ""
+    )
   }
 
   # Input variables

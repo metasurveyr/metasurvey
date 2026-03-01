@@ -50,8 +50,10 @@ validate_weight <- function(svy, weight) {
 
   if (!weight %in% colnames(svy)) {
     stop(
-      glue::glue("Weight column '{weight}' not found in survey data. ",
-        "Available columns: {paste(head(colnames(svy), 10), collapse = ', ')}"),
+      glue::glue(
+        "Weight column '{weight}' not found in survey data. ",
+        "Available columns: {paste(head(colnames(svy), 10), collapse = ', ')}"
+      ),
       call. = FALSE
     )
   } else {
@@ -79,8 +81,10 @@ validate_replicate <- function(svy, replicate) {
     if (!all(names(replicate$replicate_id) %in% colnames(svy))) {
       missing <- setdiff(names(replicate$replicate_id), colnames(svy))
       stop(
-        glue::glue("Replicate ID column(s) not found in survey: ",
-          "{paste(missing, collapse = ', ')}"),
+        glue::glue(
+          "Replicate ID column(s) not found in survey: ",
+          "{paste(missing, collapse = ', ')}"
+        ),
         call. = FALSE
       )
     }

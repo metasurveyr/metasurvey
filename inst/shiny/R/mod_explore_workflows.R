@@ -310,7 +310,9 @@ explore_workflows_server <- function(
     shiny::observeEvent(input$workflow_star_click, {
       value <- input$workflow_star_click
       wid <- current_modal_workflow$id
-      if (is.null(wid) || !isTRUE(auth_state$logged_in)) return()
+      if (is.null(wid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_star("workflow", wid, value, auth_state$token)
@@ -339,8 +341,12 @@ explore_workflows_server <- function(
     shiny::observeEvent(input$workflow_submit_comment, {
       text <- input$workflow_submit_comment
       wid <- current_modal_workflow$id
-      if (is.null(wid) || !isTRUE(auth_state$logged_in)) return()
-      if (!nzchar(trimws(text))) return()
+      if (is.null(wid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
+      if (!nzchar(trimws(text))) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_add_comment("workflow", wid, text, auth_state$token)
@@ -368,7 +374,9 @@ explore_workflows_server <- function(
     # Delete comment
     shiny::observeEvent(input$delete_comment, {
       cid <- input$delete_comment
-      if (is.null(cid) || !isTRUE(auth_state$logged_in)) return()
+      if (is.null(cid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_delete_comment(cid, auth_state$token)

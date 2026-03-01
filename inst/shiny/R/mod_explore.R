@@ -387,7 +387,9 @@ explore_server <- function(
     shiny::observeEvent(input$recipe_star_click, {
       value <- input$recipe_star_click
       rid <- current_modal_recipe$id
-      if (is.null(rid) || !isTRUE(auth_state$logged_in)) return()
+      if (is.null(rid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_star("recipe", rid, value, auth_state$token)
@@ -416,8 +418,12 @@ explore_server <- function(
     shiny::observeEvent(input$recipe_submit_comment, {
       text <- input$recipe_submit_comment
       rid <- current_modal_recipe$id
-      if (is.null(rid) || !isTRUE(auth_state$logged_in)) return()
-      if (!nzchar(trimws(text))) return()
+      if (is.null(rid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
+      if (!nzchar(trimws(text))) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_add_comment("recipe", rid, text, auth_state$token)
@@ -445,7 +451,9 @@ explore_server <- function(
     # Delete comment
     shiny::observeEvent(input$delete_comment, {
       cid <- input$delete_comment
-      if (is.null(cid) || !isTRUE(auth_state$logged_in)) return()
+      if (is.null(cid) || !isTRUE(auth_state$logged_in)) {
+        return()
+      }
       tryCatch(
         {
           result <- shiny_delete_comment(cid, auth_state$token)

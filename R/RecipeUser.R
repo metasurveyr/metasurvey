@@ -72,7 +72,8 @@ RecipeUser <- R6::R6Class(
       if (user_type == "institutional_member") {
         if (is.null(institution) || !inherits(institution, "RecipeUser")) {
           stop("institutional_member requires a valid RecipeUser institution",
-            call. = FALSE)
+            call. = FALSE
+          )
         }
       }
       self$name <- name

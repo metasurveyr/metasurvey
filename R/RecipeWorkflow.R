@@ -386,7 +386,8 @@ print.RecipeWorkflow <- function(x, ...) {
   cat(cli::col_silver("Author:  "), x$user, "\n", sep = "")
   cat(
     cli::col_silver("Survey:  "),
-    x$survey_type, " / ", x$edition, "\n", sep = ""
+    x$survey_type, " / ", x$edition, "\n",
+    sep = ""
   )
   cat(cli::col_silver("Version: "), x$version, "\n", sep = "")
   if (!is.null(x$doi)) {
@@ -395,7 +396,8 @@ print.RecipeWorkflow <- function(x, ...) {
   if (nzchar(x$description)) {
     cat(
       cli::col_silver("Description: "),
-      x$description, "\n", sep = ""
+      x$description, "\n",
+      sep = ""
     )
   }
 
