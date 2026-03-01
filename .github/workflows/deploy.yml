@@ -1,9 +1,14 @@
 # Deployment workflow for metasurvey Plumber API and Shiny App
 #
-# Builds Docker images and deploys to Railway:
-#   - Push to main → production deploy (both services)
-#   - Push to develop → staging build (images only, no deploy)
+# Pipeline: GH Actions builds image → push to GHCR → Railway pulls (no rebuild)
+#   - Push to main → build + deploy to production
+#   - Push to develop → build only (images on GHCR, no deploy)
 #   - Manual dispatch → flexible deploy to staging/production
+#
+# Railway setup (one-time, via dashboard):
+#   1. Service Settings → Source → Docker Image
+#   2. Set image: ghcr.io/metasurveyr/metasurvey-api:latest
+#   3. (Optional) Enable Image Auto Updates → Anytime
 #
 # Status badges:
 #   [![Deploy](https://github.com/metaSurveyR/metasurvey/actions/workflows/deploy.yml/badge.svg)](https://github.com/metaSurveyR/metasurvey/actions/workflows/deploy.yml)
@@ -229,44 +234,38 @@ jobs:
   deploy-railway:
     name: Deploy to Railway
     runs-on: ubuntu-latest
-    needs: [changes, build-api, build-shiny]
+    needs: [build-api, build-shiny]
     if: |
       always() &&
       github.ref == 'refs/heads/main' &&
-      (
-        (needs.build-api.result == 'success') ||
-        (needs.build-shiny.result == 'success')
-      )
+      (needs.build-api.result == 'success' || needs.build-shiny.result == 'success')
     environment: production
     container: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy API to Railway
+      # Railway services are configured with Docker Image source
+      # pointing to ghcr.io. Redeploy pulls the freshly pushed image.
+      - name: Redeploy API on Railway
         if: needs.build-api.result == 'success'
-        run: railway up --service ${{ secrets.RAILWAY_API_SERVICE_ID }} --path-as-root inst/api
+        run: railway redeploy --service ${{ secrets.RAILWAY_API_SERVICE_ID }} -y
 
-      - name: Deploy Shiny to Railway
+      - name: Redeploy Shiny on Railway
         if: needs.build-shiny.result == 'success'
-        run: railway up --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }} --path-as-root inst/shiny
+        run: railway redeploy --service ${{ secrets.RAILWAY_SHINY_SERVICE_ID }} -y
 
       - name: Deployment summary
         run: |
           echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** Production" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${GITHUB_SHA::8}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ needs.build-api.result }}" == "success" ]; then
-            echo "- API: Deployed to Railway" >> $GITHUB_STEP_SUMMARY
-            echo "  - URL: https://metasurvey-api-production.up.railway.app" >> $GITHUB_STEP_SUMMARY
+            echo "- API: \`${{ env.API_IMAGE_NAME }}@${{ needs.build-api.outputs.image_digest }}\`" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ needs.build-shiny.result }}" == "success" ]; then
-            echo "- Shiny: Deployed to Railway" >> $GITHUB_STEP_SUMMARY
+            echo "- Shiny: \`${{ env.SHINY_IMAGE_NAME }}@${{ needs.build-shiny.outputs.image_digest }}\`" >> $GITHUB_STEP_SUMMARY
           fi
