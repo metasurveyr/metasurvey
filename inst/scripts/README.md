@@ -116,4 +116,3 @@ no borra datos creados por usuarios via la API.
 | `METASURVEY_MONGO_URI` | — | Connection string MongoDB (requerida) |
 | `METASURVEY_DB` | `metasurvey` | Nombre de la base de datos |
 | `ANDA_CATALOG_ID` | `767` | ID del catalogo ANDA (solo para seed_anda) |
-

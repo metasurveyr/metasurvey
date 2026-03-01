@@ -85,13 +85,184 @@ If you work with any of these (or any other complex survey), publish your recipe
 and [open an issue](https://github.com/metasurveyr/metasurvey/issues/new?template=new_recipe.md)
 to let us know.
 
+## Development environment
+
+### Installing the stack
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+```bash
+# 1. R (via Homebrew or CRAN installer)
+brew install --cask r
+
+# 2. Python 3 + pre-commit
+brew install python
+pip3 install pre-commit
+
+# 3. Docker Desktop
+brew install --cask docker
+# Open Docker Desktop at least once to finish setup
+
+# 4. R development tools (RStudio optional)
+brew install --cask rstudio  # optional
+```
+
+</details>
+
+<details>
+<summary><strong>Ubuntu / Debian</strong></summary>
+
+```bash
+# 1. R (CRAN repo for latest version)
+sudo apt update
+sudo apt install -y software-properties-common dirmngr
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
+  sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+sudo apt install -y r-base r-base-dev
+
+# 2. System libraries required by R packages
+sudo apt install -y libcurl4-openssl-dev libssl-dev libxml2-dev \
+  libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
+  libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+# 3. Python 3 + pre-commit
+sudo apt install -y python3 python3-pip
+pip3 install pre-commit
+
+# 4. Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# Log out and back in for group membership to take effect
+```
+
+</details>
+
+<details>
+<summary><strong>Windows (WSL2)</strong></summary>
+
+```bash
+# Inside WSL2 (Ubuntu), follow the Ubuntu instructions above.
+# Install Docker Desktop for Windows with WSL2 backend.
+```
+
+</details>
+
+### Quick start
+
+```bash
+# 1. Clone and install everything
+git clone https://github.com/metasurveyr/metasurvey.git
+cd metasurvey
+make dev-setup        # installs R deps + pre-commit hooks
+
+# 2. Verify the package
+make test             # run the 2700+ test suite
+make pre-commit       # run all code quality hooks
+make check            # full R CMD check
+
+# 3. Start the API + MongoDB stack
+cp .env.example .env  # edit with your values (or use defaults for local dev)
+make docker-up        # starts mongo, api, worker, shiny
+make docker-seed      # loads recipes, workflows, users, ANDA metadata
+
+# 4. Verify the stack
+curl http://localhost:8787/health   # API
+curl http://localhost:8788/health   # Worker
+open http://localhost:3838          # Shiny Explorer
+```
+
+Run `make help` to see all available targets.
+
+### Pre-commit hooks
+
+Pre-commit runs automatically on every commit. The hooks enforce:
+
+| Hook | What it does |
+|------|-------------|
+| **R code quality** | |
+| `style-files` | Formats R code with `styler::tidyverse_style()` |
+| `roxygenize` | Regenerates `man/` and `NAMESPACE` |
+| `lintr` | Lints R files against `.lintr` rules |
+| `use-tidy-description` | Keeps `DESCRIPTION` fields sorted |
+| `spell-check` | Spell-checks documentation (uses `inst/WORDLIST`) |
+| `parsable-R` | Checks R files parse without errors |
+| `no-browser-statement` | Blocks `browser()` calls in source |
+| `no-print-statement` | Blocks `print()` in source (tests/vignettes excluded) |
+| `no-debug-statement` | Blocks `debug()`/`debugonce()` calls |
+| `deps-in-desc` | Checks all used packages are in `DESCRIPTION` |
+| **File quality** | |
+| `end-of-file-fixer` | Ensures files end with a newline |
+| `trailing-whitespace` | Removes trailing whitespace |
+| `mixed-line-ending` | Enforces LF line endings |
+| `check-yaml` | Validates YAML syntax |
+| `check-json` | Validates JSON syntax |
+| `check-merge-conflict` | Detects unresolved merge markers |
+| `check-case-conflict` | Detects files that differ only in case |
+| `check-added-large-files` | Blocks files > 200 KB |
+| `detect-private-key` | Blocks accidental key commits |
+| **Branch protection** | |
+| `no-commit-to-branch` | Prevents direct commits to `main` |
+| `forbid-to-commit` | Blocks `.Rhistory`, `.RData`, `.rds` artifacts |
+| `forbid-secrets` | Blocks `.env`, credentials, key files |
+
+If the renv cache inside pre-commit gets corrupted (lock errors):
+
+```bash
+make dev-clean-hooks
+```
+
+### Architecture
+
+```
+R/
+├── survey.R          # Survey + PoolSurvey R6 classes
+├── PanelSurvey.R     # RotativePanelSurvey R6 class
+├── Step.R            # Step R6 class (lazy transformation unit)
+├── steps.R           # step_compute(), step_recode(), step_rename(),
+│                     # step_remove(), step_join(), bake_steps()
+├── Recipes.R         # Recipe R6 class + read_recipe()
+├── RecipeRegistry.R  # RecipeRegistry + RecipeBackend (JSON, MongoDB)
+├── workflow.R        # workflow() — svymean/svytotal/svyratio/svyby
+├── RecipeWorkflow.R  # RecipeWorkflow R6 class
+├── transpile.R       # STATA .do → Recipe transpiler
+└── meta.R            # Package options (engine, lazy_processing, use_copy)
+```
+
+**Key patterns:**
+
+- **Lazy evaluation**: `step_*()` functions record but don't execute. Call
+  `bake_steps()` to materialize.
+- **data.table everywhere**: Internal data ops use `data.table` syntax, never
+  `dplyr`. External packages use `:=`, `set()`, `merge.data.table()`.
+- **No rlang**: All metaprogramming uses base R (`substitute()`, `eval()`,
+  `match.call()`). rlang is prohibited.
+- **R6 classes**: PascalCase names, `$initialize()`, `$print()`, `$clone()`.
+  Step functions are functional wrappers that create Step objects internally.
+- **Copy semantics**: `use_copy` option controls whether steps clone data.
+  Default `TRUE` for safety. Use `set_data()` instead of `$data <-` assignment.
+
+### Docker services
+
+The full stack (optional, for recipe ecosystem development):
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| `mongo` | 27017 | MongoDB storage |
+| `api` | 8787 | Plumber REST API (recipe CRUD, auth) |
+| `worker` | 8788 | Background compute (indicators) |
+| `shiny` | 3838 | Recipe Explorer app |
+
+Seed data lives in `inst/seed-data/` (recipes, workflows, users, ANDA variables).
+
 ## Pull requests
 
 1. Fork the repo and create a branch from `develop`.
-2. Run `devtools::document()` if you changed any roxygen comments.
+2. Run `make pre-commit` to check code quality.
 3. Add or update tests in `tests/testthat/`.
-4. Run `devtools::test()` and ensure all tests pass.
-5. Run `devtools::check()` and fix any warnings or notes.
+4. Run `make test` and ensure all tests pass.
+5. Run `make check` and fix any warnings or notes.
 6. Submit a PR to the `develop` branch.
 
 ### Code style
@@ -100,6 +271,7 @@ to let us know.
 - Follow existing naming conventions: `step_*` for step functions, `R6` classes
   use PascalCase.
 - Keep functions focused and avoid over-engineering.
+- No rlang — use base R metaprogramming only.
 
 ### Testing
 
@@ -107,6 +279,7 @@ to let us know.
 - Test helpers are in `tests/testthat/helper-survey.R` (`make_test_survey()`,
   `make_test_panel()`).
 - Integration tests that need external data should use `skip_on_cran()`.
+- `print()` calls in tests are fine (used to test R6 `$print()` methods).
 
 ## Code of Conduct
 
