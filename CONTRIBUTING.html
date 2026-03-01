@@ -173,24 +173,203 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="development-environment">Development environment<a class="anchor" aria-label="anchor" href="#development-environment"></a></h2>
+<div class="section level3">
+<h3 id="installing-the-stack">Installing the stack<a class="anchor" aria-label="anchor" href="#installing-the-stack"></a></h3>
+<details><summary><strong>macOS</strong>
+</summary><div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># 1. R (via Homebrew or CRAN installer)</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> r</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># 2. Python 3 + pre-commit</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="ex">brew</span> install python</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="ex">pip3</span> install pre-commit</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># 3. Docker Desktop</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> docker</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co"># Open Docker Desktop at least once to finish setup</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># 4. R development tools (RStudio optional)</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> rstudio  <span class="co"># optional</span></span></code></pre></div>
+</details><details><summary><strong>Ubuntu / Debian</strong>
+</summary><div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># 1. R (CRAN repo for latest version)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> software-properties-common dirmngr</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-qO-</span> https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">sudo</span> tee <span class="at">-a</span> /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository <span class="st">"deb https://cloud.r-project.org/bin/linux/ubuntu </span><span class="va">$(</span><span class="ex">lsb_release</span> <span class="at">-cs</span><span class="va">)</span><span class="st">-cran40/"</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> r-base r-base-dev</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co"># 2. System libraries required by R packages</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> libcurl4-openssl-dev libssl-dev libxml2-dev <span class="dt">\</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  libfontconfig1-dev libharfbuzz-dev libfribidi-dev <span class="dt">\</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># 3. Python 3 + pre-commit</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> python3 python3-pip</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="ex">pip3</span> install pre-commit</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co"># 4. Docker</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://get.docker.com <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-aG</span> docker <span class="va">$USER</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co"># Log out and back in for group membership to take effect</span></span></code></pre></div>
+</details><details><summary><strong>Windows (WSL2)</strong>
+</summary><div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Inside WSL2 (Ubuntu), follow the Ubuntu instructions above.</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># Install Docker Desktop for Windows with WSL2 backend.</span></span></code></pre></div>
+</details></div>
+<div class="section level3">
+<h3 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a></h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># 1. Clone and install everything</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/metasurveyr/metasurvey.git</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="bu">cd</span> metasurvey</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">make</span> dev-setup        <span class="co"># installs R deps + pre-commit hooks</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># 2. Verify the package</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">make</span> test             <span class="co"># run the 2700+ test suite</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">make</span> pre-commit       <span class="co"># run all code quality hooks</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fu">make</span> check            <span class="co"># full R CMD check</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co"># 3. Start the API + MongoDB stack</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="fu">cp</span> .env.example .env  <span class="co"># edit with your values (or use defaults for local dev)</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="fu">make</span> docker-up        <span class="co"># starts mongo, api, worker, shiny</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="fu">make</span> docker-seed      <span class="co"># loads recipes, workflows, users, ANDA metadata</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co"># 4. Verify the stack</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="ex">curl</span> http://localhost:8787/health   <span class="co"># API</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="ex">curl</span> http://localhost:8788/health   <span class="co"># Worker</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="ex">open</span> http://localhost:3838          <span class="co"># Shiny Explorer</span></span></code></pre></div>
+<p>Run <code>make help</code> to see all available targets.</p>
+</div>
+<div class="section level3">
+<h3 id="pre-commit-hooks">Pre-commit hooks<a class="anchor" aria-label="anchor" href="#pre-commit-hooks"></a></h3>
+<p>Pre-commit runs automatically on every commit. The hooks enforce:</p>
+<table class="table"><colgroup><col width="31%"><col width="68%"></colgroup><thead><tr class="header"><th>Hook</th>
+<th>What it does</th>
+</tr></thead><tbody><tr class="odd"><td><strong>R code quality</strong></td>
+<td></td>
+</tr><tr class="even"><td><code>style-files</code></td>
+<td>Formats R code with <code>styler::tidyverse_style()</code>
+</td>
+</tr><tr class="odd"><td><code>roxygenize</code></td>
+<td>Regenerates <code>man/</code> and <code>NAMESPACE</code>
+</td>
+</tr><tr class="even"><td><code>lintr</code></td>
+<td>Lints R files against <code>.lintr</code> rules</td>
+</tr><tr class="odd"><td><code>use-tidy-description</code></td>
+<td>Keeps <code>DESCRIPTION</code> fields sorted</td>
+</tr><tr class="even"><td><code>spell-check</code></td>
+<td>Spell-checks documentation (uses <code>inst/WORDLIST</code>)</td>
+</tr><tr class="odd"><td><code>parsable-R</code></td>
+<td>Checks R files parse without errors</td>
+</tr><tr class="even"><td><code>no-browser-statement</code></td>
+<td>Blocks <code><a href="https://rdrr.io/r/base/browser.html" class="external-link">browser()</a></code> calls in source</td>
+</tr><tr class="odd"><td><code>no-print-statement</code></td>
+<td>Blocks <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> in source (tests/vignettes excluded)</td>
+</tr><tr class="even"><td><code>no-debug-statement</code></td>
+<td>Blocks <code><a href="https://rdrr.io/r/base/debug.html" class="external-link">debug()</a></code>/<code><a href="https://rdrr.io/r/base/debug.html" class="external-link">debugonce()</a></code> calls</td>
+</tr><tr class="odd"><td><code>deps-in-desc</code></td>
+<td>Checks all used packages are in <code>DESCRIPTION</code>
+</td>
+</tr><tr class="even"><td><strong>File quality</strong></td>
+<td></td>
+</tr><tr class="odd"><td><code>end-of-file-fixer</code></td>
+<td>Ensures files end with a newline</td>
+</tr><tr class="even"><td><code>trailing-whitespace</code></td>
+<td>Removes trailing whitespace</td>
+</tr><tr class="odd"><td><code>mixed-line-ending</code></td>
+<td>Enforces LF line endings</td>
+</tr><tr class="even"><td><code>check-yaml</code></td>
+<td>Validates YAML syntax</td>
+</tr><tr class="odd"><td><code>check-json</code></td>
+<td>Validates JSON syntax</td>
+</tr><tr class="even"><td><code>check-merge-conflict</code></td>
+<td>Detects unresolved merge markers</td>
+</tr><tr class="odd"><td><code>check-case-conflict</code></td>
+<td>Detects files that differ only in case</td>
+</tr><tr class="even"><td><code>check-added-large-files</code></td>
+<td>Blocks files &gt; 200 KB</td>
+</tr><tr class="odd"><td><code>detect-private-key</code></td>
+<td>Blocks accidental key commits</td>
+</tr><tr class="even"><td><strong>Branch protection</strong></td>
+<td></td>
+</tr><tr class="odd"><td><code>no-commit-to-branch</code></td>
+<td>Prevents direct commits to <code>main</code>
+</td>
+</tr><tr class="even"><td><code>forbid-to-commit</code></td>
+<td>Blocks <code>.Rhistory</code>, <code>.RData</code>, <code>.rds</code> artifacts</td>
+</tr><tr class="odd"><td><code>forbid-secrets</code></td>
+<td>Blocks <code>.env</code>, credentials, key files</td>
+</tr></tbody></table><p>If the renv cache inside pre-commit gets corrupted (lock errors):</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">make</span> dev-clean-hooks</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h3>
+<pre><code>R/
+├── survey.R          # Survey + PoolSurvey R6 classes
+├── PanelSurvey.R     # RotativePanelSurvey R6 class
+├── Step.R            # Step R6 class (lazy transformation unit)
+├── steps.R           # step_compute(), step_recode(), step_rename(),
+│                     # step_remove(), step_join(), bake_steps()
+├── Recipes.R         # Recipe R6 class + read_recipe()
+├── RecipeRegistry.R  # RecipeRegistry + RecipeBackend (JSON, MongoDB)
+├── workflow.R        # workflow() — svymean/svytotal/svyratio/svyby
+├── RecipeWorkflow.R  # RecipeWorkflow R6 class
+├── transpile.R       # STATA .do → Recipe transpiler
+└── meta.R            # Package options (engine, lazy_processing, use_copy)</code></pre>
+<p><strong>Key patterns:</strong></p>
+<ul><li>
+<strong>Lazy evaluation</strong>: <code>step_*()</code> functions record but don’t execute. Call <code><a href="reference/bake_steps.html">bake_steps()</a></code> to materialize.</li>
+<li>
+<strong>data.table everywhere</strong>: Internal data ops use <code>data.table</code> syntax, never <code>dplyr</code>. External packages use <code>:=</code>, <code>set()</code>, <code>merge.data.table()</code>.</li>
+<li>
+<strong>No rlang</strong>: All metaprogramming uses base R (<code><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute()</a></code>, <code><a href="https://rdrr.io/r/base/eval.html" class="external-link">eval()</a></code>, <code><a href="https://rdrr.io/r/base/match.call.html" class="external-link">match.call()</a></code>). rlang is prohibited.</li>
+<li>
+<strong>R6 classes</strong>: PascalCase names, <code>$initialize()</code>, <code>$print()</code>, <code>$clone()</code>. Step functions are functional wrappers that create Step objects internally.</li>
+<li>
+<strong>Copy semantics</strong>: <code>use_copy</code> option controls whether steps clone data. Default <code>TRUE</code> for safety. Use <code><a href="reference/set_data.html">set_data()</a></code> instead of <code>$data &lt;-</code> assignment.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="docker-services">Docker services<a class="anchor" aria-label="anchor" href="#docker-services"></a></h3>
+<p>The full stack (optional, for recipe ecosystem development):</p>
+<table class="table"><thead><tr class="header"><th>Service</th>
+<th>Port</th>
+<th>Purpose</th>
+</tr></thead><tbody><tr class="odd"><td><code>mongo</code></td>
+<td>27017</td>
+<td>MongoDB storage</td>
+</tr><tr class="even"><td><code>api</code></td>
+<td>8787</td>
+<td>Plumber REST API (recipe CRUD, auth)</td>
+</tr><tr class="odd"><td><code>worker</code></td>
+<td>8788</td>
+<td>Background compute (indicators)</td>
+</tr><tr class="even"><td><code>shiny</code></td>
+<td>3838</td>
+<td>Recipe Explorer app</td>
+</tr></tbody></table><p>Seed data lives in <code>inst/seed-data/</code> (recipes, workflows, users, ANDA variables).</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="pull-requests">Pull requests<a class="anchor" aria-label="anchor" href="#pull-requests"></a></h2>
 <ol style="list-style-type: decimal"><li>Fork the repo and create a branch from <code>develop</code>.</li>
-<li>Run <code>devtools::document()</code> if you changed any roxygen comments.</li>
+<li>Run <code>make pre-commit</code> to check code quality.</li>
 <li>Add or update tests in <code>tests/testthat/</code>.</li>
-<li>Run <code>devtools::test()</code> and ensure all tests pass.</li>
-<li>Run <code>devtools::check()</code> and fix any warnings or notes.</li>
+<li>Run <code>make test</code> and ensure all tests pass.</li>
+<li>Run <code>make check</code> and fix any warnings or notes.</li>
 <li>Submit a PR to the <code>develop</code> branch.</li>
 </ol><div class="section level3">
 <h3 id="code-style">Code style<a class="anchor" aria-label="anchor" href="#code-style"></a></h3>
 <ul><li>Use <code>data.table</code> syntax for internal data operations.</li>
 <li>Follow existing naming conventions: <code>step_*</code> for step functions, <code>R6</code> classes use PascalCase.</li>
 <li>Keep functions focused and avoid over-engineering.</li>
+<li>No rlang — use base R metaprogramming only.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a></h3>
 <ul><li>Use testthat edition 3.</li>
 <li>Test helpers are in <code>tests/testthat/helper-survey.R</code> (<code>make_test_survey()</code>, <code>make_test_panel()</code>).</li>
 <li>Integration tests that need external data should use <code>skip_on_cran()</code>.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> calls in tests are fine (used to test R6 <code>$print()</code> methods).</li>
 </ul></div>
 </div>
 <div class="section level2">
