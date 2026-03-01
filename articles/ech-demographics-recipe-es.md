@@ -355,13 +355,13 @@ cat(readLines(f, n = 15), sep = "\n")
 #>   "description": "Demografia armonizada: sexo, grupo de edad, relacion, nivel educativo y area geografica.",
 #>   "topic": "demographics",
 #>   "doi": {},
-#>   "id": "r_1772341054_663",
+#>   "id": "r_1772343147_663",
 #>   "version": "1.0.0",
 #>   "downloads": 0,
 #>   "categories": [],
 #>   "certification": {
 #>     "level": "community",
-#>     "certified_at": "2026-03-01 04:57:34.63165"
+#>     "certified_at": "2026-03-01 05:32:27.747407"
 ```
 
 ## Aplicando a una nueva edicion
