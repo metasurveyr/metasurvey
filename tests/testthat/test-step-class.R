@@ -289,7 +289,9 @@ test_that("bake_steps_rotative with use_copy=FALSE runs without error", {
   set_use_copy(FALSE)
 
   panel <- make_test_panel()
-  panel$implantation <- step_compute(panel$implantation, z = age + 1, use_copy = FALSE)
+  panel$implantation <- step_compute(
+    panel$implantation, z = age + 1, use_copy = FALSE
+  )
   result <- bake_steps(panel)
   expect_s3_class(result, "RotativePanelSurvey")
 })

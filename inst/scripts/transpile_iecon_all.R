@@ -94,7 +94,9 @@ transpiled_lists <- lapply(all_recipes, function(rec) {
     downloads = rec$downloads,
     depends_on = rec$depends_on,
     depends_on_recipes = rec$depends_on_recipes,
-    certification = if (!is.null(rec$certification)) rec$certification$to_list() else NULL,
+    certification = if (!is.null(rec$certification)) {
+      rec$certification$to_list()
+    } else NULL,
     user_info = if (!is.null(rec$user_info)) rec$user_info$to_list() else NULL,
     doc = list(
       input_variables = doc_info$input_variables,

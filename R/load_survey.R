@@ -53,7 +53,7 @@
 #' be used to build step pipelines without initial data.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load ECH 2023 with recipes
 #' ech_2023 <- load_survey(
 #'   path = "data/ech_2023.csv",
@@ -182,7 +182,7 @@ load_survey <- function(
 #'   load_panel_survey
 #' @return RotativePanelSurvey object
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # example code
 #' path_dir <- here::here("example-data", "ech", "ech_2023")
 #' ech_2023 <- load_panel_survey(
@@ -219,7 +219,7 @@ load_survey <- function(
 #'   )
 #' )
 #' }
-#' \dontrun{
+#' \donttest{
 #' # Example of loading a panel survey
 #' panel_survey <- load_panel_survey(
 #'   path_implantation = "path/to/implantation.csv",

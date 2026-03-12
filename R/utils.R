@@ -170,7 +170,7 @@ validate_weight_time_pattern <- function(svy, weight_list) {
 #' \url{https://github.com/metasurveyr/metasurvey_data}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load ECH 2023 example data
 #' ech_path <- load_survey_example("ech", "2023")
 #'
@@ -948,7 +948,7 @@ add_replicate <- function(
 #' @return Named list compatible with add_weight() output
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' wf <- api_get_workflow("w_123")
 #' weight <- resolve_weight_spec(wf$weight_spec)
 #' }
@@ -1014,7 +1014,7 @@ resolve_weight_spec <- function(weight_spec, dest_dir = tempdir()) {
 #' @return Survey object with recipes applied and weight configuration set
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' wf <- api_get_workflow("w_123")
 #' svy <- reproduce_workflow(wf)
 #' }
