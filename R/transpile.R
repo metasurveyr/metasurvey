@@ -83,7 +83,7 @@ transpile_stata <- function(do_file, survey_type = "ech",
 #' @param output_dir Directory to write JSON recipes (NULL = no file output)
 #' @return A named list of Recipe objects, one per thematic module
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Requires a directory of .do files organized by year
 #' recipes <- transpile_stata_module("do_files_iecon/2022", year = 2022)
 #' names(recipes)
@@ -660,7 +660,8 @@ translate_drop <- function(cmd) {
     return(NULL)
   }
 
-  # Expand variable ranges (e.g., aux1-aux14_max -> aux1..aux14, aux1_max..aux14_max)
+  # Expand variable ranges
+  # (e.g., aux1-aux14_max -> aux1..aux14, aux1_max..aux14_max)
   expanded <- unlist(lapply(vars, expand_var_range))
 
   step <- sprintf("step_remove(svy, %s)", paste(expanded, collapse = ", "))

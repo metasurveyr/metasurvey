@@ -275,7 +275,9 @@ step_compute <- function(
     .level = "auto",
     use_copy = deprecated()) {
   if (lifecycle::is_present(use_copy)) {
-    lifecycle::deprecate_warn("0.0.12", "step_compute(use_copy)", "step_compute(.copy)")
+    lifecycle::deprecate_warn(
+      "0.0.12", "step_compute(use_copy)", "step_compute(.copy)"
+    )
     .copy <- use_copy
   }
   .call <- match.call()
@@ -552,7 +554,9 @@ step_recode <- function(
     .level = "auto",
     use_copy = deprecated()) {
   if (lifecycle::is_present(use_copy)) {
-    lifecycle::deprecate_warn("0.0.12", "step_recode(use_copy)", "step_recode(.copy)")
+    lifecycle::deprecate_warn(
+      "0.0.12", "step_recode(use_copy)", "step_recode(.copy)"
+    )
     .copy <- use_copy
   }
   .call <- match.call()
@@ -890,7 +894,9 @@ step_join <- function(
     lazy = lazy_default(),
     record = TRUE) {
   if (lifecycle::is_present(use_copy)) {
-    lifecycle::deprecate_warn("0.0.12", "step_join(use_copy)", "step_join(.copy)")
+    lifecycle::deprecate_warn(
+      "0.0.12", "step_join(use_copy)", "step_join(.copy)"
+    )
     .copy <- use_copy
   }
   .call <- match.call()
@@ -1103,7 +1109,9 @@ step_remove <- function(
     lazy = lazy_default(),
     record = TRUE) {
   if (lifecycle::is_present(use_copy)) {
-    lifecycle::deprecate_warn("0.0.12", "step_remove(use_copy)", "step_remove(.copy)")
+    lifecycle::deprecate_warn(
+      "0.0.12", "step_remove(use_copy)", "step_remove(.copy)"
+    )
     .copy <- use_copy
   }
   .call <- match.call()
@@ -1232,7 +1240,8 @@ step_remove <- function(
 #'
 #' Variables can be renamed in two ways:
 #' - **Unquoted pairs:** `step_rename(svy, new_name = old_name)`
-#' - **Named character vector:** `step_rename(svy, mapping = c(new_name = "old_name"))`
+#' - **Named character vector:**
+#'   `step_rename(svy, mapping = c(new_name = "old_name"))`
 #'
 #' Variables that don't exist in the data cause an error, unlike
 #' [step_remove()] which issues a warning.
@@ -1259,7 +1268,9 @@ step_rename <- function(
     lazy = lazy_default(),
     record = TRUE) {
   if (lifecycle::is_present(use_copy)) {
-    lifecycle::deprecate_warn("0.0.12", "step_rename(use_copy)", "step_rename(.copy)")
+    lifecycle::deprecate_warn(
+      "0.0.12", "step_rename(use_copy)", "step_rename(.copy)"
+    )
     .copy <- use_copy
   }
   .call <- match.call()

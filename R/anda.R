@@ -278,7 +278,7 @@ anda_list_editions <- function() {
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' path <- anda_download_microdata("2023", resource = "implantation")
 #' svy <- load_survey(path, svy_type = "ech", svy_edition = "2023")
 #' }
@@ -473,7 +473,10 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No annual bootstrap weights found for ECH ", edition, call. = FALSE)
+        stop(
+          "No annual bootstrap weights found for ECH ", edition,
+          call. = FALSE
+        )
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -483,7 +486,10 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No monthly bootstrap weights found for ECH ", edition, call. = FALSE)
+        stop(
+          "No monthly bootstrap weights found for ECH ", edition,
+          call. = FALSE
+        )
       }
       resources[idx, , drop = FALSE]
     },
@@ -493,7 +499,10 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No quarterly bootstrap weights found for ECH ", edition, call. = FALSE)
+        stop(
+          "No quarterly bootstrap weights found for ECH ", edition,
+          call. = FALSE
+        )
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -503,7 +512,10 @@ anda_download_microdata <- function(edition,
         titles_lower
       )
       if (length(idx) == 0) {
-        stop("No semestral bootstrap weights found for ECH ", edition, call. = FALSE)
+        stop(
+          "No semestral bootstrap weights found for ECH ", edition,
+          call. = FALSE
+        )
       }
       resources[idx[1], , drop = FALSE]
     },
@@ -656,7 +668,7 @@ anda_download_microdata <- function(edition,
 #' @family anda
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 anda_variables <- function(survey_type = "ech", var_names = NULL) {

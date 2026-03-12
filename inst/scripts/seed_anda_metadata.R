@@ -7,7 +7,8 @@
 # Also saves a backup JSON in inst/seed-data/anda_variables.json.
 #
 # Usage:
-#   METASURVEY_MONGO_URI="mongodb+srv://..." Rscript inst/scripts/seed_anda_metadata.R
+#   METASURVEY_MONGO_URI="mongodb+srv://..."
+#     Rscript inst/scripts/seed_anda_metadata.R
 #
 # Environment variables:
 #   METASURVEY_MONGO_URI  (required)
@@ -80,13 +81,25 @@ for (v in vars) {
   seen <- c(seen, name_lower)
 
   intrvl <- xml2::xml_attr(v, "intrvl")
-  var_type <- if (!is.na(intrvl) && intrvl == "contin") "continuous" else "discrete"
+  var_type <- if (!is.na(intrvl) && intrvl == "contin") {
+    "continuous"
+  } else {
+    "discrete"
+  }
 
   labl_node <- xml2::xml_find_first(v, "d1:labl", ns)
-  label <- if (!inherits(labl_node, "xml_missing")) trimws(xml2::xml_text(labl_node)) else ""
+  label <- if (!inherits(labl_node, "xml_missing")) {
+    trimws(xml2::xml_text(labl_node))
+  } else {
+    ""
+  }
 
   txt_node <- xml2::xml_find_first(v, "d1:txt", ns)
-  description <- if (!inherits(txt_node, "xml_missing")) trimws(xml2::xml_text(txt_node)) else ""
+  description <- if (!inherits(txt_node, "xml_missing")) {
+    trimws(xml2::xml_text(txt_node))
+  } else {
+    ""
+  }
 
   # Value labels
   catgry_nodes <- xml2::xml_find_all(v, "d1:catgry", ns)
@@ -96,7 +109,10 @@ for (v in vars) {
     for (cat_node in catgry_nodes) {
       cat_val <- xml2::xml_find_first(cat_node, "d1:catValu", ns)
       cat_lab <- xml2::xml_find_first(cat_node, "d1:labl", ns)
-      if (!inherits(cat_val, "xml_missing") && !inherits(cat_lab, "xml_missing")) {
+      if (
+        !inherits(cat_val, "xml_missing") &&
+          !inherits(cat_lab, "xml_missing")
+      ) {
         val <- trimws(xml2::xml_text(cat_val))
         lab <- trimws(xml2::xml_text(cat_lab))
         value_labels[[val]] <- lab
@@ -132,10 +148,16 @@ if (!is.null(seed_dir)) {
 }
 
 # ── 4. Seed MongoDB ─────────────────────────────────────────────────────────
-db_anda <- mongolite::mongo(collection = "anda_variables", db = DATABASE, url = MONGO_URI)
+db_anda <- mongolite::mongo(
+  collection = "anda_variables", db = DATABASE,
+  url = MONGO_URI
+)
 
 current_count <- db_anda$count()
-cat(sprintf("\nConnected to '%s.anda_variables' (%d existing docs)\n", DATABASE, current_count))
+cat(sprintf(
+  "\nConnected to '%s.anda_variables' (%d existing docs)\n",
+  DATABASE, current_count
+))
 
 # Clean existing entries for this survey type
 db_anda$remove(toJSON(list(survey_type = SURVEY_TYPE), auto_unbox = TRUE))
@@ -157,5 +179,8 @@ for (p in parsed) {
 }
 
 final_count <- db_anda$count()
-cat(sprintf("\n  After: %d docs in anda_variables (%d errors)\n", final_count, errors))
+cat(sprintf(
+  "\n  After: %d docs in anda_variables (%d errors)\n",
+  final_count, errors
+))
 cat("\nSeed complete!\n")

@@ -27,9 +27,12 @@
 #   METASURVEY_MONGO_URI           — MongoDB connection string (required)
 #   METASURVEY_DB                  — Database name (default: metasurvey)
 #   METASURVEY_JWT_SECRET          — JWT signing secret
-#   METASURVEY_WORKER_URL          — Internal worker URL (e.g. http://worker:8788)
-#   METASURVEY_ENABLE_INDICATORS   — "1" (default) or "0" to disable /indicators
-#   METASURVEY_ENABLE_WORKER       — "0" (default) or "1" to enable POST /compute
+#   METASURVEY_WORKER_URL          — Internal worker URL
+#                                    (e.g. http://worker:8788)
+#   METASURVEY_ENABLE_INDICATORS   — "1" (default) or "0" to disable
+#                                    /indicators
+#   METASURVEY_ENABLE_WORKER       — "0" (default) or "1" to enable
+#                                    POST /compute
 #   METASURVEY_ENABLE_DOCS         — "0" (default) or "1" to enable Swagger UI
 #
 # Launch:
@@ -250,7 +253,9 @@ if (ENABLE_REDIS) {
   redis_con <- tryCatch(
     {
       if (!is.null(redis_params)) {
-        clean_url <- sprintf("redis://%s:%d", redis_params$host, redis_params$port)
+        clean_url <- sprintf(
+          "redis://%s:%d", redis_params$host, redis_params$port
+        )
         r <- redux::hiredis(url = clean_url)
         if (!is.null(redis_params$password)) {
           r$AUTH(redis_params$password)
@@ -1236,7 +1241,9 @@ function(req, res, id) {
       query <- toJSON(list(
         target_type = "recipe", target_id = id
       ), auto_unbox = TRUE)
-      all_stars <- db_stars$find(query, fields = '{"value": 1, "user": 1, "_id": 0}')
+      all_stars <- db_stars$find(
+        query, fields = '{"value": 1, "user": 1, "_id": 0}'
+      )
       count <- nrow(all_stars)
       average <- if (count > 0) round(mean(all_stars$value), 2) else 0
 
@@ -1342,7 +1349,10 @@ function(req, res, id) {
       ), auto_unbox = TRUE)
       deps <- db_recipes$find(
         query,
-        fields = '{"_id": 0, "id": 1, "name": 1, "user": 1, "edition": 1, "survey_type": 1}'
+        fields = paste0(
+          '{"_id": 0, "id": 1, "name": 1,',
+          ' "user": 1, "edition": 1, "survey_type": 1}'
+        )
       )
       list(dependents = deps)
     },
@@ -1626,7 +1636,9 @@ function(req, res, id) {
       query <- toJSON(list(
         target_type = "workflow", target_id = id
       ), auto_unbox = TRUE)
-      all_stars <- db_stars$find(query, fields = '{"value": 1, "user": 1, "_id": 0}')
+      all_stars <- db_stars$find(
+        query, fields = '{"value": 1, "user": 1, "_id": 0}'
+      )
       count <- nrow(all_stars)
       average <- if (count > 0) round(mean(all_stars$value), 2) else 0
 

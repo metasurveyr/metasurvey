@@ -47,7 +47,10 @@ RecipeCategory <- R6::R6Class(
     #' @param parent RecipeCategory or NULL. Parent category.
     initialize = function(name, description, parent = NULL) {
       if (is.null(name) || !is.character(name) || nchar(name) == 0) {
-        stop("Category name must be a non-empty character string", call. = FALSE)
+        stop(
+          "Category name must be a non-empty character string",
+          call. = FALSE
+        )
       }
       if (!is.null(parent) && !inherits(parent, "RecipeCategory")) {
         stop("parent must be a RecipeCategory object or NULL", call. = FALSE)

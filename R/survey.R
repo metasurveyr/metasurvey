@@ -769,7 +769,8 @@ get_metadata <- function(self) {
     cat(glue::glue(
       "\n{cli::col_blue('Type:')} {type} (Rotative Panel)",
       "\n{cli::col_blue('Edition:')} {edition}",
-      "\n{cli::col_blue('Periodicity:')} Implantation: {imp_per}, Follow-up: {fu_per}",
+      "\n{cli::col_blue('Periodicity:')} Implantation: {imp_per},",
+      " Follow-up: {fu_per}",
       "\n{cli::col_blue('Engine:')} {default_engine}",
       "\n{cli::col_blue('Steps:')} {steps}",
       "\n{cli::col_blue('Recipes:')} {names_recipes}"
@@ -835,7 +836,8 @@ get_metadata <- function(self) {
     )
     cat(glue::glue(
       "\n{cli::col_blue('Type:')} {type}",
-      "\n{cli::col_blue('Periodicity:')} {cli::col_red('Periodicity of pool')} ",
+      "\n{cli::col_blue('Periodicity:')} ",
+      "{cli::col_red('Periodicity of pool')} ",
       "{periodicity} {cli::col_red('each survey')} {p_each}",
       "\n{cli::col_blue('Steps:')} {steps}",
       "\n{cli::col_blue('Recipes:')} {names_recipes}",
@@ -1038,10 +1040,13 @@ cat_recipes <- function(self) {
         )
         paste0(
           " ", cli::col_green("Name:"), " ", self$recipes[[x]]$name, "\n",
-          "                    * ", cli::col_green("User:"), " ", self$recipes[[x]]$user, "\n",
-          "                    * ", cli::col_green("Id:"), " ", self$recipes[[x]]$id, "\n",
+          "                    * ", cli::col_green("User:"), " ",
+          self$recipes[[x]]$user, "\n",
+          "                    * ", cli::col_green("Id:"), " ",
+          self$recipes[[x]]$id, "\n",
           "                    * ", cli::col_green("DOI:"), " ", doi, "\n",
-          "                    * ", cli::col_green("Bake:"), " ", self$recipes[[x]]$bake
+          "                    * ", cli::col_green("Bake:"), " ",
+          self$recipes[[x]]$bake
         )
       },
       FUN.VALUE = character(1)

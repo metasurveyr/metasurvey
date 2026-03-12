@@ -228,7 +228,10 @@ workflow_table <- function(
     if (!is.null(wf$survey_type)) parts <- c(parts, toupper(wf$survey_type))
     if (!is.null(wf$edition)) parts <- c(parts, as.character(wf$edition))
     if (length(parts) > 0) {
-      note_parts <- c(note_parts, paste("Source:", paste(parts, collapse = " ")))
+      note_parts <- c(
+        note_parts,
+        paste("Source:", paste(parts, collapse = " "))
+      )
     }
   }
 
