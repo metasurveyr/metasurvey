@@ -520,7 +520,8 @@ test_that("step_compute on RotativePanelSurvey targets follow_up with .level", {
   expect_s3_class(result, "RotativePanelSurvey")
 })
 
-test_that("step_remove on RotativePanelSurvey targets implantation by default", {
+test_that(
+  "step_remove on RotativePanelSurvey targets implantation by default", {
   panel <- make_test_panel()
   result <- step_remove(panel, y)
   expect_s3_class(result, "RotativePanelSurvey")

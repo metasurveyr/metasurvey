@@ -32,7 +32,10 @@ test_that("Pipeline: step_remove + step_rename chain", {
 
 test_that("Pipeline: step_join with external data", {
   s <- make_test_survey()
-  lookup <- data.frame(region = 1:4, region_name = c("North", "South", "East", "West"))
+  lookup <- data.frame(
+    region = 1:4,
+    region_name = c("North", "South", "East", "West")
+  )
 
   s2 <- step_join(s, lookup, by = "region", type = "left")
   s2 <- bake_steps(s2)
@@ -511,7 +514,8 @@ test_that("multiple steps in sequence produce correct results", {
 
 # --- Merged from test-metasurvey-vs-direct.R ---
 
-test_that("step_compute produces identical data.frame as direct transformation", {
+test_that(
+  "step_compute produces identical data.frame as direct transformation", {
   set_use_copy(TRUE)
 
   s <- make_test_survey(n = 100)
@@ -541,7 +545,8 @@ test_that("step_compute produces identical data.frame as direct transformation",
   expect_identical(nrow(result_metasurvey), nrow(result_direct))
 })
 
-test_that("multiple step_compute produce identical results as chained transformations", {
+test_that(
+  "multiple step_compute: identical results as chained transformations", {
   set_use_copy(TRUE)
 
   s <- make_test_survey(n = 150)
@@ -604,7 +609,8 @@ test_that("step_join produces identical data.frame as merge", {
   expect_identical(df_metasurvey$population, df_direct$population)
 })
 
-test_that("survey design with metasurvey data produces same estimates as direct data", {
+test_that(
+  "survey design with metasurvey data produces same estimates as direct data", {
   set_use_copy(TRUE)
 
   s <- make_test_survey(n = 200)
@@ -618,7 +624,9 @@ test_that("survey design with metasurvey data produces same estimates as direct 
   df_direct[, age_cat := as.integer(age >= 40)]
 
   # Crear diseños survey con ambos
-  des_metasurvey <- survey::svydesign(ids = ~1, data = df_metasurvey, weights = ~w)
+  des_metasurvey <- survey::svydesign(
+    ids = ~1, data = df_metasurvey, weights = ~w
+  )
   des_direct <- survey::svydesign(ids = ~1, data = df_direct, weights = ~w)
 
   # Estimar con ambos
@@ -646,14 +654,18 @@ test_that("svymean on transformed data matches direct computation exactly", {
   # Pipeline metasurvey
   s_pipeline <- s %>%
     step_compute(log_income = log(income)) %>%
-    step_compute(age_group = cut(age, breaks = c(0, 30, 50, 100), labels = FALSE))
+    step_compute(
+      age_group = cut(age, breaks = c(0, 30, 50, 100), labels = FALSE)
+    )
 
   df_pipeline <- get_data(s_pipeline)
 
   # Computación directa
   df_baseline <- data.table::copy(get_data(s))
   df_baseline[, log_income := log(income)]
-  df_baseline[, age_group := cut(age, breaks = c(0, 30, 50, 100), labels = FALSE)]
+  df_baseline[,
+    age_group := cut(age, breaks = c(0, 30, 50, 100), labels = FALSE)
+  ]
 
   # Diseños
   des_pipeline <- survey::svydesign(ids = ~1, data = df_pipeline, weights = ~w)
@@ -668,9 +680,15 @@ test_that("svymean on transformed data matches direct computation exactly", {
 
   # COMPARACIONES EXACTAS
   expect_equal(coef(mean_pipeline), coef(mean_baseline), tolerance = 1e-10)
-  expect_equal(survey::SE(mean_pipeline), survey::SE(mean_baseline), tolerance = 1e-10)
+  expect_equal(
+    survey::SE(mean_pipeline), survey::SE(mean_baseline),
+    tolerance = 1e-10
+  )
   expect_equal(coef(total_pipeline), coef(total_baseline), tolerance = 1e-10)
-  expect_equal(survey::SE(total_pipeline), survey::SE(total_baseline), tolerance = 1e-10)
+  expect_equal(
+    survey::SE(total_pipeline), survey::SE(total_baseline),
+    tolerance = 1e-10
+  )
 })
 
 test_that("svytotal produces identical results on metasurvey vs direct data", {
@@ -695,7 +713,8 @@ test_that("svytotal produces identical results on metasurvey vs direct data", {
   expect_identical(survey::SE(total_ms), survey::SE(total_direct))
 })
 
-test_that("svyratio produces identical results with metasurvey transformed data", {
+test_that(
+  "svyratio produces identical results with metasurvey transformed data", {
   set_use_copy(TRUE)
 
   s <- make_test_survey(n = 200)
@@ -718,10 +737,14 @@ test_that("svyratio produces identical results with metasurvey transformed data"
 
   # COMPARACIÓN EXACTA
   expect_equal(coef(ratio_ms), coef(ratio_direct), tolerance = 1e-10)
-  expect_equal(survey::SE(ratio_ms), survey::SE(ratio_direct), tolerance = 1e-10)
+  expect_equal(
+    survey::SE(ratio_ms), survey::SE(ratio_direct),
+    tolerance = 1e-10
+  )
 })
 
-test_that("complex pipeline: transformations + join produce identical survey results", {
+test_that(
+  "complex pipeline: transformations + join produce identical survey results", {
   set_use_copy(TRUE)
 
   s <- make_test_survey(n = 150)
@@ -765,7 +788,10 @@ test_that("complex pipeline: transformations + join produce identical survey res
   mean_baseline <- survey::svymean(~combined_score, des_baseline)
 
   expect_equal(coef(mean_pipeline), coef(mean_baseline), tolerance = 1e-10)
-  expect_equal(survey::SE(mean_pipeline), survey::SE(mean_baseline), tolerance = 1e-10)
+  expect_equal(
+    survey::SE(mean_pipeline), survey::SE(mean_baseline),
+    tolerance = 1e-10
+  )
 })
 
 test_that("categorical variables produce identical proportions", {
@@ -775,13 +801,17 @@ test_that("categorical variables produce identical proportions", {
 
   # Categorizar con metasurvey
   s_cat <- s %>%
-    step_compute(income_bracket = cut(income, breaks = 3, labels = c("Low", "Med", "High")))
+    step_compute(
+      income_bracket = cut(income, breaks = 3, labels = c("Low", "Med", "High"))
+    )
 
   df_metasurvey <- get_data(s_cat)
 
   # Categorizar directamente
   df_direct <- data.table::copy(get_data(s))
-  df_direct[, income_bracket := cut(income, breaks = 3, labels = c("Low", "Med", "High"))]
+  df_direct[,
+    income_bracket := cut(income, breaks = 3, labels = c("Low", "Med", "High"))
+  ]
 
   # Diseños
   des_ms <- survey::svydesign(ids = ~1, data = df_metasurvey, weights = ~w)
@@ -793,7 +823,10 @@ test_that("categorical variables produce identical proportions", {
 
   # COMPARACIÓN EXACTA
   expect_identical(as.numeric(coef(prop_ms)), as.numeric(coef(prop_direct)))
-  expect_identical(as.numeric(survey::SE(prop_ms)), as.numeric(survey::SE(prop_direct)))
+  expect_identical(
+    as.numeric(survey::SE(prop_ms)),
+    as.numeric(survey::SE(prop_direct))
+  )
 })
 
 test_that("variance estimates are identical between methods", {
@@ -830,9 +863,16 @@ test_that("quantiles are identical with transformed data", {
   des_direct <- survey::svydesign(ids = ~1, data = df_direct, weights = ~w)
 
   # Cuantiles
-  q_ms <- survey::svyquantile(~income_sqrt, des_ms, quantiles = c(0.25, 0.5, 0.75))
-  q_direct <- survey::svyquantile(~income_sqrt, des_direct, quantiles = c(0.25, 0.5, 0.75))
+  q_ms <- survey::svyquantile(
+    ~income_sqrt, des_ms, quantiles = c(0.25, 0.5, 0.75)
+  )
+  q_direct <- survey::svyquantile(
+    ~income_sqrt, des_direct, quantiles = c(0.25, 0.5, 0.75)
+  )
 
   # COMPARACIÓN (puede haber pequeñas diferencias numéricas en quantiles)
-  expect_equal(as.numeric(coef(q_ms)), as.numeric(coef(q_direct)), tolerance = 1e-8)
+  expect_equal(
+    as.numeric(coef(q_ms)), as.numeric(coef(q_direct)),
+    tolerance = 1e-8
+  )
 })

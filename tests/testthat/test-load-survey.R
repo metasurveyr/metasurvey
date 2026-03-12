@@ -1,7 +1,9 @@
 # Tests for load_survey
 
 test_that("load_survey creates Survey from CSV file", {
-  df <- data.table::data.table(id = 1:5, income = c(100, 200, 300, 400, 500), w = 1)
+  df <- data.table::data.table(
+    id = 1:5, income = c(100, 200, 300, 400, 500), w = 1
+  )
   tmp <- tempfile(fileext = ".csv")
   on.exit(unlink(tmp), add = TRUE)
   data.table::fwrite(df, tmp)
@@ -185,7 +187,8 @@ test_that("read_file stops on unsupported file type", {
 })
 
 test_that("read_file reads RDS file", {
-  # read_file internally creates an output_file path that may not match the RDS file
+  # read_file internally creates an output_file path that may
+  # not match the RDS file
   # Use tryCatch since the internal path logic may cause issues
   tmp <- tempfile(fileext = ".rds")
   on.exit(unlink(tmp), add = TRUE)
