@@ -44,14 +44,14 @@ provenance_to_json(prov)
 #> {
 #>   "source": {
 #>     "path": null,
-#>     "timestamp": "2026-03-02T22:21:04",
+#>     "timestamp": "2026-04-06T22:30:05",
 #>     "initial_n": 5,
 #>     "hash": null
 #>   },
 #>   "steps": [],
 #>   "environment": {
 #>     "metasurvey_version": "0.0.21",
-#>     "r_version": "4.5.2",
+#>     "r_version": "4.5.3",
 #>     "survey_version": "4.5"
 #>   }
 #> } 

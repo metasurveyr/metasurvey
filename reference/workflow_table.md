@@ -123,6 +123,7 @@ result <- workflow(
   list(svy), survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual"
 )
+#> Warning: CV may not be useful for negative statistics
 # \donttest{
 if (requireNamespace("gt", quietly = TRUE)) {
   workflow_table(result)
@@ -151,18 +152,18 @@ Quality
 
 :svymean: x
 
-0.21
+−0.04
 
-0.093
+0.098
 
-0.03
+−0.23
 
-0.39
+0.16
 
-44.3
+−2.8
 
-Do not publish
+Excellent
 
-metasurvey 0.0.21 \| CI: 95% \| 2026-03-02
+metasurvey 0.0.21 \| CI: 95% \| 2026-04-06
 
 \# }
