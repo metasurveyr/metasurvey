@@ -117,9 +117,14 @@ test_that("filter by category", {
 
 test_that("filter by certification_level", {
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   r1 <- make_eco_recipe("A", "u")
-  r2 <- make_eco_recipe("B", "u", certification = RecipeCertification$new("official", certified_by = inst))
+  r2 <- make_eco_recipe(
+    "B", "u",
+    certification = RecipeCertification$new("official", certified_by = inst)
+  )
   reg$register(r1)
   reg$register(r2)
 
@@ -131,8 +136,14 @@ test_that("filter by certification_level", {
 test_that("filter with multiple criteria", {
   reg <- RecipeRegistry$new()
   labor <- RecipeCategory$new("labor_market", "Labor")
-  r1 <- make_eco_recipe("A", "u", svy_type = "ech", edition = "2023", categories = list(labor))
-  r2 <- make_eco_recipe("B", "u", svy_type = "ech", edition = "2022", categories = list(labor))
+  r1 <- make_eco_recipe(
+    "A", "u", svy_type = "ech", edition = "2023",
+    categories = list(labor)
+  )
+  r2 <- make_eco_recipe(
+    "B", "u", svy_type = "ech", edition = "2022",
+    categories = list(labor)
+  )
   r3 <- make_eco_recipe("C", "u", svy_type = "eaii", edition = "2023")
   reg$register(r1)
   reg$register(r2)
@@ -172,8 +183,13 @@ test_that("rank_by_downloads returns all if n is NULL", {
 
 test_that("rank_by_certification sorts by cert then downloads", {
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "M", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "M", user_type = "institutional_member",
+    institution = inst
+  )
 
   r1 <- make_eco_recipe("Community_High", "u", downloads = 200)
   r2 <- make_eco_recipe("Official_Low", "u",
@@ -221,7 +237,9 @@ test_that("list_all returns all recipes", {
 test_that("save and load round-trip", {
   reg <- RecipeRegistry$new()
   labor <- RecipeCategory$new("labor_market", "Labor")
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   r1 <- make_eco_recipe("Saved", "u",
     downloads = 42, categories = list(labor),
     certification = RecipeCertification$new("official", certified_by = inst)
@@ -256,8 +274,13 @@ test_that("list_by_user filters by author name", {
 
 test_that("list_by_institution filters by institution", {
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   individual <- RecipeUser$new(name = "Juan", user_type = "individual")
 
   r1 <- make_eco_recipe("A", "IECON", user_info = inst)

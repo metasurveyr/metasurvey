@@ -21,7 +21,9 @@ test_that("add_weight() with monthly returns named list", {
 })
 
 test_that("add_weight() with multiple periods", {
-  w <- add_weight(monthly = "pesomes", annual = "pesoano", quarterly = "pesotri")
+  w <- add_weight(
+    monthly = "pesomes", annual = "pesoano", quarterly = "pesotri"
+  )
   expect_equal(length(w), 3)
   expect_true(all(c("monthly", "annual", "quarterly") %in% names(w)))
 })
@@ -241,7 +243,9 @@ test_that("validate_weight returns weight name when valid", {
 # --- validate_weight_time_pattern tests ---
 
 test_that("validate_weight_time_pattern returns NULL for NULL svy", {
-  expect_null(metasurvey:::validate_weight_time_pattern(NULL, list(annual = "w")))
+  expect_null(
+    metasurvey:::validate_weight_time_pattern(NULL, list(annual = "w"))
+  )
 })
 
 test_that("validate_weight_time_pattern errors on non-list weight", {
@@ -451,7 +455,8 @@ test_that("extract_time_pattern YY_MM format with part1 as month", {
 })
 
 test_that("extract_time_pattern YY_MM with part1 > 12", {
-  # "13_06" has part1=13 > 12, so part2=06 is month and part1=13 becomes year 2013
+  # "13_06" has part1=13 > 12, so part2=06 is month
+  # and part1=13 becomes year 2013
   result <- metasurvey:::extract_time_pattern("13_06")
   expect_equal(result$periodicity, "Monthly")
   expect_equal(result$month, 6)
@@ -543,7 +548,9 @@ test_that("validate_replicate errors on non-character replicate_id", {
 test_that("validate_replicate errors when replicate_id not in survey", {
   df <- data.table::data.table(id = 1:3, w = 1)
   expect_error(
-    metasurvey:::validate_replicate(df, list(replicate_id = c("missing_col" = "ID"))),
+    metasurvey:::validate_replicate(
+      df, list(replicate_id = c("missing_col" = "ID"))
+    ),
     "not found"
   )
 })
@@ -602,7 +609,11 @@ test_that(".onLoad reads METASURVEY_API_URL env var", {
   old_url <- Sys.getenv("METASURVEY_API_URL", "")
   old_opt <- getOption("metasurvey.api_url")
   on.exit({
-    if (nzchar(old_url)) Sys.setenv(METASURVEY_API_URL = old_url) else Sys.unsetenv("METASURVEY_API_URL")
+    if (nzchar(old_url)) {
+      Sys.setenv(METASURVEY_API_URL = old_url)
+    } else {
+      Sys.unsetenv("METASURVEY_API_URL")
+    }
     options(metasurvey.api_url = old_opt)
   })
   Sys.setenv(METASURVEY_API_URL = "http://example.com/api/")
@@ -614,7 +625,11 @@ test_that(".onLoad reads METASURVEY_TOKEN env var", {
   old_token <- Sys.getenv("METASURVEY_TOKEN", "")
   old_opt <- getOption("metasurvey.api_token")
   on.exit({
-    if (nzchar(old_token)) Sys.setenv(METASURVEY_TOKEN = old_token) else Sys.unsetenv("METASURVEY_TOKEN")
+    if (nzchar(old_token)) {
+      Sys.setenv(METASURVEY_TOKEN = old_token)
+    } else {
+      Sys.unsetenv("METASURVEY_TOKEN")
+    }
     options(metasurvey.api_token = old_opt)
   })
   Sys.setenv(METASURVEY_TOKEN = "test-token-123")
@@ -694,7 +709,11 @@ test_that("api_url returns NULL when not configured", {
   old_env <- Sys.getenv("METASURVEY_API_URL", "")
   on.exit({
     options(metasurvey.api_url = old)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_API_URL = old_env) else Sys.unsetenv("METASURVEY_API_URL")
+    if (nzchar(old_env)) {
+      Sys.setenv(METASURVEY_API_URL = old_env)
+    } else {
+      Sys.unsetenv("METASURVEY_API_URL")
+    }
   })
   options(metasurvey.api_url = NULL)
   Sys.unsetenv("METASURVEY_API_URL")

@@ -305,7 +305,10 @@ test_that("join_broken_expressions re-joins operator-split lines", {
   )
   result <- metasurvey:::join_broken_expressions(lines)
   non_empty <- result[nchar(trimws(result)) > 0]
-  expect_true(any(grepl("a \\+ b \\+ c", non_empty)) || length(non_empty) <= length(lines))
+  expect_true(
+    any(grepl("a \\+ b \\+ c", non_empty)) ||
+      length(non_empty) <= length(lines)
+  )
 })
 
 test_that("join_broken_expressions handles single line", {

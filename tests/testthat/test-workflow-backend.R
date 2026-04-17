@@ -1,6 +1,6 @@
 # Tests for R/WorkflowBackend.R — local + API delegation paths
 
-# ── Constructor ────────────────────────────────────────────────────────────────
+# ── Constructor ──────────────────────────────────────────────────────────────
 
 test_that("WorkflowBackend creates local backend", {
   backend <- WorkflowBackend$new("local")
@@ -22,7 +22,9 @@ test_that("WorkflowBackend local loads existing file", {
 
   # Create a backend with workflows, save it
   b1 <- WorkflowBackend$new("local", path = tmp)
-  wf <- RecipeWorkflow$new(name = "Saved WF", survey_type = "ech", edition = "2023")
+  wf <- RecipeWorkflow$new(
+    name = "Saved WF", survey_type = "ech", edition = "2023"
+  )
   b1$publish(wf)
 
   # Create a new backend from the saved file
@@ -30,11 +32,13 @@ test_that("WorkflowBackend local loads existing file", {
   expect_length(b2$list_all(), 1)
 })
 
-# ── Local backend CRUD ─────────────────────────────────────────────────────────
+# ── Local backend CRUD ───────────────────────────────────────────────────────
 
 test_that("WorkflowBackend local publish + get", {
   backend <- WorkflowBackend$new("local")
-  wf <- RecipeWorkflow$new(name = "Test WF", survey_type = "ech", edition = "2023")
+  wf <- RecipeWorkflow$new(
+    name = "Test WF", survey_type = "ech", edition = "2023"
+  )
   backend$publish(wf)
 
   retrieved <- backend$get(wf$id)
@@ -44,7 +48,9 @@ test_that("WorkflowBackend local publish + get", {
 
 test_that("WorkflowBackend local search", {
   backend <- WorkflowBackend$new("local")
-  backend$publish(RecipeWorkflow$new(name = "Labor Market WF", survey_type = "ech"))
+  backend$publish(
+    RecipeWorkflow$new(name = "Labor Market WF", survey_type = "ech")
+  )
   backend$publish(RecipeWorkflow$new(name = "Income WF", survey_type = "ech"))
 
   results <- backend$search("labor")
@@ -247,7 +253,7 @@ test_that("WorkflowBackend api get returns NULL on error", {
   expect_null(result)
 })
 
-# ── set/get workflow backend ───────────────────────────────────────────────────
+# ── set/get workflow backend ─────────────────────────────────────────────────
 
 test_that("set_workflow_backend sets option", {
   old <- getOption("metasurvey.workflow_backend")

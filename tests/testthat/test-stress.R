@@ -100,7 +100,8 @@ test_that("stress: bake 100 steps on 10k rows produces correct results", {
   expect_true(baked$design_initialized)
 })
 
-test_that("stress: mixed 50 steps (compute + recode + rename + remove) then bake", {
+test_that(
+  "stress: mixed 50 steps (compute + recode + rename + remove) then bake", {
   skip_on_cran()
   n <- 5000
   set.seed(789)

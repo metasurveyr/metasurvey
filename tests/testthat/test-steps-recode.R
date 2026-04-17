@@ -12,7 +12,9 @@ test_that("step_recode creates new variable column", {
     .default = "unknown"
   )
   expect_true("age_group" %in% names(s2$data))
-  expect_true(all(s2$data$age_group %in% c("young", "middle", "senior", "unknown")))
+  expect_true(
+    all(s2$data$age_group %in% c("young", "middle", "senior", "unknown"))
+  )
 })
 
 test_that("step_recode records step in survey", {

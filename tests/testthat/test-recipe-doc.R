@@ -37,7 +37,9 @@ test_that("Recipe$doc() generates documentation from steps", {
 
   # Check structure
   expect_type(doc, "list")
-  expect_named(doc, c("meta", "input_variables", "output_variables", "pipeline"))
+  expect_named(
+    doc, c("meta", "input_variables", "output_variables", "pipeline")
+  )
 
   # Check metadata
   expect_equal(doc$meta$name, "Test Recipe")
@@ -55,7 +57,9 @@ test_that("Recipe$doc() generates documentation from steps", {
   # Check pipeline
   expect_length(doc$pipeline, 1)
   expect_equal(doc$pipeline[[1]]$type, "compute")
-  expect_true(all(c("high_income", "income_log") %in% doc$pipeline[[1]]$outputs))
+  expect_true(
+    all(c("high_income", "income_log") %in% doc$pipeline[[1]]$outputs)
+  )
 })
 
 test_that("Recipe$doc() handles recode steps", {
@@ -143,7 +147,9 @@ test_that("save_recipe() includes all metadata and doc", {
     weight = add_weight(annual = "w")
   )
 
-  svy <- step_compute(svy, var_new = var_old * 2, comment = "Double the variable")
+  svy <- step_compute(
+    svy, var_new = var_old * 2, comment = "Double the variable"
+  )
   svy <- bake_steps(svy)
 
   rec <- steps_to_recipe(
@@ -325,8 +331,14 @@ test_that("Recipe round-trip preserves all information", {
   doc_original <- rec_original$doc()
   doc_loaded <- rec_loaded$doc()
 
-  expect_equal(sort(doc_loaded$input_variables), sort(doc_original$input_variables))
-  expect_equal(sort(doc_loaded$output_variables), sort(doc_original$output_variables))
+  expect_equal(
+    sort(doc_loaded$input_variables),
+    sort(doc_original$input_variables)
+  )
+  expect_equal(
+    sort(doc_loaded$output_variables),
+    sort(doc_original$output_variables)
+  )
   expect_equal(length(doc_loaded$pipeline), length(doc_original$pipeline))
 
   unlink(tmp_file)

@@ -323,7 +323,10 @@ explore_workflows_server <- function(
             )
           } else {
             shiny::showNotification(
-              paste("Could not save rating:", result$error %||% "Unknown error"),
+              paste(
+                "Could not save rating:",
+                result$error %||% "Unknown error"
+              ),
               type = "error", duration = 3
             )
           }
@@ -357,7 +360,10 @@ explore_workflows_server <- function(
             )
           } else {
             shiny::showNotification(
-              paste("Could not add comment:", result$error %||% "Unknown error"),
+              paste(
+                "Could not add comment:",
+                result$error %||% "Unknown error"
+              ),
               type = "error", duration = 3
             )
           }
@@ -387,7 +393,10 @@ explore_workflows_server <- function(
             )
           } else {
             shiny::showNotification(
-              paste("Could not delete comment:", result$error %||% "Unknown error"),
+              paste(
+                "Could not delete comment:",
+                result$error %||% "Unknown error"
+              ),
               type = "error", duration = 3
             )
           }

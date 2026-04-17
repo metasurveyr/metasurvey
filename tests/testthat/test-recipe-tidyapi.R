@@ -11,7 +11,10 @@ test_that("recipe_user creates individual user", {
 })
 
 test_that("recipe_user creates institution", {
-  inst <- recipe_user("IECON", type = "institution", url = "https://iecon.edu.uy", verified = TRUE)
+  inst <- recipe_user(
+    "IECON", type = "institution",
+    url = "https://iecon.edu.uy", verified = TRUE
+  )
   expect_equal(inst$user_type, "institution")
   expect_true(inst$verified)
 })
@@ -22,8 +25,11 @@ test_that("recipe_user creates institutional_member with institution object", {
   expect_equal(m$institution$name, "IECON")
 })
 
-test_that("recipe_user creates institutional_member with institution name shortcut", {
-  m <- recipe_user("Maria", type = "institutional_member", institution = "IECON")
+test_that(
+  "recipe_user creates institutional_member with institution name shortcut", {
+  m <- recipe_user(
+    "Maria", type = "institutional_member", institution = "IECON"
+  )
   expect_equal(m$institution$name, "IECON")
   expect_equal(m$institution$user_type, "institution")
 })
@@ -40,7 +46,9 @@ test_that("recipe_category creates category", {
 })
 
 test_that("recipe_category creates subcategory with parent string", {
-  cat <- recipe_category("employment", "Employment stats", parent = "labor_market")
+  cat <- recipe_category(
+    "employment", "Employment stats", parent = "labor_market"
+  )
   expect_equal(cat$parent$name, "labor_market")
 })
 
@@ -181,9 +189,12 @@ test_that("set_version sets version on recipe", {
 
 # --- Full pipeline style ---
 
-test_that("full pipeline: recipe |> add_category |> set_user_info |> certify_recipe", {
+test_that(
+  "full pipeline: recipe |> add_category |> set_user_info |> certify_recipe", {
   inst <- recipe_user("IECON", type = "institution")
-  member <- recipe_user("Maria", type = "institutional_member", institution = inst)
+  member <- recipe_user(
+    "Maria", type = "institutional_member", institution = inst
+  )
 
   r <- Recipe$new(
     name = "Labor ECH", edition = "2023", survey_type = "ech",

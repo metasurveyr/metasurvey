@@ -208,7 +208,7 @@ RotativePanelSurvey <- R6Class(
 #' with a warning.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Load rotating panel
 #' panel_ech <- load_panel_survey(
 #'   path = "ech_panel_2023.dta",

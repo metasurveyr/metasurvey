@@ -17,7 +17,10 @@ test_that(".serialize_weight_spec handles replicate weights", {
     monthly = list(
       weight = "W",
       replicate_pattern = "wr[0-9]+",
-      replicate_path = "/tmp/Pesos replicados Bootstrap mensuales enero_junio 2023.rar",
+      replicate_path = paste0(
+        "/tmp/Pesos replicados Bootstrap",
+        " mensuales enero_junio 2023.rar"
+      ),
       replicate_id = c("ID" = "ID"),
       replicate_type = "bootstrap"
     )
@@ -68,19 +71,25 @@ test_that(".path_to_source detects ANDA bootstrap monthly", {
 })
 
 test_that(".path_to_source detects ANDA bootstrap annual", {
-  src <- .path_to_source("/data/pesos replicados Bootstrap anual 2023.xlsx", "2023")
+  src <- .path_to_source(
+    "/data/pesos replicados Bootstrap anual 2023.xlsx", "2023"
+  )
   expect_equal(src$provider, "anda")
   expect_equal(src$resource, "bootstrap_annual")
 })
 
 test_that(".path_to_source detects ANDA bootstrap quarterly", {
-  src <- .path_to_source("/data/Pesos replicados Bootstrap trimestrales 2023.rar", "2023")
+  src <- .path_to_source(
+    "/data/Pesos replicados Bootstrap trimestrales 2023.rar", "2023"
+  )
   expect_equal(src$provider, "anda")
   expect_equal(src$resource, "bootstrap_quarterly")
 })
 
 test_that(".path_to_source detects ANDA bootstrap semestral", {
-  src <- .path_to_source("/data/Pesos replicados Bootstrap semestrales 2023.rar", "2023")
+  src <- .path_to_source(
+    "/data/Pesos replicados Bootstrap semestrales 2023.rar", "2023"
+  )
   expect_equal(src$provider, "anda")
   expect_equal(src$resource, "bootstrap_semestral")
 })
@@ -116,7 +125,10 @@ test_that("RecipeWorkflow$to_list() includes weight_spec", {
     monthly = list(
       type = "replicate", variable = "W",
       replicate_pattern = "wr[0-9]+",
-      replicate_source = list(provider = "anda", resource = "bootstrap_monthly", edition = "2023"),
+      replicate_source = list(
+        provider = "anda", resource = "bootstrap_monthly",
+        edition = "2023"
+      ),
       replicate_id = list(survey_key = "ID", replicate_key = "ID"),
       replicate_type = "bootstrap"
     )
@@ -129,7 +141,8 @@ test_that("RecipeWorkflow$to_list() includes weight_spec", {
   expect_equal(lst$weight_spec$monthly$replicate_source$provider, "anda")
 })
 
-test_that("RecipeWorkflow$to_list() with NULL weight_spec includes it as NULL", {
+test_that(
+  "RecipeWorkflow$to_list() with NULL weight_spec includes it as NULL", {
   wf <- RecipeWorkflow$new(name = "Test WF")
   lst <- wf$to_list()
   expect_true("weight_spec" %in% names(lst))
@@ -145,7 +158,10 @@ test_that("weight_spec round-trips through to_list/workflow_from_list", {
     monthly = list(
       type = "replicate", variable = "W",
       replicate_pattern = "wr[0-9]+",
-      replicate_source = list(provider = "anda", resource = "bootstrap_monthly", edition = "2023"),
+      replicate_source = list(
+        provider = "anda", resource = "bootstrap_monthly",
+        edition = "2023"
+      ),
       replicate_id = list(survey_key = "ID", replicate_key = "ID"),
       replicate_type = "bootstrap"
     )
@@ -159,7 +175,10 @@ test_that("weight_spec round-trips through to_list/workflow_from_list", {
   expect_equal(wf2$weight_spec$quarterly$variable, "W_TRI")
   expect_equal(wf2$weight_spec$monthly$type, "replicate")
   expect_equal(wf2$weight_spec$monthly$replicate_source$provider, "anda")
-  expect_equal(wf2$weight_spec$monthly$replicate_source$resource, "bootstrap_monthly")
+  expect_equal(
+    wf2$weight_spec$monthly$replicate_source$resource,
+    "bootstrap_monthly"
+  )
 })
 
 test_that("workflow_from_list handles missing weight_spec (backward compat)", {
@@ -236,7 +255,10 @@ test_that("resolve_weight_spec warns for local-only replicate source", {
     monthly = list(
       type = "replicate", variable = "W",
       replicate_pattern = "wr[0-9]+",
-      replicate_source = list(provider = "local", path_hint = "custom.csv", edition = "2023"),
+      replicate_source = list(
+        provider = "local", path_hint = "custom.csv",
+        edition = "2023"
+      ),
       replicate_id = list(survey_key = "ID", replicate_key = "ID"),
       replicate_type = "bootstrap"
     )
@@ -252,7 +274,10 @@ test_that("print.RecipeWorkflow shows weight info when present", {
     monthly = list(
       type = "replicate", variable = "W",
       replicate_pattern = "wr[0-9]+",
-      replicate_source = list(provider = "anda", resource = "bootstrap_monthly", edition = "2023"),
+      replicate_source = list(
+        provider = "anda", resource = "bootstrap_monthly",
+        edition = "2023"
+      ),
       replicate_id = list(survey_key = "ID", replicate_key = "ID"),
       replicate_type = "bootstrap"
     )

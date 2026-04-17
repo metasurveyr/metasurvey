@@ -98,7 +98,9 @@ test_that("load_survey handles SAV files", {
   on.exit(unlink(tmp), add = TRUE)
   haven::write_sav(df, tmp)
   # foreign::read.spss needs to.data.frame=TRUE for proper data.frame output
-  result <- metasurvey:::read_file(tmp, .args = list(file = tmp, to.data.frame = TRUE))
+  result <- metasurvey:::read_file(
+    tmp, .args = list(file = tmp, to.data.frame = TRUE)
+  )
   expect_true(is.data.frame(result))
   expect_true(nrow(result) == 10)
 })

@@ -9,8 +9,12 @@ test_that("search_workflows finds matching workflows", {
 
   set_workflow_backend("local")
   backend <- get_workflow_backend()
-  backend$publish(RecipeWorkflow$new(name = "Labor Market Analysis", survey_type = "ech"))
-  backend$publish(RecipeWorkflow$new(name = "Income Distribution", survey_type = "ech"))
+  backend$publish(
+    RecipeWorkflow$new(name = "Labor Market Analysis", survey_type = "ech")
+  )
+  backend$publish(
+    RecipeWorkflow$new(name = "Income Distribution", survey_type = "ech")
+  )
 
   results <- search_workflows("labor")
   expect_length(results, 1)

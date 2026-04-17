@@ -1,5 +1,8 @@
 test_that("RecipeCategory creates with name and description", {
-  cat <- RecipeCategory$new(name = "labor_market", description = "Labor market indicators")
+  cat <- RecipeCategory$new(
+    name = "labor_market",
+    description = "Labor market indicators"
+  )
   expect_s3_class(cat, "RecipeCategory")
   expect_equal(cat$name, "labor_market")
   expect_equal(cat$description, "Labor market indicators")
@@ -7,8 +10,14 @@ test_that("RecipeCategory creates with name and description", {
 })
 
 test_that("RecipeCategory creates with parent hierarchy", {
-  economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-  labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
+  economics <- RecipeCategory$new(
+    name = "economics",
+    description = "Economic indicators"
+  )
+  labor <- RecipeCategory$new(
+    name = "labor_market", description = "Labor market",
+    parent = economics
+  )
   expect_equal(labor$parent$name, "economics")
 })
 
@@ -19,14 +28,30 @@ test_that("RecipeCategory validates name is non-empty string", {
 })
 
 test_that("RecipeCategory validates parent is RecipeCategory or NULL", {
-  expect_error(RecipeCategory$new(name = "test", description = "test", parent = "not_a_category"))
-  expect_error(RecipeCategory$new(name = "test", description = "test", parent = list()))
+  expect_error(
+    RecipeCategory$new(
+      name = "test", description = "test",
+      parent = "not_a_category"
+    )
+  )
+  expect_error(
+    RecipeCategory$new(name = "test", description = "test", parent = list())
+  )
 })
 
 test_that("is_subcategory_of checks hierarchy", {
-  economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-  labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
-  employment <- RecipeCategory$new(name = "employment", description = "Employment stats", parent = labor)
+  economics <- RecipeCategory$new(
+    name = "economics",
+    description = "Economic indicators"
+  )
+  labor <- RecipeCategory$new(
+    name = "labor_market", description = "Labor market",
+    parent = economics
+  )
+  employment <- RecipeCategory$new(
+    name = "employment", description = "Employment stats",
+    parent = labor
+  )
 
   expect_true(labor$is_subcategory_of("economics"))
   expect_true(employment$is_subcategory_of("labor_market"))
@@ -36,9 +61,18 @@ test_that("is_subcategory_of checks hierarchy", {
 })
 
 test_that("get_path returns full category path", {
-  economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-  labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
-  employment <- RecipeCategory$new(name = "employment", description = "Employment stats", parent = labor)
+  economics <- RecipeCategory$new(
+    name = "economics",
+    description = "Economic indicators"
+  )
+  labor <- RecipeCategory$new(
+    name = "labor_market", description = "Labor market",
+    parent = economics
+  )
+  employment <- RecipeCategory$new(
+    name = "employment", description = "Employment stats",
+    parent = labor
+  )
 
   expect_equal(economics$get_path(), "economics")
   expect_equal(labor$get_path(), "economics/labor_market")
@@ -71,8 +105,14 @@ test_that("RecipeCategory equality by name", {
 })
 
 test_that("to_list serialization", {
-  economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-  labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
+  economics <- RecipeCategory$new(
+    name = "economics",
+    description = "Economic indicators"
+  )
+  labor <- RecipeCategory$new(
+    name = "labor_market", description = "Labor market",
+    parent = economics
+  )
 
   lst <- labor$to_list()
   expect_type(lst, "list")
@@ -85,7 +125,10 @@ test_that("from_list deserialization", {
   lst <- list(
     name = "labor_market",
     description = "Labor market",
-    parent = list(name = "economics", description = "Economic indicators", parent = NULL)
+    parent = list(
+      name = "economics", description = "Economic indicators",
+      parent = NULL
+    )
   )
   cat <- RecipeCategory$from_list(lst)
   expect_s3_class(cat, "RecipeCategory")
@@ -94,9 +137,18 @@ test_that("from_list deserialization", {
 })
 
 test_that("to_list/from_list round-trip", {
-  economics <- RecipeCategory$new(name = "economics", description = "Economic indicators")
-  labor <- RecipeCategory$new(name = "labor_market", description = "Labor market", parent = economics)
-  employment <- RecipeCategory$new(name = "employment", description = "Employment stats", parent = labor)
+  economics <- RecipeCategory$new(
+    name = "economics",
+    description = "Economic indicators"
+  )
+  labor <- RecipeCategory$new(
+    name = "labor_market", description = "Labor market",
+    parent = economics
+  )
+  employment <- RecipeCategory$new(
+    name = "employment", description = "Employment stats",
+    parent = labor
+  )
 
   restored <- RecipeCategory$from_list(employment$to_list())
   expect_equal(restored$name, "employment")
@@ -104,7 +156,10 @@ test_that("to_list/from_list round-trip", {
 })
 
 test_that("print method works", {
-  cat <- RecipeCategory$new(name = "labor_market", description = "Labor market indicators")
+  cat <- RecipeCategory$new(
+    name = "labor_market",
+    description = "Labor market indicators"
+  )
   expect_output(print(cat), "labor_market")
 })
 
@@ -126,7 +181,9 @@ test_that("RecipeCategory print shows description when non-empty", {
 
 test_that("RecipeCategory print shows path when parent exists", {
   parent <- RecipeCategory$new(name = "economics", description = "Econ")
-  child <- RecipeCategory$new(name = "labor", description = "Labor", parent = parent)
+  child <- RecipeCategory$new(
+    name = "labor", description = "Labor", parent = parent
+  )
   expect_output(print(child), "economics/labor")
 })
 
