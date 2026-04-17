@@ -20,14 +20,19 @@
 #' @return \code{data.table} with results from all
 #'   estimations, including columns:
 #'   \itemize{
-#'     \item \code{stat}: Name of estimated statistic
-#'     \item \code{value}: Estimation value
+#'     \item \code{stat}: Estimation call and variable name
+#'     \item \code{variable}: Variable name (for filtering)
+#'     \item \code{value}: Point estimate
 #'     \item \code{se}: Standard error
-#'     \item \code{cv}: Coefficient of variation
-#'     \item \code{estimation_type}: Type of estimation used
-#'     \item \code{survey_edition}: Survey edition
-#'     \item Other columns depending on estimation type
+#'     \item \code{cv}: Coefficient of variation (proportion)
+#'     \item \code{confint_lower}: Lower bound of confidence interval
+#'     \item \code{confint_upper}: Upper bound of confidence interval
+#'     \item \code{evaluate}: CV quality label from
+#'       \code{\link{evaluate_cv}} (e.g. "Excellent", "Good",
+#'       "Use with caution")
 #'   }
+#'   For \code{svyby} estimations, grouping variables (e.g.
+#'   \code{region}, \code{sexo}) appear as additional columns.
 #'
 #' @details
 #' The function automatically selects the appropriate sample design according
@@ -45,7 +50,7 @@
 #' pooling of multiple surveys.
 #'
 #' @examples
-#' # Simple estimation with a test survey
+#' # Simple estimation
 #' dt <- data.table::data.table(
 #'   x = rnorm(100), g = sample(c("a", "b"), 100, TRUE),
 #'   w = rep(1, 100)
@@ -61,13 +66,20 @@
 #'   estimation_type = "annual"
 #' )
 #'
-#' \donttest{
-#' # ECH example with domain estimations
-#' # result <- workflow(
-#' #   survey = list(ech_2023),
-#' #   svyby(~unemployed, ~region, svymean, na.rm = TRUE),
-#' #   estimation_type = "annual")
-#' }
+#' # Domain estimation with svyby
+#' result_by <- workflow(
+#'   svy = list(svy),
+#'   survey::svyby(~x, ~g, survey::svymean, na.rm = TRUE),
+#'   estimation_type = "annual"
+#' )
+#'
+#' # Custom confidence level (90%)
+#' result_90 <- workflow(
+#'   svy = list(svy),
+#'   survey::svymean(~x, na.rm = TRUE),
+#'   estimation_type = "annual",
+#'   conf.level = 0.90
+#' )
 #'
 #' @seealso
 #' \code{\link[survey]{svymean}} for population means
