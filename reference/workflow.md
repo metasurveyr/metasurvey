@@ -40,19 +40,26 @@ workflow(svy, ..., estimation_type = "monthly", conf.level = 0.95)
 
 `data.table` with results from all estimations, including columns:
 
-- `stat`: Name of estimated statistic
+- `stat`: Estimation call and variable name
 
-- `value`: Estimation value
+- `variable`: Variable name (for filtering)
+
+- `value`: Point estimate
 
 - `se`: Standard error
 
-- `cv`: Coefficient of variation
+- `cv`: Coefficient of variation (proportion)
 
-- `estimation_type`: Type of estimation used
+- `confint_lower`: Lower bound of confidence interval
 
-- `survey_edition`: Survey edition
+- `confint_upper`: Upper bound of confidence interval
 
-- Other columns depending on estimation type
+- `evaluate`: CV quality label from
+  [`evaluate_cv`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md)
+  (e.g. "Excellent", "Good", "Use with caution")
+
+For `svyby` estimations, grouping variables (e.g. `region`, `sexo`)
+appear as additional columns.
 
 ## Details
 
@@ -98,7 +105,7 @@ Other workflows:
 ## Examples
 
 ``` r
-# Simple estimation with a test survey
+# Simple estimation
 dt <- data.table::data.table(
   x = rnorm(100), g = sample(c("a", "b"), 100, TRUE),
   w = rep(1, 100)
@@ -114,11 +121,18 @@ result <- workflow(
   estimation_type = "annual"
 )
 
-# \donttest{
-# ECH example with domain estimations
-# result <- workflow(
-#   survey = list(ech_2023),
-#   svyby(~unemployed, ~region, svymean, na.rm = TRUE),
-#   estimation_type = "annual")
-# }
+# Domain estimation with svyby
+result_by <- workflow(
+  svy = list(svy),
+  survey::svyby(~x, ~g, survey::svymean, na.rm = TRUE),
+  estimation_type = "annual"
+)
+
+# Custom confidence level (90%)
+result_90 <- workflow(
+  svy = list(svy),
+  survey::svymean(~x, na.rm = TRUE),
+  estimation_type = "annual",
+  conf.level = 0.90
+)
 ```
