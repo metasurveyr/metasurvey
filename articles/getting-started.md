@@ -338,12 +338,12 @@ result <- workflow(
 )
 
 result
-#>                     stat    value       se         cv confint_lower
-#>                   <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: HT11 110389.3 4076.154 0.03692528      102400.1
-#>    confint_upper
-#>            <num>
-#> 1:      118378.4
+#>                     stat variable    value       se         cv confint_lower
+#>                   <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: HT11     HT11 110389.3 4076.154 0.03692528      102400.1
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      118378.4 Excellent
 ```
 
 The output includes:
@@ -368,20 +368,20 @@ results <- workflow(
 )
 
 results
-#>                                       stat        value           se         cv
-#>                                     <char>        <num>        <num>      <num>
-#> 1:                   survey::svymean: HT11 1.103893e+05 4.076154e+03 0.03692528
-#> 2:              survey::svytotal: employed 1.426200e+04 6.756206e+02 0.04737208
-#> 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.610113e-02 0.04701571
-#> 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551750e-02 0.06609646
-#> 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.309115e-02 0.22272291
-#>    confint_lower confint_upper
-#>            <num>         <num>
-#> 1:  1.024001e+05  1.183784e+05
-#> 2:  1.293781e+04  1.558619e+04
-#> 3:  5.040004e-01  6.063149e-01
-#> 4:  3.360512e-01  4.360780e-01
-#> 5:  3.311956e-02  8.443591e-02
+#>                                       stat               variable        value
+#>                                     <char>                 <char>        <num>
+#> 1:                   survey::svymean: HT11                   HT11 1.103893e+05
+#> 2:              survey::svytotal: employed               employed 1.426200e+04
+#> 3:   survey::svymean: labor_statusEmployed   labor_statusEmployed 5.551576e-01
+#> 4:   survey::svymean: labor_statusInactive   labor_statusInactive 3.860646e-01
+#> 5: survey::svymean: labor_statusUnemployed labor_statusUnemployed 5.877773e-02
+#>              se         cv confint_lower confint_upper   evaluate
+#>           <num>      <num>         <num>         <num>     <char>
+#> 1: 4.076154e+03 0.03692528  1.024001e+05  1.183784e+05  Excellent
+#> 2: 6.756206e+02 0.04737208  1.293781e+04  1.558619e+04  Excellent
+#> 3: 2.610113e-02 0.04701571  5.040004e-01  6.063149e-01  Excellent
+#> 4: 2.551750e-02 0.06609646  3.360512e-01  4.360780e-01  Very good
+#> 5: 1.309115e-02 0.22272291  3.311956e-02  8.443591e-02 Acceptable
 ```
 
 ### Domain estimation
@@ -398,14 +398,14 @@ income_by_gender <- workflow(
 )
 
 income_by_gender
-#>                                   stat    value       se         cv
-#>                                 <char>    <num>    <num>      <num>
-#> 1: survey::svyby: HT11 [gender=Female] 111107.9 5955.676 0.05360263
-#> 2:   survey::svyby: HT11 [gender=Male] 109608.9 5519.291 0.05035439
-#>    confint_lower confint_upper gender
-#>            <num>         <num> <char>
-#> 1:      99434.99      122780.8 Female
-#> 2:      98791.31      120426.5   Male
+#>                   stat variable    value       se         cv confint_lower
+#>                 <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svyby: HT11     HT11 111107.9 5955.676 0.05360263      99434.99
+#> 2: survey::svyby: HT11     HT11 109608.9 5519.291 0.05035439      98791.31
+#>    confint_upper  evaluate gender
+#>            <num>    <char> <char>
+#> 1:      122780.8 Very good Female
+#> 2:      120426.5 Very good   Male
 ```
 
 ## Quality assessment

@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Compatibilidad con encuestas internacionales (ES)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/international-surveys-es.Rmd" class="external-link"><code>vignettes/international-surveys-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/international-surveys-es.Rmd" class="external-link"><code>vignettes/international-surveys-es.Rmd</code></a></small>
       <div class="d-none name"><code>international-surveys-es.Rmd</code></div>
     </div>
 
@@ -338,12 +338,12 @@ paquete.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">HT11</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11     HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      114677.7 Excellent</span></span></code></pre></div>
 <p>Para el pipeline completo de la ECH, ver
 <code><a href="../articles/ech-case-study.html">vignette("ech-case-study")</a></code>.</p>
 </div>
@@ -394,12 +394,12 @@ juguete.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">employed</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"quarterly"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                         stat     value         se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: employed 0.4378169 0.01668347 0.03810603     0.4051179</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.4705159</span></span></code></pre></div>
+<span><span class="co">#&gt;                         stat variable     value         se         cv</span></span>
+<span><span class="co">#&gt;                       &lt;char&gt;   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: employed employed 0.4378169 0.01668347 0.03810603</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.4051179     0.4705159 Excellent</span></span></code></pre></div>
 <p>Para descargar microdatos reales de la EPH:
 <code>eph::get_microdata(year = 2023, period = 3, type = "individual")</code>.</p>
 </div>
@@ -500,12 +500,12 @@ microdatos de ejemplo.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">age</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"quarterly"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                    stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                  &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: age 35.55343 0.856023 0.02407708      33.87566</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      37.23121</span></span></code></pre></div>
+<span><span class="co">#&gt;                    stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: age      age 35.55343 0.856023 0.02407708      33.87566</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      37.23121 Excellent</span></span></code></pre></div>
 <p>Para microdatos reales de la PNADc:
 <code>PNADcIBGE::get_pnadc(year = 2023, quarter = 1)</code>. La descarga
 es de aproximadamente 200 MB.</p>
@@ -554,12 +554,12 @@ de CPS.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">INCTOT</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                       stat     value      se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;     &lt;num&gt;   &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: INCTOT 191645236 4277528 0.02232004     183261435</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     200029038</span></span></code></pre></div>
+<span><span class="co">#&gt;                       stat variable     value      se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;   &lt;char&gt;     &lt;num&gt;   &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: INCTOT   INCTOT 191645236 4277528 0.02232004     183261435</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     200029038 Excellent</span></span></code></pre></div>
 <p>Los datos de IPUMS requieren una cuenta gratuita en <a href="https://cps.ipums.org" class="external-link uri">https://cps.ipums.org</a>. El
 archivo DDI XML proporciona metadatos de variables para el
 etiquetado.</p>
@@ -613,12 +613,12 @@ real.</p>
 <span>  <span class="fu">survey</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">svymean</a></span><span class="op">(</span><span class="op">~</span><span class="va">income_pc</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  estimation_type <span class="op">=</span> <span class="st">"annual"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;                          stat    value       se        cv confint_lower</span></span>
-<span><span class="co">#&gt;                        &lt;char&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: income_pc 11928.34 1473.022 0.1234893      9041.267</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      14815.41</span></span></code></pre></div>
+<span><span class="co">#&gt;                          stat  variable    value       se        cv</span></span>
+<span><span class="co">#&gt;                        &lt;char&gt;    &lt;char&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: income_pc income_pc 11928.34 1473.022 0.1234893</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;   &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      9041.267      14815.41     Good</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dhs-internacional">DHS – Internacional<a class="anchor" aria-label="anchor" href="#dhs-internacional"></a>

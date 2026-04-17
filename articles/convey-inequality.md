@@ -70,12 +70,12 @@ gini <- workflow(
 )
 
 gini
-#>                     stat     value          se         cv confint_lower
-#>                   <char>     <num>       <num>      <num>         <num>
-#> 1: convey::svygini: gini 0.1123906 0.004824568 0.04292681     0.1029346
-#>    confint_upper
-#>            <num>
-#> 1:     0.1218465
+#>                     stat variable     value          se         cv
+#>                   <char>   <char>     <num>       <num>      <num>
+#> 1: convey::svygini: gini     gini 0.1123906 0.004824568 0.04292681
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:     0.1029346     0.1218465 Excellent
 ```
 
 ### Atkinson index
@@ -97,14 +97,14 @@ atk_1 <- workflow(
 )
 
 rbind(atk_05, atk_1)
-#>                        stat       value           se         cv confint_lower
-#>                      <char>       <num>        <num>      <num>         <num>
-#> 1: convey::svyatk: atkinson 0.008841101 0.0007781485 0.08801488   0.007315958
-#> 2: convey::svyatk: atkinson 0.017852866 0.0015768947 0.08832726   0.014762210
-#>    confint_upper
-#>            <num>
-#> 1:    0.01036624
-#> 2:    0.02094352
+#>                        stat variable       value           se         cv
+#>                      <char>   <char>       <num>        <num>      <num>
+#> 1: convey::svyatk: atkinson atkinson 0.008841101 0.0007781485 0.08801488
+#> 2: convey::svyatk: atkinson atkinson 0.017852866 0.0015768947 0.08832726
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:   0.007315958    0.01036624 Very good
+#> 2:   0.014762210    0.02094352 Very good
 ```
 
 ### Quintile share ratio (QSR)
@@ -119,12 +119,12 @@ qsr <- workflow(
 )
 
 qsr
-#>                   stat    value        se         cv confint_lower
-#>                 <char>    <num>     <num>      <num>         <num>
-#> 1: convey::svyqsr: qsr 1.565964 0.0355218 0.02268367      1.496342
-#>    confint_upper
-#>            <num>
-#> 1:      1.635585
+#>                   stat variable    value        se         cv confint_lower
+#>                 <char>   <char>    <num>     <num>      <num>         <num>
+#> 1: convey::svyqsr: qsr      qsr 1.565964 0.0355218 0.02268367      1.496342
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      1.635585 Excellent
 ```
 
 ### Generalized entropy index
@@ -146,14 +146,14 @@ mld <- workflow(
 )
 
 rbind(theil, mld)
-#>                   stat      value          se         cv confint_lower
-#>                 <char>      <num>       <num>      <num>         <num>
-#> 1: convey::svygei: gei 0.01749577 0.001533703 0.08766137    0.01448977
-#> 2: convey::svygei: gei 0.01801415 0.001605559 0.08912763    0.01486731
-#>    confint_upper
-#>            <num>
-#> 1:    0.02050177
-#> 2:    0.02116099
+#>                   stat variable      value          se         cv confint_lower
+#>                 <char>   <char>      <num>       <num>      <num>         <num>
+#> 1: convey::svygei: gei      gei 0.01749577 0.001533703 0.08766137    0.01448977
+#> 2: convey::svygei: gei      gei 0.01801415 0.001605559 0.08912763    0.01486731
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:    0.02050177 Very good
+#> 2:    0.02116099 Very good
 ```
 
 ## Poverty Measures
@@ -175,9 +175,12 @@ arpt <- workflow(
 )
 
 arpt
-#>                     stat value       se         cv confint_lower confint_upper
-#>                   <char> <num>    <num>      <num>         <num>         <num>
-#> 1: convey::svyarpt: arpt    27 2.051721 0.07598967       22.9787       31.0213
+#>                     stat variable value       se         cv confint_lower
+#>                   <char>   <char> <num>    <num>      <num>         <num>
+#> 1: convey::svyarpt: arpt     arpt    27 2.051721 0.07598967       22.9787
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:       31.0213 Very good
 ```
 
 ### At-risk-of-poverty rate
@@ -193,12 +196,12 @@ arpr <- workflow(
 )
 
 arpr
-#>                     stat     value         se         cv confint_lower
-#>                   <char>     <num>      <num>      <num>         <num>
-#> 1: convey::svyarpr: arpr 0.2974169 0.02696583 0.09066677     0.2445648
-#>    confint_upper
-#>            <num>
-#> 1:     0.3502689
+#>                     stat variable     value         se         cv confint_lower
+#>                   <char>   <char>     <num>      <num>      <num>         <num>
+#> 1: convey::svyarpr: arpr     arpr 0.2974169 0.02696583 0.09066677     0.2445648
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:     0.3502689 Very good
 ```
 
 ### FGT poverty indices
@@ -231,16 +234,16 @@ fgt2 <- workflow(
 )
 
 rbind(fgt0, fgt1, fgt2)
-#>                    stat     value         se         cv confint_lower
-#>                  <char>     <num>      <num>      <num>         <num>
-#> 1: convey::svyfgt: fgt0 0.5590055 0.03854638 0.06895528     0.4834560
-#> 2: convey::svyfgt: fgt1 0.2733427 0.02456407 0.08986547     0.2251980
-#> 3: convey::svyfgt: fgt2 0.1795022 0.02043659 0.11385149     0.1394472
-#>    confint_upper
-#>            <num>
-#> 1:     0.6345550
-#> 2:     0.3214874
-#> 3:     0.2195572
+#>                    stat variable     value         se         cv confint_lower
+#>                  <char>   <char>     <num>      <num>      <num>         <num>
+#> 1: convey::svyfgt: fgt0     fgt0 0.5590055 0.03854638 0.06895528     0.4834560
+#> 2: convey::svyfgt: fgt1     fgt1 0.2733427 0.02456407 0.08986547     0.2251980
+#> 3: convey::svyfgt: fgt2     fgt2 0.1795022 0.02043659 0.11385149     0.1394472
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:     0.6345550 Very good
+#> 2:     0.3214874 Very good
+#> 3:     0.2195572      Good
 ```
 
 ## Full Pipeline: Steps + Convey
@@ -282,14 +285,14 @@ results <- workflow(
 )
 
 results
-#>                        stat      value          se         cv confint_lower
-#>                      <char>      <num>       <num>      <num>         <num>
-#> 1:    convey::svygini: gini 0.48220882 0.033233109 0.06891850    0.41707312
-#> 2: convey::svyatk: atkinson 0.01785287 0.001576895 0.08832726    0.01476221
-#>    confint_upper
-#>            <num>
-#> 1:    0.54734451
-#> 2:    0.02094352
+#>                        stat variable      value          se         cv
+#>                      <char>   <char>      <num>       <num>      <num>
+#> 1:    convey::svygini: gini     gini 0.48220882 0.033233109 0.06891850
+#> 2: convey::svyatk: atkinson atkinson 0.01785287 0.001576895 0.08832726
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:    0.41707312    0.54734451 Very good
+#> 2:    0.01476221    0.02094352 Very good
 ```
 
 ### Quality assessment
@@ -317,13 +320,13 @@ workflow_table(
 )
 ```
 
-| Inequality of API Score Growth             |          |       |          |          |        |           |
-|--------------------------------------------|----------|-------|----------|----------|--------|-----------|
-| California Schools, 2000                   |          |       |          |          |        |           |
-| Statistic                                  | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
-| :svygini: gini                             | 0.48     | 0.033 | 0.42     | 0.55     | 6.9    | Very good |
-| :svyatk: atkinson                          | 0.02     | 0.002 | 0.01     | 0.02     | 8.8    | Very good |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-04-06 |          |       |          |          |        |           |
+| Inequality of API Score Growth             |          |          |       |          |          |        |           |
+|--------------------------------------------|----------|----------|-------|----------|----------|--------|-----------|
+| California Schools, 2000                   |          |          |       |          |          |        |           |
+| Statistic                                  | variable | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
+| :svygini: gini                             | gini     | 0.48     | 0.033 | 0.42     | 0.55     | 6.9    | Very good |
+| :svyatk: atkinson                          | atkinson | 0.02     | 0.002 | 0.01     | 0.02     | 8.8    | Very good |
+| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |          |          |       |          |          |        |           |
 
 ## Provenance
 
@@ -334,7 +337,7 @@ convey estimates computed, and package versions — is available:
 prov <- provenance(results)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-04-06T22:31:34 
+#> Loaded: 2026-04-17T01:33:00 
 #> Initial rows: 200 
 #> 
 #> Pipeline:
@@ -342,14 +345,14 @@ prov
 #> 
 #> Estimation:
 #>   Type: annual 
-#>   Timestamp: 2026-04-06T22:31:34 
+#>   Timestamp: 2026-04-17T01:33:00 
 #> 
 #> Environment:
-#>   metasurvey: 0.0.21 
+#>   metasurvey: 0.0.22 
 #>   R: 4.5.3 
 #>   survey: 4.5
 cat("metasurvey version:", prov$environment$metasurvey_version, "\n")
-#> metasurvey version: 0.0.21
+#> metasurvey version: 0.0.22
 cat("Steps applied:", length(prov$steps), "\n")
 #> Steps applied: 1
 ```

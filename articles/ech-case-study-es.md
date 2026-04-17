@@ -310,12 +310,12 @@ result_income <- workflow(
 )
 
 result_income
-#>                     stat    value       se         cv confint_lower
-#>                   <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5
-#>    confint_upper
-#>            <num>
-#> 1:      114677.7
+#>                     stat variable    value       se         cv confint_lower
+#>                   <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: HT11     HT11 107869.1 3473.836 0.03220417      101060.5
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      114677.7 Excellent
 ```
 
 ``` r
@@ -327,12 +327,12 @@ result_employment <- workflow(
 )
 
 result_employment
-#>                         stat     value         se         cv confint_lower
-#>                       <char>     <num>      <num>      <num>         <num>
-#> 1: survey::svymean: employed 0.4422188 0.02343197 0.05298728      0.396293
-#>    confint_upper
-#>            <num>
-#> 1:     0.4881447
+#>                         stat variable     value         se         cv
+#>                       <char>   <char>     <num>      <num>      <num>
+#> 1: survey::svymean: employed employed 0.4422188 0.02343197 0.05298728
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:      0.396293     0.4881447 Very good
 ```
 
 ### Estimación por dominio
@@ -348,16 +348,16 @@ income_region <- workflow(
 )
 
 income_region
-#>                                                       stat     value       se
-#>                                                     <char>     <num>    <num>
-#> 1:  survey::svyby: HT11 [region_name=Interior loc. < 5000]  90397.57 4632.957
-#> 2: survey::svyby: HT11 [region_name=Interior loc. >= 5000] 103877.64 5949.558
-#> 3:            survey::svyby: HT11 [region_name=Montevideo] 118302.36 5412.484
-#>            cv confint_lower confint_upper           region_name
-#>         <num>         <num>         <num>                <char>
-#> 1: 0.05125091      81317.14       99478.0  Interior loc. < 5000
-#> 2: 0.05727467      92216.72      115538.6 Interior loc. >= 5000
-#> 3: 0.04575127     107694.09      128910.6            Montevideo
+#>                   stat variable     value       se         cv confint_lower
+#>                 <char>   <char>     <num>    <num>      <num>         <num>
+#> 1: survey::svyby: HT11     HT11  90397.57 4632.957 0.05125091      81317.14
+#> 2: survey::svyby: HT11     HT11 103877.64 5949.558 0.05727467      92216.72
+#> 3: survey::svyby: HT11     HT11 118302.36 5412.484 0.04575127     107694.09
+#>    confint_upper  evaluate           region_name
+#>            <num>    <char>                <char>
+#> 1:       99478.0 Very good  Interior loc. < 5000
+#> 2:      115538.6 Very good Interior loc. >= 5000
+#> 3:      128910.6 Excellent            Montevideo
 ```
 
 ``` r
@@ -369,14 +369,14 @@ employment_sex <- workflow(
 )
 
 employment_sex
-#>                                    stat     value         se         cv
-#>                                  <char>     <num>      <num>      <num>
-#> 1: survey::svyby: employed [sex=Female] 0.3824018 0.03146234 0.08227562
-#> 2:   survey::svyby: employed [sex=Male] 0.5076963 0.03449008 0.06793446
-#>    confint_lower confint_upper    sex
-#>            <num>         <num> <char>
-#> 1:     0.3207367     0.4440669 Female
-#> 2:     0.4400970     0.5752956   Male
+#>                       stat variable     value         se         cv
+#>                     <char>   <char>     <num>      <num>      <num>
+#> 1: survey::svyby: employed employed 0.3824018 0.03146234 0.08227562
+#> 2: survey::svyby: employed employed 0.5076963 0.03449008 0.06793446
+#>    confint_lower confint_upper  evaluate    sex
+#>            <num>         <num>    <char> <char>
+#> 1:     0.3207367     0.4440669 Very good Female
+#> 2:     0.4400970     0.5752956 Very good   Male
 ```
 
 ### Evaluación de calidad

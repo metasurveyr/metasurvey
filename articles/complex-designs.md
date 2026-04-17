@@ -253,14 +253,14 @@ results <- workflow(
 )
 
 results
-#>                        stat        value           se         cv confint_lower
-#>                      <char>        <num>        <num>      <num>         <num>
-#> 1:   survey::svymean: api00     662.2874 9.585429e+00 0.01447322      643.5003
-#> 2: survey::svytotal: enroll 3687177.5324 1.645323e+05 0.04462283  3364700.1537
-#>    confint_upper
-#>            <num>
-#> 1:      681.0745
-#> 2:  4009654.9112
+#>                        stat variable        value           se         cv
+#>                      <char>   <char>        <num>        <num>      <num>
+#> 1:   survey::svymean: api00    api00     662.2874 9.585429e+00 0.01447322
+#> 2: survey::svytotal: enroll   enroll 3687177.5324 1.645323e+05 0.04462283
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:      643.5003      681.0745 Excellent
+#> 2:  3364700.1537  4009654.9112 Excellent
 ```
 
 ### Domain Estimation
@@ -276,16 +276,16 @@ domain_results <- workflow(
 )
 
 domain_results
-#>                              stat  value       se         cv confint_lower
-#>                            <char>  <num>    <num>      <num>         <num>
-#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
-#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
-#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
-#>    confint_upper  stype
-#>            <num> <fctr>
-#> 1:      698.9167      E
-#> 2:      655.8874      H
-#> 3:      668.9441      M
+#>                    stat variable  value       se         cv confint_lower
+#>                  <char>   <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  evaluate  stype
+#>            <num>    <char> <fctr>
+#> 1:      698.9167 Excellent      E
+#> 2:      655.8874 Excellent      H
+#> 3:      668.9441 Excellent      M
 ```
 
 ### Ratios
@@ -298,12 +298,12 @@ ratio_result <- workflow(
 )
 
 ratio_result
-#>                             stat    value         se          cv confint_lower
-#>                           <char>    <num>      <num>       <num>         <num>
-#> 1: survey::svyratio: api00/api99 1.052261 0.00379243 0.003604079      1.044828
-#>    confint_upper
-#>            <num>
-#> 1:      1.059694
+#>                             stat    variable    value         se          cv
+#>                           <char>      <char>    <num>      <num>       <num>
+#> 1: survey::svyratio: api00/api99 api00/api99 1.052261 0.00379243 0.003604079
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:      1.044828      1.059694 Excellent
 ```
 
 ## Pipeline Validation

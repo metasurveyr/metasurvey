@@ -54,12 +54,12 @@ result <- workflow(
 )
 
 result
-#>                      stat    value       se         cv confint_lower
-#>                    <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: api00 662.2874 9.585429 0.01447322      643.5003
-#>    confint_upper
-#>            <num>
-#> 1:      681.0745
+#>                      stat variable    value       se         cv confint_lower
+#>                    <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: api00    api00 662.2874 9.585429 0.01447322      643.5003
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      681.0745 Excellent
 ```
 
 ### Total
@@ -74,12 +74,12 @@ result_total <- workflow(
 )
 
 result_total
-#>                        stat   value       se         cv confint_lower
-#>                      <char>   <num>    <num>      <num>         <num>
-#> 1: survey::svytotal: enroll 3687178 164532.3 0.04462283       3364700
-#>    confint_upper
-#>            <num>
-#> 1:       4009655
+#>                        stat variable   value       se         cv confint_lower
+#>                      <char>   <char>   <num>    <num>      <num>         <num>
+#> 1: survey::svytotal: enroll   enroll 3687178 164532.3 0.04462283       3364700
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:       4009655 Excellent
 ```
 
 ### Multiple Estimates at Once
@@ -97,14 +97,14 @@ results <- workflow(
 )
 
 results
-#>                        stat        value           se         cv confint_lower
-#>                      <char>        <num>        <num>      <num>         <num>
-#> 1:   survey::svymean: api00     662.2874 9.585429e+00 0.01447322      643.5003
-#> 2: survey::svytotal: enroll 3687177.5324 1.645323e+05 0.04462283  3364700.1537
-#>    confint_upper
-#>            <num>
-#> 1:      681.0745
-#> 2:  4009654.9112
+#>                        stat variable        value           se         cv
+#>                      <char>   <char>        <num>        <num>      <num>
+#> 1:   survey::svymean: api00    api00     662.2874 9.585429e+00 0.01447322
+#> 2: survey::svytotal: enroll   enroll 3687177.5324 1.645323e+05 0.04462283
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:      643.5003      681.0745 Excellent
+#> 2:  3364700.1537  4009654.9112 Excellent
 ```
 
 ## Domain Estimation
@@ -121,16 +121,16 @@ api_by_type <- workflow(
 )
 
 api_by_type
-#>                              stat  value       se         cv confint_lower
-#>                            <char>  <num>    <num>      <num>         <num>
-#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
-#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
-#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
-#>    confint_upper  stype
-#>            <num> <fctr>
-#> 1:      698.9167      E
-#> 2:      655.8874      H
-#> 3:      668.9441      M
+#>                    stat variable  value       se         cv confint_lower
+#>                  <char>   <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  evaluate  stype
+#>            <num>    <char> <fctr>
+#> 1:      698.9167 Excellent      E
+#> 2:      655.8874 Excellent      H
+#> 3:      668.9441 Excellent      M
 ```
 
 ``` r
@@ -142,14 +142,14 @@ enroll_by_award <- workflow(
 )
 
 enroll_by_award
-#>                                  stat    value       se         cv
-#>                                <char>    <num>    <num>      <num>
-#> 1:  survey::svyby: enroll [awards=No] 727.5958 57.54094 0.07908366
-#> 2: survey::svyby: enroll [awards=Yes] 520.5114 25.51854 0.04902590
-#>    confint_lower confint_upper awards
-#>            <num>         <num> <fctr>
-#> 1:      614.8177      840.3740     No
-#> 2:      470.4960      570.5269    Yes
+#>                     stat variable    value       se         cv confint_lower
+#>                   <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svyby: enroll   enroll 727.5958 57.54094 0.07908366      614.8177
+#> 2: survey::svyby: enroll   enroll 520.5114 25.51854 0.04902590      470.4960
+#>    confint_upper  evaluate awards
+#>            <num>    <char> <fctr>
+#> 1:      840.3740 Very good     No
+#> 2:      570.5269 Excellent    Yes
 ```
 
 ## Quality Assessment
@@ -335,14 +335,14 @@ estimates <- workflow(
 )
 
 estimates
-#>                            stat      value        se         cv confint_lower
-#>                          <char>      <num>     <num>      <num>         <num>
-#> 1:  survey::svymean: api_growth 32.8925184 2.1583789 0.06561914    28.6621734
-#> 2: survey::svymean: high_growth  0.2938489 0.0363651 0.12375443     0.2225746
-#>    confint_upper
-#>            <num>
-#> 1:    37.1228633
-#> 2:     0.3651232
+#>                            stat    variable      value        se         cv
+#>                          <char>      <char>      <num>     <num>      <num>
+#> 1:  survey::svymean: api_growth  api_growth 32.8925184 2.1583789 0.06561914
+#> 2: survey::svymean: high_growth high_growth  0.2938489 0.0363651 0.12375443
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:    28.6621734    37.1228633 Very good
+#> 2:     0.2225746     0.3651232      Good
 ```
 
 ``` r
@@ -354,16 +354,16 @@ by_school <- workflow(
 )
 
 by_school
-#>                              stat  value       se         cv confint_lower
-#>                            <char>  <num>    <num>      <num>         <num>
-#> 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433
-#> 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526
-#> 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559
-#>    confint_upper  stype
-#>            <num> <fctr>
-#> 1:      698.9167      E
-#> 2:      655.8874      H
-#> 3:      668.9441      M
+#>                    stat variable  value       se         cv confint_lower
+#>                  <char>   <char>  <num>    <num>      <num>         <num>
+#> 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433
+#> 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526
+#> 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559
+#>    confint_upper  evaluate  stype
+#>            <num>    <char> <fctr>
+#> 1:      698.9167 Excellent      E
+#> 2:      655.8874 Excellent      H
+#> 3:      668.9441 Excellent      M
 ```
 
 ``` r
@@ -392,11 +392,11 @@ to trace any estimate back to the raw data.
 prov <- provenance(svy_full)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-04-06T22:32:53 
+#> Loaded: 2026-04-17T01:34:11 
 #> Initial rows: 200 
 #> 
 #> Environment:
-#>   metasurvey: 0.0.21 
+#>   metasurvey: 0.0.22 
 #>   R: 4.5.3 
 #>   survey: 4.5
 ```
@@ -408,7 +408,7 @@ results, so you can always inspect the full lineage of an estimate:
 ``` r
 prov_wf <- provenance(estimates)
 cat("metasurvey version:", prov_wf$environment$metasurvey_version, "\n")
-#> metasurvey version: 0.0.21
+#> metasurvey version: 0.0.22
 cat("Steps applied:", length(prov_wf$steps), "\n")
 #> Steps applied: 0
 ```
@@ -439,12 +439,12 @@ color coding, and provenance-based source notes.
 workflow_table(estimates)
 ```
 
-| Survey Estimation Results                  |          |       |          |          |        |           |
-|--------------------------------------------|----------|-------|----------|----------|--------|-----------|
-| Statistic                                  | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
-| :svymean: api_growth                       | 32.89    | 2.158 | 28.66    | 37.12    | 6.6    | Very good |
-| :svymean: high_growth                      | 0.29     | 0.036 | 0.22     | 0.37     | 12.4   | Good      |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-04-06 |          |       |          |          |        |           |
+| Survey Estimation Results                  |             |          |       |          |          |        |           |
+|--------------------------------------------|-------------|----------|-------|----------|----------|--------|-----------|
+| Statistic                                  | variable    | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
+| :svymean: api_growth                       | api_growth  | 32.89    | 2.158 | 28.66    | 37.12    | 6.6    | Very good |
+| :svymean: high_growth                      | high_growth | 0.29     | 0.036 | 0.22     | 0.37     | 12.4   | Good      |
+| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |             |          |       |          |          |        |           |
 
 You can customize the output:
 
@@ -459,13 +459,13 @@ workflow_table(
 )
 ```
 
-| API Growth Indicators                      |          |          |          |        |           |
-|--------------------------------------------|----------|----------|----------|--------|-----------|
-| California Schools, 2000                   |          |          |          |        |           |
-| Statistic                                  | Estimate | CI Lower | CI Upper | CV (%) | Quality   |
-| :svymean: api_growth                       | 32,89    | 28,66    | 37,12    | 6,6    | Very good |
-| :svymean: high_growth                      | 0,29     | 0,22     | 0,37     | 12,4   | Good      |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-04-06 |          |          |          |        |           |
+| API Growth Indicators                      |             |          |          |          |        |           |
+|--------------------------------------------|-------------|----------|----------|----------|--------|-----------|
+| California Schools, 2000                   |             |          |          |          |        |           |
+| Statistic                                  | variable    | Estimate | CI Lower | CI Upper | CV (%) | Quality   |
+| :svymean: api_growth                       | api_growth  | 32,89    | 28,66    | 37,12    | 6,6    | Very good |
+| :svymean: high_growth                      | high_growth | 0,29     | 0,22     | 0,37     | 12,4   | Good      |
+| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |             |          |          |          |        |           |
 
 For domain estimates, the table detects group columns automatically:
 
@@ -473,13 +473,13 @@ For domain estimates, the table detects group columns automatically:
 workflow_table(by_school)
 ```
 
-| Survey Estimation Results                  |       |          |        |          |          |        |           |
-|--------------------------------------------|-------|----------|--------|----------|----------|--------|-----------|
-| Statistic                                  | stype | Estimate | SE     | CI Lower | CI Upper | CV (%) | Quality   |
-| :svyby: api00                              | E     | 674.43   | 12.493 | 649.94   | 698.92   | 1.9    | Excellent |
-| :svyby: api00                              | H     | 625.82   | 15.341 | 595.75   | 655.89   | 2.5    | Excellent |
-| :svyby: api00                              | M     | 636.60   | 16.502 | 604.26   | 668.94   | 2.6    | Excellent |
-| metasurvey 0.0.21 \| CI: 95% \| 2026-04-06 |       |          |        |          |          |        |           |
+| Survey Estimation Results                  |          |       |          |        |          |          |        |           |
+|--------------------------------------------|----------|-------|----------|--------|----------|----------|--------|-----------|
+| Statistic                                  | variable | stype | Estimate | SE     | CI Lower | CI Upper | CV (%) | Quality   |
+| :svyby: api00                              | api00    | E     | 674.43   | 12.493 | 649.94   | 698.92   | 1.9    | Excellent |
+| :svyby: api00                              | api00    | H     | 625.82   | 15.341 | 595.75   | 655.89   | 2.5    | Excellent |
+| :svyby: api00                              | api00    | M     | 636.60   | 16.502 | 604.26   | 668.94   | 2.6    | Excellent |
+| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |          |       |          |        |          |          |        |           |
 
 Export to any format supported by
 [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html):

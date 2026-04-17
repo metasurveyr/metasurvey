@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Flujos de Trabajo y Estimacion (ES)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/workflows-and-estimation-es.Rmd" class="external-link"><code>vignettes/workflows-and-estimation-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/workflows-and-estimation-es.Rmd" class="external-link"><code>vignettes/workflows-and-estimation-es.Rmd</code></a></small>
       <div class="d-none name"><code>workflows-and-estimation-es.Rmd</code></div>
     </div>
 
@@ -196,12 +196,12 @@ estratificadas de California.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span></span>
-<span><span class="co">#&gt;                      stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                    &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: api00 662.2874 9.585429 0.01447322      643.5003</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      681.0745</span></span></code></pre></div>
+<span><span class="co">#&gt;                      stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                    &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: api00    api00 662.2874 9.585429 0.01447322      643.5003</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      681.0745 Excellent</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="total">Total<a class="anchor" aria-label="anchor" href="#total"></a>
@@ -215,12 +215,12 @@ estratificadas de California.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_total</span></span>
-<span><span class="co">#&gt;                        stat   value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;   &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svytotal: enroll 3687178 164532.3 0.04462283       3364700</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:       4009655</span></span></code></pre></div>
+<span><span class="co">#&gt;                        stat variable   value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;   &lt;char&gt;   &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svytotal: enroll   enroll 3687178 164532.3 0.04462283       3364700</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:       4009655 Excellent</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="multiples-estimaciones-a-la-vez">Multiples estimaciones a la vez<a class="anchor" aria-label="anchor" href="#multiples-estimaciones-a-la-vez"></a>
@@ -236,14 +236,14 @@ estratificadas de California.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span></span>
-<span><span class="co">#&gt;                        stat        value           se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   survey::svymean: api00     662.2874 9.585429e+00 0.01447322      643.5003</span></span>
-<span><span class="co">#&gt; 2: survey::svytotal: enroll 3687177.5324 1.645323e+05 0.04462283  3364700.1537</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      681.0745</span></span>
-<span><span class="co">#&gt; 2:  4009654.9112</span></span></code></pre></div>
+<span><span class="co">#&gt;                        stat variable        value           se         cv</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;   &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:   survey::svymean: api00    api00     662.2874 9.585429e+00 0.01447322</span></span>
+<span><span class="co">#&gt; 2: survey::svytotal: enroll   enroll 3687177.5324 1.645323e+05 0.04462283</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      643.5003      681.0745 Excellent</span></span>
+<span><span class="co">#&gt; 2:  3364700.1537  4009654.9112 Excellent</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -260,16 +260,16 @@ por subpoblaciones (dominios):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">api_by_type</span></span>
-<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
-<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
-<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
-<span><span class="co">#&gt;    confint_upper  stype</span></span>
-<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
-<span><span class="co">#&gt; 1:      698.9167      E</span></span>
-<span><span class="co">#&gt; 2:      655.8874      H</span></span>
-<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
+<span><span class="co">#&gt;                    stat variable  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;   &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167 Excellent      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874 Excellent      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441 Excellent      M</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean enrollment by awards status</span></span>
 <span><span class="va">enroll_by_award</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -279,14 +279,14 @@ por subpoblaciones (dominios):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enroll_by_award</span></span>
-<span><span class="co">#&gt;                                  stat    value       se         cv</span></span>
-<span><span class="co">#&gt;                                &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  survey::svyby: enroll [awards=No] 727.5958 57.54094 0.07908366</span></span>
-<span><span class="co">#&gt; 2: survey::svyby: enroll [awards=Yes] 520.5114 25.51854 0.04902590</span></span>
-<span><span class="co">#&gt;    confint_lower confint_upper awards</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;fctr&gt;</span></span>
-<span><span class="co">#&gt; 1:      614.8177      840.3740     No</span></span>
-<span><span class="co">#&gt; 2:      470.4960      570.5269    Yes</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: enroll   enroll 727.5958 57.54094 0.07908366      614.8177</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: enroll   enroll 520.5114 25.51854 0.04902590      470.4960</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate awards</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      840.3740 Very good     No</span></span>
+<span><span class="co">#&gt; 2:      570.5269 Excellent    Yes</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="evaluacion-de-la-calidad">Evaluacion de la calidad<a class="anchor" aria-label="anchor" href="#evaluacion-de-la-calidad"></a>
@@ -501,14 +501,14 @@ API:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">estimates</span></span>
-<span><span class="co">#&gt;                            stat      value        se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                          &lt;char&gt;      &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  survey::svymean: api_growth 32.8925184 2.1583789 0.06561914    28.6621734</span></span>
-<span><span class="co">#&gt; 2: survey::svymean: high_growth  0.2938489 0.0363651 0.12375443     0.2225746</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    37.1228633</span></span>
-<span><span class="co">#&gt; 2:     0.3651232</span></span></code></pre></div>
+<span><span class="co">#&gt;                            stat    variable      value        se         cv</span></span>
+<span><span class="co">#&gt;                          &lt;char&gt;      &lt;char&gt;      &lt;num&gt;     &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  survey::svymean: api_growth  api_growth 32.8925184 2.1583789 0.06561914</span></span>
+<span><span class="co">#&gt; 2: survey::svymean: high_growth high_growth  0.2938489 0.0363651 0.12375443</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    28.6621734    37.1228633 Very good</span></span>
+<span><span class="co">#&gt; 2:     0.2225746     0.3651232      Good</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 4. Domain estimation (by school type)</span></span>
 <span><span class="va">by_school</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -518,16 +518,16 @@ API:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">by_school</span></span>
-<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
-<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
-<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
-<span><span class="co">#&gt;    confint_upper  stype</span></span>
-<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
-<span><span class="co">#&gt; 1:      698.9167      E</span></span>
-<span><span class="co">#&gt; 2:      655.8874      H</span></span>
-<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
+<span><span class="co">#&gt;                    stat variable  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;   &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167 Excellent      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874 Excellent      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441 Excellent      M</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 5. Assess quality</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">estimates</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -554,11 +554,11 @@ hasta los datos originales.</p>
 <span><span class="va">prov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/provenance.html">provenance</a></span><span class="op">(</span><span class="va">svy_full</span><span class="op">)</span></span>
 <span><span class="va">prov</span></span>
 <span><span class="co">#&gt; ── Data Provenance ─────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Loaded: 2026-04-06T22:32:48 </span></span>
+<span><span class="co">#&gt; Loaded: 2026-04-17T01:34:06 </span></span>
 <span><span class="co">#&gt; Initial rows: 200 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Environment:</span></span>
-<span><span class="co">#&gt;   metasurvey: 0.0.21 </span></span>
+<span><span class="co">#&gt;   metasurvey: 0.0.22 </span></span>
 <span><span class="co">#&gt;   R: 4.5.3 </span></span>
 <span><span class="co">#&gt;   survey: 4.5</span></span></code></pre></div>
 <p>El provenance tambien se adjunta a los resultados de
@@ -567,7 +567,7 @@ linaje completo de una estimacion:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prov_wf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/provenance.html">provenance</a></span><span class="op">(</span><span class="va">estimates</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"metasurvey version:"</span>, <span class="va">prov_wf</span><span class="op">$</span><span class="va">environment</span><span class="op">$</span><span class="va">metasurvey_version</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; metasurvey version: 0.0.21</span></span>
+<span><span class="co">#&gt; metasurvey version: 0.0.22</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Steps applied:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">prov_wf</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Steps applied: 0</span></span></code></pre></div>
 <p>Para pistas de auditoria, se exporta el provenance a JSON:</p>
@@ -1041,10 +1041,11 @@ colores y notas al pie basadas en el provenance.</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="7" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Survey Estimation Results</td>
+<td colspan="8" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Survey Estimation Results</td>
     </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Statistic">Statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable">variable</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="SE">SE</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="CI-Lower">CI Lower</th>
@@ -1056,6 +1057,7 @@ colores y notas al pie basadas en el provenance.</p>
 <tbody class="gt_table_body">
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svymean: api_growth</td>
+<td headers="variable" class="gt_row gt_left">api_growth</td>
 <td headers="Estimate" class="gt_row gt_right">32.89</td>
 <td headers="SE" class="gt_row gt_right">2.158</td>
 <td headers="CI Lower" class="gt_row gt_right">28.66</td>
@@ -1065,6 +1067,7 @@ colores y notas al pie basadas en el provenance.</p>
 </tr>
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svymean: high_growth</td>
+<td headers="variable" class="gt_row gt_left">high_growth</td>
 <td headers="Estimate" class="gt_row gt_right">0.29</td>
 <td headers="SE" class="gt_row gt_right">0.036</td>
 <td headers="CI Lower" class="gt_row gt_right">0.22</td>
@@ -1074,7 +1077,7 @@ colores y notas al pie basadas en el provenance.</p>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
-<td class="gt_sourcenote" colspan="7">metasurvey 0.0.21 | CI: 95% | 2026-04-06</td>
+<td class="gt_sourcenote" colspan="8">metasurvey 0.0.22 | CI: 95% | 2026-04-17</td>
     </tr></tfoot>
 </table>
 </div>
@@ -1540,13 +1543,14 @@ colores y notas al pie basadas en el provenance.</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="6" class="gt_heading gt_title gt_font_normal" style>Indicadores de crecimiento API</td>
+<td colspan="7" class="gt_heading gt_title gt_font_normal" style>Indicadores de crecimiento API</td>
     </tr>
 <tr class="gt_heading">
-<td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Escuelas de California, 2000</td>
+<td colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Escuelas de California, 2000</td>
     </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Statistic">Statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable">variable</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="CI-Lower">CI Lower</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="CI-Upper">CI Upper</th>
@@ -1557,6 +1561,7 @@ colores y notas al pie basadas en el provenance.</p>
 <tbody class="gt_table_body">
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svymean: api_growth</td>
+<td headers="variable" class="gt_row gt_left">api_growth</td>
 <td headers="Estimate" class="gt_row gt_right">32,89</td>
 <td headers="CI Lower" class="gt_row gt_right">28,66</td>
 <td headers="CI Upper" class="gt_row gt_right">37,12</td>
@@ -1565,6 +1570,7 @@ colores y notas al pie basadas en el provenance.</p>
 </tr>
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svymean: high_growth</td>
+<td headers="variable" class="gt_row gt_left">high_growth</td>
 <td headers="Estimate" class="gt_row gt_right">0,29</td>
 <td headers="CI Lower" class="gt_row gt_right">0,22</td>
 <td headers="CI Upper" class="gt_row gt_right">0,37</td>
@@ -1573,7 +1579,7 @@ colores y notas al pie basadas en el provenance.</p>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
-<td class="gt_sourcenote" colspan="6">metasurvey 0.0.21 | CI: 95% | 2026-04-06</td>
+<td class="gt_sourcenote" colspan="7">metasurvey 0.0.22 | CI: 95% | 2026-04-17</td>
     </tr></tfoot>
 </table>
 </div>
@@ -2033,10 +2039,11 @@ columnas de grupo:</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="8" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Survey Estimation Results</td>
+<td colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Survey Estimation Results</td>
     </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Statistic">Statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable">variable</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stype">stype</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="SE">SE</th>
@@ -2049,6 +2056,7 @@ columnas de grupo:</p>
 <tbody class="gt_table_body">
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svyby: api00</td>
+<td headers="variable" class="gt_row gt_left">api00</td>
 <td headers="stype" class="gt_row gt_center">E</td>
 <td headers="Estimate" class="gt_row gt_right">674.43</td>
 <td headers="SE" class="gt_row gt_right">12.493</td>
@@ -2059,6 +2067,7 @@ columnas de grupo:</p>
 </tr>
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svyby: api00</td>
+<td headers="variable" class="gt_row gt_left">api00</td>
 <td headers="stype" class="gt_row gt_center">H</td>
 <td headers="Estimate" class="gt_row gt_right">625.82</td>
 <td headers="SE" class="gt_row gt_right">15.341</td>
@@ -2069,6 +2078,7 @@ columnas de grupo:</p>
 </tr>
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svyby: api00</td>
+<td headers="variable" class="gt_row gt_left">api00</td>
 <td headers="stype" class="gt_row gt_center">M</td>
 <td headers="Estimate" class="gt_row gt_right">636.60</td>
 <td headers="SE" class="gt_row gt_right">16.502</td>
@@ -2079,7 +2089,7 @@ columnas de grupo:</p>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
-<td class="gt_sourcenote" colspan="8">metasurvey 0.0.21 | CI: 95% | 2026-04-06</td>
+<td class="gt_sourcenote" colspan="9">metasurvey 0.0.22 | CI: 95% | 2026-04-17</td>
     </tr></tfoot>
 </table>
 </div>

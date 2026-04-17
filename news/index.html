@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,9 +95,19 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.22" id="metasurvey-0022">metasurvey 0.0.22<a class="anchor" aria-label="anchor" href="#metasurvey-0022"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-0-22">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-22"></a></h3>
+<ul><li>
+<code><a href="../reference/workflow.html">workflow()</a></code> gains a <code>conf.level</code> parameter (default <code>0.95</code>) to control the confidence level of the interval. Passed through to <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">stats::confint()</a></code> for all estimation types (<code>svymean</code>, <code>svyby</code>, <code>svyratio</code>, <code>convey</code>).</li>
+<li>
+<code><a href="../reference/workflow.html">workflow()</a></code> output now includes <code>variable</code> and <code>evaluate</code> columns across all estimation types. <code>variable</code> enables clean filtering/grouping; <code>evaluate</code> classifies CV quality via <code><a href="../reference/evaluate_cv.html">evaluate_cv()</a></code>. <code>svyby</code> results no longer embed group labels in the <code>stat</code> column — grouping variables (<code>region</code>, <code>sexo</code>, etc.) appear as separate columns.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.21" id="metasurvey-0021">metasurvey 0.0.21<a class="anchor" aria-label="anchor" href="#metasurvey-0021"></a></h2><p class="text-muted">CRAN release: 2026-02-25</p>
 <div class="section level3">

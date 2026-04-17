@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Estudio de caso ECH: De STATA a R (ES)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/ech-case-study-es.Rmd" class="external-link"><code>vignettes/ech-case-study-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/ech-case-study-es.Rmd" class="external-link"><code>vignettes/ech-case-study-es.Rmd</code></a></small>
       <div class="d-none name"><code>ech-case-study-es.Rmd</code></div>
     </div>
 
@@ -489,12 +489,12 @@ reutilizarlo:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_income</span></span>
-<span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      114677.7</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11     HT11 107869.1 3473.836 0.03220417      101060.5</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      114677.7 Excellent</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Employment rate (proportion employed among total population)</span></span>
 <span><span class="va">result_employment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -504,12 +504,12 @@ reutilizarlo:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_employment</span></span>
-<span><span class="co">#&gt;                         stat     value         se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                       &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: employed 0.4422188 0.02343197 0.05298728      0.396293</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.4881447</span></span></code></pre></div>
+<span><span class="co">#&gt;                         stat variable     value         se         cv</span></span>
+<span><span class="co">#&gt;                       &lt;char&gt;   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: employed employed 0.4422188 0.02343197 0.05298728</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      0.396293     0.4881447 Very good</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="estimación-por-dominio">Estimación por dominio<a class="anchor" aria-label="anchor" href="#estimaci%C3%B3n-por-dominio"></a>
 </h3>
@@ -523,16 +523,16 @@ reutilizarlo:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">income_region</span></span>
-<span><span class="co">#&gt;                                                       stat     value       se</span></span>
-<span><span class="co">#&gt;                                                     &lt;char&gt;     &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  survey::svyby: HT11 [region_name=Interior loc. &lt; 5000]  90397.57 4632.957</span></span>
-<span><span class="co">#&gt; 2: survey::svyby: HT11 [region_name=Interior loc. &gt;= 5000] 103877.64 5949.558</span></span>
-<span><span class="co">#&gt; 3:            survey::svyby: HT11 [region_name=Montevideo] 118302.36 5412.484</span></span>
-<span><span class="co">#&gt;            cv confint_lower confint_upper           region_name</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;         &lt;num&gt;         &lt;num&gt;                &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: 0.05125091      81317.14       99478.0  Interior loc. &lt; 5000</span></span>
-<span><span class="co">#&gt; 2: 0.05727467      92216.72      115538.6 Interior loc. &gt;= 5000</span></span>
-<span><span class="co">#&gt; 3: 0.04575127     107694.09      128910.6            Montevideo</span></span></code></pre></div>
+<span><span class="co">#&gt;                   stat variable     value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                 &lt;char&gt;   &lt;char&gt;     &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: HT11     HT11  90397.57 4632.957 0.05125091      81317.14</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: HT11     HT11 103877.64 5949.558 0.05727467      92216.72</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: HT11     HT11 118302.36 5412.484 0.04575127     107694.09</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate           region_name</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;                &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:       99478.0 Very good  Interior loc. &lt; 5000</span></span>
+<span><span class="co">#&gt; 2:      115538.6 Very good Interior loc. &gt;= 5000</span></span>
+<span><span class="co">#&gt; 3:      128910.6 Excellent            Montevideo</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Employment by sex</span></span>
 <span><span class="va">employment_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/workflow.html">workflow</a></span><span class="op">(</span></span>
@@ -542,14 +542,14 @@ reutilizarlo:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">employment_sex</span></span>
-<span><span class="co">#&gt;                                    stat     value         se         cv</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: employed [sex=Female] 0.3824018 0.03146234 0.08227562</span></span>
-<span><span class="co">#&gt; 2:   survey::svyby: employed [sex=Male] 0.5076963 0.03449008 0.06793446</span></span>
-<span><span class="co">#&gt;    confint_lower confint_upper    sex</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.3207367     0.4440669 Female</span></span>
-<span><span class="co">#&gt; 2:     0.4400970     0.5752956   Male</span></span></code></pre></div>
+<span><span class="co">#&gt;                       stat variable     value         se         cv</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: employed employed 0.3824018 0.03146234 0.08227562</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: employed employed 0.5076963 0.03449008 0.06793446</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate    sex</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.3207367     0.4440669 Very good Female</span></span>
+<span><span class="co">#&gt; 2:     0.4400970     0.5752956 Very good   Male</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="evaluación-de-calidad">Evaluación de calidad<a class="anchor" aria-label="anchor" href="#evaluaci%C3%B3n-de-calidad"></a>

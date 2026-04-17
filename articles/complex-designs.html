@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Survey Designs and Validation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/complex-designs.Rmd" class="external-link"><code>vignettes/complex-designs.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/complex-designs.Rmd" class="external-link"><code>vignettes/complex-designs.Rmd</code></a></small>
       <div class="d-none name"><code>complex-designs.Rmd</code></div>
     </div>
 
@@ -384,14 +384,14 @@ work on copies:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span></span>
-<span><span class="co">#&gt;                        stat        value           se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   survey::svymean: api00     662.2874 9.585429e+00 0.01447322      643.5003</span></span>
-<span><span class="co">#&gt; 2: survey::svytotal: enroll 3687177.5324 1.645323e+05 0.04462283  3364700.1537</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      681.0745</span></span>
-<span><span class="co">#&gt; 2:  4009654.9112</span></span></code></pre></div>
+<span><span class="co">#&gt;                        stat variable        value           se         cv</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;   &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:   survey::svymean: api00    api00     662.2874 9.585429e+00 0.01447322</span></span>
+<span><span class="co">#&gt; 2: survey::svytotal: enroll   enroll 3687177.5324 1.645323e+05 0.04462283</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      643.5003      681.0745 Excellent</span></span>
+<span><span class="co">#&gt; 2:  3364700.1537  4009654.9112 Excellent</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="domain-estimation">Domain Estimation<a class="anchor" aria-label="anchor" href="#domain-estimation"></a>
@@ -406,16 +406,16 @@ work on copies:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">domain_results</span></span>
-<span><span class="co">#&gt;                              stat  value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                            &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: api00 [stype=E] 674.43 12.49343 0.01852443      649.9433</span></span>
-<span><span class="co">#&gt; 2: survey::svyby: api00 [stype=H] 625.82 15.34078 0.02451309      595.7526</span></span>
-<span><span class="co">#&gt; 3: survey::svyby: api00 [stype=M] 636.60 16.50239 0.02592270      604.2559</span></span>
-<span><span class="co">#&gt;    confint_upper  stype</span></span>
-<span><span class="co">#&gt;            &lt;num&gt; &lt;fctr&gt;</span></span>
-<span><span class="co">#&gt; 1:      698.9167      E</span></span>
-<span><span class="co">#&gt; 2:      655.8874      H</span></span>
-<span><span class="co">#&gt; 3:      668.9441      M</span></span></code></pre></div>
+<span><span class="co">#&gt;                    stat variable  value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;   &lt;char&gt;  &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: api00    api00 674.43 12.49343 0.01852443      649.9433</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: api00    api00 625.82 15.34078 0.02451309      595.7526</span></span>
+<span><span class="co">#&gt; 3: survey::svyby: api00    api00 636.60 16.50239 0.02592270      604.2559</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate  stype</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt; &lt;fctr&gt;</span></span>
+<span><span class="co">#&gt; 1:      698.9167 Excellent      E</span></span>
+<span><span class="co">#&gt; 2:      655.8874 Excellent      H</span></span>
+<span><span class="co">#&gt; 3:      668.9441 Excellent      M</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="ratios">Ratios<a class="anchor" aria-label="anchor" href="#ratios"></a>
@@ -428,12 +428,12 @@ work on copies:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ratio_result</span></span>
-<span><span class="co">#&gt;                             stat    value         se          cv confint_lower</span></span>
-<span><span class="co">#&gt;                           &lt;char&gt;    &lt;num&gt;      &lt;num&gt;       &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyratio: api00/api99 1.052261 0.00379243 0.003604079      1.044828</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1.059694</span></span></code></pre></div>
+<span><span class="co">#&gt;                             stat    variable    value         se          cv</span></span>
+<span><span class="co">#&gt;                           &lt;char&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyratio: api00/api99 api00/api99 1.052261 0.00379243 0.003604079</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      1.044828      1.059694 Excellent</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

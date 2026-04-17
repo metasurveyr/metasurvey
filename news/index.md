@@ -1,5 +1,23 @@
 # Changelog
 
+## metasurvey 0.0.22
+
+### New features
+
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  gains a `conf.level` parameter (default `0.95`) to control the
+  confidence level of the interval. Passed through to
+  [`stats::confint()`](https://rdrr.io/r/stats/confint.html) for all
+  estimation types (`svymean`, `svyby`, `svyratio`, `convey`).
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  output now includes `variable` and `evaluate` columns across all
+  estimation types. `variable` enables clean filtering/grouping;
+  `evaluate` classifies CV quality via
+  [`evaluate_cv()`](https://metasurveyr.github.io/metasurvey/reference/evaluate_cv.md).
+  `svyby` results no longer embed group labels in the `stat` column —
+  grouping variables (`region`, `sexo`, etc.) appear as separate
+  columns.
+
 ## metasurvey 0.0.21
 
 CRAN release: 2026-02-25

@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Paneles Rotativos y PoolSurvey (ES)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/panel-analysis-es.Rmd" class="external-link"><code>vignettes/panel-analysis-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/panel-analysis-es.Rmd" class="external-link"><code>vignettes/panel-analysis-es.Rmd</code></a></small>
       <div class="d-none name"><code>panel-analysis-es.Rmd</code></div>
     </div>
 
@@ -264,12 +264,12 @@ tiempo.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_impl</span></span>
-<span><span class="co">#&gt;                       stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: income 43742.45 2420.706 0.05533997      38997.96</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      48486.95</span></span></code></pre></div>
+<span><span class="co">#&gt;                       stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: income   income 43742.45 2420.706 0.05533997      38997.96</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      48486.95 Very good</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparación-entre-seguimientos">Comparación entre seguimientos<a class="anchor" aria-label="anchor" href="#comparaci%C3%B3n-entre-seguimientos"></a>
@@ -324,16 +324,16 @@ encuestas reduce la variabilidad muestral.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pool_result</span></span>
-<span><span class="co">#&gt;                       stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: income 44574.23 2226.844 0.04995811      40209.69</span></span>
-<span><span class="co">#&gt; 2: survey::svymean: income 44341.53 2407.912 0.05430377      39622.10</span></span>
-<span><span class="co">#&gt; 3: survey::svymean: income 41293.92 2239.968 0.05424451      36903.66</span></span>
-<span><span class="co">#&gt;    confint_upper period   type variance</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;  &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      48938.76   2023     q1  4958836</span></span>
-<span><span class="co">#&gt; 2:      49060.95   2023     q1  5798041</span></span>
-<span><span class="co">#&gt; 3:      45684.18   2023     q1  5017458</span></span></code></pre></div>
+<span><span class="co">#&gt;                       stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: income   income 44574.23 2226.844 0.04995811      40209.69</span></span>
+<span><span class="co">#&gt; 2: survey::svymean: income   income 44341.53 2407.912 0.05430377      39622.10</span></span>
+<span><span class="co">#&gt; 3: survey::svymean: income   income 41293.92 2239.968 0.05424451      36903.66</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate period   type variance</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;  &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      48938.76 Excellent   2023     q1  4958836</span></span>
+<span><span class="co">#&gt; 2:      49060.95 Very good   2023     q1  5798041</span></span>
+<span><span class="co">#&gt; 3:      45684.18 Very good   2023     q1  5017458</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="múltiples-grupos">Múltiples grupos<a class="anchor" aria-label="anchor" href="#m%C3%BAltiples-grupos"></a>
@@ -358,22 +358,22 @@ encuestas reduce la variabilidad muestral.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result_semester</span></span>
-<span><span class="co">#&gt;                       stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: income 44574.23 2226.844 0.04995811      40209.69</span></span>
-<span><span class="co">#&gt; 2: survey::svymean: income 44341.53 2407.912 0.05430377      39622.10</span></span>
-<span><span class="co">#&gt; 3: survey::svymean: income 41293.92 2239.968 0.05424451      36903.66</span></span>
-<span><span class="co">#&gt; 4: survey::svymean: income 41760.06 2296.170 0.05498485      37259.64</span></span>
-<span><span class="co">#&gt; 5: survey::svymean: income 48051.67 2374.145 0.04940816      43398.43</span></span>
-<span><span class="co">#&gt; 6: survey::svymean: income 42721.21 2276.767 0.05329359      38258.83</span></span>
-<span><span class="co">#&gt;    confint_upper period   type variance</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;  &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      48938.76   2023     q1  4958836</span></span>
-<span><span class="co">#&gt; 2:      49060.95   2023     q1  5798041</span></span>
-<span><span class="co">#&gt; 3:      45684.18   2023     q1  5017458</span></span>
-<span><span class="co">#&gt; 4:      46260.47   2023     q2  5272399</span></span>
-<span><span class="co">#&gt; 5:      52704.90   2023     q2  5636562</span></span>
-<span><span class="co">#&gt; 6:      47183.59   2023     q2  5183666</span></span></code></pre></div>
+<span><span class="co">#&gt;                       stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: income   income 44574.23 2226.844 0.04995811      40209.69</span></span>
+<span><span class="co">#&gt; 2: survey::svymean: income   income 44341.53 2407.912 0.05430377      39622.10</span></span>
+<span><span class="co">#&gt; 3: survey::svymean: income   income 41293.92 2239.968 0.05424451      36903.66</span></span>
+<span><span class="co">#&gt; 4: survey::svymean: income   income 41760.06 2296.170 0.05498485      37259.64</span></span>
+<span><span class="co">#&gt; 5: survey::svymean: income   income 48051.67 2374.145 0.04940816      43398.43</span></span>
+<span><span class="co">#&gt; 6: survey::svymean: income   income 42721.21 2276.767 0.05329359      38258.83</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate period   type variance</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;  &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      48938.76 Excellent   2023     q1  4958836</span></span>
+<span><span class="co">#&gt; 2:      49060.95 Very good   2023     q1  5798041</span></span>
+<span><span class="co">#&gt; 3:      45684.18 Very good   2023     q1  5017458</span></span>
+<span><span class="co">#&gt; 4:      46260.47 Very good   2023     q2  5272399</span></span>
+<span><span class="co">#&gt; 5:      52704.90 Excellent   2023     q2  5636562</span></span>
+<span><span class="co">#&gt; 6:      47183.59 Very good   2023     q2  5183666</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

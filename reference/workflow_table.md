@@ -138,6 +138,8 @@ Survey Estimation Results
 
 Statistic
 
+variable
+
 Estimate
 
 SE
@@ -152,6 +154,8 @@ Quality
 
 :svymean: x
 
+x
+
 −0.04
 
 0.098
@@ -164,6 +168,6 @@ Quality
 
 Excellent
 
-metasurvey 0.0.21 \| CI: 95% \| 2026-04-06
+metasurvey 0.0.22 \| CI: 95% \| 2026-04-17
 
 \# }

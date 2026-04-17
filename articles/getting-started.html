@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Getting Started with metasurvey</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="d-none name"><code>getting-started.Rmd</code></div>
     </div>
 
@@ -473,12 +473,12 @@ with standard errors and coefficients of variation.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span></span>
-<span><span class="co">#&gt;                     stat    value       se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svymean: HT11 110389.3 4076.154 0.03692528      102400.1</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      118378.4</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svymean: HT11     HT11 110389.3 4076.154 0.03692528      102400.1</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      118378.4 Excellent</span></span></code></pre></div>
 <p>The output includes:</p>
 <ul>
 <li>
@@ -507,20 +507,20 @@ with standard errors and coefficients of variation.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span></span>
-<span><span class="co">#&gt;                                       stat        value           se         cv</span></span>
-<span><span class="co">#&gt;                                     &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:                   survey::svymean: HT11 1.103893e+05 4.076154e+03 0.03692528</span></span>
-<span><span class="co">#&gt; 2:              survey::svytotal: employed 1.426200e+04 6.756206e+02 0.04737208</span></span>
-<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed 5.551576e-01 2.610113e-02 0.04701571</span></span>
-<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive 3.860646e-01 2.551750e-02 0.06609646</span></span>
-<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed 5.877773e-02 1.309115e-02 0.22272291</span></span>
-<span><span class="co">#&gt;    confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  1.024001e+05  1.183784e+05</span></span>
-<span><span class="co">#&gt; 2:  1.293781e+04  1.558619e+04</span></span>
-<span><span class="co">#&gt; 3:  5.040004e-01  6.063149e-01</span></span>
-<span><span class="co">#&gt; 4:  3.360512e-01  4.360780e-01</span></span>
-<span><span class="co">#&gt; 5:  3.311956e-02  8.443591e-02</span></span></code></pre></div>
+<span><span class="co">#&gt;                                       stat               variable        value</span></span>
+<span><span class="co">#&gt;                                     &lt;char&gt;                 &lt;char&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                   survey::svymean: HT11                   HT11 1.103893e+05</span></span>
+<span><span class="co">#&gt; 2:              survey::svytotal: employed               employed 1.426200e+04</span></span>
+<span><span class="co">#&gt; 3:   survey::svymean: labor_statusEmployed   labor_statusEmployed 5.551576e-01</span></span>
+<span><span class="co">#&gt; 4:   survey::svymean: labor_statusInactive   labor_statusInactive 3.860646e-01</span></span>
+<span><span class="co">#&gt; 5: survey::svymean: labor_statusUnemployed labor_statusUnemployed 5.877773e-02</span></span>
+<span><span class="co">#&gt;              se         cv confint_lower confint_upper   evaluate</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;     &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: 4.076154e+03 0.03692528  1.024001e+05  1.183784e+05  Excellent</span></span>
+<span><span class="co">#&gt; 2: 6.756206e+02 0.04737208  1.293781e+04  1.558619e+04  Excellent</span></span>
+<span><span class="co">#&gt; 3: 2.610113e-02 0.04701571  5.040004e-01  6.063149e-01  Excellent</span></span>
+<span><span class="co">#&gt; 4: 2.551750e-02 0.06609646  3.360512e-01  4.360780e-01  Very good</span></span>
+<span><span class="co">#&gt; 5: 1.309115e-02 0.22272291  3.311956e-02  8.443591e-02 Acceptable</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="domain-estimation">Domain estimation<a class="anchor" aria-label="anchor" href="#domain-estimation"></a>
@@ -536,14 +536,14 @@ with standard errors and coefficients of variation.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">income_by_gender</span></span>
-<span><span class="co">#&gt;                                   stat    value       se         cv</span></span>
-<span><span class="co">#&gt;                                 &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: survey::svyby: HT11 [gender=Female] 111107.9 5955.676 0.05360263</span></span>
-<span><span class="co">#&gt; 2:   survey::svyby: HT11 [gender=Male] 109608.9 5519.291 0.05035439</span></span>
-<span><span class="co">#&gt;    confint_lower confint_upper gender</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt; &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:      99434.99      122780.8 Female</span></span>
-<span><span class="co">#&gt; 2:      98791.31      120426.5   Male</span></span></code></pre></div>
+<span><span class="co">#&gt;                   stat variable    value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                 &lt;char&gt;   &lt;char&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: survey::svyby: HT11     HT11 111107.9 5955.676 0.05360263      99434.99</span></span>
+<span><span class="co">#&gt; 2: survey::svyby: HT11     HT11 109608.9 5519.291 0.05035439      98791.31</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate gender</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      122780.8 Very good Female</span></span>
+<span><span class="co">#&gt; 2:      120426.5 Very good   Male</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

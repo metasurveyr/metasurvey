@@ -8,7 +8,7 @@ periodicities.
 ## Usage
 
 ``` r
-workflow(svy, ..., estimation_type = "monthly")
+workflow(svy, ..., estimation_type = "monthly", conf.level = 0.95)
 ```
 
 ## Arguments
@@ -30,6 +30,11 @@ workflow(svy, ..., estimation_type = "monthly")
   Type of estimation (default `"monthly"`) that determines which weight
   to use. Options: `"monthly"`, `"quarterly"`, `"annual"`, or vector
   with multiple types
+
+- conf.level:
+
+  Confidence level for the interval (default `0.95`). Passed to
+  [`confint`](https://rdrr.io/r/stats/confint.html).
 
 ## Value
 

@@ -126,12 +126,12 @@ result_impl <- workflow(
 )
 
 result_impl
-#>                       stat    value       se         cv confint_lower
-#>                     <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: income 43742.45 2420.706 0.05533997      38997.96
-#>    confint_upper
-#>            <num>
-#> 1:      48486.95
+#>                       stat variable    value       se         cv confint_lower
+#>                     <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: income   income 43742.45 2420.706 0.05533997      38997.96
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      48486.95 Very good
 ```
 
 ### Comparison across follow-ups
@@ -187,16 +187,16 @@ pool_result <- workflow(
 )
 
 pool_result
-#>                       stat    value       se         cv confint_lower
-#>                     <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: income 44574.23 2226.844 0.04995811      40209.69
-#> 2: survey::svymean: income 44341.53 2407.912 0.05430377      39622.10
-#> 3: survey::svymean: income 41293.92 2239.968 0.05424451      36903.66
-#>    confint_upper period   type variance
-#>            <num>  <num> <char>    <num>
-#> 1:      48938.76   2023     q1  4958836
-#> 2:      49060.95   2023     q1  5798041
-#> 3:      45684.18   2023     q1  5017458
+#>                       stat variable    value       se         cv confint_lower
+#>                     <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: income   income 44574.23 2226.844 0.04995811      40209.69
+#> 2: survey::svymean: income   income 44341.53 2407.912 0.05430377      39622.10
+#> 3: survey::svymean: income   income 41293.92 2239.968 0.05424451      36903.66
+#>    confint_upper  evaluate period   type variance
+#>            <num>    <char>  <num> <char>    <num>
+#> 1:      48938.76 Excellent   2023     q1  4958836
+#> 2:      49060.95 Very good   2023     q1  5798041
+#> 3:      45684.18 Very good   2023     q1  5017458
 ```
 
 ### Multiple groups
@@ -222,22 +222,22 @@ result_semester <- workflow(
 )
 
 result_semester
-#>                       stat    value       se         cv confint_lower
-#>                     <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: income 44574.23 2226.844 0.04995811      40209.69
-#> 2: survey::svymean: income 44341.53 2407.912 0.05430377      39622.10
-#> 3: survey::svymean: income 41293.92 2239.968 0.05424451      36903.66
-#> 4: survey::svymean: income 41760.06 2296.170 0.05498485      37259.64
-#> 5: survey::svymean: income 48051.67 2374.145 0.04940816      43398.43
-#> 6: survey::svymean: income 42721.21 2276.767 0.05329359      38258.83
-#>    confint_upper period   type variance
-#>            <num>  <num> <char>    <num>
-#> 1:      48938.76   2023     q1  4958836
-#> 2:      49060.95   2023     q1  5798041
-#> 3:      45684.18   2023     q1  5017458
-#> 4:      46260.47   2023     q2  5272399
-#> 5:      52704.90   2023     q2  5636562
-#> 6:      47183.59   2023     q2  5183666
+#>                       stat variable    value       se         cv confint_lower
+#>                     <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: income   income 44574.23 2226.844 0.04995811      40209.69
+#> 2: survey::svymean: income   income 44341.53 2407.912 0.05430377      39622.10
+#> 3: survey::svymean: income   income 41293.92 2239.968 0.05424451      36903.66
+#> 4: survey::svymean: income   income 41760.06 2296.170 0.05498485      37259.64
+#> 5: survey::svymean: income   income 48051.67 2374.145 0.04940816      43398.43
+#> 6: survey::svymean: income   income 42721.21 2276.767 0.05329359      38258.83
+#>    confint_upper  evaluate period   type variance
+#>            <num>    <char>  <num> <char>    <num>
+#> 1:      48938.76 Excellent   2023     q1  4958836
+#> 2:      49060.95 Very good   2023     q1  5798041
+#> 3:      45684.18 Very good   2023     q1  5017458
+#> 4:      46260.47 Very good   2023     q2  5272399
+#> 5:      52704.90 Excellent   2023     q2  5636562
+#> 6:      47183.59 Very good   2023     q2  5183666
 ```
 
 ## Extracting surveys from panels

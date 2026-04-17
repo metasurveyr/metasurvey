@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">metasurvey</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,7 +133,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Poverty and Inequality with convey</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/pre-commit-ci-update-config/vignettes/convey-inequality.Rmd" class="external-link"><code>vignettes/convey-inequality.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metasurveyr/metasurvey/blob/feat/workflow-conf-level/vignettes/convey-inequality.Rmd" class="external-link"><code>vignettes/convey-inequality.Rmd</code></a></small>
       <div class="d-none name"><code>convey-inequality.Rmd</code></div>
     </div>
 
@@ -205,12 +205,12 @@ entry:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gini</span></span>
-<span><span class="co">#&gt;                     stat     value          se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svygini: gini 0.1123906 0.004824568 0.04292681     0.1029346</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.1218465</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable     value          se         cv</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svygini: gini     gini 0.1123906 0.004824568 0.04292681</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.1029346     0.1218465 Excellent</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="atkinson-index">Atkinson index<a class="anchor" aria-label="anchor" href="#atkinson-index"></a>
@@ -232,14 +232,14 @@ tail:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">atk_05</span>, <span class="va">atk_1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                        stat       value           se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;       &lt;num&gt;        &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svyatk: atkinson 0.008841101 0.0007781485 0.08801488   0.007315958</span></span>
-<span><span class="co">#&gt; 2: convey::svyatk: atkinson 0.017852866 0.0015768947 0.08832726   0.014762210</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    0.01036624</span></span>
-<span><span class="co">#&gt; 2:    0.02094352</span></span></code></pre></div>
+<span><span class="co">#&gt;                        stat variable       value           se         cv</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;   &lt;char&gt;       &lt;num&gt;        &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svyatk: atkinson atkinson 0.008841101 0.0007781485 0.08801488</span></span>
+<span><span class="co">#&gt; 2: convey::svyatk: atkinson atkinson 0.017852866 0.0015768947 0.08832726</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   0.007315958    0.01036624 Very good</span></span>
+<span><span class="co">#&gt; 2:   0.014762210    0.02094352 Very good</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="quintile-share-ratio-qsr">Quintile share ratio (QSR)<a class="anchor" aria-label="anchor" href="#quintile-share-ratio-qsr"></a>
@@ -253,12 +253,12 @@ tail:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">qsr</span></span>
-<span><span class="co">#&gt;                   stat    value        se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                 &lt;char&gt;    &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svyqsr: qsr 1.565964 0.0355218 0.02268367      1.496342</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1.635585</span></span></code></pre></div>
+<span><span class="co">#&gt;                   stat variable    value        se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                 &lt;char&gt;   &lt;char&gt;    &lt;num&gt;     &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svyqsr: qsr      qsr 1.565964 0.0355218 0.02268367      1.496342</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      1.635585 Excellent</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="generalized-entropy-index">Generalized entropy index<a class="anchor" aria-label="anchor" href="#generalized-entropy-index"></a>
@@ -279,14 +279,14 @@ the mean log deviation (<code>alpha = 0</code>):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">theil</span>, <span class="va">mld</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                   stat      value          se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                 &lt;char&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svygei: gei 0.01749577 0.001533703 0.08766137    0.01448977</span></span>
-<span><span class="co">#&gt; 2: convey::svygei: gei 0.01801415 0.001605559 0.08912763    0.01486731</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    0.02050177</span></span>
-<span><span class="co">#&gt; 2:    0.02116099</span></span></code></pre></div>
+<span><span class="co">#&gt;                   stat variable      value          se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                 &lt;char&gt;   &lt;char&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svygei: gei      gei 0.01749577 0.001533703 0.08766137    0.01448977</span></span>
+<span><span class="co">#&gt; 2: convey::svygei: gei      gei 0.01801415 0.001605559 0.08912763    0.01486731</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    0.02050177 Very good</span></span>
+<span><span class="co">#&gt; 2:    0.02116099 Very good</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -308,9 +308,12 @@ of the median by default):</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">arpt</span></span>
-<span><span class="co">#&gt;                     stat value       se         cv confint_lower confint_upper</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt; &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svyarpt: arpt    27 2.051721 0.07598967       22.9787       31.0213</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable value       se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt; &lt;num&gt;    &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svyarpt: arpt     arpt    27 2.051721 0.07598967       22.9787</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:       31.0213 Very good</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="at-risk-of-poverty-rate">At-risk-of-poverty rate<a class="anchor" aria-label="anchor" href="#at-risk-of-poverty-rate"></a>
@@ -325,12 +328,12 @@ ARPT:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">arpr</span></span>
-<span><span class="co">#&gt;                     stat     value         se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svyarpr: arpr 0.2974169 0.02696583 0.09066677     0.2445648</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.3502689</span></span></code></pre></div>
+<span><span class="co">#&gt;                     stat variable     value         se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svyarpr: arpr     arpr 0.2974169 0.02696583 0.09066677     0.2445648</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.3502689 Very good</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="fgt-poverty-indices">FGT poverty indices<a class="anchor" aria-label="anchor" href="#fgt-poverty-indices"></a>
@@ -368,16 +371,16 @@ extreme poverty)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">fgt0</span>, <span class="va">fgt1</span>, <span class="va">fgt2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                    stat     value         se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: convey::svyfgt: fgt0 0.5590055 0.03854638 0.06895528     0.4834560</span></span>
-<span><span class="co">#&gt; 2: convey::svyfgt: fgt1 0.2733427 0.02456407 0.08986547     0.2251980</span></span>
-<span><span class="co">#&gt; 3: convey::svyfgt: fgt2 0.1795022 0.02043659 0.11385149     0.1394472</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     0.6345550</span></span>
-<span><span class="co">#&gt; 2:     0.3214874</span></span>
-<span><span class="co">#&gt; 3:     0.2195572</span></span></code></pre></div>
+<span><span class="co">#&gt;                    stat variable     value         se         cv confint_lower</span></span>
+<span><span class="co">#&gt;                  &lt;char&gt;   &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: convey::svyfgt: fgt0     fgt0 0.5590055 0.03854638 0.06895528     0.4834560</span></span>
+<span><span class="co">#&gt; 2: convey::svyfgt: fgt1     fgt1 0.2733427 0.02456407 0.08986547     0.2251980</span></span>
+<span><span class="co">#&gt; 3: convey::svyfgt: fgt2     fgt2 0.1795022 0.02043659 0.11385149     0.1394472</span></span>
+<span><span class="co">#&gt;    confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     0.6345550 Very good</span></span>
+<span><span class="co">#&gt; 2:     0.3214874 Very good</span></span>
+<span><span class="co">#&gt; 3:     0.2195572      Good</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -419,14 +422,14 @@ estimation:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">results</span></span>
-<span><span class="co">#&gt;                        stat      value          se         cv confint_lower</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    convey::svygini: gini 0.48220882 0.033233109 0.06891850    0.41707312</span></span>
-<span><span class="co">#&gt; 2: convey::svyatk: atkinson 0.01785287 0.001576895 0.08832726    0.01476221</span></span>
-<span><span class="co">#&gt;    confint_upper</span></span>
-<span><span class="co">#&gt;            &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    0.54734451</span></span>
-<span><span class="co">#&gt; 2:    0.02094352</span></span></code></pre></div>
+<span><span class="co">#&gt;                        stat variable      value          se         cv</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;   &lt;char&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:    convey::svygini: gini     gini 0.48220882 0.033233109 0.06891850</span></span>
+<span><span class="co">#&gt; 2: convey::svyatk: atkinson atkinson 0.01785287 0.001576895 0.08832726</span></span>
+<span><span class="co">#&gt;    confint_lower confint_upper  evaluate</span></span>
+<span><span class="co">#&gt;            &lt;num&gt;         &lt;num&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    0.41707312    0.54734451 Very good</span></span>
+<span><span class="co">#&gt; 2:    0.01476221    0.02094352 Very good</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="quality-assessment">Quality assessment<a class="anchor" aria-label="anchor" href="#quality-assessment"></a>
 </h3>
@@ -903,13 +906,14 @@ estimation:</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="7" class="gt_heading gt_title gt_font_normal" style>Inequality of API Score Growth</td>
+<td colspan="8" class="gt_heading gt_title gt_font_normal" style>Inequality of API Score Growth</td>
     </tr>
 <tr class="gt_heading">
-<td colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>California Schools, 2000</td>
+<td colspan="8" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>California Schools, 2000</td>
     </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Statistic">Statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="variable">variable</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="SE">SE</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="CI-Lower">CI Lower</th>
@@ -921,6 +925,7 @@ estimation:</p>
 <tbody class="gt_table_body">
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svygini: gini</td>
+<td headers="variable" class="gt_row gt_left">gini</td>
 <td headers="Estimate" class="gt_row gt_right">0.48</td>
 <td headers="SE" class="gt_row gt_right">0.033</td>
 <td headers="CI Lower" class="gt_row gt_right">0.42</td>
@@ -930,6 +935,7 @@ estimation:</p>
 </tr>
 <tr>
 <td headers="Statistic" class="gt_row gt_left">:svyatk: atkinson</td>
+<td headers="variable" class="gt_row gt_left">atkinson</td>
 <td headers="Estimate" class="gt_row gt_right">0.02</td>
 <td headers="SE" class="gt_row gt_right">0.002</td>
 <td headers="CI Lower" class="gt_row gt_right">0.01</td>
@@ -939,7 +945,7 @@ estimation:</p>
 </tr>
 </tbody>
 <tfoot><tr class="gt_sourcenotes">
-<td class="gt_sourcenote" colspan="7">metasurvey 0.0.21 | CI: 95% | 2026-04-06</td>
+<td class="gt_sourcenote" colspan="8">metasurvey 0.0.22 | CI: 95% | 2026-04-17</td>
     </tr></tfoot>
 </table>
 </div>
@@ -955,7 +961,7 @@ available:</p>
 <code class="sourceCode R"><span><span class="va">prov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/provenance.html">provenance</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span>
 <span><span class="va">prov</span></span>
 <span><span class="co">#&gt; ── Data Provenance ─────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Loaded: 2026-04-06T22:31:34 </span></span>
+<span><span class="co">#&gt; Loaded: 2026-04-17T01:33:00 </span></span>
 <span><span class="co">#&gt; Initial rows: 200 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Pipeline:</span></span>
@@ -963,14 +969,14 @@ available:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation:</span></span>
 <span><span class="co">#&gt;   Type: annual </span></span>
-<span><span class="co">#&gt;   Timestamp: 2026-04-06T22:31:34 </span></span>
+<span><span class="co">#&gt;   Timestamp: 2026-04-17T01:33:00 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Environment:</span></span>
-<span><span class="co">#&gt;   metasurvey: 0.0.21 </span></span>
+<span><span class="co">#&gt;   metasurvey: 0.0.22 </span></span>
 <span><span class="co">#&gt;   R: 4.5.3 </span></span>
 <span><span class="co">#&gt;   survey: 4.5</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"metasurvey version:"</span>, <span class="va">prov</span><span class="op">$</span><span class="va">environment</span><span class="op">$</span><span class="va">metasurvey_version</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; metasurvey version: 0.0.21</span></span>
+<span><span class="co">#&gt; metasurvey version: 0.0.22</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Steps applied:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">prov</span><span class="op">$</span><span class="va">steps</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Steps applied: 1</span></span></code></pre></div>
 </div>

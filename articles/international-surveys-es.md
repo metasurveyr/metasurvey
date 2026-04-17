@@ -85,12 +85,12 @@ workflow(
   survey::svymean(~HT11, na.rm = TRUE),
   estimation_type = "annual"
 )
-#>                     stat    value       se         cv confint_lower
-#>                   <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: HT11 107869.1 3473.836 0.03220417      101060.5
-#>    confint_upper
-#>            <num>
-#> 1:      114677.7
+#>                     stat variable    value       se         cv confint_lower
+#>                   <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: HT11     HT11 107869.1 3473.836 0.03220417      101060.5
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      114677.7 Excellent
 ```
 
 Para el pipeline completo de la ECH, ver
@@ -144,12 +144,12 @@ workflow(
   survey::svymean(~employed, na.rm = TRUE),
   estimation_type = "quarterly"
 )
-#>                         stat     value         se         cv confint_lower
-#>                       <char>     <num>      <num>      <num>         <num>
-#> 1: survey::svymean: employed 0.4378169 0.01668347 0.03810603     0.4051179
-#>    confint_upper
-#>            <num>
-#> 1:     0.4705159
+#>                         stat variable     value         se         cv
+#>                       <char>   <char>     <num>      <num>      <num>
+#> 1: survey::svymean: employed employed 0.4378169 0.01668347 0.03810603
+#>    confint_lower confint_upper  evaluate
+#>            <num>         <num>    <char>
+#> 1:     0.4051179     0.4705159 Excellent
 ```
 
 Para descargar microdatos reales de la EPH:
@@ -255,12 +255,12 @@ workflow(
   survey::svymean(~age, na.rm = TRUE),
   estimation_type = "quarterly"
 )
-#>                    stat    value       se         cv confint_lower
-#>                  <char>    <num>    <num>      <num>         <num>
-#> 1: survey::svymean: age 35.55343 0.856023 0.02407708      33.87566
-#>    confint_upper
-#>            <num>
-#> 1:      37.23121
+#>                    stat variable    value       se         cv confint_lower
+#>                  <char>   <char>    <num>    <num>      <num>         <num>
+#> 1: survey::svymean: age      age 35.55343 0.856023 0.02407708      33.87566
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:      37.23121 Excellent
 ```
 
 Para microdatos reales de la PNADc:
@@ -312,12 +312,12 @@ workflow(
   survey::svymean(~INCTOT, na.rm = TRUE),
   estimation_type = "annual"
 )
-#>                       stat     value      se         cv confint_lower
-#>                     <char>     <num>   <num>      <num>         <num>
-#> 1: survey::svymean: INCTOT 191645236 4277528 0.02232004     183261435
-#>    confint_upper
-#>            <num>
-#> 1:     200029038
+#>                       stat variable     value      se         cv confint_lower
+#>                     <char>   <char>     <num>   <num>      <num>         <num>
+#> 1: survey::svymean: INCTOT   INCTOT 191645236 4277528 0.02232004     183261435
+#>    confint_upper  evaluate
+#>            <num>    <char>
+#> 1:     200029038 Excellent
 ```
 
 Los datos de IPUMS requieren una cuenta gratuita en
@@ -373,12 +373,12 @@ workflow(
   survey::svymean(~income_pc, na.rm = TRUE),
   estimation_type = "annual"
 )
-#>                          stat    value       se        cv confint_lower
-#>                        <char>    <num>    <num>     <num>         <num>
-#> 1: survey::svymean: income_pc 11928.34 1473.022 0.1234893      9041.267
-#>    confint_upper
-#>            <num>
-#> 1:      14815.41
+#>                          stat  variable    value       se        cv
+#>                        <char>    <char>    <num>    <num>     <num>
+#> 1: survey::svymean: income_pc income_pc 11928.34 1473.022 0.1234893
+#>    confint_lower confint_upper evaluate
+#>            <num>         <num>   <char>
+#> 1:      9041.267      14815.41     Good
 ```
 
 ## DHS – Internacional
