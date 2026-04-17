@@ -395,11 +395,11 @@ permite rastrear cualquier estimacion hasta los datos originales.
 prov <- provenance(svy_full)
 prov
 #> ── Data Provenance ─────────────────────────────────────────────────────────────
-#> Loaded: 2026-04-17T02:38:23 
+#> Loaded: 2026-04-17T16:37:07 
 #> Initial rows: 200 
 #> 
 #> Environment:
-#>   metasurvey: 0.0.22 
+#>   metasurvey: 0.0.23 
 #>   R: 4.5.3 
 #>   survey: 4.5
 ```
@@ -412,7 +412,7 @@ estimacion:
 ``` r
 prov_wf <- provenance(estimates)
 cat("metasurvey version:", prov_wf$environment$metasurvey_version, "\n")
-#> metasurvey version: 0.0.22
+#> metasurvey version: 0.0.23
 cat("Steps applied:", length(prov_wf$steps), "\n")
 #> Steps applied: 0
 ```
@@ -449,7 +449,7 @@ workflow_table(estimates)
 | Statistic                                  | variable    | Estimate | SE    | CI Lower | CI Upper | CV (%) | Quality   |
 | :svymean: api_growth                       | api_growth  | 32.89    | 2.158 | 28.66    | 37.12    | 6.6    | Very good |
 | :svymean: high_growth                      | high_growth | 0.29     | 0.036 | 0.22     | 0.37     | 12.4   | Good      |
-| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |             |          |       |          |          |        |           |
+| metasurvey 0.0.23 \| CI: 95% \| 2026-04-17 |             |          |       |          |          |        |           |
 
 Se puede personalizar la salida:
 
@@ -470,7 +470,7 @@ workflow_table(
 | Statistic                                  | variable    | Estimate | CI Lower | CI Upper | CV (%) | Quality   |
 | :svymean: api_growth                       | api_growth  | 32,89    | 28,66    | 37,12    | 6,6    | Very good |
 | :svymean: high_growth                      | high_growth | 0,29     | 0,22     | 0,37     | 12,4   | Good      |
-| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |             |          |          |          |        |           |
+| metasurvey 0.0.23 \| CI: 95% \| 2026-04-17 |             |          |          |          |        |           |
 
 Para estimaciones por dominio, la tabla detecta automaticamente las
 columnas de grupo:
@@ -485,7 +485,7 @@ workflow_table(by_school)
 | :svyby: api00                              | api00    | E     | 674.43   | 12.493 | 649.94   | 698.92   | 1.9    | Excellent |
 | :svyby: api00                              | api00    | H     | 625.82   | 15.341 | 595.75   | 655.89   | 2.5    | Excellent |
 | :svyby: api00                              | api00    | M     | 636.60   | 16.502 | 604.26   | 668.94   | 2.6    | Excellent |
-| metasurvey 0.0.22 \| CI: 95% \| 2026-04-17 |          |       |          |        |          |          |        |           |
+| metasurvey 0.0.23 \| CI: 95% \| 2026-04-17 |          |       |          |        |          |          |        |           |
 
 Se exporta a cualquier formato soportado por
 [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html):
