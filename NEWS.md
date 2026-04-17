@@ -1,3 +1,10 @@
+# metasurvey 0.0.22
+
+## New features
+* `workflow()` gains a `conf.level` parameter (default `0.95`) to control the
+  confidence level of the interval. Passed through to `stats::confint()` for
+  all estimation types (`svymean`, `svyby`, `svyratio`, `convey`).
+
 # metasurvey 0.0.21
 
 ## New features
