@@ -14,6 +14,8 @@
 #'   determines which weight to use. Options:
 #'   `"monthly"`, `"quarterly"`, `"annual"`, or vector
 #'   with multiple types
+#' @param conf.level Confidence level for the interval (default `0.95`).
+#'   Passed to \code{\link[stats]{confint}}.
 #'
 #' @return \code{data.table} with results from all
 #'   estimations, including columns:
@@ -78,16 +80,19 @@
 #' @family workflows
 #' @export
 
-workflow <- function(svy, ..., estimation_type = "monthly") {
+workflow <- function(svy, ..., estimation_type = "monthly",
+                     conf.level = 0.95) {
   if (is(svy, "PoolSurvey")) {
     return(workflow_pool(
       svy, ...,
-      estimation_type = estimation_type
+      estimation_type = estimation_type,
+      conf.level = conf.level
     ))
   } else {
     return(workflow_default(
       svy, ...,
-      estimation_type = estimation_type
+      estimation_type = estimation_type,
+      conf.level = conf.level
     ))
   }
 }
@@ -103,7 +108,8 @@ workflow <- function(svy, ..., estimation_type = "monthly") {
 #' @keywords internal
 #' @noRd
 
-workflow_default <- function(survey, ..., estimation_type = "monthly") {
+workflow_default <- function(survey, ..., estimation_type = "monthly",
+                             conf.level = 0.95) {
   .calls <- substitute(list(...))
 
   result <- rbindlist(
@@ -132,7 +138,8 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
                     )
 
                     return(cat_estimation(
-                      estimation, name_function
+                      estimation, name_function,
+                      conf.level = conf.level
                     ))
                   }
                 ),
@@ -180,7 +187,8 @@ workflow_default <- function(survey, ..., estimation_type = "monthly") {
 #' @noRd
 
 
-workflow_pool <- function(survey, ..., estimation_type = "monthly") {
+workflow_pool <- function(survey, ..., estimation_type = "monthly",
+                          conf.level = 0.95) {
   if (grepl(":", estimation_type)) {
     estimation_type_first <- strsplit(estimation_type, ":")[[1]][1]
     estimation_type <- strsplit(estimation_type, ":")[[1]][2]
@@ -230,7 +238,8 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
                       )
                     )
                     return(cat_estimation(
-                      estimation, name_function
+                      estimation, name_function,
+                      conf.level = conf.level
                     ))
                   }
                 )
@@ -286,7 +295,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly") {
 }
 
 
-cat_estimation <- function(estimation, call) {
+cat_estimation <- function(estimation, call, conf.level = 0.95) {
   class_estimation <- class(estimation)[1]
 
   if (!class_estimation %in% c("svyby", "svyratio", "cvystat")) {
@@ -300,7 +309,8 @@ cat_estimation <- function(estimation, call) {
     ),
     list(
       estimation,
-      call
+      call,
+      conf.level = conf.level
     )
   )
 }
@@ -312,7 +322,7 @@ cat_estimation <- function(estimation, call) {
 #' @keywords internal
 #' @noRd
 
-cat_estimation.svyby <- function(estimation, call) {
+cat_estimation.svyby <- function(estimation, call, conf.level = 0.95) {
   by_vars <- attr(estimation, "svyby")$margins
   all_names <- names(estimation)
 
@@ -326,7 +336,7 @@ cat_estimation.svyby <- function(estimation, call) {
   se_cols <- grep("^se(\\.|$)", all_names, value = TRUE)
   stat_cols <- setdiff(all_names, c(by_vars, se_cols))
 
-  ci <- tryCatch(stats::confint(estimation), error = function(e) NULL)
+  ci <- tryCatch(stats::confint(estimation, level = conf.level), error = function(e) NULL)
   cv_mat <- tryCatch(survey::cv(estimation), error = function(e) NULL)
 
   n_groups <- nrow(estimation)
@@ -368,27 +378,21 @@ cat_estimation.svyby <- function(estimation, call) {
       ci_lo <- ci[ci_start:ci_end, 1]
       ci_hi <- ci[ci_start:ci_end, 2]
     } else {
-      ci_lo <- vals - 1.96 * ses
-      ci_hi <- vals + 1.96 * ses
+      z <- stats::qnorm((1 + conf.level) / 2)
+      ci_lo <- vals - z * ses
+      ci_hi <- vals + z * ses
     }
 
-    # Build by-variable label for stat column
-    by_labels <- vapply(seq_len(n_groups), function(i) {
-      paste(
-        vapply(by_vars, function(bv) {
-          paste0(bv, "=", estimation[[bv]][i])
-        }, character(1)),
-        collapse = ", "
-      )
-    }, character(1))
-
+    cv_pct <- cvs * 100
     cols <- list(
-      stat = paste0(call, ": ", s, " [", by_labels, "]"),
+      stat = rep(paste0(call, ": ", s), n_groups),
+      variable = rep(s, n_groups),
       value = vals,
       se = ses,
       cv = cvs,
       confint_lower = ci_lo,
-      confint_upper = ci_hi
+      confint_upper = ci_hi,
+      evaluate = vapply(cv_pct, evaluate_cv, character(1))
     )
 
     for (bv in by_vars) {
@@ -410,19 +414,22 @@ cat_estimation.svyby <- function(estimation, call) {
 #' @importFrom stats coef
 #' @keywords internal
 
-cat_estimation.default <- function(estimation, call) {
-  confint_estimation <- stats::confint(estimation)
+cat_estimation.default <- function(estimation, call, conf.level = 0.95) {
+  confint_estimation <- stats::confint(estimation, level = conf.level)
 
 
+  var_names <- names(estimation)
+  cv_vals <- as.numeric(cv(estimation))
   dt <- data.table(
-    stat = paste0(call, ": ", names(estimation)),
-    value = coef(estimation),
-    se = unname(SE(estimation)),
-    cv = unname(cv(estimation)),
-    confint_lower = unname(confint_estimation[, 1]),
-    confint_upper = unname(confint_estimation[, 2])
+    stat = paste0(call, ": ", var_names),
+    variable = var_names,
+    value = as.numeric(coef(estimation)),
+    se = as.numeric(SE(estimation)),
+    cv = cv_vals,
+    confint_lower = as.numeric(confint_estimation[, 1]),
+    confint_upper = as.numeric(confint_estimation[, 2]),
+    evaluate = vapply(cv_vals * 100, evaluate_cv, character(1))
   )
-  names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
 }
 
@@ -432,29 +439,32 @@ cat_estimation.default <- function(estimation, call) {
 #' @importFrom data.table data.table
 #' @keywords internal
 #' @noRd
-cat_estimation.cvystat <- function(estimation, call) {
+cat_estimation.cvystat <- function(estimation, call, conf.level = 0.95) {
   val <- as.numeric(estimation)
   var_mat <- attr(estimation, "var")
   se_val <- if (!is.null(var_mat)) sqrt(var_mat[1, 1]) else NA_real_
   cv_val <- if (!is.na(se_val) && abs(val) > 0) se_val / abs(val) else NA_real_
   stat_name <- attr(estimation, "statistic") %||% "estimate"
 
-  ci <- tryCatch(stats::confint(estimation), error = function(e) NULL)
+  ci <- tryCatch(stats::confint(estimation, level = conf.level), error = function(e) NULL)
   if (!is.null(ci)) {
     ci_lo <- ci[1, 1]
     ci_hi <- ci[1, 2]
   } else {
-    ci_lo <- val - 1.96 * se_val
-    ci_hi <- val + 1.96 * se_val
+    z <- stats::qnorm((1 + conf.level) / 2)
+    ci_lo <- val - z * se_val
+    ci_hi <- val + z * se_val
   }
 
   data.table(
     stat = paste0(call, ": ", stat_name),
+    variable = stat_name,
     value = val,
     se = se_val,
     cv = cv_val,
     confint_lower = ci_lo,
-    confint_upper = ci_hi
+    confint_upper = ci_hi,
+    evaluate = evaluate_cv(cv_val * 100)
   )
 }
 
@@ -467,20 +477,23 @@ cat_estimation.cvystat <- function(estimation, call) {
 #' @keywords internal
 #' @noRd
 
-cat_estimation.svyratio <- function(estimation, call) {
-  confint_estimation <- stats::confint(estimation)
+cat_estimation.svyratio <- function(estimation, call, conf.level = 0.95) {
+  confint_estimation <- stats::confint(estimation, level = conf.level)
 
 
 
+  var_names <- names(SE(estimation))
+  cv_vals <- as.numeric(cv(estimation))
   dt <- data.table(
-    stat = paste0(call, ": ", names(SE(estimation))),
-    value = coef(estimation),
-    se = unname(SE(estimation)),
-    cv = unname(cv(estimation)),
-    confint_lower = unname(confint_estimation[, 1]),
-    confint_upper = unname(confint_estimation[, 2])
+    stat = paste0(call, ": ", var_names),
+    variable = var_names,
+    value = as.numeric(coef(estimation)),
+    se = as.numeric(SE(estimation)),
+    cv = cv_vals,
+    confint_lower = as.numeric(confint_estimation[, 1]),
+    confint_upper = as.numeric(confint_estimation[, 2]),
+    evaluate = vapply(cv_vals * 100, evaluate_cv, character(1))
   )
-  names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
 }
 

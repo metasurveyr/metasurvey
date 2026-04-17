@@ -4,7 +4,7 @@
 \alias{workflow}
 \title{Execute estimation workflow for surveys}
 \usage{
-workflow(svy, ..., estimation_type = "monthly")
+workflow(svy, ..., estimation_type = "monthly", conf.level = 0.95)
 }
 \arguments{
 \item{svy}{A \strong{list} of Survey objects, or a PoolSurvey.
@@ -19,6 +19,9 @@ Must contain properly configured sample design.}
 determines which weight to use. Options:
 \code{"monthly"}, \code{"quarterly"}, \code{"annual"}, or vector
 with multiple types}
+
+\item{conf.level}{Confidence level for the interval (default \code{0.95}).
+Passed to \code{\link[stats]{confint}}.}
 }
 \value{
 \code{data.table} with results from all
