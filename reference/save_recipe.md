@@ -50,5 +50,5 @@ r <- recipe(
 )
 f <- tempfile(fileext = ".json")
 save_recipe(r, f)
-#> The recipe has been saved in /tmp/Rtmp1fHhJA/file1e2ec7cc9bf.json
+#> The recipe has been saved in /tmp/RtmpM2hfgs/file1eaf4e4435eb.json
 ```
