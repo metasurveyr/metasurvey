@@ -383,23 +383,16 @@ cat_estimation.svyby <- function(estimation, call, conf.level = 0.95) {
       ci_hi <- vals + z * ses
     }
 
-    # Build by-variable label for stat column
-    by_labels <- vapply(seq_len(n_groups), function(i) {
-      paste(
-        vapply(by_vars, function(bv) {
-          paste0(bv, "=", estimation[[bv]][i])
-        }, character(1)),
-        collapse = ", "
-      )
-    }, character(1))
-
+    cv_pct <- cvs * 100
     cols <- list(
-      stat = paste0(call, ": ", s, " [", by_labels, "]"),
+      stat = rep(paste0(call, ": ", s), n_groups),
+      variable = rep(s, n_groups),
       value = vals,
       se = ses,
       cv = cvs,
       confint_lower = ci_lo,
-      confint_upper = ci_hi
+      confint_upper = ci_hi,
+      evaluate = vapply(cv_pct, evaluate_cv, character(1))
     )
 
     for (bv in by_vars) {
@@ -425,15 +418,18 @@ cat_estimation.default <- function(estimation, call, conf.level = 0.95) {
   confint_estimation <- stats::confint(estimation, level = conf.level)
 
 
+  var_names <- names(estimation)
+  cv_vals <- as.numeric(cv(estimation))
   dt <- data.table(
-    stat = paste0(call, ": ", names(estimation)),
-    value = coef(estimation),
-    se = unname(SE(estimation)),
-    cv = unname(cv(estimation)),
-    confint_lower = unname(confint_estimation[, 1]),
-    confint_upper = unname(confint_estimation[, 2])
+    stat = paste0(call, ": ", var_names),
+    variable = var_names,
+    value = as.numeric(coef(estimation)),
+    se = as.numeric(SE(estimation)),
+    cv = cv_vals,
+    confint_lower = as.numeric(confint_estimation[, 1]),
+    confint_upper = as.numeric(confint_estimation[, 2]),
+    evaluate = vapply(cv_vals * 100, evaluate_cv, character(1))
   )
-  names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
 }
 
@@ -462,11 +458,13 @@ cat_estimation.cvystat <- function(estimation, call, conf.level = 0.95) {
 
   data.table(
     stat = paste0(call, ": ", stat_name),
+    variable = stat_name,
     value = val,
     se = se_val,
     cv = cv_val,
     confint_lower = ci_lo,
-    confint_upper = ci_hi
+    confint_upper = ci_hi,
+    evaluate = evaluate_cv(cv_val * 100)
   )
 }
 
@@ -484,15 +482,18 @@ cat_estimation.svyratio <- function(estimation, call, conf.level = 0.95) {
 
 
 
+  var_names <- names(SE(estimation))
+  cv_vals <- as.numeric(cv(estimation))
   dt <- data.table(
-    stat = paste0(call, ": ", names(SE(estimation))),
-    value = coef(estimation),
-    se = unname(SE(estimation)),
-    cv = unname(cv(estimation)),
-    confint_lower = unname(confint_estimation[, 1]),
-    confint_upper = unname(confint_estimation[, 2])
+    stat = paste0(call, ": ", var_names),
+    variable = var_names,
+    value = as.numeric(coef(estimation)),
+    se = as.numeric(SE(estimation)),
+    cv = cv_vals,
+    confint_lower = as.numeric(confint_estimation[, 1]),
+    confint_upper = as.numeric(confint_estimation[, 2]),
+    evaluate = vapply(cv_vals * 100, evaluate_cv, character(1))
   )
-  names(dt) <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
   return(dt)
 }
 
