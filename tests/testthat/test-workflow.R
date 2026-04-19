@@ -526,3 +526,42 @@ test_that("workflow works with convey functions", {
   expect_true(nrow(result) == 1)
   expect_true(result$value > 0 && result$value < 1)
 })
+
+# ── conf.level tests ─────────────────────────────────────────────────────────
+
+test_that("conf.level changes confidence intervals", {
+  svy <- make_test_survey(100)
+
+  r95 <- workflow(list(svy), survey::svymean(~x, na.rm = TRUE),
+    estimation_type = "annual"
+  )
+  r90 <- workflow(list(svy), survey::svymean(~x, na.rm = TRUE),
+    estimation_type = "annual", conf.level = 0.90
+  )
+
+  expect_equal(r95$value, r90$value)
+  expect_true(r90$confint_lower > r95$confint_lower)
+  expect_true(r90$confint_upper < r95$confint_upper)
+})
+
+test_that("conf.level inside estimation call warns", {
+  svy <- make_test_survey(50)
+
+  expect_warning(
+    workflow(list(svy),
+      survey::svymean(~x, na.rm = TRUE, conf.level = 0.8),
+      estimation_type = "annual"
+    ),
+    "conf.level.*inside.*svymean.*Pass it to workflow"
+  )
+
+  expect_warning(
+    workflow(list(svy),
+      survey::svyby(~x, ~region, survey::svymean,
+        na.rm = TRUE, conf.level = 0.8
+      ),
+      estimation_type = "annual"
+    ),
+    "conf.level.*inside.*svyby.*Pass it to workflow"
+  )
+})

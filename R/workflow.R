@@ -123,6 +123,7 @@ workflow <- function(svy, ..., estimation_type = "monthly",
 workflow_default <- function(survey, ..., estimation_type = "monthly",
                              conf.level = 0.95) {
   .calls <- substitute(list(...))
+  .warn_conf_level_in_calls(.calls)
 
   result <- rbindlist(
     lapply(
@@ -210,6 +211,7 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly",
   }
 
   .calls <- substitute(list(...))
+  .warn_conf_level_in_calls(.calls)
 
   if (all(c("rho", "R") %in% names(.calls))) {
     rho <- eval(.calls[["rho"]])
@@ -306,6 +308,21 @@ workflow_pool <- function(survey, ..., estimation_type = "monthly",
   return(out)
 }
 
+
+.warn_conf_level_in_calls <- function(.calls) {
+  for (i in seq.int(2L, length(.calls))) {
+    call_args <- as.list(.calls[[i]])
+    if ("conf.level" %in% names(call_args)) {
+      fn_name <- deparse(call_args[[1]])
+      warning(
+        "'conf.level' was passed inside ", fn_name, "() where it is ignored. ",
+        "Pass it to workflow() instead:\n",
+        "  workflow(..., conf.level = ", deparse(call_args[["conf.level"]]), ")",
+        call. = FALSE
+      )
+    }
+  }
+}
 
 cat_estimation <- function(estimation, call, conf.level = 0.95) {
   class_estimation <- class(estimation)[1]
