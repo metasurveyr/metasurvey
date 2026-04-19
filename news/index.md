@@ -1,5 +1,16 @@
 # Changelog
 
+## metasurvey 0.0.23
+
+### Bug fixes
+
+- [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  now warns when `conf.level` is passed inside an estimation call (e.g.,
+  `svymean(~x, conf.level = 0.9)`) where it is silently ignored. The
+  warning guides the user to pass `conf.level` to
+  [`workflow()`](https://metasurveyr.github.io/metasurvey/reference/workflow.md)
+  instead.
+
 ## metasurvey 0.0.22
 
 ### New features
