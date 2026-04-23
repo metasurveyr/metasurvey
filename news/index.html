@@ -95,15 +95,15 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/fix/conf-level-warning/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/metasurveyr/metasurvey/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.23" id="metasurvey-0023">metasurvey 0.0.23<a class="anchor" aria-label="anchor" href="#metasurvey-0023"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-0-23">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-23"></a></h3>
+<h3 id="new-features-0-0-23">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-23"></a></h3>
 <ul><li>
-<code><a href="../reference/workflow.html">workflow()</a></code> now warns when <code>conf.level</code> is passed inside an estimation call (e.g., <code>svymean(~x, conf.level = 0.9)</code>) where it is silently ignored. The warning guides the user to pass <code>conf.level</code> to <code><a href="../reference/workflow.html">workflow()</a></code> instead.</li>
+<code><a href="../reference/workflow.html">workflow()</a></code> now supports <code>conf.level</code> inside individual estimation calls (e.g., <code>svymean(~x, na.rm = TRUE, conf.level = 0.80)</code>). The per-call value overrides the <code><a href="../reference/workflow.html">workflow()</a></code> default, allowing different confidence levels for each estimation in the same call.</li>
 </ul></div>
 </div>
     <div class="section level2">

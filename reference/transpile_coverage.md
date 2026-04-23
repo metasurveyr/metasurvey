@@ -42,8 +42,8 @@ tf <- tempfile(fileext = ".do")
 writeLines(c("gen x = 1", "replace x = 2 if y == 3", "drop z"), tf)
 transpile_coverage(tf)
 #>                  file                                path total_commands
-#> 1 file20093b75d99f.do /tmp/Rtmpyya0gQ/file20093b75d99f.do              2
-#> 2               TOTAL /tmp/Rtmpyya0gQ/file20093b75d99f.do              2
+#> 1 file285a66df26c5.do /tmp/RtmpeESlDt/file285a66df26c5.do              2
+#> 2               TOTAL /tmp/RtmpeESlDt/file285a66df26c5.do              2
 #>   translated skipped manual_review coverage_pct
 #> 1          2       0             0          100
 #> 2          2       0             0          100
