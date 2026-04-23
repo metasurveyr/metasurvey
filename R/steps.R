@@ -16,8 +16,9 @@ compute <- function(svy, ..., .by = NULL,
       .data <- get_data(.clone)
     }
 
-    if (!is(.dots, "call") && !is(.dots, "name") &&
-      !is(.dots, "numeric") && !is(.dots, "logical")) {
+    is_single_expr <- is(.dots, "call") || is(.dots, "name") ||
+      is(.dots, "numeric") || is(.dots, "logical")
+    if (!is_single_expr) {
       .exprs <- list()
       for (i in seq.int(2L, length(.dots))) {
         .exprs <- c(.exprs, .dots[[i]])
@@ -31,12 +32,33 @@ compute <- function(svy, ..., .by = NULL,
 
       .data <- merge(.data, .agg, by = .by, all.x = TRUE)
     } else {
-      .exprs <- eval(.exprs, .data)
-      .data[
-        ,
-        (names(.exprs)) := .exprs,
-        by = .by
-      ]
+      # Check for duplicate target names before evaluating.
+      # Transpiled STATA "replace var = X if cond" produces multiple
+      # assignments to the same column in one step_compute call.
+      # data.table rejects duplicate LHS in :=, so we apply sequentially.
+      .has_dupes <- FALSE
+      if (is.call(.exprs) && identical(.exprs[[1]], as.name("list"))) {
+        .expr_parts <- as.list(.exprs)[-1]
+        .expr_nm <- names(.expr_parts)
+        if (!is.null(.expr_nm) && anyDuplicated(.expr_nm) > 0L) {
+          .has_dupes <- TRUE
+        }
+      }
+
+      if (.has_dupes) {
+        # Sequential eval+assign: each expression sees previous mutations
+        for (.k in seq_along(.expr_parts)) {
+          .val <- eval(.expr_parts[[.k]], .data)
+          data.table::set(.data, j = .expr_nm[.k], value = .val)
+        }
+      } else {
+        .exprs <- eval(.exprs, .data)
+        .data[
+          ,
+          (names(.exprs)) := .exprs,
+          by = .by
+        ]
+      }
     }
 
 
@@ -288,6 +310,12 @@ step_compute <- function(
   dependencies <- unique(unlist(lapply(exprs, function(expr) {
     all.vars(expr)
   })))
+  # For duplicate target names (STATA gen/replace pattern), the first
+  # assignment creates the variable so it doesn't need to pre-exist.
+  if (!is.null(expr_names) && anyDuplicated(expr_names) > 0L) {
+    dup_names <- unique(expr_names[duplicated(expr_names)])
+    dependencies <- setdiff(dependencies, dup_names)
+  }
 
   if (is(svy, "RotativePanelSurvey")) {
     return(step_compute_rotative(svy, ...,
@@ -1123,8 +1151,9 @@ step_remove <- function(
         eval(dots_list[[1]], parent.frame()),
         silent = TRUE
       )
-      if (!inherits(evald, "try-error") &&
-        is.character(evald)) {
+      evald_is_char <- !inherits(evald, "try-error") &&
+        is.character(evald)
+      if (evald_is_char) {
         var_names <- as.character(evald)
       }
     }
@@ -1326,10 +1355,12 @@ step_rename <- function(
   data <- get_data(svy) # Check against original data
   missing <- setdiff(unname(map), names(data))
   if (length(missing) > 0) {
-    stop(sprintf(
-      "Variables to rename not found: %s",
-      paste(missing, collapse = ", ")
-    ), call. = FALSE)
+    # Skip missing columns silently (matches STATA "cap rename" behavior
+    # used in transpiled recipes where source columns may not exist).
+    map <- map[!unname(map) %in% missing]
+    if (length(map) == 0) {
+      return(invisible(out))
+    }
   }
 
   # Apply change only if not lazy
@@ -2216,12 +2247,14 @@ find_dependencies <- function(call_expr, survey) {
         dependencies <- unique(c(dependencies, result))
       }
     }
-  } else if (is.name(call_expr) &&
-    as.character(call_expr) %in%
-      names(survey)) {
-    dependencies <- unique(
-      c(dependencies, as.character(call_expr))
-    )
+  } else {
+    is_known_name <- is.name(call_expr) &&
+      as.character(call_expr) %in% names(survey)
+    if (is_known_name) {
+      dependencies <- unique(
+        c(dependencies, as.character(call_expr))
+      )
+    }
   }
 
   return(unique(dependencies))
