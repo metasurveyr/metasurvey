@@ -1041,6 +1041,9 @@ test_that("Survey$print with numeric edition formats correctly", {
 })
 
 test_that("is_baked returns FALSE when unbaked steps exist", {
+  old_lazy <- getOption("metasurvey.lazy_processing")
+  on.exit(options(metasurvey.lazy_processing = old_lazy), add = TRUE)
+  options(metasurvey.lazy_processing = TRUE)
   s <- make_test_survey()
   s <- step_compute(s, x2 = x * 2) # lazy step, not baked
   expect_false(is_baked(s))

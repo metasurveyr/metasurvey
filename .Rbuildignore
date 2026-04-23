@@ -26,8 +26,10 @@
 ^_pkgdown\.yml$
 ^benchmark_.*$
 ^codemeta\.json$
+^compatibilizada$
 ^coverage-report.*\.html$
 ^cran-comments\.md$
+^ddt_00_2024_plantilla$
 ^demo_.*\.R$
 ^devcontainer\.json$
 ^do_files_iecon$
@@ -51,10 +53,13 @@
 ^inst/worker/Dockerfile$
 ^inst/worker/\.dockerignore$
 ^lib$
+^linkedin_cran_announcement\.png$
+^linkedin_post\.md$
 ^metasurvey\.Rcheck$
 ^metasurvey_.*\.tar\.gz$
 ^minnor_version\.R$
 ^pkgdown$
+^postulacion_useR2026$
 ^renv$
 ^renv\.lock$
 ^revdep$
@@ -66,6 +71,7 @@
 ^vignettes/.*\.html$
 ^vignettes/api-database-es\.Rmd$
 ^vignettes/complex-designs-es\.Rmd$
+^vignettes/convey-inequality_files$
 ^vignettes/ech-case-study-es\.Rmd$
 ^vignettes/ech-demographics-recipe-es\.Rmd$
 ^vignettes/getting-started-es\.Rmd$

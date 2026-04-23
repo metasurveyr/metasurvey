@@ -1,3 +1,4 @@
+aarch
 addin
 agregar
 AKS
@@ -42,6 +43,7 @@ cre
 creados
 CVs
 da
+darwin
 dasilva
 datos
 DDI
@@ -174,6 +176,7 @@ NOTEs
 npm
 nueva
 Objeto
+oldrel
 openssl
 openxlsx
 ORCID
@@ -213,6 +216,8 @@ Republica
 requerida
 restartPolicyMaxRetries
 restartPolicyType
+resubmission
+Resubmission
 rf
 rio
 rlang
@@ -240,6 +245,7 @@ transpilation
 transpiled
 transpiler
 Transpiler
+ubuntu
 un
 unica
 unico
