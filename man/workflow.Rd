@@ -21,7 +21,10 @@ determines which weight to use. Options:
 with multiple types}
 
 \item{conf.level}{Confidence level for the interval (default \code{0.95}).
-Passed to \code{\link[stats]{confint}}.}
+Passed to \code{\link[stats]{confint}}.
+Can also be set per-call inside the estimation function
+(e.g., \code{svymean(~x, na.rm = TRUE, conf.level = 0.90)}),
+which overrides the \code{workflow()} default for that estimation.}
 }
 \value{
 \code{data.table} with results from all
@@ -85,12 +88,19 @@ result_by <- workflow(
   estimation_type = "annual"
 )
 
-# Custom confidence level (90\%)
+# Custom confidence level (90\%) for all estimations
 result_90 <- workflow(
   svy = list(svy),
   survey::svymean(~x, na.rm = TRUE),
   estimation_type = "annual",
   conf.level = 0.90
+)
+
+# Per-call confidence level (overrides workflow default)
+result_mixed <- workflow(
+  svy = list(svy),
+  survey::svymean(~x, na.rm = TRUE, conf.level = 0.80),
+  estimation_type = "annual"
 )
 
 }
