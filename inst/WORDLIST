@@ -25,6 +25,7 @@ CASEN
 catalogo
 clave
 cli
+cloneable
 CMD
 codebase
 Codecov
@@ -202,6 +203,8 @@ que
 README
 recetas
 Recetas
+RecipeBackend
+RecipeRegistry
 recode
 recodes
 recognises
