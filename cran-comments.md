@@ -7,25 +7,27 @@ government website (see below).
 
 ## Resubmission
 
-This is a resubmission. Changes since the previous attempt:
+This is a resubmission. Changes since the previous version (0.0.22):
 
-* Fixed invalid file URI (`api-database.html` from `inst/doc/recipes.html`):
-  included the vignette in the build instead of excluding it via .Rbuildignore.
-* Removed `@examples` from unexported internal functions (`cat_recipes`,
-  `Step`, `RecipeBackend`, `RecipeRegistry`, `WorkflowBackend`,
-  `WorkflowRegistry`).
+* `workflow()` now supports `conf.level` inside individual estimation calls
+  (e.g., `svymean(~x, na.rm = TRUE, conf.level = 0.80)`), overriding the
+  `workflow()` default for that estimation.
+* New `harmonize()` function for automatic recipe-based survey harmonization.
+* New `convey-inequality` vignette for poverty and inequality estimation.
+* Replaced `\dontrun{}` with `\donttest{}` in `load_survey_example()` and
+  `harmonize()` examples.
+* Fixed global state leaks in test-harmonize.R (backend restored via `on.exit()`).
 
 ## Test environments
 
 * local macOS (aarch64-apple-darwin24.2.0), R 4.4.3
-* win-builder (R-devel), Debian (R-devel)
 * GitHub Actions: ubuntu-latest (release, devel, oldrel-1),
   macOS-latest (release), windows-latest (release)
 
 ## Notes
 
 * This is a new submission (first CRAN release).
-* Package contains 2,973 tests with 0 failures.
+* Package contains 3,024 tests with 0 failures.
 * The `eph`, `PNADcIBGE`, and `ipumsr` packages in Suggests are used
   conditionally in the international-surveys vignette; sections are
   skipped when these packages are not installed.
