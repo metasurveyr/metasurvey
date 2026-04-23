@@ -1,20 +1,3 @@
-# Helper to create test recipes with ecosystem fields
-make_eco_recipe <- function(name, user, svy_type = "ech", edition = "2023",
-                            topic = NULL, downloads = 0L,
-                            categories = list(), certification = NULL,
-                            user_info = NULL) {
-  Recipe$new(
-    name = name, edition = edition, survey_type = svy_type,
-    default_engine = "data.table", depends_on = list(),
-    user = user, description = paste("Test recipe:", name),
-    steps = list(), id = stats::runif(1), doi = NULL,
-    topic = topic, categories = categories,
-    downloads = as.integer(downloads),
-    certification = certification,
-    user_info = user_info
-  )
-}
-
 test_that("Create empty registry", {
   reg <- RecipeRegistry$new()
   expect_s3_class(reg, "RecipeRegistry")
@@ -97,6 +80,22 @@ test_that("filter by edition", {
   expect_equal(results[[1]]$name, "A")
 })
 
+test_that("filter by edition matches vector editions", {
+  reg <- RecipeRegistry$new()
+  r1 <- make_eco_recipe("Multi-edition", "u", edition = c("2006", "2007", "2008", "2009", "2010"))
+  r2 <- make_eco_recipe("Single", "u", edition = "2008")
+  r3 <- make_eco_recipe("Other", "u", edition = "2020")
+  reg$register(r1)
+  reg$register(r2)
+  reg$register(r3)
+
+  results <- reg$filter(edition = "2008")
+  expect_equal(length(results), 2)
+  names_found <- vapply(results, function(r) r$name, character(1))
+  expect_true("Multi-edition" %in% names_found)
+  expect_true("Single" %in% names_found)
+})
+
 test_that("filter by category", {
   reg <- RecipeRegistry$new()
   labor <- RecipeCategory$new("labor_market", "Labor")
@@ -113,6 +112,24 @@ test_that("filter by category", {
 
   results2 <- reg$filter(category = "income")
   expect_equal(length(results2), 2)
+})
+
+test_that("filter by topic", {
+  reg <- RecipeRegistry$new()
+  r1 <- make_eco_recipe("A", "u", topic = "compatibilizada")
+  r2 <- make_eco_recipe("B", "u", topic = "labor_market")
+  r3 <- make_eco_recipe("C", "u") # topic = NULL
+  reg$register(r1)
+  reg$register(r2)
+  reg$register(r3)
+
+  results <- reg$filter(topic = "compatibilizada")
+  expect_equal(length(results), 1)
+  expect_equal(results[[1]]$name, "A")
+
+  results2 <- reg$filter(topic = "labor_market")
+  expect_equal(length(results2), 1)
+  expect_equal(results2[[1]]$name, "B")
 })
 
 test_that("filter by certification_level", {

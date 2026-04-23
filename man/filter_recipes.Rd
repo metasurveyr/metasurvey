@@ -8,7 +8,8 @@ filter_recipes(
   survey_type = NULL,
   edition = NULL,
   category = NULL,
-  certification_level = NULL
+  certification_level = NULL,
+  topic = NULL
 )
 }
 \arguments{
@@ -19,13 +20,15 @@ filter_recipes(
 \item{category}{Character category name or NULL.}
 
 \item{certification_level}{Character certification level or NULL.}
+
+\item{topic}{Character topic or NULL (e.g. \code{"compatibilizada"}).}
 }
 \value{
 List of matching Recipe objects.
 }
 \description{
 Filter recipes in the active backend by survey type, edition, category,
-or certification level.
+certification level, or topic.
 }
 \examples{
 set_backend("local", path = tempfile(fileext = ".json"))
