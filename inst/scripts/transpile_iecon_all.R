@@ -82,6 +82,21 @@ cat(sprintf("After removing old transpiled: %d\n", length(existing_clean)))
 # ── Convert transpiled recipes to list format ─────────────────────────────
 transpiled_lists <- lapply(all_recipes, function(rec) {
   doc_info <- rec$doc()
+  # Build categories: keep original + add "compatibilizada"
+  cats <- if (length(rec$categories) > 0) {
+    lapply(rec$categories, function(c) c$to_list())
+  } else {
+    list()
+  }
+  cat_names <- vapply(cats, function(c) c$name %||% "", character(1))
+  if (!"compatibilizada" %in% cat_names) {
+    cats <- c(cats, list(list(
+      name = "compatibilizada",
+      description = "Receta de compatibilizacion IECON",
+      parent = NULL
+    )))
+  }
+
   lst <- list(
     name = rec$name,
     user = rec$user,
@@ -94,6 +109,7 @@ transpiled_lists <- lapply(all_recipes, function(rec) {
     downloads = rec$downloads,
     depends_on = rec$depends_on,
     depends_on_recipes = rec$depends_on_recipes,
+    categories = cats,
     certification = if (!is.null(rec$certification)) rec$certification$to_list() else NULL,
     user_info = if (!is.null(rec$user_info)) rec$user_info$to_list() else NULL,
     doc = list(

@@ -74,7 +74,7 @@ try {
           survey_type: { enum: ["ech", "eaii", "eph", "eai"] },
           edition:     { bsonType: ["string", "array"] },
           description: { bsonType: "string" },
-          topic:       { enum: ["labor_market", "income", "education", "health", "demographics", "housing", null] },
+          topic:       { enum: ["labor_market", "income", "education", "health", "demographics", "housing", "compatibilizada", null] },
           doi:         { bsonType: ["string", "null"] },
           version:     { bsonType: "string" },
           downloads:   { bsonType: ["int", "double"], minimum: 0 },

@@ -92,6 +92,63 @@ cat(sprintf(
   db_workflows$count(), db_indicators$count()
 ))
 
+# ── 0. Update schema validator ─────────────────────────────────────────────
+# The recipes collection may have an outdated topic enum.
+# Use collMod to update the validator without dropping the collection.
+cat("\n[schema] Updating recipes validator (topic enum)...\n")
+tryCatch(
+  {
+    db_admin <- mongolite::mongo(
+      collection = "recipes", db = DATABASE, url = MONGO_URI
+    )
+    db_admin$run(toJSON(list(
+      collMod = "recipes",
+      validator = list(
+        `$jsonSchema` = list(
+          bsonType = "object",
+          required = list("name", "user", "survey_type"),
+          properties = list(
+            name = list(bsonType = "string", minLength = 1L),
+            user = list(bsonType = "string"),
+            survey_type = list(enum = list("ech", "eaii", "eph", "eai")),
+            edition = list(bsonType = list("string", "array")),
+            description = list(bsonType = "string"),
+            topic = list(enum = list(
+              "labor_market", "income", "education", "health",
+              "demographics", "housing", "compatibilizada", NULL
+            )),
+            doi = list(bsonType = list("string", "null")),
+            version = list(bsonType = "string"),
+            downloads = list(bsonType = list("int", "double"), minimum = 0L),
+            steps = list(bsonType = "array"),
+            depends_on = list(bsonType = "array"),
+            depends_on_recipes = list(bsonType = "array"),
+            data_source = list(bsonType = list("object", "null")),
+            categories = list(bsonType = "array"),
+            certification = list(
+              bsonType = list("object", "null"),
+              properties = list(
+                level        = list(enum = list("community", "reviewed", "official")),
+                certified_at = list(bsonType = list("string", "null")),
+                certified_by = list(bsonType = list("object", "null")),
+                notes        = list(bsonType = list("string", "null"))
+              )
+            ),
+            user_info = list(bsonType = list("object", "null")),
+            doc = list(bsonType = list("object", "null"))
+          )
+        )
+      ),
+      validationLevel = "moderate"
+    ), auto_unbox = TRUE, null = "null"))
+    cat("  [OK] Validator updated\n")
+  },
+  error = function(e) {
+    cat(sprintf("  [WARN] collMod failed: %s\n", e$message))
+    cat("  Seed will continue — inserts may fail if topic is invalid.\n")
+  }
+)
+
 # ── 1. Cleanup ───────────────────────────────────────────────────────────────
 cat("\n[cleanup] Removing existing seed data...\n")
 
