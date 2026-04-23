@@ -134,13 +134,14 @@ app_css <- function() {
       margin: .1rem;
       letter-spacing: .01em;
     }
-    .tag-labor_market { background: #dcfce7; color: #166534; }
-    .tag-income       { background: #dbeafe; color: #1e40af; }
-    .tag-education    { background: #fef3c7; color: #92400e; }
-    .tag-health       { background: #ffe4e6; color: #9f1239; }
-    .tag-demographics { background: #f3e8ff; color: #6b21a8; }
-    .tag-housing      { background: var(--slate-100); color: var(--slate-600); }
-    .tag-default      { background: var(--slate-100); color: var(--slate-500); }
+    .tag-labor_market      { background: #dcfce7; color: #166534; }
+    .tag-income            { background: #dbeafe; color: #1e40af; }
+    .tag-education         { background: #fef3c7; color: #92400e; }
+    .tag-health            { background: #ffe4e6; color: #9f1239; }
+    .tag-demographics      { background: #f3e8ff; color: #6b21a8; }
+    .tag-housing           { background: var(--slate-100); color: var(--slate-600); }
+    .tag-compatibilizada   { background: #fef9c3; color: #854d0e; }
+    .tag-default           { background: var(--slate-100); color: var(--slate-500); }
 
     /* ── Cert Badge ── */
     .cert-badge {
@@ -1135,7 +1136,8 @@ category_tag <- function(name) {
   # Fallback for unknown categories
   known <- c(
     "labor_market", "income", "education",
-    "health", "demographics", "housing"
+    "health", "demographics", "housing",
+    "compatibilizada"
   )
   if (!name %in% known) {
     cls <- "category-tag tag-default"
@@ -2008,9 +2010,9 @@ recipe_detail_ui <- function(
   )
 
   # Description
-  desc_section <- if (
-    !is.null(recipe$description) &&
-      nzchar(recipe$description)) {
+  has_description <- !is.null(recipe$description) &&
+    nzchar(recipe$description)
+  desc_section <- if (has_description) {
     htmltools::tags$div(
       style = "padding: 1.25rem 0;",
       htmltools::tags$p(
@@ -2169,10 +2171,8 @@ recipe_detail_ui <- function(
   # Pipeline graph (visNetwork)
   has_visnetwork <- requireNamespace("visNetwork", quietly = TRUE)
   n_steps <- length(doc$pipeline)
-  graph_section <- if (
-    n_steps > 0 &&
-      has_visnetwork &&
-      !is.null(ns)) {
+  show_graph <- n_steps > 0 && has_visnetwork && !is.null(ns)
+  graph_section <- if (show_graph) {
     disclaimer <- if (n_steps > 20) {
       htmltools::tags$div(
         class = "graph-disclaimer",
@@ -2258,10 +2258,9 @@ recipe_detail_ui <- function(
       } else {
         step$comment
       }
-      comment_html <- if (
-        !is.null(comment_txt) &&
-          length(comment_txt) == 1 &&
-          nzchar(comment_txt)) {
+      has_comment <- !is.null(comment_txt) &&
+        length(comment_txt) == 1 && nzchar(comment_txt)
+      comment_html <- if (has_comment) {
         htmltools::tags$div(
           style = paste0(
             "font-size:.75rem;",
@@ -2280,10 +2279,9 @@ recipe_detail_ui <- function(
       } else {
         step$expression
       }
-      expr_html <- if (
-        !is.null(expr_txt) &&
-          length(expr_txt) == 1 &&
-          nzchar(expr_txt)) {
+      has_expr <- !is.null(expr_txt) &&
+        length(expr_txt) == 1 && nzchar(expr_txt)
+      expr_html <- if (has_expr) {
         htmltools::tags$div(
           style = paste0(
             "font-family:'JetBrains Mono',",

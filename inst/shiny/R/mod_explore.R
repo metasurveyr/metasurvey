@@ -34,6 +34,7 @@ explore_ui <- function(id) {
           shiny::selectInput(ns("filter_category"), NULL,
             choices = c(
               "Category" = "",
+              "Compatibilizada" = "compatibilizada",
               "Labor Market" = "labor_market",
               "Income" = "income",
               "Education" = "education",
