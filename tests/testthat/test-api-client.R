@@ -1,7 +1,7 @@
 # Tests for R/api_client.R — API client with mocked HTTP
 # Uses local_mocked_bindings() to mock api_request() (the internal HTTP wrapper)
 
-# ── Token helpers ──────────────────────────────────────────────────────────────
+# ── Token helpers ────────────────────────────────────────────────────────────
 
 test_that("store_token sets option only (not env var)", {
   old_opt <- getOption("metasurvey.api_token")
@@ -16,7 +16,11 @@ test_that("api_token returns stored token", {
   old_env <- Sys.getenv("METASURVEY_TOKEN", "")
   on.exit({
     options(metasurvey.api_token = old_opt)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_TOKEN = old_env) else Sys.unsetenv("METASURVEY_TOKEN")
+    if (nzchar(old_env)) {
+      Sys.setenv(METASURVEY_TOKEN = old_env)
+    } else {
+      Sys.unsetenv("METASURVEY_TOKEN")
+    }
   })
 
   options(metasurvey.api_token = "from_option")
@@ -28,7 +32,11 @@ test_that("api_token falls back to env var", {
   old_env <- Sys.getenv("METASURVEY_TOKEN", "")
   on.exit({
     options(metasurvey.api_token = old_opt)
-    if (nzchar(old_env)) Sys.setenv(METASURVEY_TOKEN = old_env) else Sys.unsetenv("METASURVEY_TOKEN")
+    if (nzchar(old_env)) {
+      Sys.setenv(METASURVEY_TOKEN = old_env)
+    } else {
+      Sys.unsetenv("METASURVEY_TOKEN")
+    }
   })
 
   options(metasurvey.api_token = NULL)
@@ -40,21 +48,28 @@ test_that("token_expires_soon returns TRUE for NULL (force refresh)", {
   expect_true(token_expires_soon(NULL))
 })
 
-test_that("token_expires_soon returns TRUE for malformed token (force refresh)", {
+test_that(
+  "token_expires_soon returns TRUE for malformed token (force refresh)", {
   expect_true(token_expires_soon("not.a.jwt"))
   expect_true(token_expires_soon("single_part"))
 })
 
 test_that("token_expires_soon handles valid JWT with future exp", {
   # Create a fake JWT with exp far in the future
-  payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 3600), auto_unbox = TRUE)
+  payload <- jsonlite::toJSON(
+    list(exp = as.numeric(Sys.time()) + 3600),
+    auto_unbox = TRUE
+  )
   encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_false(token_expires_soon(fake_jwt, margin_secs = 300))
 })
 
 test_that("token_expires_soon returns TRUE when near expiry", {
-  payload <- jsonlite::toJSON(list(exp = as.numeric(Sys.time()) + 60), auto_unbox = TRUE)
+  payload <- jsonlite::toJSON(
+    list(exp = as.numeric(Sys.time()) + 60),
+    auto_unbox = TRUE
+  )
   encoded_payload <- jsonlite::base64url_enc(charToRaw(payload))
   fake_jwt <- paste("header", encoded_payload, "signature", sep = ".")
   expect_true(token_expires_soon(fake_jwt, margin_secs = 300))
@@ -76,7 +91,7 @@ test_that("configure_api sets URL and removes trailing slash", {
   expect_equal(getOption("metasurvey.api_url"), "https://test.api.com")
 })
 
-# ── Auth functions ─────────────────────────────────────────────────────────────
+# ── Auth functions ───────────────────────────────────────────────────────────
 
 test_that("api_register stores token on success", {
   old_opt <- getOption("metasurvey.api_token")
@@ -87,16 +102,23 @@ test_that("api_register stores token on success", {
   })
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "auth/register")
       expect_equal(method, "POST")
       expect_equal(body$email, "test@example.com")
-      list(ok = TRUE, token = "register_token_123", user = list(email = "test@example.com"))
+      list(
+        ok = TRUE, token = "register_token_123",
+        user = list(email = "test@example.com")
+      )
     }
   )
 
   configure_api("http://test.local")
-  expect_message(api_register("Test User", "test@example.com", "pass1234"), "Registered")
+  expect_message(
+    api_register("Test User", "test@example.com", "pass1234"),
+    "Registered"
+  )
   expect_equal(getOption("metasurvey.api_token"), "register_token_123")
 })
 
@@ -109,7 +131,8 @@ test_that("api_login stores token on success", {
   })
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "auth/login")
       expect_equal(method, "POST")
       list(ok = TRUE, token = "login_token_456")
@@ -126,10 +149,14 @@ test_that("api_me returns user profile", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "auth/me")
       expect_equal(method, "GET")
-      list(name = "Test User", email = "test@example.com", user_type = "individual")
+      list(
+        name = "Test User", email = "test@example.com",
+        user_type = "individual"
+      )
     }
   )
 
@@ -148,7 +175,8 @@ test_that("api_refresh_token stores new token", {
   })
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "auth/refresh")
       list(ok = TRUE, token = "refreshed_token_789")
     }
@@ -164,7 +192,8 @@ test_that("api_refresh_token returns NULL on failure", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("Network error")
     }
   )
@@ -194,14 +223,15 @@ test_that("configure_api returns previous URL invisibly", {
   expect_equal(getOption("metasurvey.api_url"), "https://new.example.com")
 })
 
-# ── Recipes API ────────────────────────────────────────────────────────────────
+# ── Recipes API ──────────────────────────────────────────────────────────────
 
 test_that("api_list_recipes parses recipes from response", {
   old_url <- getOption("metasurvey.api_url")
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes")
       list(recipes = list(
         list(
@@ -229,7 +259,8 @@ test_that("api_list_recipes handles empty response", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(recipes = list())
     }
   )
@@ -244,7 +275,8 @@ test_that("api_get_recipe returns Recipe object", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_match(endpoint, "recipes/r_123")
       list(recipe = list(
         name = "Found Recipe",
@@ -269,7 +301,8 @@ test_that("api_get_recipe returns NULL on 404", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("API error (404): Not found")
     }
   )
@@ -288,7 +321,8 @@ test_that("api_publish_recipe sends recipe to API", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes")
       expect_equal(method, "POST")
       expect_true(!is.null(body$name))
@@ -310,26 +344,34 @@ test_that("api_download_recipe warns on error", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("Network error")
     }
   )
 
   configure_api("http://test.local")
-  expect_warning(api_download_recipe("r_123"), "Failed to track recipe download")
+  expect_warning(
+    api_download_recipe("r_123"),
+    "Failed to track recipe download"
+  )
 })
 
-# ── Workflows API ──────────────────────────────────────────────────────────────
+# ── Workflows API ────────────────────────────────────────────────────────────
 
 test_that("api_list_workflows parses workflows from response", {
   old_url <- getOption("metasurvey.api_url")
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "workflows")
       list(workflows = list(
-        list(name = "Test WF", survey_type = "ech", edition = "2023", id = "w_1")
+        list(
+          name = "Test WF", survey_type = "ech",
+          edition = "2023", id = "w_1"
+        )
       ))
     }
   )
@@ -345,8 +387,12 @@ test_that("api_get_workflow returns RecipeWorkflow", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
-      list(workflow = list(name = "Found WF", survey_type = "ech", edition = "2023", id = "w_123"))
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
+      list(workflow = list(
+        name = "Found WF", survey_type = "ech",
+        edition = "2023", id = "w_123"
+      ))
     }
   )
 
@@ -361,7 +407,8 @@ test_that("api_get_workflow returns NULL on 404", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("API error (404): Not found")
     }
   )
@@ -372,7 +419,10 @@ test_that("api_get_workflow returns NULL on 404", {
 })
 
 test_that("api_publish_workflow rejects non-RecipeWorkflow", {
-  expect_error(api_publish_workflow(list(name = "not a wf")), "RecipeWorkflow object")
+  expect_error(
+    api_publish_workflow(list(name = "not a wf")),
+    "RecipeWorkflow object"
+  )
 })
 
 test_that("api_publish_workflow sends workflow to API", {
@@ -380,7 +430,8 @@ test_that("api_publish_workflow sends workflow to API", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "workflows")
       expect_equal(method, "POST")
       list(ok = TRUE, id = "w_published")
@@ -397,13 +448,17 @@ test_that("api_download_workflow warns on error", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("Network error")
     }
   )
 
   configure_api("http://test.local")
-  expect_warning(api_download_workflow("w_123"), "Failed to track workflow download")
+  expect_warning(
+    api_download_workflow("w_123"),
+    "Failed to track workflow download"
+  )
 })
 
 test_that("api_get_anda_variables returns variables list", {
@@ -411,7 +466,8 @@ test_that("api_get_anda_variables returns variables list", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "anda/variables")
       list(variables = list(
         list(name = "edad", label = "Edad", type = "continuous"),
@@ -431,7 +487,8 @@ test_that("api_get_anda_variables returns empty on error", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("Network error")
     }
   )
@@ -468,7 +525,9 @@ test_that("api_request with query params builds correct URL", {
 
   options(metasurvey.api_token = NULL)
   configure_api("http://test.local")
-  api_request("recipes", params = list(survey_type = "ech", topic = NULL, limit = 10))
+  api_request(
+    "recipes", params = list(survey_type = "ech", topic = NULL, limit = 10)
+  )
   expect_match(captured_url, "survey_type=ech")
   expect_match(captured_url, "limit=10")
   # topic=NULL should be filtered out
@@ -500,7 +559,10 @@ test_that("api_request POST dispatches correctly", {
 
   options(metasurvey.api_token = NULL)
   configure_api("http://test.local")
-  api_request("auth/register", method = "POST", body = list(email = "test@x.com"))
+  api_request(
+    "auth/register", method = "POST",
+    body = list(email = "test@x.com")
+  )
   # Just verify the mock was called (POST path was taken)
   expect_true(!is.null(captured_method))
 })
@@ -650,7 +712,8 @@ test_that("api_get_recipe handles multiple IDs", {
 
   call_count <- 0L
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       call_count <<- call_count + 1L
       list(recipe = list(
         name = paste0("Recipe_", call_count),
@@ -672,7 +735,8 @@ test_that("api_get_recipe with NULL recipe field returns NULL", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(recipe = NULL)
     }
   )
@@ -687,7 +751,8 @@ test_that("api_get_workflow with NULL workflow field returns NULL", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(workflow = NULL)
     }
   )
@@ -697,7 +762,7 @@ test_that("api_get_workflow with NULL workflow field returns NULL", {
   expect_null(result)
 })
 
-# ── parse_recipe_from_json ─────────────────────────────────────────────────────
+# ── parse_recipe_from_json ───────────────────────────────────────────────────
 
 test_that("parse_recipe_from_json creates Recipe from full doc", {
   doc <- list(
@@ -741,7 +806,7 @@ test_that("parse_recipe_from_json handles minimal doc", {
   expect_equal(rec$survey_type, "Unknown")
 })
 
-# ── api_request error paths ─────────────────────────────────────────────────────
+# ── api_request error paths ──────────────────────────────────────────────────
 
 test_that("api_request errors when API not configured", {
   old_url <- getOption("metasurvey.api_url")
@@ -754,7 +819,11 @@ test_that("api_request errors when API not configured", {
   on.exit(
     {
       options(metasurvey.api_url = old_url)
-      if (nzchar(old_env)) Sys.setenv(METASURVEY_API_URL = old_env) else Sys.unsetenv("METASURVEY_API_URL")
+      if (nzchar(old_env)) {
+        Sys.setenv(METASURVEY_API_URL = old_env)
+      } else {
+        Sys.unsetenv("METASURVEY_API_URL")
+      }
     },
     add = FALSE
   )
@@ -773,7 +842,8 @@ test_that("api_register includes institution for institutional_member", {
   })
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(body$institution, "UDELAR")
       expect_equal(body$user_type, "institutional_member")
       list(ok = TRUE, token = "inst_token")
@@ -794,7 +864,8 @@ test_that("api_list_recipes passes filter params", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(params$survey_type, "ech")
       expect_equal(params$topic, "labor")
       expect_equal(params$certification, "official")
@@ -803,7 +874,10 @@ test_that("api_list_recipes passes filter params", {
   )
 
   configure_api("http://test.local")
-  result <- api_list_recipes(survey_type = "ech", topic = "labor", certification = "official")
+  result <- api_list_recipes(
+    survey_type = "ech", topic = "labor",
+    certification = "official"
+  )
   expect_length(result, 0)
 })
 
@@ -812,7 +886,8 @@ test_that("api_list_recipes warns on parse failure", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(recipes = list(
         list() # empty doc, will fail parse
       ))
@@ -830,7 +905,8 @@ test_that("api_get_workflow re-raises non-404 errors", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("API error (500): Internal server error")
     }
   )
@@ -844,7 +920,8 @@ test_that("api_get_recipe re-raises non-404 errors", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       stop("API error (500): Server error")
     }
   )
@@ -853,7 +930,7 @@ test_that("api_get_recipe re-raises non-404 errors", {
   expect_error(api_get_recipe("r_500"), "500")
 })
 
-# ── api_track_download ─────────────────────────────────────────────────────────
+# ── api_track_download ───────────────────────────────────────────────────────
 
 test_that("api_track_download dispatches correctly", {
   old_url <- getOption("metasurvey.api_url")
@@ -863,7 +940,8 @@ test_that("api_track_download dispatches correctly", {
   called_workflow <- FALSE
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(ok = TRUE)
     }
   )
@@ -887,7 +965,8 @@ test_that("api_star_recipe calls PUT with correct endpoint", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes/r_123/star")
       expect_equal(method, "PUT")
       expect_equal(body$value, 4L)
@@ -905,7 +984,8 @@ test_that("api_get_recipe_stars calls GET", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes/r_123/stars")
       expect_equal(method, "GET")
       list(average = 4.2, count = 10, user_value = 5)
@@ -928,7 +1008,8 @@ test_that("api_star_workflow calls PUT with correct endpoint", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "workflows/w_123/star")
       expect_equal(method, "PUT")
       list(ok = TRUE)
@@ -945,7 +1026,8 @@ test_that("api_get_workflow_stars calls GET", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(average = 3.5, count = 7)
     }
   )
@@ -970,7 +1052,8 @@ test_that("api_comment_recipe calls POST", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes/r_123/comments")
       expect_equal(method, "POST")
       expect_equal(body$text, "Great recipe!")
@@ -988,7 +1071,8 @@ test_that("api_get_recipe_comments returns list", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(comments = list(
         list(id = "c_1", user = "test@test.com", text = "Hello")
       ))
@@ -1010,7 +1094,8 @@ test_that("api_delete_comment calls DELETE", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "comments/c_123")
       expect_equal(method, "DELETE")
       list(ok = TRUE)
@@ -1029,7 +1114,8 @@ test_that("api_get_recipe_dependents returns list", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       expect_equal(endpoint, "recipes/r_123/dependents")
       list(dependents = list(
         list(id = "r_456", name = "Child recipe", user = "test@test.com")
@@ -1048,7 +1134,8 @@ test_that("api_get_recipe_dependents returns empty on no dependents", {
   on.exit(options(metasurvey.api_url = old_url))
 
   local_mocked_bindings(
-    api_request = function(endpoint, method = "GET", body = NULL, params = NULL) {
+    api_request = function(
+        endpoint, method = "GET", body = NULL, params = NULL) {
       list(dependents = list())
     }
   )

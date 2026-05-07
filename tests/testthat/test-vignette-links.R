@@ -58,7 +58,8 @@ test_that("included vignettes have no relative links to excluded vignettes", {
     length(broken) == 0,
     sprintf(
       paste(
-        "Included vignettes link to excluded vignettes (causes CRAN rejection).",
+        "Included vignettes link to excluded vignettes",
+        " (causes CRAN rejection).",
         "Use absolute pkgdown URLs instead:\n%s"
       ),
       paste(broken, collapse = "\n")

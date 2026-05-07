@@ -44,7 +44,8 @@ if (!nzchar(MONGO_URI)) {
 
 if (!dir.exists(DATA_DIR)) {
   warning(sprintf(
-    "[worker] SURVEY_DATA_DIR '%s' does not exist. Set it to the microdata directory.",
+    "[worker] SURVEY_DATA_DIR '%s' does not exist.",
+    " Set it to the microdata directory.",
     DATA_DIR
   ))
 }
@@ -132,7 +133,10 @@ if (ENABLE_REDIS_WORKER) {
   redis_con <- tryCatch(
     {
       if (!is.null(redis_params)) {
-        clean_url <- sprintf("redis://%s:%d", redis_params$host, redis_params$port)
+        clean_url <- sprintf(
+          "redis://%s:%d",
+          redis_params$host, redis_params$port
+        )
         r <- redux::hiredis(url = clean_url)
         if (!is.null(redis_params$password)) {
           r$AUTH(redis_params$password)
@@ -606,7 +610,10 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
     if (is.null(raw)) {
       return(NULL)
     }
-    tryCatch(jsonlite::fromJSON(raw, simplifyVector = FALSE), error = function(e) NULL)
+    tryCatch(
+      jsonlite::fromJSON(raw, simplifyVector = FALSE),
+      error = function(e) NULL
+    )
   }
 
   # Helper: write job to Redis
@@ -632,7 +639,8 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
     )
   }
 
-  # Re-define helpers that the consumer needs (since this runs in a fresh process)
+  # Re-define helpers that the consumer needs
+  # (since this runs in a fresh process)
   find_survey_file_local <- function(survey_type, edition) {
     base <- file.path(data_dir, survey_type)
     if (!dir.exists(base)) base <- data_dir
@@ -664,7 +672,10 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
 
   apply_recipe_steps_local <- function(svy, steps) {
     for (step_str in steps) {
-      step_expr <- tryCatch(parse(text = step_str)[[1]], error = function(e) NULL)
+      step_expr <- tryCatch(
+        parse(text = step_str)[[1]],
+        error = function(e) NULL
+      )
       if (is.null(step_expr)) next
       step_call <- as.list(step_expr)
       step_call[[2]] <- quote(svy)
@@ -803,7 +814,10 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
             )), width.cutoff = 500L)
           }
 
-          call_expr <- tryCatch(parse(text = call_str)[[1]], error = function(e) NULL)
+          call_expr <- tryCatch(
+            parse(text = call_str)[[1]],
+            error = function(e) NULL
+          )
           if (is.null(call_expr)) next
 
           cl <- as.list(call_expr)
@@ -818,17 +832,32 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
             stat_vars <- attr(est, "svyby")$variables
             if (is.null(stat_vars)) {
               all_cols <- names(est)
-              stat_vars <- all_cols[!grepl("^se\\.", all_cols) & !all_cols %in% by_vars]
+              stat_vars <- all_cols[
+                !grepl("^se\\.", all_cols) &
+                  !all_cols %in% by_vars
+              ]
             }
             for (sv in stat_vars) {
-              se_col <- if (paste0("se.", sv) %in% names(est)) paste0("se.", sv) else "se"
+              se_col <- if (paste0("se.", sv) %in% names(est)) {
+                paste0("se.", sv)
+              } else {
+                "se"
+              }
               for (r in seq_len(nrow(est))) {
                 by_label <- paste(vapply(by_vars, function(bv) {
                   paste0(bv, "=", est[r, bv])
                 }, character(1)), collapse = ", ")
                 val <- as.numeric(est[r, sv])
-                se_val <- if (se_col %in% names(est)) as.numeric(est[r, se_col]) else NA_real_
-                cv_val <- if (!is.na(se_val) && val != 0) se_val / abs(val) else NA_real_
+                se_val <- if (se_col %in% names(est)) {
+                  as.numeric(est[r, se_col])
+                } else {
+                  NA_real_
+                }
+                cv_val <- if (!is.na(se_val) && val != 0) {
+                  se_val / abs(val)
+                } else {
+                  NA_real_
+                }
                 results_list[[length(results_list) + 1L]] <- list(
                   stat = sprintf("%s: %s [%s]", fn_name, sv, by_label),
                   value = val, se = se_val, cv = cv_val,
@@ -848,8 +877,16 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
               results_list[[length(results_list) + 1L]] <- list(
                 stat = sprintf("%s: %s", fn_name, var_names[i]),
                 value = val, se = se_val, cv = cv_val,
-                confint_lower = if (!is.null(ci)) ci[i, 1] else val - 1.96 * se_val,
-                confint_upper = if (!is.null(ci)) ci[i, 2] else val + 1.96 * se_val,
+                confint_lower = if (!is.null(ci)) {
+                  ci[i, 1]
+                } else {
+                  val - 1.96 * se_val
+                },
+                confint_upper = if (!is.null(ci)) {
+                  ci[i, 2]
+                } else {
+                  val + 1.96 * se_val
+                },
                 call = call_str
               )
             }
@@ -866,7 +903,10 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
       job$error <- result$error
       job$finished_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ")
       write_job(job_id, job)
-      message(sprintf("[worker-consumer] Job %s FAILED: %s", job_id, result$error))
+      message(sprintf(
+        "[worker-consumer] Job %s FAILED: %s",
+        job_id, result$error
+      ))
       next
     }
 
@@ -874,12 +914,19 @@ run_queue_consumer <- function(redis_host, redis_port, redis_password,
     indicator_ids <- character(0)
     body <- job$params
     for (r in result$results) {
-      ind_id <- paste0("ind_", as.integer(Sys.time()), "_", sample.int(9999L, 1L))
+      ind_id <- paste0(
+        "ind_", as.integer(Sys.time()), "_",
+        sample.int(9999L, 1L)
+      )
       ind_doc <- list(
         id = ind_id,
         name = r$stat %||% "Computed indicator",
         workflow_id = body$workflow_id,
-        recipe_id = if (length(body$recipe_ids) > 0) body$recipe_ids[[1]] else NULL,
+        recipe_id = if (length(body$recipe_ids) > 0) {
+          body$recipe_ids[[1]]
+        } else {
+          NULL
+        },
         survey_type = body$survey_type,
         edition = body$edition,
         estimation_type = body$estimation_type %||% "annual",
@@ -941,7 +988,10 @@ if (!is.null(redis_con)) {
     consumer_process$get_pid()
   ))
 } else {
-  message("[metasurvey-worker] Redis not available — queue consumer not started")
+  message(
+    "[metasurvey-worker] Redis not available",
+    " — queue consumer not started"
+  )
 }
 
 # -- Global serializer --------------------------------------------------------

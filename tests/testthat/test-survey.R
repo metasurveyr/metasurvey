@@ -629,9 +629,11 @@ test_that("set_weight standalone with .copy=TRUE returns clone", {
   expect_s3_class(s2, "Survey")
 })
 
-test_that("set_weight standalone with .copy=FALSE triggers comparison error on list weights", {
+test_that(
+  "set_weight standalone: .copy=FALSE comparison error on list weights", {
   s <- make_test_survey()
-  # set_weight .copy=FALSE path has svy$weight == new_weight which fails for lists
+  # set_weight .copy=FALSE path has svy$weight == new_weight
+  # which fails for lists
   expect_error(
     metasurvey:::set_weight(s, s$weight, .copy = FALSE),
     "comparison.*not implemented|not meaningful"

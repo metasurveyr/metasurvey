@@ -230,7 +230,7 @@ api_request <- function(endpoint, method = "GET",
 #'   \code{token}, \code{user}).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api("https://metasurvey-api.example.com")
 #' api_register("Ana Garcia", "ana@example.com", "s3cret")
 #' }
@@ -268,7 +268,7 @@ api_register <- function(name, email, password,
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_login("ana@example.com", "s3cret")
 #' }
 #' @family api-auth
@@ -290,7 +290,7 @@ api_login <- function(email, password) {
 #' @return List with user fields (name, email, user_type, etc.)
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_me()
 #' }
 #' @family api-auth
@@ -306,7 +306,7 @@ api_me <- function() {
 #' @return The new token string (invisibly), or NULL if refresh fails.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_refresh_token()
 #' }
 #' @family api-auth
@@ -370,7 +370,7 @@ validate_api_id <- function(id) {
 #' @return List of Recipe objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' configure_api("https://metasurvey-api.example.com")
 #' recipes <- api_list_recipes(survey_type = "ech")
 #' }
@@ -401,7 +401,7 @@ api_list_recipes <- function(search = NULL, survey_type = NULL, topic = NULL,
 #'   A list of Recipe objects when \code{length(id) > 1} (NULLs are dropped).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_recipe("r_1739654400_742")
 #' }
 #' @family api-recipes
@@ -446,7 +446,7 @@ api_get_recipe <- function(id) {
 #' @return Invisibly, the API response with the assigned ID.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_publish_recipe(my_recipe)
 #' }
 #' @family api-recipes
@@ -501,7 +501,7 @@ api_download_recipe <- function(id) {
 #' @return List of RecipeWorkflow objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_list_workflows(survey_type = "ech")
 #' }
 #' @family api-workflows
@@ -530,7 +530,7 @@ api_list_workflows <- function(search = NULL, survey_type = NULL,
 #' @return RecipeWorkflow object or NULL
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_workflow("w_1739654400_123")
 #' }
 #' @family api-workflows
@@ -563,7 +563,7 @@ api_get_workflow <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_publish_workflow(my_workflow)
 #' }
 #' @family api-workflows
@@ -697,7 +697,7 @@ parse_recipe_from_json <- function(doc) {
 #' @return A list of variable metadata objects
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_anda_variables("ech", c("pobpcoac", "e27"))
 #' }
 #' @family anda
@@ -730,7 +730,7 @@ api_get_anda_variables <- function(survey_type = "ech", var_names = NULL) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_star_recipe("r_1739654400_742", 5)
 #' }
 #' @family api-stars
@@ -756,7 +756,7 @@ api_star_recipe <- function(id, value) {
 #'   \code{user_value}.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_recipe_stars("r_1739654400_742")
 #' }
 #' @family api-stars
@@ -772,7 +772,7 @@ api_get_recipe_stars <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_star_workflow("w_1739654400_123", 4)
 #' }
 #' @family api-stars
@@ -798,7 +798,7 @@ api_star_workflow <- function(id, value) {
 #'   \code{user_value}.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_workflow_stars("w_1739654400_123")
 #' }
 #' @family api-stars
@@ -818,7 +818,7 @@ api_get_workflow_stars <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_comment_recipe("r_1739654400_742", "Great recipe!")
 #' }
 #' @family api-comments
@@ -841,7 +841,7 @@ api_comment_recipe <- function(id, text) {
 #' @return List of comment objects.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_recipe_comments("r_1739654400_742")
 #' }
 #' @family api-comments
@@ -861,7 +861,7 @@ api_get_recipe_comments <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_comment_workflow("w_1739654400_123", "Very useful workflow!")
 #' }
 #' @family api-comments
@@ -884,7 +884,7 @@ api_comment_workflow <- function(id, text) {
 #' @return List of comment objects.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_workflow_comments("w_1739654400_123")
 #' }
 #' @family api-comments
@@ -904,7 +904,7 @@ api_get_workflow_comments <- function(id) {
 #' @return Invisibly, the API response.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_delete_comment("c_abc123")
 #' }
 #' @family api-comments
@@ -928,7 +928,7 @@ api_delete_comment <- function(comment_id) {
 #' @return List of recipe summaries (id, name, user).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' api_get_recipe_dependents("r_1739654400_742")
 #' }
 #' @family api-recipes

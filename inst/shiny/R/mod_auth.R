@@ -138,7 +138,8 @@ auth_ui <- function(id) {
                 "input['%s'] == 'institutional_member'",
                 ns("reg_type")
               ),
-              shiny::textInput(ns("reg_institution"), "Nombre de la institucion",
+              shiny::textInput(
+                ns("reg_institution"), "Nombre de la institucion",
                 placeholder = "ej. Instituto de Economia"
               )
             ),

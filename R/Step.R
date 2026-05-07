@@ -310,7 +310,10 @@ bake_steps <- function(svy) {
     return(bake_steps_rotative(svy))
   }
 
-  stop("The object is not a Survey or RotativePanelSurvey object", call. = FALSE)
+  stop(
+    "The object is not a Survey or RotativePanelSurvey object",
+    call. = FALSE
+  )
 }
 
 #' Bake steps survey rotative

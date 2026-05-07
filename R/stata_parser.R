@@ -55,7 +55,8 @@ parse_do_file <- function(do_file, encoding = "latin1") {
 #' @keywords internal
 strip_stata_comments <- function(lines) {
   # Pass 1: Remove block comments /* ... */
-  # When /* at end of line and */ at start of next, join them (line continuation)
+  # When /* at end of line and */ at start of next, join them
+  # (line continuation)
   in_block <- FALSE
   block_start_idx <- NA_integer_
   result <- character(length(lines))
@@ -290,7 +291,8 @@ expand_stata_loops <- function(lines) {
     }
   }
 
-  # Recursively expand nested loops (inner foreach/forvalues inside expanded body)
+  # Recursively expand nested loops
+  # (inner foreach/forvalues inside expanded body)
   if (!identical(result, lines) && any(grepl(
     "^\\s*(?:cap(?:ture)?\\s+)?(?:foreach|forval)", result,
     perl = TRUE
@@ -387,7 +389,8 @@ parse_stata_command <- function(line, line_num = NA_integer_) {
   if (grepl("^[&|)+]", line, perl = TRUE)) {
     return(NULL)
   }
-  # Lines starting with ( that aren't commands — bare expressions from commented blocks
+  # Lines starting with ( that aren't commands
+  # — bare expressions from commented blocks
   if (grepl("^\\(", line, perl = TRUE)) {
     return(NULL)
   }

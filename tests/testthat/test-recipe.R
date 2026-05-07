@@ -409,7 +409,8 @@ test_that("steps_to_recipe creates recipe from step objects", {
 
 # --- save_recipe + read_recipe roundtrip with steps ---
 
-# Test removido: step_remove genera código con <- que no se puede parsear al hacer roundtrip
+# Test removido: step_remove genera codigo con <- que no se
+# puede parsear al hacer roundtrip
 
 # --- metadata_recipe ---
 
@@ -676,7 +677,10 @@ test_that("search_recipes filters by keyword", {
   set_backend("local", path = tmp)
 
   svy <- make_test_survey()
-  r <- recipe(name = "labor market test", user = "t", svy = svy, description = "employment stats")
+  r <- recipe(
+    name = "labor market test", user = "t", svy = svy,
+    description = "employment stats"
+  )
   get_backend()$publish(r)
 
   found <- search_recipes("labor")
@@ -889,13 +893,19 @@ test_that("Recipe$validate is case-insensitive", {
 
 test_that("Recipe$to_list serializes all fields", {
   cat1 <- RecipeCategory$new(name = "labor", description = "Labor market")
-  inst <- RecipeUser$new(name = "INE", user_type = "institution", email = "ine@test.com")
+  inst <- RecipeUser$new(
+    name = "INE", user_type = "institution",
+    email = "ine@test.com"
+  )
   reviewer <- RecipeUser$new(
     name = "Reviewer", user_type = "institutional_member",
     email = "rev@test.com", institution = inst
   )
   cert <- RecipeCertification$new(level = "reviewed", certified_by = reviewer)
-  user_info <- RecipeUser$new(name = "Test User", user_type = "individual", email = "test@test.com")
+  user_info <- RecipeUser$new(
+    name = "Test User", user_type = "individual",
+    email = "test@test.com"
+  )
 
   r <- Recipe$new(
     name = "to_list test",
@@ -956,7 +966,10 @@ test_that("Recipe$certify updates certification", {
 
   expect_equal(r$certification$level, "community")
 
-  inst <- RecipeUser$new(name = "INE", user_type = "institution", email = "ine@test.com")
+  inst <- RecipeUser$new(
+    name = "INE", user_type = "institution",
+    email = "ine@test.com"
+  )
   certifier <- RecipeUser$new(
     name = "Reviewer", user_type = "institutional_member",
     email = "rev@test.com", institution = inst
@@ -998,7 +1011,10 @@ test_that("Recipe$add_category and remove_category work", {
 test_that("read_recipe restores full metadata", {
   svy <- make_test_survey()
   cat1 <- RecipeCategory$new(name = "labor", description = "Labor market")
-  user_info <- RecipeUser$new(name = "Test User", user_type = "individual", email = "test@test.com")
+  user_info <- RecipeUser$new(
+    name = "Test User", user_type = "individual",
+    email = "test@test.com"
+  )
 
   r <- Recipe$new(
     name = "full roundtrip",
@@ -1221,7 +1237,11 @@ test_that("publish_recipe stores recipe in local backend", {
 test_that("read_recipe handles minimal JSON", {
   tmp <- tempfile(fileext = ".json")
   on.exit(unlink(tmp))
-  writeLines('{"name":"test","steps":[],"edition":"2023","survey_type":"ech","user":"t","description":"d","id":"r1"}', tmp)
+  writeLines(
+    '{"name":"test","steps":[],"edition":"2023",'
+    '"survey_type":"ech","user":"t","description":"d","id":"r1"}',
+    tmp
+  )
   result <- read_recipe(tmp)
   expect_true(inherits(result, "Recipe") || is.list(result))
 })

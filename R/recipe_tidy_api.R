@@ -13,7 +13,8 @@
 #' @param type Character. One of \code{"individual"} (default),
 #'   \code{"institutional_member"}, or \code{"institution"}.
 #' @param email Character or `NULL` (default `NULL`). Email address.
-#' @param affiliation Character or `NULL` (default `NULL`). Organizational affiliation.
+#' @param affiliation Character or `NULL` (default `NULL`).
+#'   Organizational affiliation.
 #' @param institution RecipeUser object or character institution name.
 #'   Required for \code{"institutional_member"} type. If a string is provided,
 #'   it creates an institution user with that name

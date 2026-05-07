@@ -1,6 +1,10 @@
 test_that("step_remove removes columns and records step", {
   df <- data.frame(id = 1:3, a = 1, b = 2, w = 1)
-  s <- Survey$new(data = data.table::data.table(df), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+  s <- Survey$new(
+    data = data.table::data.table(df), edition = "2023",
+    type = "ech", psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
 
   s2 <- step_remove(s, a, b)
   expect_true(any(grepl("Remove:", names(s2$steps))))
@@ -11,7 +15,11 @@ test_that("step_remove removes columns and records step", {
 
 test_that("step_rename renames columns and records step", {
   df <- data.frame(id = 1:3, a = 1, w = 1)
-  s <- Survey$new(data = data.table::data.table(df), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+  s <- Survey$new(
+    data = data.table::data.table(df), edition = "2023",
+    type = "ech", psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
 
   s2 <- step_rename(s, alpha = a)
   expect_true(any(grepl("Rename:", names(s2$steps))))
@@ -23,7 +31,11 @@ test_that("step_rename renames columns and records step", {
 test_that("step_join with data.frame RHS performs left/inner/full joins", {
   lhs <- data.frame(id = 1:3, a = c("x", "y", "z"), w = 1)
   rhs <- data.frame(id = c(2, 3, 4), b = c(20, 30, 40))
-  s <- Survey$new(data = data.table::data.table(lhs), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
+  s <- Survey$new(
+    data = data.table::data.table(lhs), edition = "2023",
+    type = "ech", psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
 
   # Left join keeps all LHS rows
   s_left <- bake_steps(step_join(s, rhs, by = "id", type = "left"))
@@ -42,10 +54,20 @@ test_that("step_join with data.frame RHS performs left/inner/full joins", {
 test_that("step_join accepts Survey as RHS and handles key mapping", {
   lhs <- data.frame(id = 1:2, a = 1:2, w = 1)
   rhs <- data.frame(code = 2:3, b = 10:11, w2 = 1)
-  s_left <- Survey$new(data = data.table::data.table(lhs), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w"))
-  s_right <- Survey$new(data = data.table::data.table(rhs), edition = "2023", type = "ech", psu = NULL, engine = "data.table", weight = add_weight(annual = "w2"))
+  s_left <- Survey$new(
+    data = data.table::data.table(lhs), edition = "2023",
+    type = "ech", psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w")
+  )
+  s_right <- Survey$new(
+    data = data.table::data.table(rhs), edition = "2023",
+    type = "ech", psu = NULL, engine = "data.table",
+    weight = add_weight(annual = "w2")
+  )
 
-  s_out <- bake_steps(step_join(s_left, s_right, by = c("id" = "code"), type = "left"))
+  s_out <- bake_steps(
+    step_join(s_left, s_right, by = c("id" = "code"), type = "left")
+  )
   expect_true("b" %in% names(s_out$data))
   expect_equal(nrow(s_out$data), 2)
 })
@@ -215,7 +237,10 @@ test_that("get_formulas returns NULL for empty steps", {
 
 test_that("get_formulas handles recode type step", {
   s <- make_test_survey()
-  s2 <- step_recode(s, age_cat, age < 30 ~ "young", age >= 30 ~ "old", .default = "unknown")
+  s2 <- step_recode(
+    s, age_cat, age < 30 ~ "young", age >= 30 ~ "old",
+    .default = "unknown"
+  )
   steps <- get_steps(s2)
   formulas <- metasurvey:::get_formulas(steps)
   expect_true(is.character(formulas))
@@ -396,7 +421,9 @@ test_that("step_join handles overlapping column names", {
   )
   s2 <- bake_steps(step_join(s, rhs, by = "id", type = "left"))
   # Should have val and val.y
-  expect_true("val.y" %in% names(get_data(s2)) || "val" %in% names(get_data(s2)))
+  expect_true(
+    "val.y" %in% names(get_data(s2)) || "val" %in% names(get_data(s2))
+  )
 })
 
 test_that("step_join errors on non-data.frame x", {
@@ -584,7 +611,9 @@ test_that("step_recode creates recoded variable on Survey", {
   )
   expect_s3_class(s2, "Survey")
   expect_true("age_cat" %in% names(get_data(s2)))
-  expect_true(all(get_data(s2)$age_cat %in% c("young", "middle", "senior", "unknown")))
+  expect_true(
+    all(get_data(s2)$age_cat %in% c("young", "middle", "senior", "unknown"))
+  )
 })
 
 test_that("step_recode with .to_factor converts to factor", {
@@ -786,13 +815,17 @@ test_that("new_step errors when recode type missing new_var", {
 
 # ── Internal compute/recode with .copy=FALSE + lazy=TRUE paths ───────────────
 
-test_that("internal compute with .copy=FALSE and lazy=TRUE returns survey unchanged", {
+test_that(
+  "internal compute with .copy=FALSE and lazy=TRUE returns survey unchanged", {
   s <- make_test_survey()
-  result <- metasurvey:::compute(s, double_age = age * 2, .copy = FALSE, lazy = TRUE)
+  result <- metasurvey:::compute(
+    s, double_age = age * 2, .copy = FALSE, lazy = TRUE
+  )
   expect_identical(result, s)
 })
 
-test_that("internal recode with .copy=FALSE and lazy=TRUE returns survey unchanged", {
+test_that(
+  "internal recode with .copy=FALSE and lazy=TRUE returns survey unchanged", {
   s <- make_test_survey()
   result <- metasurvey:::recode(s, "age_cat",
     age < 30 ~ "young", age >= 30 ~ "old",
@@ -872,7 +905,8 @@ test_that("step_join handles overlapping column names with suffix", {
   expect_true("age.y" %in% names(dt))
 })
 
-test_that("step_compute on RotativePanelSurvey with .copy=FALSE modifies in place", {
+test_that(
+  "step_compute on RotativePanelSurvey with .copy=FALSE modifies in place", {
   implantation <- make_test_survey(20)
   implantation$periodicity <- "monthly"
   fu1 <- make_test_survey(20)

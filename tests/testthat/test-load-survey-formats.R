@@ -1,6 +1,6 @@
 # Tests for R/load_survey.R — file formats, validate_recipe, read_file
 
-# ── read_file ──────────────────────────────────────────────────────────────────
+# ── read_file ────────────────────────────────────────────────────────────────
 
 test_that("read_file loads CSV file", {
   tmp <- tempfile(fileext = ".csv")
@@ -29,7 +29,7 @@ test_that("read_file errors for unsupported extension", {
   expect_error(read_file("/fake/path/data.xyz"), "Unsupported file type")
 })
 
-# ── validate_recipe ────────────────────────────────────────────────────────────
+# ── validate_recipe ──────────────────────────────────────────────────────────
 
 test_that("validate_recipe returns TRUE for matching type and edition", {
   result <- validate_recipe("ech", "2023", "2023", "ech")
@@ -46,7 +46,8 @@ test_that("validate_recipe returns FALSE for mismatched edition", {
   expect_false(result)
 })
 
-test_that("validate_recipe handles vector edition (recipe covers multiple editions)", {
+test_that(
+  "validate_recipe handles vector edition (recipe covers multiple editions)", {
   result <- validate_recipe("ech", "2023", c("2022", "2023", "2024"), "ech")
   expect_true(result)
 })
@@ -56,7 +57,7 @@ test_that("validate_recipe returns FALSE when edition not in vector", {
   expect_false(result)
 })
 
-# ── load_survey integration ────────────────────────────────────────────────────
+# ── load_survey integration ──────────────────────────────────────────────────
 
 test_that("load_survey loads CSV and creates Survey", {
   tmp <- tempfile(fileext = ".csv")
@@ -216,7 +217,8 @@ test_that("read_file with convert=TRUE passes through requireNamespace check", {
 
   tmp <- tempfile(fileext = ".dta")
   on.exit(unlink(tmp))
-  # Write minimal content - rio::convert may fail but requireNamespace is exercised
+  # Write minimal content - rio::convert may fail but
+  # requireNamespace is exercised
   writeLines("fake data", tmp)
 
   # rio::convert will error on invalid .dta, but the requireNamespace("rio")

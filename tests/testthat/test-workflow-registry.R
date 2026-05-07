@@ -56,8 +56,12 @@ test_that("WorkflowRegistry filter by survey type", {
 
 test_that("WorkflowRegistry filter by recipe_id (find_by_recipe)", {
   reg <- WorkflowRegistry$new()
-  reg$register(RecipeWorkflow$new(id = "1", name = "WF1", recipe_ids = c("r1", "r2")))
-  reg$register(RecipeWorkflow$new(id = "2", name = "WF2", recipe_ids = c("r2", "r3")))
+  reg$register(
+    RecipeWorkflow$new(id = "1", name = "WF1", recipe_ids = c("r1", "r2"))
+  )
+  reg$register(
+    RecipeWorkflow$new(id = "2", name = "WF2", recipe_ids = c("r2", "r3"))
+  )
   reg$register(RecipeWorkflow$new(id = "3", name = "WF3", recipe_ids = c("r4")))
 
   results <- reg$find_by_recipe("r2")
@@ -144,7 +148,10 @@ test_that("WorkflowRegistry print produces output", {
 
 test_that("WorkflowBackend local publish and search", {
   backend <- WorkflowBackend$new("local")
-  wf <- RecipeWorkflow$new(id = "b1", name = "Backend WF", description = "For testing")
+  wf <- RecipeWorkflow$new(
+    id = "b1", name = "Backend WF",
+    description = "For testing"
+  )
   backend$publish(wf)
 
   results <- backend$search("backend")
@@ -155,8 +162,12 @@ test_that("WorkflowBackend local publish and search", {
 
 test_that("WorkflowBackend local find_by_recipe", {
   backend <- WorkflowBackend$new("local")
-  backend$publish(RecipeWorkflow$new(id = "1", name = "A", recipe_ids = c("r1")))
-  backend$publish(RecipeWorkflow$new(id = "2", name = "B", recipe_ids = c("r2")))
+  backend$publish(
+    RecipeWorkflow$new(id = "1", name = "A", recipe_ids = c("r1"))
+  )
+  backend$publish(
+    RecipeWorkflow$new(id = "2", name = "B", recipe_ids = c("r2"))
+  )
 
   results <- backend$find_by_recipe("r1")
   expect_equal(length(results), 1)
@@ -203,8 +214,12 @@ test_that("find_workflows_for_recipe cross-ref", {
 
   set_workflow_backend("local")
   backend <- get_workflow_backend()
-  backend$publish(RecipeWorkflow$new(id = "1", name = "A", recipe_ids = c("r1", "r2")))
-  backend$publish(RecipeWorkflow$new(id = "2", name = "B", recipe_ids = c("r3")))
+  backend$publish(
+    RecipeWorkflow$new(id = "1", name = "A", recipe_ids = c("r1", "r2"))
+  )
+  backend$publish(
+    RecipeWorkflow$new(id = "2", name = "B", recipe_ids = c("r3"))
+  )
   options(metasurvey.workflow_backend = backend)
 
   results <- find_workflows_for_recipe("r1")

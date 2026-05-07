@@ -1,5 +1,6 @@
 # Helper to create test recipes
-make_api_recipe <- function(name, user = "tester", downloads = 0L, topic = NULL) {
+make_api_recipe <- function(
+  name, user = "tester", downloads = 0L, topic = NULL) {
   Recipe$new(
     name = name, edition = "2023", survey_type = "ech",
     default_engine = "data.table", depends_on = list(),
@@ -149,8 +150,14 @@ test_that("local backend: search filters by name", {
   set_backend("local", path = tmp)
 
   svy <- make_test_survey()
-  r1 <- recipe(name = "employment stats", user = "t", svy = svy, description = "d")
-  r2 <- recipe(name = "income analysis", user = "t", svy = svy, description = "d")
+  r1 <- recipe(
+    name = "employment stats", user = "t", svy = svy,
+    description = "d"
+  )
+  r2 <- recipe(
+    name = "income analysis", user = "t", svy = svy,
+    description = "d"
+  )
   get_backend()$publish(r1)
   get_backend()$publish(r2)
 

@@ -7,15 +7,23 @@ test_that("RecipeCertification creates community level with no certifier", {
 })
 
 test_that("RecipeCertification creates reviewed level with member certifier", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   cert <- RecipeCertification$new(level = "reviewed", certified_by = member)
   expect_equal(cert$level, "reviewed")
   expect_equal(cert$certified_by$name, "Maria")
 })
 
-test_that("RecipeCertification creates official level with institution certifier", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", verified = TRUE)
+test_that(
+  "RecipeCertification creates official level with institution certifier", {
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution", verified = TRUE
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
   expect_equal(cert$level, "official")
   expect_equal(cert$certified_by$name, "IECON")
@@ -30,8 +38,13 @@ test_that("official certification requires institution user", {
 })
 
 test_that("official certification rejects institutional_member", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   expect_error(
     RecipeCertification$new(level = "official", certified_by = member),
     "institution"
@@ -47,7 +60,9 @@ test_that("reviewed certification rejects individual user", {
 })
 
 test_that("reviewed certification accepts institution user", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "reviewed", certified_by = inst)
   expect_equal(cert$level, "reviewed")
 })
@@ -67,14 +82,21 @@ test_that("certified_at is auto-set to current time", {
 })
 
 test_that("notes field stores extra info", {
-  cert <- RecipeCertification$new(level = "community", notes = "Initial publication")
+  cert <- RecipeCertification$new(
+    level = "community", notes = "Initial publication"
+  )
   expect_equal(cert$notes, "Initial publication")
 })
 
 test_that("is_at_least compares levels correctly", {
   community <- RecipeCertification$new(level = "community")
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   reviewed <- RecipeCertification$new(level = "reviewed", certified_by = member)
   official <- RecipeCertification$new(level = "official", certified_by = inst)
 
@@ -95,8 +117,13 @@ test_that("is_at_least compares levels correctly", {
 })
 
 test_that("to_list serialization works", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  cert <- RecipeCertification$new(level = "official", certified_by = inst, notes = "Approved")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  cert <- RecipeCertification$new(
+    level = "official", certified_by = inst,
+    notes = "Approved"
+  )
   lst <- cert$to_list()
 
   expect_type(lst, "list")
@@ -112,7 +139,9 @@ test_that("from_list deserialization works", {
     certified_by = list(
       name = "Maria",
       user_type = "institutional_member",
-      institution = list(name = "IECON", user_type = "institution", verified = TRUE)
+      institution = list(
+        name = "IECON", user_type = "institution", verified = TRUE
+      )
     ),
     certified_at = as.character(Sys.time()),
     notes = "Peer reviewed"
@@ -125,8 +154,13 @@ test_that("from_list deserialization works", {
 })
 
 test_that("to_list/from_list round-trip", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", verified = TRUE)
-  cert <- RecipeCertification$new(level = "official", certified_by = inst, notes = "v1 approved")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution", verified = TRUE
+  )
+  cert <- RecipeCertification$new(
+    level = "official", certified_by = inst,
+    notes = "v1 approved"
+  )
 
   restored <- RecipeCertification$from_list(cert$to_list())
   expect_equal(restored$level, "official")
@@ -151,7 +185,9 @@ test_that("print method works for community", {
 })
 
 test_that("print method works for official", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
   expect_output(print(cert), "official")
 })
@@ -159,7 +195,10 @@ test_that("print method works for official", {
 test_that("numeric_level returns correct ordering", {
   community <- RecipeCertification$new(level = "community")
   inst <- RecipeUser$new(name = "I", user_type = "institution")
-  member <- RecipeUser$new(name = "M", user_type = "institutional_member", institution = inst)
+  member <- RecipeUser$new(
+    name = "M", user_type = "institutional_member",
+    institution = inst
+  )
   reviewed <- RecipeCertification$new(level = "reviewed", certified_by = member)
   official <- RecipeCertification$new(level = "official", certified_by = inst)
 

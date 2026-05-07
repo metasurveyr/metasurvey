@@ -808,7 +808,7 @@ read_recipe <- function(file) {
 #' must match for a recipe to be returned.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Get specific recipe for ECH 2023
 #' ech_recipe <- get_recipe(
 #'   svy_type = "ech",

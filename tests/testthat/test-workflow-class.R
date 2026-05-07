@@ -26,7 +26,10 @@ test_that("RecipeWorkflow creation with all fields", {
     recipe_ids = c("recipe_001", "recipe_002"),
     calls = list("svymean(~employed, design = design, na.rm = TRUE)"),
     call_metadata = list(
-      list(type = "svymean", formula = "~employed", description = "Mean employment")
+      list(
+        type = "svymean", formula = "~employed",
+        description = "Mean employment"
+      )
     ),
     downloads = 42L,
     version = "2.0.0",
@@ -199,7 +202,10 @@ test_that("print.RecipeWorkflow produces output", {
 })
 
 test_that("save_workflow rejects non-RecipeWorkflow objects", {
-  expect_error(save_workflow(list(name = "fake"), tempfile()), "Can only save RecipeWorkflow")
+  expect_error(
+    save_workflow(list(name = "fake"), tempfile()),
+    "Can only save RecipeWorkflow"
+  )
 })
 
 test_that("workflow_from_list handles minimal input", {

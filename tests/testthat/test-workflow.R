@@ -111,7 +111,9 @@ test_that("cat_estimation.default formats svymean result", {
 
   result <- metasurvey:::cat_estimation.default(estimation, "survey::svymean")
   expect_s3_class(result, "data.table")
-  expect_true(all(c("stat", "value", "se", "cv", "confint_lower", "confint_upper") %in% names(result)))
+  expected_cols <- c("stat", "value", "se", "cv", "confint_lower",
+    "confint_upper")
+  expect_true(all(expected_cols %in% names(result)))
   expect_true(nrow(result) > 0)
 })
 
@@ -134,7 +136,9 @@ test_that("cat_estimation.svyratio formats ratio result", {
 
   result <- metasurvey:::cat_estimation.svyratio(estimation, "survey::svyratio")
   expect_s3_class(result, "data.table")
-  expect_true(all(c("stat", "value", "se", "cv", "confint_lower", "confint_upper") %in% names(result)))
+  expected_cols <- c("stat", "value", "se", "cv", "confint_lower",
+    "confint_upper")
+  expect_true(all(expected_cols %in% names(result)))
 })
 
 # --- cat_estimation.svyby tests ---
@@ -142,7 +146,9 @@ test_that("cat_estimation.svyratio formats ratio result", {
 test_that("cat_estimation.svyby formats by-group result", {
   survey <- make_test_survey(100)
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
-  estimation <- survey::svyby(~income, ~region, des, survey::svymean, na.rm = TRUE)
+  estimation <- survey::svyby(
+    ~income, ~region, des, survey::svymean, na.rm = TRUE
+  )
 
   result <- metasurvey:::cat_estimation.svyby(estimation, "survey::svyby")
   expect_s3_class(result, "data.table")
@@ -173,7 +179,9 @@ test_that("cat_estimation dispatches to svyratio", {
 test_that("cat_estimation dispatches to svyby", {
   survey <- make_test_survey(100)
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
-  estimation <- survey::svyby(~income, ~region, des, survey::svymean, na.rm = TRUE)
+  estimation <- survey::svyby(
+    ~income, ~region, des, survey::svymean, na.rm = TRUE
+  )
 
   result <- metasurvey:::cat_estimation(estimation, "survey::svyby")
   expect_s3_class(result, "data.table")
@@ -223,7 +231,11 @@ test_that("workflow svymean result matches direct calculation", {
   )
 
   expect_equal(wf_result$value[1], unname(coef(direct)), tolerance = 1e-6)
-  expect_equal(as.numeric(wf_result$se[1]), as.numeric(survey::SE(direct)), tolerance = 1e-6)
+  expect_equal(
+    as.numeric(wf_result$se[1]),
+    as.numeric(survey::SE(direct)),
+    tolerance = 1e-6
+  )
 })
 
 
@@ -340,7 +352,10 @@ test_that("workflow handles empty survey list", {
   )
 
   # Should error, return NULL, or return empty data.frame for empty list
-  expect_true(inherits(result, "error") || is.null(result) || (is.data.frame(result) && nrow(result) == 0))
+  expect_true(
+    inherits(result, "error") || is.null(result) ||
+      (is.data.frame(result) && nrow(result) == 0)
+  )
 })
 
 test_that("workflow validates estimation type exists in design", {
@@ -378,7 +393,9 @@ test_that("cat_estimation.default handles all result columns", {
 
   result <- metasurvey:::cat_estimation.default(estimation, "survey::svymean")
 
-  expected_cols <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
+  expected_cols <- c(
+    "stat", "value", "se", "cv", "confint_lower", "confint_upper"
+  )
   expect_true(all(expected_cols %in% names(result)))
 })
 
@@ -387,7 +404,9 @@ test_that("cat_estimation.svyby handles multiple groups", {
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
 
   # svyby with multiple groups
-  estimation <- survey::svyby(~income, ~region, des, survey::svymean, na.rm = TRUE)
+  estimation <- survey::svyby(
+    ~income, ~region, des, survey::svymean, na.rm = TRUE
+  )
 
   result <- metasurvey:::cat_estimation.svyby(estimation, "survey::svyby")
 
@@ -443,7 +462,9 @@ test_that("workflow errors on quarterly without quarterly weight", {
 test_that("workflow with svyby includes margin columns", {
   survey <- make_test_survey(100)
   des <- survey::svydesign(ids = ~1, data = get_data(survey), weights = ~w)
-  estimation <- survey::svyby(~income, ~region, des, survey::svymean, na.rm = TRUE)
+  estimation <- survey::svyby(
+    ~income, ~region, des, survey::svymean, na.rm = TRUE
+  )
 
   result <- metasurvey:::cat_estimation.svyby(estimation, "survey::svyby")
   expect_true("region" %in% names(result) || "stat" %in% names(result))
@@ -480,7 +501,9 @@ test_that("cat_estimation.cvystat formats mock cvystat object", {
 
   result <- metasurvey:::cat_estimation.cvystat(mock_cvystat, "convey::svygini")
   expect_s3_class(result, "data.table")
-  expected_cols <- c("stat", "value", "se", "cv", "confint_lower", "confint_upper")
+  expected_cols <- c(
+    "stat", "value", "se", "cv", "confint_lower", "confint_upper"
+  )
   expect_true(all(expected_cols %in% names(result)))
   expect_equal(result$value, 0.35)
   expect_equal(result$se, 0.02, tolerance = 1e-10)

@@ -1,4 +1,5 @@
-# Tests for Recipe extension with categories, downloads, certification, user_info, version
+# Tests for Recipe extension with categories, downloads,
+# certification, user_info, version
 
 test_that("Recipe$new() backward compat - no new fields", {
   r <- Recipe$new(
@@ -44,7 +45,9 @@ test_that("Recipe with RecipeUser assigned to user_info", {
 })
 
 test_that("Recipe with RecipeCertification", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
   r <- Recipe$new(
     name = "test", edition = "2023", survey_type = "ech",
@@ -72,7 +75,9 @@ test_that("increment_downloads increases count", {
 })
 
 test_that("certify creates/upgrades certification", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   r <- Recipe$new(
     name = "test", edition = "2023", survey_type = "ech",
     default_engine = "data.table", depends_on = list(),
@@ -142,9 +147,14 @@ test_that("remove_category removes by name", {
 })
 
 test_that("save_recipe includes new fields in JSON", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", verified = TRUE)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution", verified = TRUE
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
-  user <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  user <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   labor <- RecipeCategory$new("labor_market", "Labor")
 
   r <- Recipe$new(
@@ -169,7 +179,9 @@ test_that("save_recipe includes new fields in JSON", {
 })
 
 test_that("read_recipe reconstructs new fields from JSON", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
   labor <- RecipeCategory$new("labor_market", "Labor")
 
@@ -197,7 +209,9 @@ test_that("read_recipe reconstructs new fields from JSON", {
 
 test_that("doc() includes categories and certification in meta", {
   labor <- RecipeCategory$new("labor_market", "Labor")
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
 
   r <- Recipe$new(
@@ -217,7 +231,9 @@ test_that("doc() includes categories and certification in meta", {
 
 test_that("print.Recipe shows new fields", {
   labor <- RecipeCategory$new("labor_market", "Labor")
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   cert <- RecipeCertification$new(level = "official", certified_by = inst)
 
   r <- Recipe$new(

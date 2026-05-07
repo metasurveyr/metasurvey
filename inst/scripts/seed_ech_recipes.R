@@ -42,7 +42,11 @@ seed_dir <- if (file.exists("inst/seed-data/recipes.json")) {
 }
 
 if (!nzchar(seed_dir) || !dir.exists(seed_dir)) {
-  stop("Cannot find seed-data directory. Run from package root or install metasurvey first.")
+  stop(
+    "Cannot find seed-data directory.",
+    " Run from package root or install metasurvey first.",
+    call. = FALSE
+  )
 }
 
 # ── Load JSON files ──────────────────────────────────────────────────────────
@@ -80,10 +84,19 @@ indicators <- if (file.exists(indicators_file)) {
 cat(sprintf("  indicators.json : %d entries\n", length(indicators)))
 
 # ── Connect ──────────────────────────────────────────────────────────────────
-db_users <- mongolite::mongo(collection = "users", db = DATABASE, url = MONGO_URI)
-db_recipes <- mongolite::mongo(collection = "recipes", db = DATABASE, url = MONGO_URI)
-db_workflows <- mongolite::mongo(collection = "workflows", db = DATABASE, url = MONGO_URI)
-db_indicators <- mongolite::mongo(collection = "indicators", db = DATABASE, url = MONGO_URI)
+db_users <- mongolite::mongo(
+  collection = "users", db = DATABASE, url = MONGO_URI
+)
+db_recipes <- mongolite::mongo(
+  collection = "recipes", db = DATABASE, url = MONGO_URI
+)
+db_workflows <- mongolite::mongo(
+  collection = "workflows", db = DATABASE, url = MONGO_URI
+)
+db_indicators <- mongolite::mongo(
+  collection = "indicators", db = DATABASE,
+  url = MONGO_URI
+)
 
 cat(sprintf("\nConnected to '%s'\n", DATABASE))
 cat(sprintf(
@@ -157,7 +170,10 @@ for (wf in workflows) {
 
 # ── 5. Insert indicators ──────────────────────────────────────────────────────
 if (length(indicators) > 0) {
-  cat(sprintf("\n[indicators] Inserting %d indicators...\n", length(indicators)))
+  cat(sprintf(
+    "\n[indicators] Inserting %d indicators...\n",
+    length(indicators)
+  ))
   for (ind in indicators) {
     tryCatch(
       {

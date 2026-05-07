@@ -215,7 +215,8 @@ test_that("optimize_steps single step_compute unchanged", {
   expect_equal(result[1], steps[1])
 })
 
-test_that("optimize_steps does not collapse step_compute across other step types", {
+test_that(
+  "optimize_steps does not collapse step_compute across other step types", {
   steps <- c(
     "step_compute(svy, a = 1)",
     'step_rename(svy, edad = "age")',
@@ -824,7 +825,8 @@ test_that("translate_rename produces step_rename", {
   expect_match(result$steps[[1]], 'step_rename.*new_name.*=.*"old_name"')
 })
 
-# --- extract_input_vars, build_doc_from_steps, transpile_coverage, filter_labels ---
+# --- extract_input_vars, build_doc_from_steps,
+# --- transpile_coverage, filter_labels ---
 
 test_that("extract_input_vars finds referenced variables excluding outputs", {
   steps <- c(
@@ -934,7 +936,10 @@ test_that("transpile_coverage errors on non-existent path", {
 test_that("filter_labels filters to specified variables", {
   labels <- list(
     var_labels = list(age = "Age", sex = "Sex", income = "Income"),
-    val_labels = list(sex = list("1" = "M", "2" = "F"), region = list("1" = "N"))
+    val_labels = list(
+      sex = list("1" = "M", "2" = "F"),
+      region = list("1" = "N")
+    )
   )
   filtered <- filter_labels(labels, c("age", "sex"))
   expect_equal(names(filtered$var_labels), c("age", "sex"))
@@ -957,7 +962,8 @@ test_that("translate_gen_block with if clause (no replace) uses fifelse", {
   expect_no_error(parse(text = result$steps[[1]]))
 })
 
-test_that("translate_gen_block gen+replace all constants produces step_recode", {
+test_that(
+  "translate_gen_block gen+replace all constants produces step_recode", {
   cmds <- list(
     list(
       cmd = "gen", args = "cat = 0", if_clause = NULL,
@@ -983,7 +989,8 @@ test_that("translate_gen_block gen+replace all constants produces step_recode", 
   expect_equal(result$advance, 3)
 })
 
-test_that("translate_gen_block gen+replace mixed (expression RHS) uses fifelse chain", {
+test_that(
+  "translate_gen_block gen+replace mixed (expression RHS) uses fifelse chain", {
   cmds <- list(
     list(
       cmd = "gen", args = "ratio = 0", if_clause = NULL,
@@ -1173,7 +1180,8 @@ test_that("translate_drop with variable range expands correctly", {
   expect_match(result$steps, "aux1.*aux2.*aux3")
 })
 
-test_that("translate_gen_block with gen followed by non-replace breaks lookahead", {
+test_that(
+  "translate_gen_block with gen followed by non-replace breaks lookahead", {
   cmds <- list(
     list(
       cmd = "gen", args = "x = 1", if_clause = NULL, options = NULL,
@@ -1198,7 +1206,8 @@ test_that("translate_gen_block with invalid gen returns NULL", {
     )
   )
   # parse_gen_args will return something because there's an = sign
-  # Let's use a case that truly returns NULL: no = sign and not matching bare var
+  # Let's use a case that truly returns NULL:
+  # no = sign and not matching bare var
   cmds2 <- list(
     list(
       cmd = "gen", args = "", if_clause = NULL, options = NULL,
@@ -1259,7 +1268,10 @@ test_that("build_doc_from_steps handles rename and remove step types", {
 # ── transpile_stata_module with temp .do files ────────────────────────────────
 
 test_that("transpile_stata_module errors on missing directory", {
-  expect_error(transpile_stata_module("/nonexistent/dir", 2023), "Directory not found")
+  expect_error(
+    transpile_stata_module("/nonexistent/dir", 2023),
+    "Directory not found"
+  )
 })
 
 test_that("transpile_stata_module processes a year directory with .do files", {

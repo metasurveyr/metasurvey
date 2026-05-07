@@ -1,8 +1,12 @@
 # Integration tests for the full recipe ecosystem
 
-test_that("Full workflow: user -> recipe -> categorize -> register -> search -> retrieve", {
+test_that(
+  "Full workflow: user->recipe->categorize->register->search->retrieve", {
   # Create user
-  user <- RecipeUser$new(name = "Juan Perez", user_type = "individual", email = "juan@test.com")
+  user <- RecipeUser$new(
+    name = "Juan Perez", user_type = "individual",
+    email = "juan@test.com"
+  )
 
   # Create recipe with user_info
   labor <- RecipeCategory$new("labor_market", "Labor market indicators")
@@ -36,7 +40,10 @@ test_that("Full workflow: user -> recipe -> categorize -> register -> search -> 
 
 test_that("Institution certification flow", {
   # Create institution
-  inst <- RecipeUser$new(name = "Instituto de Economia", user_type = "institution", verified = TRUE)
+  inst <- RecipeUser$new(
+    name = "Instituto de Economia",
+    user_type = "institution", verified = TRUE
+  )
 
   # Create recipe as community
   r <- Recipe$new(
@@ -83,8 +90,13 @@ test_that("Ranking: 5 recipes with different downloads", {
 
 test_that("Mixed ranking: certification levels x downloads", {
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
 
   # Community with high downloads
   r1 <- Recipe$new(
@@ -127,8 +139,13 @@ test_that("Mixed ranking: certification levels x downloads", {
 
 test_that("User filtering: institution + members", {
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   individual <- RecipeUser$new(name = "Juan", user_type = "individual")
 
   r1 <- Recipe$new(
@@ -168,8 +185,13 @@ test_that("Full save/load cycle preserves everything", {
   on.exit(unlink(tmp))
 
   reg <- RecipeRegistry$new()
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", verified = TRUE)
-  member <- RecipeUser$new(name = "Maria", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution", verified = TRUE
+  )
+  member <- RecipeUser$new(
+    name = "Maria", user_type = "institutional_member",
+    institution = inst
+  )
   labor <- RecipeCategory$new("labor_market", "Labor")
   income <- RecipeCategory$new("income", "Income")
 

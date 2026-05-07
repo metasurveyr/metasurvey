@@ -1,6 +1,6 @@
 # Tests for R/anda.R — ANDA5 integration (pure functions + mocks)
 
-# ── .ech_catalog_ids ───────────────────────────────────────────────────────────
+# ── .ech_catalog_ids ─────────────────────────────────────────────────────────
 
 test_that(".ech_catalog_ids contains expected editions", {
   ids <- .ech_catalog_ids
@@ -21,13 +21,15 @@ test_that("anda_list_editions returns data.frame with all editions", {
   expect_true(nrow(df) >= 18)
 })
 
-# ── .anda_parse_resources ──────────────────────────────────────────────────────
+# ── .anda_parse_resources ────────────────────────────────────────────────────
 
 test_that(".anda_parse_resources parses HTML with data-file-id", {
   html <- paste0(
-    '<a data-file-id="1264" class="download" title="Implantacion 2023">Download</a>',
+    paste0('<a data-file-id="1264" class="download"',
+           ' title="Implantacion 2023">Download</a>'),
     '<a data-file-id="1265" class="download" title="ECH_01_2023">Download</a>',
-    '<a data-file-id="1270" class="download" title="Pesos replicados Bootstrap anuales 2023">Download</a>'
+    paste0('<a data-file-id="1270" class="download"',
+           ' title="Pesos replicados Bootstrap anuales 2023">Download</a>')
   )
   resources <- .anda_parse_resources(html, 735)
   expect_true(is.data.frame(resources))
@@ -43,7 +45,7 @@ test_that(".anda_parse_resources returns empty data.frame for no matches", {
   expect_equal(nrow(resources), 0)
 })
 
-# ── .anda_select_resource ──────────────────────────────────────────────────────
+# ── .anda_select_resource ────────────────────────────────────────────────────
 
 test_that(".anda_select_resource selects implantation for >= 2022", {
   resources <- data.frame(
@@ -56,11 +58,14 @@ test_that(".anda_select_resource selects implantation for >= 2022", {
   expect_equal(selected$id, "1264")
 })
 
-test_that(".anda_select_resource finds ECH_YYYY.csv when no implantacion label", {
+test_that(
+  ".anda_select_resource finds ECH_YYYY.csv when no implantacion label", {
   # ECH 2024 pattern: no "implantacion" label, just "ECH_2024.csv"
   resources <- data.frame(
     id = c("100", "101", "102", "103"),
-    title = c("ECH_01_24.csv", "ECH_02_24.csv", "ECH_2024.csv", "FIES_2024.csv"),
+    title = c(
+      "ECH_01_24.csv", "ECH_02_24.csv", "ECH_2024.csv", "FIES_2024.csv"
+    ),
     stringsAsFactors = FALSE
   )
   selected <- .anda_select_resource(resources, "implantation", "2024")
@@ -117,7 +122,10 @@ test_that(".anda_select_resource selects bootstrap_annual", {
 test_that(".anda_select_resource selects bootstrap_monthly", {
   resources <- data.frame(
     id = c("1264", "1271"),
-    title = c("Implantacion 2023", "Pesos replicados Bootstrap mensuales enero_junio 2023"),
+    title = c(
+      "Implantacion 2023",
+      "Pesos replicados Bootstrap mensuales enero_junio 2023"
+    ),
     stringsAsFactors = FALSE
   )
   selected <- .anda_select_resource(resources, "bootstrap_monthly", "2023")
@@ -128,7 +136,10 @@ test_that(".anda_select_resource selects bootstrap_monthly", {
 test_that(".anda_select_resource selects bootstrap_quarterly", {
   resources <- data.frame(
     id = c("1264", "1272"),
-    title = c("Implantacion 2023", "Pesos replicados Bootstrap trimestrales 2023"),
+    title = c(
+      "Implantacion 2023",
+      "Pesos replicados Bootstrap trimestrales 2023"
+    ),
     stringsAsFactors = FALSE
   )
   selected <- .anda_select_resource(resources, "bootstrap_quarterly", "2023")
@@ -149,10 +160,13 @@ test_that(".anda_select_resource selects poverty data", {
 
 test_that(".anda_select_resource errors for unknown resource type", {
   resources <- data.frame(id = "1", title = "Test", stringsAsFactors = FALSE)
-  expect_error(.anda_select_resource(resources, "unknown_type", "2023"), "Unknown resource")
+  expect_error(
+    .anda_select_resource(resources, "unknown_type", "2023"),
+    "Unknown resource"
+  )
 })
 
-# ── .anda_extract_file ─────────────────────────────────────────────────────────
+# ── .anda_extract_file ───────────────────────────────────────────────────────
 
 test_that(".anda_extract_file handles CSV (plain text)", {
   tmp_dir <- tempdir()
@@ -208,7 +222,7 @@ test_that(".anda_find_data_file errors on empty directory", {
   expect_error(.anda_find_data_file(tmp_dir, "test"), "empty")
 })
 
-# ── anda_parse_variables (DDI XML parsing) ─────────────────────────────────────
+# ── anda_parse_variables (DDI XML parsing) ───────────────────────────────────
 
 test_that("anda_parse_variables parses DDI XML with variables", {
   skip_if_not_installed("xml2")
@@ -316,7 +330,7 @@ test_that(".anda_extract_file detects SAV by magic bytes", {
   expect_match(result, "\\.sav$")
 })
 
-# ── .anda_find_data_file prefers SAV over XLSX ─────────────────────────────────
+# ── .anda_find_data_file prefers SAV over XLSX ───────────────────────────────
 
 test_that(".anda_find_data_file prefers SAV over XLSX when no CSV", {
   tmp_dir <- tempfile("anda_find_sav_test_")
@@ -330,7 +344,7 @@ test_that(".anda_find_data_file prefers SAV over XLSX when no CSV", {
   expect_match(result, "\\.sav$")
 })
 
-# ── anda_download_microdata error cases ────────────────────────────────────────
+# ── anda_download_microdata error cases ──────────────────────────────────────
 
 test_that("anda_download_microdata errors for unknown edition", {
   expect_error(anda_download_microdata("1999"), "Unknown ECH edition")
@@ -371,7 +385,10 @@ test_that("anda_variable_detail returns single variable", {
   local_mocked_bindings(
     api_get_anda_variables = function(survey_type, var_names) {
       list(
-        list(name = "edad", label = "Edad", type = "continuous", description = "Age in years")
+        list(
+          name = "edad", label = "Edad", type = "continuous",
+          description = "Age in years"
+        )
       )
     }
   )
@@ -398,7 +415,10 @@ test_that("anda_variable_detail returns NULL when not found", {
 test_that(".anda_select_resource selects bootstrap_semestral", {
   resources <- data.frame(
     id = c("1264", "1275"),
-    title = c("Implantacion 2023", "Pesos replicados Bootstrap semestrales 2023"),
+    title = c(
+      "Implantacion 2023",
+      "Pesos replicados Bootstrap semestrales 2023"
+    ),
     stringsAsFactors = FALSE
   )
   selected <- .anda_select_resource(resources, "bootstrap_semestral", "2023")

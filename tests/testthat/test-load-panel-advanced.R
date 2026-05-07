@@ -54,8 +54,16 @@ test_that("load_panel_survey processes CSV files", {
   })
 
   # Create files with different time patterns
-  write.csv(data.frame(x = 1, mes = 1), file.path(tmpdir_fu, "ech_2023_01.csv"), row.names = FALSE)
-  write.csv(data.frame(x = 2, mes = 2), file.path(tmpdir_fu, "ech_2023_02.csv"), row.names = FALSE)
+  write.csv(
+    data.frame(x = 1, mes = 1),
+    file.path(tmpdir_fu, "ech_2023_01.csv"),
+    row.names = FALSE
+  )
+  write.csv(
+    data.frame(x = 2, mes = 2),
+    file.path(tmpdir_fu, "ech_2023_02.csv"),
+    row.names = FALSE
+  )
 
   # Time pattern should be extracted
   files <- list.files(tmpdir_fu, pattern = "\\.csv$", full.names = TRUE)
@@ -94,11 +102,18 @@ test_that("load_panel_survey processes file lists", {
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   # Create multiple files
-  write.csv(data.frame(x = 1), file.path(tmpdir, "file1.csv"), row.names = FALSE)
-  write.csv(data.frame(x = 2), file.path(tmpdir, "file2.csv"), row.names = FALSE)
+  write.csv(
+    data.frame(x = 1), file.path(tmpdir, "file1.csv"),
+    row.names = FALSE
+  )
+  write.csv(
+    data.frame(x = 2), file.path(tmpdir, "file2.csv"),
+    row.names = FALSE
+  )
 
   files <- list.files(tmpdir, pattern = "\\.csv$", full.names = FALSE)
   expect_length(files, 2)
 })
 
-# Remove the remaining tests that were too complex or relied on incorrect function signature
+# Remove the remaining tests that were too complex or relied on
+# incorrect function signature

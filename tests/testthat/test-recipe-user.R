@@ -58,7 +58,10 @@ test_that("institutional_member requires institution", {
     "institution"
   )
   expect_error(
-    RecipeUser$new(name = "test", user_type = "institutional_member", institution = "not_a_user"),
+    RecipeUser$new(
+      name = "test", user_type = "institutional_member",
+      institution = "not_a_user"
+    ),
     "institution"
   )
 })
@@ -66,7 +69,10 @@ test_that("institutional_member requires institution", {
 test_that("trust_level returns correct values", {
   individual <- RecipeUser$new(name = "A", user_type = "individual")
   inst <- RecipeUser$new(name = "B", user_type = "institution")
-  member <- RecipeUser$new(name = "C", user_type = "institutional_member", institution = inst)
+  member <- RecipeUser$new(
+    name = "C", user_type = "institutional_member",
+    institution = inst
+  )
 
   expect_equal(individual$trust_level(), 1)
   expect_equal(member$trust_level(), 2)
@@ -76,7 +82,10 @@ test_that("trust_level returns correct values", {
 test_that("can_certify checks trust level", {
   individual <- RecipeUser$new(name = "A", user_type = "individual")
   inst <- RecipeUser$new(name = "B", user_type = "institution")
-  member <- RecipeUser$new(name = "C", user_type = "institutional_member", institution = inst)
+  member <- RecipeUser$new(
+    name = "C", user_type = "institutional_member",
+    institution = inst
+  )
 
   # Individual cannot certify anything above community
   expect_false(individual$can_certify("reviewed"))
@@ -108,7 +117,9 @@ test_that("to_list serializes individual user", {
 })
 
 test_that("to_list serializes institutional_member with institution", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   member <- RecipeUser$new(
     name = "Maria",
     user_type = "institutional_member",
@@ -148,8 +159,14 @@ test_that("from_list deserializes institutional_member", {
 })
 
 test_that("to_list/from_list round-trip", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", url = "https://iecon.edu.uy", verified = TRUE)
-  member <- RecipeUser$new(name = "Maria Garcia", email = "m@iecon.edu.uy", user_type = "institutional_member", institution = inst)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution",
+    url = "https://iecon.edu.uy", verified = TRUE
+  )
+  member <- RecipeUser$new(
+    name = "Maria Garcia", email = "m@iecon.edu.uy",
+    user_type = "institutional_member", institution = inst
+  )
 
   restored <- RecipeUser$from_list(member$to_list())
   expect_equal(restored$name, "Maria Garcia")
@@ -163,17 +180,25 @@ test_that("from_list with NULL returns NULL", {
 })
 
 test_that("print method works for individual", {
-  user <- RecipeUser$new(name = "Juan", user_type = "individual", email = "j@test.com")
+  user <- RecipeUser$new(
+    name = "Juan", user_type = "individual",
+    email = "j@test.com"
+  )
   expect_output(print(user), "Juan")
 })
 
 test_that("print method works for institution", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution", verified = TRUE)
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution", verified = TRUE
+  )
   expect_output(print(inst), "IECON")
 })
 
 test_that("affiliation field works", {
-  user <- RecipeUser$new(name = "Juan", user_type = "individual", affiliation = "UdelaR")
+  user <- RecipeUser$new(
+    name = "Juan", user_type = "individual",
+    affiliation = "UdelaR"
+  )
   expect_equal(user$affiliation, "UdelaR")
 })
 
@@ -185,7 +210,9 @@ test_that("email defaults to NULL", {
 # ── Batch 10: RecipeUser print edges, review_status, can_certify edge ─────────
 
 test_that("RecipeUser print shows institutional_member with institution", {
-  inst <- RecipeUser$new(name = "IECON", user_type = "institution")
+  inst <- RecipeUser$new(
+    name = "IECON", user_type = "institution"
+  )
   member <- RecipeUser$new(
     name = "Maria", user_type = "institutional_member",
     email = "m@iecon.edu.uy", institution = inst
