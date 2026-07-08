@@ -1,0 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^\.lintr$
+^\.pre-commit-config\.yaml$
+^\.gitignore$
+^MIGRATION\.md$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^data-raw$

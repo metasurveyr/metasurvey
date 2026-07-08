@@ -1,0 +1,105 @@
+# metasurvey.core pre-commit configuration
+# https://pre-commit.com | R hooks: https://github.com/lorenzwalthert/precommit
+
+repos:
+# ── R-specific hooks (lorenzwalthert/precommit) ─────────────
+-   repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.4.3.9028
+    hooks:
+    -   id: style-files
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
+    -   id: use-tidy-description
+    -   id: spell-check
+        exclude: >
+          (?x)^(
+          .*\.[rR]|
+          .*\.feather|
+          .*\.jpeg|
+          .*\.pdf|
+          .*\.png|
+          .*\.py|
+          .*\.RData|
+          .*\.rds|
+          .*\.Rds|
+          .*\.Rproj|
+          .*\.sh|
+          .*\.yml|
+          .*\.yaml|
+          (.*/|)\.gitignore|
+          (.*/|)\.lintr|
+          (.*/|)\.pre-commit-.*|
+          (.*/|)\.Rbuildignore|
+          (.*/|)\.Renviron|
+          (.*/|)\.Rprofile|
+          (.*/|)NAMESPACE|
+          (.*/|)WORDLIST|
+          \.github/.*|
+          data/.*|
+          Makefile|
+          )$
+    -   id: lintr
+    -   id: parsable-R
+    -   id: no-browser-statement
+    -   id: no-print-statement
+        exclude: >
+          (?x)^(
+          tests/.*|
+          vignettes/.*|
+          )$
+    -   id: deps-in-desc
+
+# ── General file quality hooks ───────────────────────────────
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    -   id: check-added-large-files
+        args: ['--maxkb=500']
+    -   id: file-contents-sorter
+        files: '^\.Rbuildignore$'
+    -   id: end-of-file-fixer
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: trailing-whitespace
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: check-yaml
+        args: ['--allow-multiple-documents']
+    -   id: check-merge-conflict
+    -   id: check-case-conflict
+    -   id: detect-private-key
+    -   id: mixed-line-ending
+        args: ['--fix=lf']
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          .*\.rds|
+          .*\.Rds|
+          )$
+    -   id: no-commit-to-branch
+        args: ['--branch', 'main']
+
+# ── Local hooks ──────────────────────────────────────────────
+-   repo: local
+    hooks:
+    -   id: forbid-to-commit
+        name: Don't commit common R artifacts
+        entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
+        language: fail
+        files: '\.(Rhistory|RData|Rds|rds)$'
+        exclude: >
+          (?x)^(
+          inst/.*|
+          example-data/.*|
+          )$
+
+ci:
+    autoupdate_schedule: monthly
+    skip: [spell-check, lintr, no-commit-to-branch]

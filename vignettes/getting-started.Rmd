@@ -1,0 +1,90 @@
+---
+title: "Getting started with the metasurvey ecosystem"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with the metasurvey ecosystem}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+`metasurvey` is a meta-package: a single `library(metasurvey)` loads and
+re-exports the whole ecosystem, in the style of the tidyverse.
+
+```{r}
+library(metasurvey)
+```
+
+## The packages
+
+| Package | Role |
+|---|---|
+| **metasurvey.core** | Local processing engine: `Survey`/`RotativePanelSurvey`/`PoolSurvey`, the step pipeline (`step_compute()`, `step_recode()`, ...), recipes, workflows, and a local recipe/workflow backend. No network or UI dependencies. |
+| **metasurvey.fromstata** | Transpile STATA `.do` scripts into metasurvey recipes with `transpile_stata()`. |
+| **metasurvey.anda** | Download microdata and metadata from ANDA instances (`anda_download_microdata()`, `anda_variables()`). |
+| **metasurvey.explorer.backend** | R client for the recipe/workflow REST API (`api_login()`, `api_publish_recipe()`, `api_list_recipes()`, ...). Registers the providers that let the core backend and ANDA lookups route to the API. |
+| **metasurvey.explorer.frontend** | Optional Shiny explorer UI, launched with `metasurvey.explorer.frontend::explore_recipes()`. |
+| **metasurvey.worker** | Deployable server-side services (Plumber API + compute worker). Not a user-facing R package. |
+
+## A minimal local pipeline
+
+Everything below runs locally, without any network access.
+
+```{r}
+dt <- data.table::fread(
+  system.file("extdata", "ech_2023_sample.csv", package = "metasurvey.core")
+)
+
+svy <- survey_empty(type = "ech", edition = "2023") |>
+  set_data(dt)
+
+# Add a computed variable and materialise it
+svy <- svy |>
+  step_compute(adult = as.integer(e27 >= 18)) |>
+  bake_steps()
+```
+
+## Transpiling STATA
+
+```{r}
+recipe <- transpile_stata("path/to/processing.do", survey_type = "ech")
+```
+
+## Working with the shared registry
+
+The API client and ANDA lookups are wired automatically once
+`metasurvey.explorer.backend` is loaded (which the meta-package does):
+
+```{r}
+configure_api("https://your-metasurvey-api.example.com")
+api_login("you@example.com", "password")
+recipes <- api_list_recipes(survey_type = "ech")
+```
+
+## High-level orchestration
+
+`reproduce_workflow()` ties several packages together: it resolves the weight
+specification (downloading ANDA replicate files if needed), fetches the
+referenced recipes from the backend, and returns a `Survey` ready for
+estimation.
+
+```{r}
+wf <- api_get_workflow("w_123")
+svy <- reproduce_workflow(wf)
+```
+
+## Where to go next
+
+Each package ships its own detailed documentation and vignettes:
+
+- `metasurvey.core`: survey objects, steps, recipes, workflows, complex designs.
+- `metasurvey.fromstata`: the STATA transpiler.
+- `metasurvey.anda`: the ANDA client.
+- `metasurvey.explorer.backend`: the API client.

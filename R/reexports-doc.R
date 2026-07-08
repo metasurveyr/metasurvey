@@ -1,0 +1,14 @@
+# GENERADO por data-raw/generate_reexports.R: no editar a mano.
+
+#' Objects re-exported from the metasurvey ecosystem
+#'
+#' These objects are imported from other packages of the metasurvey
+#' ecosystem and re-exported here so a single library(metasurvey) makes
+#' them available. See their documentation in the source packages:
+#' metasurvey.core, metasurvey.fromstata, metasurvey.anda and
+#' metasurvey.explorer.backend.
+#'
+#' @name reexports
+#' @aliases add_category add_recipe add_replicate add_weight bake_recipes bake_steps cat_design cat_design_type certify_recipe default_categories evaluate_cv extract_surveys extract_time_pattern filter_recipes filter_workflows find_workflows_for_recipe get_backend get_data get_engine get_follow_up get_implantation get_metadata get_recipe get_steps get_workflow_backend group_dates harmonize has_design has_recipes has_steps is_baked lazy_default list_recipes list_workflows load_panel_survey load_survey load_survey_example PoolSurvey provenance provenance_diff provenance_to_json publish_recipe publish_workflow rank_recipes rank_workflows read_recipe read_workflow recipe Recipe recipe_category recipe_certification recipe_user RecipeCategory RecipeCertification RecipeUser RecipeWorkflow remove_category RotativePanelSurvey save_recipe save_workflow search_recipes search_workflows set_backend set_data set_engine set_lazy_processing set_use_copy set_user_info set_version set_workflow_backend show_engines step_collapse step_compute step_filter step_join step_quantile step_recode step_remove step_rename step_validate step_weight steps_to_recipe Survey survey_empty survey_to_data_frame survey_to_data.table survey_to_datatable survey_to_tibble use_copy_default validate_time_pattern view_graph workflow workflow_from_list workflow_table api_approve_user api_comment_recipe api_comment_workflow api_delete_comment api_generate_token api_get_anda_variables api_get_recipe api_get_recipe_comments api_get_recipe_dependents api_get_recipe_stars api_get_workflow api_get_workflow_comments api_get_workflow_stars api_list_recipes api_list_workflows api_login api_logout api_me api_pending_users api_publish_recipe api_publish_workflow api_refresh_token api_register api_reject_user api_star_recipe api_star_workflow configure_api anda_download_microdata anda_variables parse_do_file parse_stata_labels transpile_coverage transpile_stata transpile_stata_module
+#' @keywords internal
+NULL

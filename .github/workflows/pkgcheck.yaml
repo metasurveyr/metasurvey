@@ -1,0 +1,19 @@
+# rOpenSci pkgcheck — runs the same checks used in rOpenSci peer review.
+# https://docs.ropensci.org/pkgcheck/
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+name: pkgcheck
+
+permissions: read-all
+
+jobs:
+  pkgcheck:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: ropensci-review-tools/pkgcheck-action@main

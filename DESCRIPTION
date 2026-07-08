@@ -1,0 +1,73 @@
+Package: metasurvey
+Title: Reproducible Survey Data Processing (Ecosystem Meta-Package)
+Version: 0.3.0
+URL: https://metasurveyr.github.io/metasurvey/,
+    https://github.com/metasurveyr/metasurvey
+BugReports: https://github.com/metasurveyr/metasurvey/issues
+Authors@R:
+    c(
+        person(
+            given = "Mauro",
+            family = "Loprete",
+            role = c("aut", "cre"),
+            email = "mauro.loprete@icloud.com",
+            comment = c(ORCID = "0000-0003-1560-0183")
+        ),
+        person(
+            given = "Natalia",
+            family = "da Silva",
+            role = "aut",
+            email = "natalia.dasilva@fcea.edu.uy",
+            comment = c(ORCID = "0000-0002-6031-7451")
+        ),
+        person(
+            given = "Fabricio",
+            family = "Machado",
+            role = "aut",
+            email = "fabricio.mch.slv@gmail.com",
+            comment = c(ORCID = "0009-0008-2653-9166")
+        )
+    )
+Description: Meta-package that loads and re-exports the 'metasurvey' ecosystem
+    with a single 'library(metasurvey)', in the style of the 'tidyverse'. It
+    bundles the local processing engine ('metasurvey.core'), the STATA
+    transpiler ('metasurvey.fromstata'), the ANDA client ('metasurvey.anda'),
+    and the recipe/workflow API client ('metasurvey.explorer.backend'), plus
+    high-level orchestration such as 'reproduce_workflow()' that spans them.
+License: GPL (>= 3)
+Depends:
+    R (>= 4.1),
+    metasurvey.core
+Imports:
+    metasurvey.anda,
+    metasurvey.fromstata,
+    metasurvey.explorer.backend
+Suggests:
+    metasurvey.explorer.frontend,
+    cli,
+    data.table,
+    glue,
+    gt,
+    htmltools,
+    httr2,
+    jsonlite,
+    lifecycle,
+    methods,
+    tibble,
+    visNetwork,
+    weightflow,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Remotes:
+    metasurveyr/metasurvey.core,
+    metasurveyr/metasurvey.anda,
+    metasurveyr/metasurvey.fromstata,
+    metasurveyr/metasurvey.explorer.backend,
+    metasurveyr/metasurvey.explorer.frontend
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
+VignetteBuilder: knitr
