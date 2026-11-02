@@ -1,12 +1,12 @@
 ^.*\.Rproj$
+^LICENSE\.md$
+^MIGRATION\.md$
 ^\.Rproj\.user$
 ^\.github$
+^\.gitignore$
 ^\.lintr$
 ^\.pre-commit-config\.yaml$
-^\.gitignore$
-^MIGRATION\.md$
-^LICENSE\.md$
 ^_pkgdown\.yml$
+^data-raw$
 ^docs$
 ^pkgdown$
-^data-raw$
